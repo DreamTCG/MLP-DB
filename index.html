@@ -598,7 +598,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
       <button class="hdr-btn primary" onclick="snapshot()">📸 Snapshot</button>
       <button class="hdr-btn" onclick="openExport()">📤 Export</button>
       <button class="hdr-btn" onclick="saveDeck()">💾 Save</button>
-      <button class="hdr-btn" onclick="fi_load.click()">📂 Load</button>
+      <button class="hdr-btn" onclick="document.getElementById('fi-load').click()">📂 Load</button>
     </div>
     <!-- Import bar -->
     <div class="import-wrap">
@@ -607,9 +607,6 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <button class="import-toggle-btn" id="imp-toggle-btn" onclick="toggleImportBar()">▼</button>
       </div>
       <div class="import-btns" id="imp-btns">
-        <button class="imp-btn" onclick="fi_db.click()">📥 JSON</button>
-        <button class="imp-btn" onclick="fi_imgs.click()">🖼 Images</button>
-        <button class="imp-btn" onclick="fi_zip.click()">📦 ZIP</button>
       </div>
     </div>
     <!-- Deck content -->
@@ -750,15 +747,13 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <span class="import-toggle-label">⚙️ Import / Actions</span>
         <button class="import-toggle-btn" id="imp-toggle-btn-m" onclick="toggleImportBar()">▼</button>
       </div>
-      <div class="import-btns" id="imp-btns-m">
-        <button class="imp-btn" onclick="fi_db.click()">📥 JSON</button>
-        <button class="imp-btn" onclick="fi_zip.click()">📦 ZIP</button>
-        <button class="imp-btn" onclick="fi_load.click()">📂 Load Draft</button>
+      <div class="import-btns" <div class="import-btns" id="imp-btns-m">
+        <button class="imp-btn" onclick="document.getElementById('fi-load').click()">📂 Load Draft</button>
         <button class="imp-btn" onclick="saveDeck()">💾 Save Draft</button>
         <button class="imp-btn" onclick="openExport()">📤 Export</button>
       </div>
     </div>
-    <div style="flex:1;overflow-y:auto;padding:10px 10px 72px;">
+    <div id="mob-deck-scroll" style="flex:1id="mob-deck-content" ;overflow-y:auto;padding:10px 10px 72px;">
       <div class="zone-section">
         <div class="zone-hdr">
           <span class="zone-label" style="color:var(--mc-color);">⭐ Main Character</span>
@@ -1526,20 +1521,27 @@ function toggleAnalysisPanel() {
   const panel = document.getElementById('panel-analysis');
   const btn   = document.getElementById('analysis-collapse-btn');
   if (!panel) return;
-  const isOpen = panel.style.width !== '0px';
-  if (isOpen) {
-    panel.style.width    = '0px';
-    panel.style.minWidth = '0px';
-    panel.style.overflow = 'hidden';
+  // Use data attribute as reliable state flag
+  const collapsed = panel.dataset.collapsed === 'true';
+  if (!collapsed) {
+    // Collapse
+    panel.dataset.collapsed = 'true';
+    panel.style.width      = '0px';
+    panel.style.minWidth   = '0px';
+    panel.style.overflow   = 'hidden';
     panel.style.borderLeft = 'none';
+    panel.style.padding    = '0';
     if (btn) btn.textContent = '▶';
   } else {
-    panel.style.width    = '';
-    panel.style.minWidth = '';
-    panel.style.overflow = '';
+    // Expand
+    panel.dataset.collapsed = 'false';
+    panel.style.width      = '';
+    panel.style.minWidth   = '';
+    panel.style.overflow   = '';
     panel.style.borderLeft = '';
+    panel.style.padding    = '';
     if (btn) btn.textContent = '◀';
-    renderAnalysis();
+    requestAnimationFrame(() => renderAnalysis());
   }
 }
 
@@ -1553,22 +1555,38 @@ function toggleImportBar() {
 // SNAPSHOT — Fixed: capture deck-scroll only, no nav overlap
 // ═══════════════════════════════════════════════════════
 function snapshot() {
-  const deckScroll = $('deck-scroll') || $('panel-deck');
+  // Pick correct scroll container for current layout
+  const mob = window.innerWidth < 900;
+  // On mobile, capture the inner scrollable content div of deck page
+  const deckScroll = mob
+    ? ($('mob-deck-content') || document.querySelector('#mob-page-deck > div[style*="overflow-y"]'))
+    : ($('deck-scroll') || $('panel-deck'));
   if (!deckScroll) { toast('⚠ Nothing to capture','warn'); return; }
   toast('📸 Capturing...','ok');
 
-  // Save state
-  const origOF  = deckScroll.style.overflow;
-  const origH   = deckScroll.style.height;
-  const origMaxH= deckScroll.style.maxHeight;
+  // Save original styles
+  const saved = {
+    overflow:  deckScroll.style.overflow,
+    height:    deckScroll.style.height,
+    maxHeight: deckScroll.style.maxHeight,
+    pb:        deckScroll.style.paddingBottom,
+  };
 
-  // Expand to full content
-  deckScroll.style.overflow  = 'visible';
-  deckScroll.style.height    = 'auto';
-  deckScroll.style.maxHeight = 'none';
+  // Expand fully so html2canvas sees entire content
+  deckScroll.style.overflow    = 'visible';
+  deckScroll.style.height      = 'auto';
+  deckScroll.style.maxHeight   = 'none';
+  deckScroll.style.paddingBottom = '0';
 
-  const scrollH  = deckScroll.scrollHeight;
-  const scrollW  = deckScroll.offsetWidth;
+  const scrollH = deckScroll.scrollHeight;
+  const scrollW = deckScroll.offsetWidth || 400;
+
+  const restore = () => {
+    deckScroll.style.overflow     = saved.overflow;
+    deckScroll.style.height       = saved.height;
+    deckScroll.style.maxHeight    = saved.maxHeight;
+    deckScroll.style.paddingBottom= saved.pb;
+  };
 
   requestAnimationFrame(() => requestAnimationFrame(() => {
     html2canvas(deckScroll, {
@@ -1577,28 +1595,27 @@ function snapshot() {
       useCORS: true,
       allowTaint: true,
       logging: false,
-      width:  scrollW,
-      height: scrollH,
+      width:   scrollW,
+      height:  scrollH,
       windowWidth:  scrollW + 40,
       windowHeight: scrollH + 40,
-      x: 0,
-      y: 0,
+      x: 0, y: 0,
+      ignoreElements: el => el.id === 'mobile-nav' || el.id === 'toasts' || el.id === 'zoom-modal',
     }).then(canvas => {
-      // Restore
-      deckScroll.style.overflow  = origOF;
-      deckScroll.style.height    = origH;
-      deckScroll.style.maxHeight = origMaxH;
-      const name = ($('deck-name')||{}).value || 'deck';
+      restore();
+      const name = (($('deck-name')||$('deck-name-m')||{}).value||'deck').replace(/\s+/g,'_');
+      // On mobile, use canvas.toBlob for better compatibility
+      // Always use anchor download (most compatible on mobile browsers)
       const a = document.createElement('a');
       a.href = canvas.toDataURL('image/png');
-      a.download = name.replace(/\s+/g,'_') + '_snapshot.png';
+      a.download = name + '_snapshot.png';
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       toast('✅ Snapshot saved','ok');
     }).catch(err => {
-      deckScroll.style.overflow  = origOF;
-      deckScroll.style.height    = origH;
-      deckScroll.style.maxHeight = origMaxH;
-      toast('❌ Snapshot failed','err');
+      restore();
+      toast('❌ Snapshot failed: '+err.message,'err');
       console.error(err);
     });
   }));
