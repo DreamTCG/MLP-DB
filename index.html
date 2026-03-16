@@ -465,10 +465,31 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
   <div class="zoom-inner" onclick="event.stopPropagation()">
     <div class="zoom-handle"></div>
     <button class="zoom-close" onclick="closeZoom()">✕</button>
+    <!-- Prev / Next navigation -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <button id="zm-prev" onclick="zoomNav(-1)"
+        style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);
+        border-radius:8px;padding:6px 14px;font-size:1rem;cursor:pointer;">◀</button>
+      <span id="zm-index" style="font-size:0.65rem;color:var(--dim);"></span>
+      <button id="zm-next" onclick="zoomNav(1)"
+        style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);
+        border-radius:8px;padding:6px 14px;font-size:1rem;cursor:pointer;">▶</button>
+    </div>
     <div id="zm-img" style="width:160px;height:224px;border-radius:12px;overflow:hidden;margin:0 auto 14px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:3rem;box-shadow:0 8px 24px rgba(0,0,0,0.5);"></div>
     <div id="zm-name" style="font-family:var(--font-head);font-size:1.25rem;text-align:center;margin-bottom:8px;line-height:1.3;"></div>
     <div id="zm-meta" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;"></div>
-    <div id="zm-stats" style="display:flex;justify-content:center;margin-bottom:14px;background:var(--surface2);border-radius:10px;overflow:hidden;"></div>
+    <div id="zm-stats" style="display:flex;justify-content:center;margin-bottom:12px;background:var(--surface2);border-radius:10px;overflow:hidden;"></div>
+    <!-- Qty controls (shown only when card is in deck) -->
+    <div id="zm-qty-row" style="display:none;justify-content:center;align-items:center;gap:12px;margin-bottom:12px;
+      background:var(--surface2);border-radius:10px;padding:8px 16px;">
+      <button id="zm-qty-minus" onclick="zoomQtyChange(-1)"
+        style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(248,113,113,0.2);
+        color:#f87171;font-size:1.1rem;font-weight:800;cursor:pointer;">−</button>
+      <span id="zm-qty-label" style="font-size:0.8rem;font-weight:700;color:var(--text);min-width:80px;text-align:center;"></span>
+      <button id="zm-qty-plus" onclick="zoomQtyChange(1)"
+        style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(74,222,128,0.2);
+        color:#4ade80;font-size:1.1rem;font-weight:800;cursor:pointer;">+</button>
+    </div>
     <div id="zm-ability" style="font-size:0.78rem;color:var(--muted);line-height:1.8;padding:12px;background:var(--surface2);border-radius:10px;"></div>
   </div>
 </div>
@@ -711,7 +732,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <button class="sort-btn" id="sort-btn-m" onclick="toggleSort()" title="Toggle sort">↓</button>
       </div>
     </div>
-    <div style="flex:1;overflow-y:auto;padding:8px 10px;">
+    <div style="flex:1;overflow-y:auto;padding:8px 10px 72px;">
       <div class="card-grid" id="lib-grid-m"></div>
     </div>
   </div>
@@ -737,7 +758,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <button class="imp-btn" onclick="openExport()">📤 Export</button>
       </div>
     </div>
-    <div style="flex:1;overflow-y:auto;padding:10px;">
+    <div style="flex:1;overflow-y:auto;padding:10px 10px 72px;">
       <div class="zone-section">
         <div class="zone-hdr">
           <span class="zone-label" style="color:var(--mc-color);">⭐ Main Character</span>
@@ -771,7 +792,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
 
   <!-- PAGE: Analysis -->
   <div class="mob-page" id="mob-page-analysis">
-    <div style="flex:1;overflow-y:auto;padding:10px;">
+    <div style="flex:1;overflow-y:auto;padding:10px 10px 72px;">
       <div id="analysis-content-m"></div>
     </div>
   </div>
@@ -1023,7 +1044,7 @@ function renderLibrary() {
       }
       const zBtn = document.createElement('button');
       zBtn.className='card-zoom-btn'; zBtn.textContent='🔍';
-      zBtn.onclick=e=>{e.stopPropagation();openZoom(card);};
+      zBtn.onclick=e=>{e.stopPropagation();openZoom(card,cards,'lib');};
       imgWrap.appendChild(zBtn);
       const ctrl = document.createElement('div');
       ctrl.className='card-ctrl';
@@ -1142,7 +1163,7 @@ function makeTile(card, zone) {
   }
   const zBtn=document.createElement('button');
   zBtn.className='card-zoom-btn'; zBtn.textContent='🔍';
-  zBtn.onclick=e=>{e.stopPropagation();openZoom(card);};
+  zBtn.onclick=e=>{e.stopPropagation();openZoom(card,zone==='main'?sortMainCards(state.main):zone==='scene'?state.scene:[card],zone);};
   imgWrap.appendChild(zBtn);
   el.appendChild(imgWrap);
   if(zone==='main'||zone==='scene'){
@@ -1388,7 +1409,48 @@ function storyUpload(input){
 // ═══════════════════════════════════════════════════════
 // ZOOM MODAL
 // ═══════════════════════════════════════════════════════
-function openZoom(card) {
+// ── Zoom context ──
+let _zmCtx = { cards: [], idx: 0, zone: null };
+
+function openZoom(card, ctxCards, ctxZone) {
+  // Build navigation context from caller
+  if (ctxCards && ctxCards.length) {
+    _zmCtx.cards = ctxCards;
+    _zmCtx.idx   = ctxCards.findIndex(c => c.id === card.id);
+    if (_zmCtx.idx < 0) _zmCtx.idx = 0;
+    _zmCtx.zone  = ctxZone || null;
+  } else {
+    // fallback: use current library list
+    _zmCtx.cards = state.library.length ? state.library : [card];
+    _zmCtx.idx   = _zmCtx.cards.findIndex(c => c.id === card.id);
+    if (_zmCtx.idx < 0) { _zmCtx.cards = [card]; _zmCtx.idx = 0; }
+    _zmCtx.zone  = null;
+  }
+  _renderZoom(_zmCtx.cards[_zmCtx.idx]);
+}
+
+function zoomNav(dir) {
+  const len = _zmCtx.cards.length;
+  _zmCtx.idx = (_zmCtx.idx + dir + len) % len;
+  _renderZoom(_zmCtx.cards[_zmCtx.idx]);
+}
+
+function zoomQtyChange(delta) {
+  const card = _zmCtx.cards[_zmCtx.idx];
+  if (!card) return;
+  const zone = _zmCtx.zone;
+  if (delta > 0) {
+    addCard(card);
+  } else {
+    if (zone === 'mc') removeCard('mc', card.id);
+    else if (zone === 'scene') changeQty('scene', card.id, -1);
+    else if (zone === 'story') removeCard('story', card.id);
+    else changeQty('main', card.id, -1);
+  }
+  _renderZoom(card); // refresh qty display
+}
+
+function _renderZoom(card) {
   const RC={CR:'#a78bfa',GR:'#fbbf24',RR:'#f472b6',SR:'#34d399',U:'#60a5fa',C:'#9ca3af',SPR:'#fb923c',ER:'#38bdf8'};
   $('zm-img').innerHTML=card.imageUrl?`<img src="${card.imageUrl}" style="width:100%;height:100%;object-fit:cover">`:`<span>${typeIcon(card.type)}</span>`;
   const rc=RC[card.rarity]||'var(--muted)';
@@ -1404,9 +1466,57 @@ function openZoom(card) {
   if(card.power!=null) stats+=`<div style="flex:1;text-align:center;padding:10px 0"><div style="font-size:1.1rem">⚔️</div><div style="font-size:1rem;font-weight:800">${card.power}</div><div style="font-size:0.6rem;color:var(--dim)">Power</div></div>`;
   $('zm-stats').innerHTML=stats||`<span style="color:var(--dim);font-size:0.8rem;padding:10px">—</span>`;
   $('zm-ability').textContent=card.ability||'(No ability)';
+  // Nav index
+  const navTotal = _zmCtx.cards.length;
+  const navIdx   = _zmCtx.idx;
+  $('zm-index').textContent = navTotal > 1 ? `${navIdx+1} / ${navTotal}` : '';
+  $('zm-prev').style.visibility = navTotal > 1 ? 'visible' : 'hidden';
+  $('zm-next').style.visibility = navTotal > 1 ? 'visible' : 'hidden';
+
+  // Qty controls
+  const inDeck = getDeckQty(card);
+  const qtyRow = $('zm-qty-row');
+  const qtyLbl = $('zm-qty-label');
+  const qtyMinus = $('zm-qty-minus');
+  const qtyPlus  = $('zm-qty-plus');
+  if (inDeck > 0 || card.type === 'Main Character' || card.type === 'Story') {
+    qtyRow.style.display = 'flex';
+    if (card.type === 'Main Character') {
+      qtyLbl.textContent = inDeck ? '⭐ In Deck' : 'Not in Deck';
+      qtyMinus.disabled = !inDeck;
+      qtyPlus.disabled  = !!inDeck;
+    } else if (card.type === 'Story') {
+      qtyLbl.textContent = inDeck ? `📖 Tier ${card.story_stage}` : 'Not in Deck';
+      qtyMinus.disabled = !inDeck;
+      qtyPlus.disabled  = !!inDeck;
+    } else {
+      const maxed = card.type !== 'Scene' && inDeck >= 4;
+      qtyLbl.textContent = inDeck ? `× ${inDeck} in Deck` : 'Not in Deck';
+      qtyMinus.disabled = inDeck <= 0;
+      qtyPlus.disabled  = maxed;
+    }
+  } else {
+    qtyRow.style.display = 'none';
+  }
+
   $('zoom-modal').style.display='flex';
 }
 function closeZoom() { $('zoom-modal').style.display='none'; }
+
+// Touch swipe on zoom modal
+(function(){
+  let _tx=0;
+  const modal = document.getElementById('zoom-modal');
+  if (!modal) return;
+  modal.addEventListener('touchstart',e=>{_tx=e.touches[0].clientX;},{passive:true});
+  modal.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-_tx;
+    if(Math.abs(dx)>50 && _zmCtx.cards.length>1){
+      zoomNav(dx<0?1:-1);
+      e.stopPropagation();
+    }
+  },{passive:true});
+})();
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeZoom();closeExport();} });
 
 // ═══════════════════════════════════════════════════════
