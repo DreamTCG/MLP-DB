@@ -1,0 +1,2606 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MLP Deck Builder — Mobile</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0f0820; --surface: #1a1030; --surface2: #221540;
+  --border:  #2e1f55; --border2: #3d2a6e;
+  --text:    #f0e6ff; --muted:   #9d8ec4; --dim: #5c4d8a;
+  --purple:  #7c3aed; --purple-light: #a78bfa;
+  --pink:    #ec4899; --gold: #fbbf24; --green: #4ade80;
+  --mc-color:#ec4899; --main-color:#a855f7;
+  --scene-color:#0ea5e9; --story-color:#f59e0b;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html, body { height: 100%; overflow: hidden; background: var(--bg); font-family: 'Nunito', sans-serif; color: var(--text); }
+
+/* ── APP SHELL ── */
+.app-shell {
+  display: flex; flex-direction: column;
+  height: 100vh; height: 100dvh;
+  overflow: hidden;
+}
+
+/* ── HEADER ── */
+.mob-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0; gap: 10px;
+}
+.mob-logo { font-family: 'Fredoka One'; font-size: 1.1rem; color: var(--purple-light); white-space: nowrap; }
+.mob-deck-name {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 5px 10px; color: var(--text);
+  font-family: 'Nunito'; font-size: 0.85rem; font-weight: 700; min-width: 0;
+}
+.mob-hdr-btn {
+  background: var(--surface2); border: 1px solid var(--border2);
+  color: var(--muted); border-radius: 8px; padding: 5px 10px;
+  font-size: 0.8rem; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+}
+
+/* ── CONTENT AREA ── */
+.mob-content {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── BOTTOM NAV ── */
+.mob-nav {
+  display: flex; border-top: 1px solid var(--border);
+  background: var(--surface); flex-shrink: 0;
+  padding-bottom: var(--safe-bottom);
+}
+.mob-nav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 8px 4px 6px; background: none; border: none; color: var(--muted);
+  font-family: 'Nunito'; font-size: 0.6rem; font-weight: 700; cursor: pointer;
+  gap: 2px; transition: color 0.15s;
+}
+.mob-nav-btn .nav-icon { font-size: 1.35rem; line-height: 1; }
+.mob-nav-btn.active { color: var(--purple-light); }
+.mob-nav-btn.active .nav-icon { filter: drop-shadow(0 0 6px rgba(167,139,250,0.7)); }
+
+/* ── PAGES ── */
+.mob-page { display: none; padding: 12px; min-height: 100%; }
+.mob-page.active { display: block; }
+
+/* ── ZONE SECTION ── */
+.zone-section { margin-bottom: 18px; }
+.zone-hdr {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+  padding-bottom: 6px; border-bottom: 1px solid var(--border);
+}
+.zone-hdr-label {
+  font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.zone-chip {
+  font-size: 0.65rem; font-weight: 700; padding: 2px 8px;
+  border-radius: 10px; background: var(--surface2); border: 1px solid var(--border2);
+}
+.zone-chip.ok  { background: rgba(74,222,128,0.1); border-color: #4ade8055; color: var(--green); }
+.zone-chip.warn{ background: rgba(251,191,36,0.1);  border-color: #fbbf2455; color: var(--gold); }
+.zone-chip.err { background: rgba(248,113,113,0.1); border-color: #f8717155; color: #f87171; }
+
+/* ── MC SLOT ── */
+.mc-card-slot {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--surface); border: 1px solid var(--border2); border-radius: 12px;
+  padding: 12px;
+}
+.mc-img-box {
+  width: 90px; height: 126px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
+  background: var(--surface2); border: 2px dashed var(--border2);
+  display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+}
+.mc-img-box.filled { border-style: solid; border-color: var(--mc-color); }
+.mc-img-box img { width: 100%; height: 100%; object-fit: cover; }
+.mc-info { flex: 1; min-width: 0; }
+.mc-name { font-family: 'Fredoka One'; font-size: 1rem; color: var(--text); margin-bottom: 4px; }
+.mc-meta { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.mc-ability { font-size: 0.72rem; color: var(--muted); line-height: 1.6; }
+.mc-remove-btn {
+  background: rgba(248,113,113,0.15); border: 1px solid #f8717155;
+  color: #f87171; border-radius: 6px; padding: 4px 10px;
+  font-size: 0.72rem; cursor: pointer; margin-top: 8px;
+}
+
+/* ── CARD GRIDS ── */
+.mob-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+}
+.mob-card-tile {
+  position: relative; border-radius: 8px; overflow: visible;
+  background: var(--surface2); border: 1px solid var(--border2);
+  display: flex; flex-direction: column;
+}
+.mob-card-tile-img {
+  position: relative; border-radius: 8px 8px 0 0; overflow: hidden;
+  aspect-ratio: 5/7; flex-shrink: 0;
+}
+.mob-card-tile-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mob-card-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+/* qty badge: circle overlaid on image top-right */
+.mob-card-qty {
+  position: absolute; top: 4px; right: 4px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(109,40,217,0.9); color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  font-size: 0.62rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 5; line-height: 1;
+}
+/* bottom control bar — always visible */
+.mob-card-ctrl {
+  display: flex; align-items: center; justify-content: center; gap: 3px;
+  padding: 3px;
+  background: var(--surface); border-top: 1px solid var(--border2);
+  border-radius: 0 0 8px 8px; flex-shrink: 0;
+}
+.mob-card-ctrl button {
+  flex: 1; height: 22px; border-radius: 5px; border: none;
+  font-size: 0.85rem; font-weight: 800; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.15s;
+}
+/* active state */
+.mob-card-ctrl .btn-minus         { background: rgba(248,113,113,0.18); color: #f87171; }
+.mob-card-ctrl .btn-plus          { background: rgba(74,222,128,0.18);  color: #4ade80; }
+.mob-card-ctrl .btn-rm            { background: rgba(248,113,113,0.12); color: #f87171; font-size: 0.65rem; max-width: 26px; flex: none; }
+/* disabled = faded, no pointer */
+.mob-card-ctrl button:disabled,
+.mob-card-ctrl button[disabled]   { opacity: 0.2; cursor: default; }
+
+/* ── SCENE CARDS (wider) ── */
+.mob-scene-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
+}
+.mob-scene-tile {
+  position: relative; border-radius: 8px; overflow: hidden;
+  background: var(--surface2); border: 1px solid #075985;
+  aspect-ratio: 5/7; cursor: zoom-in;
+}
+.mob-scene-tile img { width: 100%; height: 100%; object-fit: cover; }
+.mob-scene-tile .mob-card-ph { font-size: 1.5rem; }
+
+/* ── STORY GRID ── */
+.mob-story-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+.mob-story-slot {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 10px; overflow: hidden; position: relative;
+}
+.mob-story-tier {
+  font-size: 0.6rem; font-weight: 800; color: var(--story-color);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 8px; background: rgba(245,158,11,0.08);
+  border-bottom: 1px solid var(--border2);
+}
+.mob-story-img {
+  aspect-ratio: 5/3; display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; background: var(--surface2); position: relative; cursor: pointer;
+}
+.mob-story-img img { width: 100%; height: 100%; object-fit: cover; }
+.mob-story-rm {
+  position: absolute; top: 4px; right: 4px;
+  background: rgba(0,0,0,0.6); color: #f87171; border: none;
+  width: 22px; height: 22px; border-radius: 50%; font-size: 0.65rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+
+/* ── LIBRARY PAGE ── */
+.lib-search-bar {
+  display: flex; gap: 8px; margin-bottom: 10px;
+}
+.lib-search-input {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 8px 12px; color: var(--text);
+  font-family: 'Nunito'; font-size: 0.85rem;
+}
+.lib-filter-row {
+  display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  margin-bottom: 10px;
+}
+.lib-filter-row::-webkit-scrollbar { display: none; }
+.lib-chip {
+  white-space: nowrap; font-size: 0.7rem; font-weight: 700;
+  padding: 4px 12px; border-radius: 20px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  color: var(--muted); cursor: pointer; flex-shrink: 0;
+}
+.lib-chip.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+.dd-item {
+  display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px;
+  font-size:0.75rem; color:var(--text); cursor:pointer; font-family:'Nunito'; font-weight:600;
+}
+.dd-item:hover { background:var(--surface2); }
+.dd-item input[type=checkbox] { accent-color:var(--purple); width:14px; height:14px; cursor:pointer; }
+.lib-card-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px;
+}
+.lib-card-tile {
+  position: relative; border-radius: 8px; overflow: visible;
+  background: var(--surface2); border: 1px solid var(--border2);
+  display: flex; flex-direction: column; cursor: pointer;
+}
+.lib-card-tile-img {
+  position: relative; border-radius: 8px 8px 0 0; overflow: hidden;
+  aspect-ratio: 5/7; flex-shrink: 0;
+}
+.lib-card-tile-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* lib-card-tile img handled by lib-card-tile-img */
+.lib-card-ph { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 4px; }
+.lib-card-ph .lib-icon { font-size: 1.2rem; }
+.lib-card-ph .lib-name { font-size: 0.5rem; font-weight: 700; text-align: center; color: var(--muted); line-height: 1.2; word-break: break-word; }
+.lib-card-badge {
+  position: absolute; top: 4px; right: 4px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(109,40,217,0.9); color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  font-size: 0.62rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 5; line-height: 1;
+}
+.lib-add-overlay {
+  position: absolute; inset: 0; background: rgba(124,58,237,0.8);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; opacity: 0; transition: opacity 0.15s;
+}
+.lib-card-tile:active .lib-add-overlay { opacity: 1; }
+
+/* ── ANALYSIS ── */
+.analysis-card {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 12px; margin-bottom: 12px;
+}
+.analysis-title {
+  font-size: 0.68rem; font-weight: 800; color: var(--muted);
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px;
+}
+.stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.stat-label { font-size: 0.72rem; color: var(--muted); }
+.stat-val { font-size: 0.78rem; font-weight: 700; color: var(--text); }
+
+/* ── IMPORT BAR ── */
+.import-bar {
+  display: flex; gap: 6px; padding: 8px 12px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  flex-shrink: 0; align-items: center; overflow-x: auto;
+  scrollbar-width: none;
+}
+.import-bar::-webkit-scrollbar { display: none; }
+.imp-btn {
+  white-space: nowrap; background: var(--surface2); border: 1px solid var(--border2);
+  color: var(--muted); border-radius: 6px; padding: 4px 10px;
+  font-size: 0.72rem; font-family: 'Nunito'; font-weight: 700; cursor: pointer;
+}
+
+/* ── ZOOM MODAL ── */
+#mob-zoom-modal {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.88); align-items: flex-end; justify-content: center;
+}
+.mob-zoom-inner {
+  background: var(--surface); border-top: 1px solid var(--border2);
+  border-radius: 20px 20px 0 0;
+  padding: 8px 20px 36px; width: 100%; max-width: 480px;
+  position: relative; max-height: 92vh; overflow-y: auto;
+  box-shadow: 0 -12px 48px rgba(0,0,0,0.7);
+  animation: zoomSlideUp 0.22s ease;
+}
+@keyframes zoomSlideUp {
+  from { transform: translateY(60px); opacity:0; }
+  to   { transform: translateY(0);    opacity:1; }
+}
+.mob-zoom-close {
+  position: absolute; top: 14px; right: 14px;
+  background: var(--surface2); border: none; color: var(--muted);
+  width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+  font-size: 0.9rem; display: flex; align-items: center; justify-content: center;
+}
+.card-zoom-btn {
+  position: absolute; bottom: 4px; right: 4px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2);
+  color: #fff; font-size: 0.65rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10; line-height: 1; padding: 0;
+}
+.card-zoom-btn:active { background: var(--purple); }
+
+/* ── TOAST ── */
+.toast-wrap { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 6px; align-items: center; pointer-events: none; }
+.toast { background: var(--surface2); border: 1px solid var(--border2); border-radius: 20px; padding: 8px 16px; font-size: 0.8rem; font-weight: 700; color: var(--text); opacity: 0; transform: translateY(8px); transition: all 0.25s; white-space: nowrap; }
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.t-ok   { border-color: #4ade8055; color: var(--green); }
+.toast.t-warn { border-color: #fbbf2455; color: var(--gold); }
+.toast.t-err  { border-color: #f8717155; color: #f87171; }
+
+/* ── TYPE PILLS ── */
+.type-pill { font-size: 0.6rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; }
+.tp-ch { background:rgba(167,139,250,0.15); color:#a78bfa; }
+.tp-ev { background:rgba(251,146,60,0.15);  color:#fb923c; }
+.tp-it { background:rgba(52,211,153,0.15);  color:#34d399; }
+.tp-sc { background:rgba(56,189,248,0.15);  color:#38bdf8; }
+.tp-mc { background:rgba(236,72,153,0.15);  color:#ec4899; }
+
+/* ── VALIDATION ROW (compact) ── */
+.val-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.dot-ok  { background: #4ade80; }
+.dot-w   { background: var(--dim); }
+.dot-e   { background: #f87171; }
+
+/* ── EMPTY STATE ── */
+.empty-zone { text-align: center; padding: 28px 16px; color: var(--muted); }
+.empty-zone .ei { font-size: 2rem; margin-bottom: 8px; }
+.empty-zone p { font-size: 0.8rem; line-height: 1.6; }
+
+/* ── EXPORT MODAL ── */
+.modal-overlay { display:none; position:fixed; inset:0; z-index:400; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; padding:16px; }
+.modal-overlay.open { display:flex; }
+.modal-box { background:var(--surface); border:1px solid var(--border2); border-radius:16px; padding:20px; width:100%; max-width:480px; }
+.modal-title { font-family:'Fredoka One'; font-size:1.1rem; margin-bottom:12px; }
+textarea { width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:8px; color:var(--text); font-family:monospace; font-size:0.75rem; padding:10px; resize:vertical; }
+.btn { display:inline-flex; align-items:center; gap:6px; border:none; border-radius:8px; padding:8px 14px; font-family:'Nunito'; font-weight:800; font-size:0.82rem; cursor:pointer; }
+.btn-primary { background:linear-gradient(135deg,var(--purple),var(--pink)); color:#fff; }
+.btn-secondary { background:var(--surface2); border:1px solid var(--border2); color:var(--muted); }
+</style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+
+<!-- Toast -->
+<div class="toast-wrap" id="toasts"></div>
+
+<!-- Zoom Modal -->
+<div id="mob-zoom-modal" onclick="closeMobZoom()">
+  <div class="mob-zoom-inner" onclick="event.stopPropagation()">
+    <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:8px auto 16px;"></div>
+    <button class="mob-zoom-close" onclick="closeMobZoom()">✕</button>
+    <div id="mzm-img" style="width:160px;height:224px;border-radius:12px;overflow:hidden;margin:0 auto 14px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:3rem;box-shadow:0 8px 24px rgba(0,0,0,0.5);flex-shrink:0;"></div>
+    <div id="mzm-name" style="font-family:'Fredoka One';font-size:1.25rem;text-align:center;margin-bottom:8px;line-height:1.3;"></div>
+    <div id="mzm-meta" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;"></div>
+    <div id="mzm-stats" style="display:flex;gap:0;justify-content:center;margin-bottom:14px;background:var(--surface2);border-radius:10px;overflow:hidden;"></div>
+    <div id="mzm-ability" style="font-size:0.78rem;color:var(--muted);line-height:1.8;padding:12px;background:var(--surface2);border-radius:10px;"></div>
+  </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal-box">
+    <div class="modal-title">📤 Export Decklist</div>
+    <textarea id="export-text" rows="10" readonly></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="copyExport()">📋 Copy</button>
+      <button class="btn btn-secondary" onclick="closeExport()">✕ ปิด</button>
+    </div>
+  </div>
+</div>
+
+<!-- App Shell -->
+<div class="app-shell">
+
+  <!-- Header -->
+  <header class="mob-header">
+    <div class="mob-logo">🌈 MLP</div>
+    <input class="mob-deck-name" id="deck-name" value="My Deck" placeholder="ชื่อเด็ค...">
+    <button class="mob-hdr-btn" onclick="openExport()">📤</button>
+    <button class="mob-hdr-btn" onclick="saveDeck()">💾</button>
+  </header>
+
+  <!-- Import Bar (collapsible) -->
+  <div id="import-bar-wrap" style="background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;">
+    <input type="file" id="fi-db"    accept=".json"   style="display:none;" onchange="importJSON(this)">
+    <input type="file" id="fi-imgs"  accept="image/*" multiple style="display:none;" onchange="importImages(this)">
+    <input type="file" id="fi-zip"   accept=".zip"    style="display:none;" onchange="importZip(this)">
+    <input type="file" id="fi-load"  accept=".json"   style="display:none;" onchange="loadDeck(this)">
+    <input type="file" id="fi-story" accept="image/*" style="display:none;" onchange="storyUpload(this)">
+    <!-- Toggle row -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 12px;">
+      <span style="font-size:0.7rem;color:var(--dim);font-weight:700;">⚙️ นำเข้า / บันทึก</span>
+      <button onclick="toggleImportBar()" id="import-toggle-btn"
+        style="background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:2px 6px;border-radius:6px;">▼</button>
+    </div>
+    <!-- Expandable buttons -->
+    <div id="import-bar-btns" style="display:none;padding:0 12px 8px;display:none;flex-wrap:wrap;gap:6px;">
+      <button class="imp-btn" onclick="document.getElementById('fi-db').click()">📥 JSON</button>
+      <button class="imp-btn" onclick="document.getElementById('fi-imgs').click()">🖼️ รูป</button>
+      <button class="imp-btn" onclick="document.getElementById('fi-zip').click()">📦 ZIP</button>
+      <button class="imp-btn" onclick="document.getElementById('fi-load').click()">📂 โหลด Draft</button>
+      <button class="imp-btn" onclick="saveDeck()">💾 บันทึก Draft</button>
+      <button class="imp-btn" onclick="openExport()">📤 Export</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="mob-content" id="mob-content">
+
+    <!-- PAGE: Deck (MC + Main + Scene) -->
+    <div class="mob-page" id="page-deck">
+
+      <!-- Deck action bar -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button onclick="mobClearDeck()" style="
+            background:var(--surface2);border:1px solid var(--border2);
+            border-radius:10px;color:#f87171;
+            padding:7px 14px;font-size:0.8rem;font-weight:800;
+            font-family:'Nunito';cursor:pointer;display:flex;align-items:center;gap:5px;">
+            🗑️ Clear
+          </button>
+          <div id="mob-color-lock" style="
+            font-size:0.7rem;font-weight:700;font-family:'Nunito';
+            color:var(--muted);display:flex;align-items:center;">
+          </div>
+        </div>
+        <button onclick="mobSnapshot()" style="
+          background:linear-gradient(135deg,var(--purple),var(--pink));
+          border:none;border-radius:10px;color:#fff;
+          padding:7px 16px;font-size:0.8rem;font-weight:800;
+          font-family:'Nunito';cursor:pointer;display:flex;align-items:center;gap:6px;">
+          📸 Snapshot
+        </button>
+      </div>
+
+      <!-- MC Zone -->
+      <div class="zone-section">
+        <div class="zone-hdr">
+          <span class="zone-hdr-label" style="color:var(--mc-color);">⭐ Main Character</span>
+          <span class="zone-chip warn" id="mob-zc-mc">ยังไม่ได้เลือก</span>
+        </div>
+        <div id="mob-mc-slot">
+          <div class="mob-card-ph" style="border:2px dashed var(--border2);border-radius:12px;height:110px;font-size:1.5rem;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:0.85rem;">
+            🌟 เลือก Main Character จาก Library
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Deck Zone -->
+      <div class="zone-section">
+        <div class="zone-hdr">
+          <span class="zone-hdr-label" style="color:var(--main-color);">🃏 Main Deck</span>
+          <span class="zone-chip warn" id="mob-zc-main">0 / 50</span>
+        </div>
+        <div id="mob-main-cards">
+          <div class="empty-zone"><div class="ei">🃏</div><p>เพิ่มการ์ดจาก Library</p></div>
+        </div>
+      </div>
+
+      <!-- Scene Zone -->
+      <div class="zone-section">
+        <div class="zone-hdr">
+          <span class="zone-hdr-label" style="color:var(--scene-color);">🎭 Scene Deck</span>
+          <span class="zone-chip ok" id="mob-zc-scene">ไม่จำกัด</span>
+        </div>
+        <div id="mob-scene-cards">
+          <div class="empty-zone"><div class="ei">🎭</div><p>เพิ่ม Scene card จาก Library</p></div>
+        </div>
+      </div>
+
+      <!-- Story Zone (merged into Deck page) -->
+      <div class="zone-section">
+        <div class="zone-hdr">
+          <span class="zone-hdr-label" style="color:var(--story-color);">📖 Story Deck</span>
+          <span class="zone-chip warn" id="mob-zc-story">0 / 4</span>
+        </div>
+        <div class="mob-story-grid" id="mob-story-grid"></div>
+        <div id="mob-story-warn" style="margin-top:6px;font-size:0.72rem;color:var(--gold);"></div>
+      </div>
+
+    </div>
+
+    <!-- PAGE: Library -->
+    <div class="mob-page active" id="page-lib">
+      <div class="lib-search-bar">
+        <input class="lib-search-input" id="lib-search" placeholder="ค้นหาการ์ด..." oninput="renderMobLibrary()">
+      </div>
+      <!-- Filter + Sort bar -->
+      <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center;">
+        <div style="position:relative;flex:1;">
+          <button onclick="toggleDropdown('dd-type')"
+            style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:7px 10px;font-size:0.72rem;font-weight:700;font-family:'Nunito';cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+            <span id="dd-type-label">Type</span><span style="font-size:0.6rem;">▼</span>
+          </button>
+          <div id="dd-type" style="display:none;position:absolute;top:calc(100% + 4px);left:0;min-width:140px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;z-index:200;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+            <label class="dd-item"><input type="checkbox" value="Character"      onchange="applyDropFilter()"> Character</label>
+            <label class="dd-item"><input type="checkbox" value="Event"          onchange="applyDropFilter()"> Event</label>
+            <label class="dd-item"><input type="checkbox" value="Item"           onchange="applyDropFilter()"> Item</label>
+            <label class="dd-item"><input type="checkbox" value="Scene"          onchange="applyDropFilter()"> Scene</label>
+            <label class="dd-item"><input type="checkbox" value="Main Character" onchange="applyDropFilter()"> Main Char</label>
+            <label class="dd-item"><input type="checkbox" value="Story"          onchange="applyDropFilter()"> Story</label>
+          </div>
+        </div>
+        <div style="position:relative;flex:1;">
+          <button onclick="toggleDropdown('dd-color')"
+            style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:7px 10px;font-size:0.72rem;font-weight:700;font-family:'Nunito';cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+            <span id="dd-color-label">Color</span><span style="font-size:0.6rem;">▼</span>
+          </button>
+          <div id="dd-color" style="display:none;position:absolute;top:calc(100% + 4px);left:0;min-width:140px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;z-index:200;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+            <label class="dd-item"><input type="checkbox" value="Purple" onchange="applyDropFilter()"> 🌟 Purple</label>
+            <label class="dd-item"><input type="checkbox" value="Indigo" onchange="applyDropFilter()"> 💎 Indigo</label>
+            <label class="dd-item"><input type="checkbox" value="Yellow" onchange="applyDropFilter()"> 🦋 Yellow</label>
+            <label class="dd-item"><input type="checkbox" value="Pink"   onchange="applyDropFilter()"> 🎈 Pink</label>
+            <label class="dd-item"><input type="checkbox" value="Orange" onchange="applyDropFilter()"> 🍎 Orange</label>
+            <label class="dd-item"><input type="checkbox" value="Blue"   onchange="applyDropFilter()"> ⚡ Blue</label>
+            <label class="dd-item"><input type="checkbox" value="White"  onchange="applyDropFilter()"> ⬜ White</label>
+          </div>
+        </div>
+        <div style="position:relative;flex:1;">
+          <button onclick="toggleDropdown('dd-rarity')"
+            style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:7px 10px;font-size:0.72rem;font-weight:700;font-family:'Nunito';cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+            <span id="dd-rarity-label">Rarity</span><span style="font-size:0.6rem;">▼</span>
+          </button>
+          <div id="dd-rarity" style="display:none;position:absolute;top:calc(100% + 4px);right:0;min-width:110px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;z-index:200;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+            <label class="dd-item"><input type="checkbox" value="CR"  onchange="applyDropFilter()"> CR</label>
+            <label class="dd-item"><input type="checkbox" value="GR"  onchange="applyDropFilter()"> GR</label>
+            <label class="dd-item"><input type="checkbox" value="RR"  onchange="applyDropFilter()"> RR</label>
+            <label class="dd-item"><input type="checkbox" value="SR"  onchange="applyDropFilter()"> SR</label>
+            <label class="dd-item"><input type="checkbox" value="U"   onchange="applyDropFilter()"> U</label>
+            <label class="dd-item"><input type="checkbox" value="C"   onchange="applyDropFilter()"> C</label>
+            <label class="dd-item"><input type="checkbox" value="SPR" onchange="applyDropFilter()"> SPR</label>
+          </div>
+        </div>
+        <div style="position:relative;flex:1;">
+          <button onclick="toggleDropdown('dd-deck')"
+            style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:7px 10px;font-size:0.72rem;font-weight:700;font-family:'Nunito';cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+            <span id="dd-deck-label">Set</span><span style="font-size:0.6rem;">▼</span>
+          </button>
+          <div id="dd-deck" style="display:none;position:absolute;top:calc(100% + 4px);right:0;min-width:120px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;z-index:200;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+            <label class="dd-item"><input type="checkbox" value="SD01"  onchange="applyDropFilter()"> SD01</label>
+            <label class="dd-item"><input type="checkbox" value="SD01A" onchange="applyDropFilter()"> SD01A</label>
+            <label class="dd-item"><input type="checkbox" value="SD01B" onchange="applyDropFilter()"> SD01B</label>
+            <label class="dd-item"><input type="checkbox" value="SD01C" onchange="applyDropFilter()"> SD01C</label>
+            <label class="dd-item"><input type="checkbox" value="SD01D" onchange="applyDropFilter()"> SD01D</label>
+            <label class="dd-item"><input type="checkbox" value="SD01E" onchange="applyDropFilter()"> SD01E</label>
+            <label class="dd-item"><input type="checkbox" value="SD01F" onchange="applyDropFilter()"> SD01F</label>
+          </div>
+        </div>
+        <button id="sort-dir-btn" onclick="toggleSortDir()" title="สลับ Ascending/Descending"
+          style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:7px 11px;font-size:1rem;cursor:pointer;flex-shrink:0;">↓</button>
+      </div>
+      <div class="lib-card-grid" id="mob-library"></div>
+    </div>
+
+    <!-- PAGE: Analysis -->
+    <div class="mob-page" id="page-analysis">
+      <div id="mob-analysis-content">
+        <div class="empty-zone"><div class="ei">📊</div><p>เพิ่มการ์ดใน Main Deck เพื่อดูสถิติ</p></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="mob-nav">
+    <button class="mob-nav-btn active" id="nav-lib" onclick="switchMobPage('lib')">
+      <span class="nav-icon">📚</span>Library
+    </button>
+    <button class="mob-nav-btn" id="nav-deck" onclick="switchMobPage('deck')">
+      <span class="nav-icon">🃏</span>Deck
+    </button>
+    <button class="mob-nav-btn" id="nav-analysis" onclick="switchMobPage('analysis')">
+      <span class="nav-icon">📊</span>Analysis
+    </button>
+  </nav>
+
+</div>
+
+
+
+<!-- Header -->
+<header>
+  <div>
+    <div class="logo">🌈 MLP Deck Builder</div>
+    <div class="logo-sub">My Little Pony Card Game — KAYOU</div>
+  </div>
+  <div class="hdr-actions">
+    <input class="deck-name-input" id="deck-name" value="My Deck" placeholder="Deck name..." />
+    <button class="btn btn-secondary btn-sm" onclick="clearDeck()">🗑 Clear</button>
+    <button class="btn btn-primary btn-sm" onclick="openExport()">📤 Export</button>
+  </div>
+</header>
+
+<div class="app-layout">
+
+  <!-- ══ LEFT SIDEBAR — Deck zones summary ══ -->
+  <aside class="sidebar-left">
+
+    <!-- Tab switcher -->
+    <div style="display:flex;border-bottom:1px solid var(--border);flex-shrink:0;">
+      <button id="tab-deck-btn" onclick="switchSideTab('deck')" style="flex:1;padding:9px 4px;background:var(--surface);border:none;color:var(--text);font-size:0.78rem;font-weight:700;cursor:pointer;border-bottom:2px solid var(--purple);opacity:1;">🃏 Deck</button>
+      <button id="tab-analysis-btn" onclick="switchSideTab('analysis')" style="flex:1;padding:9px 4px;background:var(--surface);border:none;color:var(--muted);font-size:0.78rem;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;">📊 Analysis</button>
+    </div>
+
+    <!-- DECK TAB -->
+    <div id="tab-deck" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+    <div class="sb-section">
+      <div class="zone-card zone-mc active" id="zone-mc" onclick="switchZone('mc')">
+        <div class="zone-top">
+          <span class="zone-name">⭐ Main Character</span>
+          <span class="zone-count" id="zc-mc" style="color:var(--mc-color)">0<span style="font-size:0.65rem; opacity:0.6">/1</span></span>
+        </div>
+        <div class="zone-bar-bg"><div class="zone-bar" id="zb-mc" style="width:0%; background:var(--mc-color)"></div></div>
+      </div>
+
+      <div class="zone-card zone-main" id="zone-main" onclick="switchZone('main')">
+        <div class="zone-top">
+          <span class="zone-name">🃏 Main Deck</span>
+          <span class="zone-count" id="zc-main" style="color:var(--main-color)">0<span style="font-size:0.65rem; opacity:0.6">/50</span></span>
+        </div>
+        <div class="zone-bar-bg"><div class="zone-bar" id="zb-main" style="width:0%; background:var(--main-color)"></div></div>
+      </div>
+
+      <div class="zone-card zone-scene" id="zone-scene" onclick="switchZone('scene')">
+        <div class="zone-top">
+          <span class="zone-name">🎭 Scene Deck</span>
+          <span class="zone-count" id="zc-scene" style="color:var(--scene-color)">0</span>
+        </div>
+        <div class="zone-bar-bg"><div class="zone-bar" id="zb-scene" style="width:100%; background:var(--scene-color)"></div></div>
+      </div>
+
+      <div class="zone-card zone-story" id="zone-story" onclick="switchZone('story')">
+        <div class="zone-top">
+          <span class="zone-name">📖 Story Deck</span>
+          <span class="zone-count" id="zc-story" style="color:var(--story-color)">0<span style="font-size:0.65rem; opacity:0.6">/4</span></span>
+        </div>
+        <div class="zone-bar-bg"><div class="zone-bar" id="zb-story" style="width:0%; background:var(--story-color)"></div></div>
+      </div>
+    </div>
+
+    <!-- Validation (compact icon row) -->
+    <div class="sb-section" style="padding:8px 12px;">
+      <div style="display:flex;gap:6px;align-items:center;">
+        <div class="val-dot dot-w" id="vdot-mc" title="Main Character: ยังไม่ได้เลือก" style="cursor:default;width:10px;height:10px;border-radius:50%;flex-shrink:0;"></div>
+        <div class="val-dot dot-w" id="vdot-main" title="Main Deck: 0/50" style="cursor:default;width:10px;height:10px;border-radius:50%;flex-shrink:0;"></div>
+        <div class="val-dot dot-ok" id="vdot-scene" title="Scene Deck: ✓ ไม่จำกัด" style="cursor:default;width:10px;height:10px;border-radius:50%;flex-shrink:0;"></div>
+        <div class="val-dot dot-w" id="vdot-story" title="Story Deck: 0/4" style="cursor:default;width:10px;height:10px;border-radius:50%;flex-shrink:0;"></div>
+        <span id="val-summary" style="font-size:0.68rem;color:var(--muted);margin-left:2px;">Hover เพื่อดูรายละเอียด</span>
+        <div id="val-box" style="display:none;"></div>
+        <span id="val-mc" style="display:none;"></span>
+        <span id="val-main" style="display:none;"></span>
+        <span id="val-scene" style="display:none;"></span>
+        <span id="val-story" style="display:none;"></span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="sb-actions">
+      <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="openExport()">📤 Export Decklist</button>
+      <button class="btn btn-secondary" style="width:100%; justify-content:center;" onclick="saveImage()">📸 Save as Image</button>
+      <button class="btn btn-secondary" style="width:100%; justify-content:center;" onclick="saveDeck()">💾 Save Draft</button>
+      <input type="file" id="fi-load" accept=".json" style="display:none;" onchange="loadDeck(this)">
+      <button class="btn btn-secondary" style="width:100%; justify-content:center;" onclick="document.getElementById('fi-load').click()">📂 Load Draft</button>
+    </div>
+    </div><!-- /tab-deck -->
+
+    <!-- ANALYSIS TAB -->
+    <div id="tab-analysis" style="display:none;flex-direction:column;flex:1;overflow-y:auto;padding:12px;gap:12px;">
+      <div id="analysis-content"><div style="color:var(--muted);font-size:0.8rem;padding:16px 0;text-align:center;">เพิ่มการ์ดใน Main Deck เพื่อดูสถิติ</div></div>
+    </div><!-- /tab-analysis -->
+
+  </aside>
+
+  <!-- ══ CENTER — Zone editor ══ -->
+  <main class="center-panel">
+    <div class="scroll-panel" id="scroll-panel">
+
+      <!-- MC + Scene (combined row) -->
+      <div class="zone-section" id="pane-mc-scene">
+        <div class="zone-divider">
+          <div class="zone-divider-label" style="color:var(--mc-color);border-color:var(--mc-color);background:rgba(236,72,153,0.08);">⭐ Main Character</div>
+          <div class="zone-divider-line"></div>
+        </div>
+
+        <div class="mc-scene-row">
+          <!-- MC column -->
+          <div class="mc-col" id="pane-mc">
+            <div class="mc-layout">
+              <div class="mc-slot" id="mc-slot">
+                <div class="mc-empty-icon">🌟</div>
+                <div class="mc-empty-t">เลือกจาก Library</div>
+              </div>
+              <div class="mc-info" id="mc-info">
+                <div style="color:var(--dim); font-size:0.78rem; padding:8px 0;">
+                  เลือกจาก Library →<br>หรือคลิกรูปเพื่ออัพโหลด
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- divider -->
+          <div style="width:1px;background:var(--border);flex-shrink:0;margin:0 12px;"></div>
+
+          <!-- Scene column -->
+          <div class="scene-col" id="pane-scene">
+            <div class="scene-col-header">
+              <div class="zone-divider-label" style="color:var(--scene-color);border-color:var(--scene-color);background:rgba(14,165,233,0.08);margin-right:4px;">🎭 Scene Deck</div>
+              <span class="chip chip-ok" id="scene-count-chip">ไม่จำกัด</span>
+            </div>
+            <div id="scene-cards" class="scene-card-grid">
+              <div class="empty-zone"><div class="ei">🎭</div><p>ยังไม่มี Scene Card</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Deck -->
+      <div class="zone-section" id="pane-main">
+        <div class="zone-divider">
+          <div class="zone-divider-label" style="color:var(--main-color);border-color:var(--main-color);background:rgba(168,85,247,0.08);">🃏 Main Deck</div>
+          <div class="zone-divider-line"></div>
+        </div>
+        <div class="sec-hdr">
+          <span class="chip chip-warn" id="main-chip" title="Character + Event + Item • max 4 ใบ/แบบ">0 / 50 ใบ</span>
+        </div>
+
+
+        <div class="filter-chips" id="fc-main">
+          <button class="fchip active" onclick="setFilter('main','')">All</button>
+          <button class="fchip" onclick="setFilter('main','Character')" style="color:#a78bfa">Character</button>
+          <button class="fchip" onclick="setFilter('main','Item')" style="color:#34d399">Item</button>
+          <button class="fchip" onclick="setFilter('main','Event')" style="color:#fb923c">Event</button>
+        </div>
+
+        <div id="main-cards">
+          <div class="empty-zone"><div class="ei">🃏</div><p>ยังไม่มีการ์ดใน Main Deck<br><small>เพิ่มจาก Library ทางขวา หรืออัพโหลดรูปด้านบน</small></p></div>
+        </div>
+      </div>
+
+      <!-- Story Deck -->
+      <div class="zone-section" id="pane-story">
+        <div class="zone-divider">
+          <div class="zone-divider-label" style="color:var(--story-color);border-color:var(--story-color);background:rgba(245,158,11,0.08);">📖 Story Deck</div>
+          <div class="zone-divider-line"></div>
+        </div>
+        <div class="sec-hdr">
+          <span class="chip chip-warn" id="story-chip" title="Tier I → IV จากชุดเรื่องเดียวกัน">0 / 4 ใบ</span>
+        </div>
+        <div class="story-grid" id="story-grid">
+          <!-- Rendered by JS -->
+        </div>
+
+        <div style="margin-top:12px" id="story-warn"></div>
+        <input type="file" accept="image/*" id="fi-story" style="display:none" onchange="storyUpload(this)">
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ══ RIGHT SIDEBAR — Card Library ══ -->
+  <aside class="sidebar-right">
+    <div class="sr-header">
+      <div class="sr-title">📚 Card Library</div>
+      <div style="margin-left:auto;display:flex;gap:5px;align-items:center;">
+        <span id="lib-count" style="font-size:0.68rem; color:var(--dim);">0 cards</span>
+        <input type="file" id="fi-db" accept=".json" style="display:none;" onchange="importJSON(this)">
+        <input type="file" id="fi-imgs" accept="image/*" multiple style="display:none;" onchange="importImages(this)">
+        <input type="file" id="fi-zip" accept=".zip" style="display:none;" onchange="importZip(this)">
+        <button onclick="document.getElementById('fi-db').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);border-radius:6px;padding:3px 8px;font-size:0.68rem;cursor:pointer;font-family:inherit;white-space:nowrap;">📥 JSON</button>
+        <button onclick="document.getElementById('fi-imgs').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);border-radius:6px;padding:3px 8px;font-size:0.68rem;cursor:pointer;font-family:inherit;white-space:nowrap;">🖼️ รูป</button>
+        <button onclick="document.getElementById('fi-zip').click()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);border-radius:6px;padding:3px 8px;font-size:0.68rem;cursor:pointer;font-family:inherit;white-space:nowrap;">📦 ZIP</button>
+      </div>
+    </div>
+    <div class="sr-body">
+      <!-- Import DB (hidden by default, toggle via button) -->
+
+      <div id="import-status" style="display:none; font-size:0.72rem; color:var(--green); margin-bottom:8px; text-align:center;"></div>
+
+      <!-- Search -->
+      <div class="search-bar">
+        <input class="search-input" id="lib-search" placeholder="🔍 ค้นหาการ์ด..." oninput="renderLibrary()">
+      </div>
+      <div class="filter-chips" id="lib-filter-chips">
+        <button class="fchip active" onclick="libFilter('')">All</button>
+        <button class="fchip" onclick="libFilter('Main Character')" style="color:#f472b6">MC</button>
+        <button class="fchip" onclick="libFilter('Character')" style="color:#a78bfa">Char</button>
+        <button class="fchip" onclick="libFilter('Event')" style="color:#fb923c">Event</button>
+        <button class="fchip" onclick="libFilter('Item')" style="color:#34d399">Item</button>
+        <button class="fchip" onclick="libFilter('Scene')" style="color:#38bdf8">Scene</button>
+        <button class="fchip" onclick="libFilter('Story')" style="color:#fbbf24">Story</button>
+      </div>
+
+      <div id="lib-list" class="lib-right-list">
+        <div class="empty-zone" style="padding:20px;"><div class="ei">📥</div><p style="font-size:0.75rem;">Import database ก่อน<br>หรือ upload การ์ดโดยตรงได้เลย</p></div>
+      </div>
+    </div>
+    </div><!-- /tab-deck -->
+
+    <!-- ANALYSIS TAB -->
+    <div id="tab-analysis" style="display:none;flex-direction:column;flex:1;overflow-y:auto;padding:12px;gap:12px;">
+      <div id="analysis-content"><div style="color:var(--muted);font-size:0.8rem;padding:16px 0;text-align:center;">เพิ่มการ์ดใน Main Deck เพื่อดูสถิติ</div></div>
+    </div><!-- /tab-analysis -->
+
+  </aside>
+
+</div>
+
+<!-- FAB -->
+<button class="fab" title="Add card" onclick="switchZone('main')">+</button>
+
+
+<!-- Card Zoom Modal -->
+<div id="zoom-modal" onclick="closeZoom()" style="
+  display:none; position:fixed; inset:0; z-index:500;
+  background:rgba(0,0,0,0.75); align-items:center; justify-content:center;
+  backdrop-filter:blur(4px);
+">
+  <div onclick="event.stopPropagation()" style="
+    background:var(--surface); border:1px solid var(--border2); border-radius:16px;
+    padding:20px; max-width:520px; width:92%; position:relative;
+    box-shadow:0 20px 60px rgba(0,0,0,0.6);
+  ">
+    <button onclick="closeZoom()" style="
+      position:absolute; top:10px; right:10px; background:var(--surface2);
+      border:none; color:var(--muted); width:26px; height:26px; border-radius:6px;
+      cursor:pointer; font-size:0.8rem; display:flex; align-items:center; justify-content:center;
+    ">✕</button>
+    <div style="display:flex; gap:14px; align-items:flex-start;">
+      <div id="zm-img" style="
+        width:160px; height:224px; border-radius:10px; overflow:hidden; flex-shrink:0;
+        background:var(--surface2); border:1px solid var(--border2);
+        display:flex; align-items:center; justify-content:center; font-size:2rem;
+      "></div>
+      <div style="flex:1; min-width:0; padding-top:2px;">
+        <div id="zm-name" style="font-family:'Fredoka One'; font-size:1.25rem; color:var(--text); margin-bottom:8px; line-height:1.2;"></div>
+        <div id="zm-meta" style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;"></div>
+        <div id="zm-stats" style="display:flex; gap:10px; margin-bottom:8px;"></div>
+        <div id="zm-ability" style="font-size:0.75rem; color:var(--muted); line-height:1.65;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Export Modal -->
+<div class="overlay" id="export-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeExport()">✕</button>
+    <h3>📤 Export Decklist</h3>
+    <div class="export-text" id="export-text"></div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="copyExport()">📋 Copy</button>
+      <button class="btn btn-secondary" onclick="downloadExport()">💾 Download JSON</button>
+      <button class="btn btn-secondary" onclick="downloadExportTxt()">📄 Download Text</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════
+const state = {
+  mc: null,           // {id, name, type, imageUrl, ability, rarity, code, color, cost, power}
+  main: [],           // [{...card, qty}]
+  scene: [],          // [{...card, qty}]
+  story: [null, null, null, null], // [tier1..4]
+  library: [],        // all imported cards
+  currentZone: 'mc',
+  mainFilter: '',
+  libFilter: '',
+  storyUploadSlot: -1,
+};
+
+// ════════════════════════════════════════════════════════════
+// ZONE SWITCHING
+// ════════════════════════════════════════════════════════════
+function switchZone(zone) {
+  state.currentZone = zone;
+  ['mc','main','scene','story'].forEach(z => {
+    document.getElementById(`zone-${z}`).classList.toggle('active', z === zone);
+  });
+  // mc and scene share a combined section
+  const scrollId = (zone === 'mc' || zone === 'scene') ? 'pane-mc-scene' : `pane-${zone}`;
+  const el = document.getElementById(scrollId);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ════════════════════════════════════════════════════════════
+// LIBRARY — Import JSON + Images
+// ════════════════════════════════════════════════════════════
+
+function parseCardData(data) {
+  const raw = Array.isArray(data) ? data : (data.cards || []);
+  return raw.map((card, i) => ({
+    id:          card.id || card.code || `lib-${i}`,
+    name:        card.name    || 'Unknown',
+    type:        card.type    || 'Character',
+    subtype:     card.subtype || [],
+    color:       card.color   || null,
+    rarity:      card.rarity  || null,
+    cost:        card.cost    ?? null,
+    power:       card.power   ?? null,
+    ability:     card.ability || '',
+    story_stage: card.story_stage || null,
+    imageUrl:    null,
+  }));
+}
+
+function applyLibrary(cards, silent) {
+  state.library = cards;
+  const lc = document.getElementById('lib-count');
+  if (lc) lc.textContent = cards.length + ' cards';
+  const status = document.getElementById('import-status');
+  if (status) { status.style.display = 'block'; status.textContent = `✓ โหลด ${cards.length} การ์ด`; }
+  renderMobLibrary();
+  if (!silent) toast(`📚 โหลด ${cards.length} การ์ดสำเร็จ`, 'ok');
+}
+
+function importJSON(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try { applyLibrary(parseCardData(JSON.parse(e.target.result))); }
+    catch(err) { toast('❌ อ่านไฟล์ JSON ไม่ได้', 'err'); }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function importImages(input) {
+  const files = Array.from(input.files); if (!files.length) return;
+  let matched = 0, unmatched = 0;
+  const readers = files.map(file => new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      // filename without extension = card id, e.g. "SD01D-U01.jpg" → "SD01D-U01"
+      const name = file.name.replace(/\.[^.]+$/, '');
+      const card = state.library.find(c => c.id === name);
+      if (card) {
+        card.imageUrl = e.target.result;
+        // update thumb if already rendered
+        const thumb = document.getElementById(`lrt-${card.id}`);
+        if (thumb) thumb.innerHTML = `<img src="${e.target.result}" alt="${card.name}" loading="lazy">`;
+        matched++;
+      } else {
+        unmatched++;
+      }
+      resolve();
+    };
+    reader.readAsDataURL(file);
+  }));
+  Promise.all(readers).then(() => {
+    renderLibrary();
+    toast(`🖼️ match ${matched} รูป${unmatched ? ` (ไม่เจอ ${unmatched})` : ''}`, matched ? 'ok' : 'warn');
+  });
+  input.value = '';
+}
+
+
+function importZip(input) {
+  const file = input.files[0]; if (!file) return;
+  toast('📦 กำลังแตกไฟล์ ZIP...', 'ok');
+  const IMAGE_EXT = /\.(jpe?g|png|webp|gif)$/i;
+  JSZip.loadAsync(file).then(zip => {
+    const imageFiles = Object.values(zip.files).filter(f => !f.dir && IMAGE_EXT.test(f.name));
+    if (!imageFiles.length) { toast('⚠️ ไม่พบรูปภาพใน ZIP', 'warn'); return; }
+    let matched = 0, unmatched = 0;
+    const tasks = imageFiles.map(f => f.async('base64').then(b64 => {
+      const ext  = f.name.match(IMAGE_EXT)[0].replace('.', '');
+      const mime = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/gif';
+      const dataUrl = `data:${mime};base64,${b64}`;
+      // match by filename without folder path and without extension
+      const baseName = f.name.replace(/^.*[\/]/, '').replace(/\.[^.]+$/, '');
+      const card = state.library.find(c => c.id === baseName);
+      if (card) {
+        card.imageUrl = dataUrl;
+        const thumb = document.getElementById(`lrt-${card.id}`);
+        if (thumb) thumb.innerHTML = `<img src="${dataUrl}" alt="${card.name}" loading="lazy">`;
+        matched++;
+      } else {
+        unmatched++;
+      }
+    }));
+    Promise.all(tasks).then(() => {
+      // Also update any rendered deck cards
+      [...state.main, ...state.scene].forEach(dc => {
+        const lib = state.library.find(l => l.id === dc.id);
+        if (lib?.imageUrl) dc.imageUrl = lib.imageUrl;
+      });
+      if (state.mc) {
+        const lib = state.library.find(l => l.id === state.mc.id);
+        if (lib?.imageUrl) state.mc.imageUrl = lib.imageUrl;
+      }
+      renderLibrary(); renderMainCards(); renderSceneCards();
+      toast(`📦 ZIP: match ${matched} รูป${unmatched ? ` (ไม่เจอ ${unmatched})` : ''}`, matched ? 'ok' : 'warn');
+    });
+  }).catch(err => {
+    toast('❌ แตก ZIP ไม่สำเร็จ', 'err');
+    console.error(err);
+  });
+  input.value = '';
+}
+
+let libFilterType = '';
+function libFilter(type) {
+  libFilterType = type;
+  document.querySelectorAll('#lib-filter-chips .fchip').forEach(el => {
+    el.classList.toggle('active', el.textContent.trim() === (type || 'All') || (type === '' && el.textContent.trim() === 'All'));
+  });
+  renderLibrary();
+}
+
+function renderLibrary() {
+  const q = document.getElementById('lib-search').value.toLowerCase();
+  const list = document.getElementById('lib-list');
+  let cards = state.library;
+
+  if (libFilterType) cards = cards.filter(c => c.type === libFilterType);
+  if (q) cards = cards.filter(c => (c.name||'').toLowerCase().includes(q) || (c.code||'').toLowerCase().includes(q));
+
+  if (cards.length === 0) {
+    list.innerHTML = state.library.length === 0
+      ? `<div class="empty-zone" style="padding:20px;"><div class="ei">📥</div><p style="font-size:0.75rem;">Import database ก่อน<br>หรือ upload การ์ดโดยตรงได้เลย</p></div>`
+      : `<div class="empty-zone" style="padding:16px;"><div class="ei">🔍</div><p style="font-size:0.75rem;">ไม่พบการ์ดที่ตรงกัน</p></div>`;
+    return;
+  }
+
+  list.innerHTML = '';
+  cards.forEach(card => {
+    const inDeck = getDeckQty(card);
+    const maxed = isMaxed(card);
+
+    const item = document.createElement('div');
+    item.className = 'lib-right-item';
+    item.innerHTML = `
+      <div class="lib-right-thumb" id="lrt-${card.id}">
+        ${card.imageUrl ? `<img src="${card.imageUrl}" alt="${card.name}" loading="lazy">` : typeIcon(card.type)}
+      </div>
+      <div class="lib-right-info">
+        <div class="lib-right-name" title="${card.name}">${card.name}</div>
+        <div class="lib-right-meta">
+          <span class="type-pill ${typePill(card.type)}">${card.type}</span>
+          ${card.rarity ? `<span class="rarity-dot ${rarityDot(card.rarity)}"></span>` : ''}
+          ${inDeck > 0 ? `<span style="color:var(--purple-light); font-size:0.62rem; font-weight:800;">×${inDeck}</span>` : ''}
+        </div>
+      </div>
+      <button class="lib-right-add" onclick="addFromLibrary('${card.id}')" ${maxed ? 'disabled title="ถึงขีดจำกัดแล้ว"' : ''}>+</button>
+    `;
+    list.appendChild(item);
+  });
+}
+
+
+function libPlus(id) {
+  const card = state.library.find(c=>c.id===id);
+  if (card) { mobAddCard(card); renderMobLibrary(); }
+}
+function libMinus(id, type) {
+  if (type==='Scene') { mobChangeQty('scene',id,-1); }
+  else { mobChangeQty('main',id,-1); }
+  renderMobLibrary();
+}
+
+function getDeckQty(card) {
+  if (card.type === 'Main Character') return state.mc && state.mc.id === card.id ? 1 : 0;
+  if (card.type === 'Story') return state.story.filter(s => s && s.id === card.id).length;
+  const inMain = state.main.find(c => c.id === card.id);
+  const inScene = state.scene.find(c => c.id === card.id);
+  return (inMain ? inMain.qty : 0) + (inScene ? inScene.qty : 0);
+}
+
+function isMaxed(card) {
+  if (card.type === 'Main Character') return state.mc !== null;
+  if (card.type === 'Energy' || card.type === 'Scene') return false;
+  if (card.type === 'Story') return state.story.filter(s => s && s.id === card.id).length >= 1;
+  const inMain = state.main.find(c => c.id === card.id);
+  return inMain ? inMain.qty >= 4 : false;
+}
+
+function addFromLibrary(id) {
+  const card = state.library.find(c => c.id === id);
+  if (!card) return;
+
+  const type = card.type;
+
+  if (type === 'Main Character') {
+    if (state.mc) { toast('⚠️ มี Main Character อยู่แล้ว ลบอันเดิมก่อน', 'warn'); return; }
+    state.mc = { ...card }; renderMC(); switchZone('mc');
+  }
+  else if (type === 'Story') {
+    const stageMap = { 'I':0, 'II':1, 'III':2, 'IV':3 };
+    const stage = card.story_stage;
+    if (stage && stageMap[stage] !== undefined) {
+      const idx = stageMap[stage];
+      if (state.story[idx]) { toast(`⚠️ Tier ${stage} มีการ์ดอยู่แล้ว`, 'warn'); return; }
+      state.story[idx] = { ...card };
+    } else {
+      // fallback: first empty slot
+      const emptySlot = state.story.findIndex(s => s === null);
+      if (emptySlot === -1) { toast('⚠️ Story Deck เต็มแล้ว (4 ใบ)', 'warn'); return; }
+      state.story[emptySlot] = { ...card };
+    }
+    renderStory(); switchZone('story');
+  }
+  else if (type === 'Scene') {
+    addToZone('scene', card); switchZone('scene');
+  }
+  else {
+    addToZone('main', card); switchZone('main');
+  }
+
+  updateSidebar();
+  renderLibrary();
+}
+
+function addToZone(zone, card) {
+  const arr = state[zone];
+  const existing = arr.find(c => c.id === card.id);
+  const max = zone === 'scene' ? Infinity : 4;
+  if (existing) {
+    if (existing.qty >= max) { toast(`⚠️ ${card.name} ถึงขีดสูงสุดแล้ว (${max})`, 'warn'); return; }
+    existing.qty++;
+  } else {
+    arr.push({ ...card, qty: 1 });
+  }
+  if (zone === 'main') renderMainCards();
+  if (zone === 'scene') renderSceneCards();
+  toast(`✓ เพิ่ม ${card.name}`, 'ok');
+}
+
+
+// ════════════════════════════════════════════════════════════
+// MAIN CHARACTER
+// ════════════════════════════════════════════════════════════
+function mcUploadOrPick() {
+  if (state.mc) {
+    if (confirm('เปลี่ยน Main Character?')) { state.mc = null; renderMC(); updateSidebar(); }
+  } else {
+    document.getElementById('fi-mc').click();
+  }
+}
+function mcUploadImage(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    state.mc = {
+      id: `mc-${Date.now()}`, name: file.name.replace(/\.[^.]+$/, '').replace(/_/g, ' '),
+      type: 'Main Character', imageUrl: e.target.result,
+    };
+    renderMC(); updateSidebar(); renderLibrary();
+  };
+  reader.readAsDataURL(file); input.value = '';
+}
+
+function renderMC() {
+  const slot = document.getElementById('mc-slot');
+  const info = document.getElementById('mc-info');
+
+  if (!state.mc) {
+    slot.classList.remove('filled');
+    slot.innerHTML = `
+      <input type="file" accept="image/*" id="fi-mc" style="display:none;" onchange="mcUploadImage(this)">
+      <div class="mc-empty-icon">🌟</div>
+      <div class="mc-empty-t">เลือก Main Character</div>`;
+    info.innerHTML = `<div style="color:var(--dim); font-size:0.82rem; padding:20px 0;">เลือกการ์ด Main Character จาก Library ด้านขวา<br>หรือคลิกที่ช่องเพื่ออัพโหลดรูปภาพการ์ด</div>`;
+  } else {
+    slot.classList.add('filled');
+    slot.innerHTML = state.mc.imageUrl
+      ? `<img src="${state.mc.imageUrl}" alt="${state.mc.name}">`
+      : `<div style="font-size:2rem; text-align:center; padding:12px; color:var(--mc-color);">${state.mc.name}</div>`;
+    info.innerHTML = `
+      <div class="mc-name">${state.mc.name}</div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+        <span class="chip chip-ok">✓ Selected</span>
+        ${state.mc.rarity ? `<span class="chip" style="background:rgba(245,158,11,0.15);color:#fcd34d;border-color:rgba(245,158,11,0.3);">${state.mc.rarity}</span>` : ''}
+        ${state.mc.code ? `<span class="chip" style="background:rgba(99,102,241,0.15);color:#a5b4fc;border-color:rgba(99,102,241,0.3);">${state.mc.code}</span>` : ''}
+      </div>
+      ${state.mc.ability ? `<div class="mc-ability">${state.mc.ability}</div>` : ''}
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="state.mc=null; renderMC(); updateSidebar(); renderLibrary();">✕ ลบออก</button>
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('fi-mc').click()">🔄 เปลี่ยน</button>
+      </div>
+      <input type="file" accept="image/*" id="fi-mc" style="display:none;" onchange="mcUploadImage(this)">
+    `;
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// MAIN DECK
+// ════════════════════════════════════════════════════════════
+let mainFilter = '';
+function setFilter(zone, type) {
+  mainFilter = type;
+  document.querySelectorAll('#fc-main .fchip').forEach(el => {
+    const label = el.textContent.trim();
+    el.classList.toggle('active', (type === '' && label === 'All') || label === type);
+  });
+  renderMainCards();
+}
+
+function sortMainCards(cards) {
+  const rarityOrder = { 'CR':0, 'GR':1, 'RR':2, 'SR':3, 'U':4, 'C':5, 'SPR':6, 'ER':7 };
+  return [...cards].sort((a, b) => {
+    const ra = rarityOrder[a.rarity] ?? 99;
+    const rb = rarityOrder[b.rarity] ?? 99;
+    if (ra !== rb) return ra - rb;
+    // secondary: numeric part of card id e.g. "SD01-C01" → 1
+    const numA = parseInt((a.id || '').match(/(\d+)$/)?.[1] ?? '0');
+    const numB = parseInt((b.id || '').match(/(\d+)$/)?.[1] ?? '0');
+    return numA - numB;
+  });
+}
+
+function renderMainCards() {
+  const container = document.getElementById('main-cards');
+  let cards = sortMainCards(state.main);
+  if (mainFilter) cards = cards.filter(c => c.type === mainFilter);
+  if (cards.length === 0) {
+    container.innerHTML = `<div class="empty-zone"><div class="ei">🃏</div><p>ไม่มีการ์ดในหมวดนี้<br><small>เพิ่มจาก Library ทางขวา หรืออัพโหลดรูปด้านบน</small></p></div>`;
+    return;
+  }
+  container.innerHTML = '<div class="main-card-grid" id="main-card-grid"></div>';
+  const grid = container.querySelector('.main-card-grid');
+  cards.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'main-card-tile';
+    el.title = `${card.name} ×${card.qty}`;
+    el.addEventListener('click', (e) => { if (!e.target.closest('button')) openZoom(card); });
+    el.innerHTML = `
+      <div class="mct-img">
+        ${card.imageUrl ? `<img src="${card.imageUrl}" alt="${card.name}" loading="lazy">` : `<div class="mct-placeholder">${typeIcon(card.type)}</div>`}
+        ${card.qty > 1 ? `<span class="mct-qty">×${card.qty}</span>` : ''}
+      </div>
+      <div class="mct-ctrl">
+        <button onclick="changeQty('main','${card.id}',-1)">−</button>
+        <button onclick="changeQty('main','${card.id}',1)" ${card.qty >= 4 ? 'disabled' : ''}>+</button>
+        <button class="mct-rm" onclick="removeCard('main','${card.id}')">✕</button>
+      </div>
+    `;
+    grid.appendChild(el);
+  });
+}
+
+function renderSceneCards() {
+  const container = document.getElementById('scene-cards');
+  if (state.scene.length === 0) {
+    container.innerHTML = `<div class="empty-zone"><div class="ei">🎭</div><p>ยังไม่มี Scene Card</p></div>`;
+    return;
+  }
+  container.innerHTML = '';
+  const grid = document.createElement('div');
+  grid.className = 'scene-card-grid';
+  state.scene.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'scene-card-tile';
+    el.title = `${card.name} ×${card.qty}`;
+    el.addEventListener('click', (e) => { if (!e.target.closest('button')) openZoom(card); });
+    el.innerHTML = `
+      <div class="sct-img">
+        ${card.imageUrl ? `<img src="${card.imageUrl}" alt="${card.name}" loading="lazy">` : `<div class="sct-placeholder">🎭</div>`}
+        ${card.qty > 1 ? `<span class="sct-qty">×${card.qty}</span>` : ''}
+      </div>
+      <div class="sct-ctrl">
+        <button onclick="changeQty('scene','${card.id}',-1)">−</button>
+        <button onclick="changeQty('scene','${card.id}',1)">+</button>
+        <button class="sct-rm" onclick="removeCard('scene','${card.id}')">✕</button>
+      </div>
+    `;
+    grid.appendChild(el);
+  });
+  container.appendChild(grid);
+}
+
+function changeQty(zone, id, delta) {
+  const arr = state[zone];
+  const card = arr.find(c => c.id === id);
+  if (!card) return;
+  const max = zone === 'scene' ? Infinity : 4;
+  card.qty = Math.max(0, Math.min(max, card.qty + delta));
+  if (card.qty === 0) { removeCard(zone, id); return; }
+  if (zone === 'main') renderMainCards();
+  if (zone === 'scene') renderSceneCards();
+  updateSidebar();
+  renderLibrary();
+}
+
+function removeCard(zone, id) {
+  state[zone] = state[zone].filter(c => c.id !== id);
+  if (zone === 'main') renderMainCards();
+  if (zone === 'scene') renderSceneCards();
+  updateSidebar();
+  renderDeckList();
+  renderLibrary();
+}
+
+// ════════════════════════════════════════════════════════════
+// STORY
+// ════════════════════════════════════════════════════════════
+function renderStory() {
+  const grid = document.getElementById('story-grid');
+  grid.innerHTML = '';
+  const tiers = ['I', 'II', 'III', 'IV'];
+  state.story.forEach((card, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'story-slot';
+    if (!card) {
+      slot.innerHTML = `
+        <div class="story-tier-label">Tier ${tiers[i]}</div>
+        <div class="story-card" onclick="storyUploadClick(${i})">
+          <div class="st-icon">📜</div>
+          <div class="st-add">+ เพิ่ม Tier ${tiers[i]}</div>
+        </div>
+        <span class="chip chip-warn" style="font-size:0.65rem;">⚠ ขาด</span>
+      `;
+    } else {
+      slot.innerHTML = `
+        <div class="story-tier-label">Tier ${tiers[i]}</div>
+        <div class="story-card filled" onclick="storyUploadClick(${i})">
+          ${card.imageUrl ? `<img src="${card.imageUrl}" alt="${card.name}">` : `<div style="font-size:1.2rem; text-align:center; padding:8px; color:var(--gold);">${card.name}</div>`}
+          <button class="st-remove" onclick="event.stopPropagation(); storyRemove(${i})">✕</button>
+        </div>
+        <span class="chip chip-ok" style="font-size:0.65rem;">✓ ${card.name.length > 14 ? card.name.slice(0,12)+'…' : card.name}</span>
+      `;
+    }
+    grid.appendChild(slot);
+  });
+
+  // Warning
+  const warn = document.getElementById('story-warn');
+  const missing = state.story.filter(s => s === null).length;
+  warn.innerHTML = missing > 0
+    ? `<span class="chip chip-warn">⚠ ยังขาด Story อีก ${missing} Tier</span>`
+    : `<span class="chip chip-ok">✓ Story Deck ครบ 4 Tier</span>`;
+
+  updateSidebar();
+}
+
+function storyUploadClick(slot) {
+  state.storyUploadSlot = slot;
+  document.getElementById('fi-story').click();
+}
+function storyUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const i = state.storyUploadSlot;
+    state.story[i] = {
+      id: `story-${i}-${Date.now()}`,
+      name: file.name.replace(/\.[^.]+$/, '').replace(/_/g, ' '),
+      type: 'Story', imageUrl: e.target.result,
+    };
+    renderStory();
+    renderDeckList();
+    renderLibrary();
+  };
+  reader.readAsDataURL(file); input.value = '';
+}
+function storyRemove(i) {
+  state.story[i] = null; renderStory(); renderDeckList();
+}
+
+// ════════════════════════════════════════════════════════════
+// SIDEBAR UPDATES
+// ════════════════════════════════════════════════════════════
+function updateSidebar() {
+  // MC
+  const mcDone = state.mc !== null;
+  document.getElementById('zc-mc').innerHTML = `${mcDone?1:0}<span style="font-size:0.65rem;opacity:0.6">/1</span>`;
+  document.getElementById('zb-mc').style.width = mcDone ? '100%' : '0%';
+
+  // Main deck
+  const mainTotal = state.main.reduce((s,c) => s+c.qty, 0);
+  document.getElementById('zc-main').innerHTML = `${mainTotal}<span style="font-size:0.65rem;opacity:0.6">/50</span>`;
+  document.getElementById('zb-main').style.width = Math.min(100, (mainTotal/50)*100) + '%';
+  const mainChip = document.getElementById('main-chip');
+  mainChip.textContent = `${mainTotal} / 50 ใบ`;
+  mainChip.className = 'chip ' + (mainTotal === 50 ? 'chip-ok' : mainTotal > 50 ? 'chip-err' : 'chip-warn');
+
+  // Scene
+  const sceneTotal = state.scene.reduce((s,c) => s+c.qty, 0);
+  document.getElementById('zc-scene').textContent = sceneTotal;
+
+  // Story
+  const storyDone = state.story.filter(s => s !== null).length;
+  document.getElementById('zc-story').innerHTML = `${storyDone}<span style="font-size:0.65rem;opacity:0.6">/4</span>`;
+  document.getElementById('zb-story').style.width = (storyDone/4*100) + '%';
+  const storyChip = document.getElementById('story-chip');
+  storyChip.textContent = `${storyDone} / 4 ใบ`;
+  storyChip.className = 'chip ' + (storyDone === 4 ? 'chip-ok' : 'chip-warn');
+
+  // Validation
+  const errors = [];
+  const warns = [];
+  if (!state.mc) warns.push('mc');
+  if (mainTotal !== 50) warns.push('main');
+  if (storyDone < 4) warns.push('story');
+
+  // Update hidden spans (for compatibility)
+  const vmc   = document.getElementById('val-mc');
+  const vmain = document.getElementById('val-main');
+  const vstory= document.getElementById('val-story');
+  const mcMsg   = state.mc ? `Main Character: ✓ ${state.mc.name}` : 'Main Character: ยังไม่ได้เลือก';
+  const mainMsg = mainTotal === 50 ? `Main Deck: ✓ 50 ใบ` : `Main Deck: ${mainTotal}/50 ${mainTotal > 50 ? '(เกิน!)' : `(ขาด ${50-mainTotal})`}`;
+  const storyMsg= storyDone === 4 ? 'Story Deck: ✓ ครบ 4 Tier' : `Story Deck: ${storyDone}/4 (ขาด ${4-storyDone} Tier)`;
+  if (vmc)   vmc.textContent   = mcMsg;
+  if (vmain) vmain.textContent = mainMsg;
+  if (vstory)vstory.textContent= storyMsg;
+
+  // Update compact dots
+  const dmc   = document.getElementById('vdot-mc');
+  const dmain = document.getElementById('vdot-main');
+  const dscene= document.getElementById('vdot-scene');
+  const dstory= document.getElementById('vdot-story');
+  const vsumm = document.getElementById('val-summary');
+  if (dmc)    { dmc.className    = 'val-dot ' + (state.mc ? 'dot-ok' : 'dot-w'); dmc.title = mcMsg; }
+  if (dmain)  { dmain.className  = 'val-dot ' + (mainTotal === 50 ? 'dot-ok' : mainTotal > 50 ? 'dot-e' : 'dot-w'); dmain.title = mainMsg; }
+  if (dscene) { dscene.title = 'Scene Deck: ✓ ไม่จำกัด'; }
+  if (dstory) { dstory.className = 'val-dot ' + (storyDone === 4 ? 'dot-ok' : 'dot-w'); dstory.title = storyMsg; }
+  if (vsumm)  { vsumm.textContent = warns.length === 0 ? '✓ Deck พร้อมแล้ว' : `⚠ ยังขาด ${warns.length} รายการ`; vsumm.style.color = warns.length === 0 ? 'var(--green,#4ade80)' : 'var(--muted)'; }
+
+  renderDeckList();
+}
+
+function renderDeckList() {
+  const list = document.getElementById('deck-list');
+  const all = [];
+
+  if (state.mc) all.push({ ...state.mc, qty: 1, zone: 'mc' });
+  state.story.forEach((s,i) => { if (s) all.push({ ...s, qty: 1, zone: 'story', tier: i+1 }); });
+  state.main.forEach(c => all.push({ ...c, zone: 'main' }));
+  state.scene.forEach(c => all.push({ ...c, zone: 'scene' }));
+
+  if (all.length === 0) {
+    list.innerHTML = `<div class="empty-zone"><div class="ei">🃏</div><p>ยังไม่มีการ์ดใน Deck</p></div>`;
+    return;
+  }
+
+  list.innerHTML = '';
+  all.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'dl-item';
+    el.innerHTML = `
+      <div class="dl-thumb">${card.imageUrl ? `<img src="${card.imageUrl}" alt="${card.name}" loading="lazy">` : typeIcon(card.type)}</div>
+      <div class="dl-name" title="${card.name}">${card.name}</div>
+      <span class="dl-qty-num" style="color:var(--purple-light);">×${card.qty}</span>
+    `;
+    el.onclick = () => switchZone(card.zone === 'mc' ? 'mc' : card.zone === 'story' ? 'story' : card.zone);
+    list.appendChild(el);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// EXPORT
+// ════════════════════════════════════════════════════════════
+function saveImage() {
+  const deckName    = document.getElementById('deck-name').value || 'deck';
+  const scrollPanel = document.getElementById('scroll-panel');
+
+  toast('📸 กำลังบันทึกรูป...', 'ok');
+
+  // Clone scroll-panel into an off-screen container with no height constraint
+  const clone = scrollPanel.cloneNode(true);
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = `
+    position:fixed; left:-9999px; top:0;
+    width:${scrollPanel.offsetWidth}px;
+    background:#0f0820; padding:16px; box-sizing:border-box;
+    overflow:visible; height:auto;
+  `;
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+
+  // Let browser render clone
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const W = wrapper.offsetWidth;
+    const H = wrapper.scrollHeight;
+
+    html2canvas(wrapper, {
+      backgroundColor: '#0f0820',
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      width: W,
+      height: H,
+      windowWidth: W + 9999,
+      windowHeight: H,
+      x: 0,
+      y: 0,
+    }).then(canvas => {
+      document.body.removeChild(wrapper);
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = deckName + '.png';
+      a.click();
+      toast('✅ บันทึกรูปสำเร็จ', 'ok');
+    }).catch(err => {
+      document.body.removeChild(wrapper);
+      toast('❌ บันทึกรูปไม่สำเร็จ', 'err');
+      console.error(err);
+    });
+  }));
+}
+
+
+
+// ════════════════════════════════════════════════════════════
+// SIDE TAB SWITCHER
+// ════════════════════════════════════════════════════════════
+function switchSideTab(tab) {
+  const isDeck = tab === 'deck';
+  document.getElementById('tab-deck').style.display     = isDeck ? 'flex' : 'none';
+  document.getElementById('tab-analysis').style.display = isDeck ? 'none' : 'flex';
+  document.getElementById('tab-deck-btn').style.borderBottomColor     = isDeck ? 'var(--purple)' : 'transparent';
+  document.getElementById('tab-deck-btn').style.color                 = isDeck ? 'var(--text)' : 'var(--muted)';
+  document.getElementById('tab-analysis-btn').style.borderBottomColor = isDeck ? 'transparent' : 'var(--purple)';
+  document.getElementById('tab-analysis-btn').style.color             = isDeck ? 'var(--muted)' : 'var(--text)';
+  if (!isDeck) renderAnalysis();
+}
+
+// ════════════════════════════════════════════════════════════
+// DECK ANALYSIS
+// ════════════════════════════════════════════════════════════
+function renderAnalysis() {
+  const container = document.getElementById('analysis-content');
+  const cards = state.main;
+  const total = cards.reduce((s,c) => s + c.qty, 0);
+  if (total === 0) {
+    container.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;padding:20px 0;text-align:center;">เพิ่มการ์ดใน Main Deck เพื่อดูสถิติ</div>';
+    return;
+  }
+
+  // ── Flatten cards by qty
+  const flat = [];
+  cards.forEach(c => { for (let i=0;i<c.qty;i++) flat.push(c); });
+
+  // ── Stats
+  const costs  = flat.map(c => c.cost  ?? 0);
+  const powers = flat.map(c => c.power ?? 0);
+  const avgCost  = (costs.reduce((a,b)=>a+b,0) / costs.length).toFixed(2);
+  const avgPower = (powers.reduce((a,b)=>a+b,0) / powers.length).toFixed(2);
+
+  // ── Cost distribution 0..7+
+  const costDist = {};
+  flat.forEach(c => { const k = Math.min(c.cost??0, 7); costDist[k] = (costDist[k]||0)+1; });
+
+  // ── Power distribution
+  const powerDist = {};
+  flat.forEach(c => { const k = Math.min(c.power??0, 8); powerDist[k] = (powerDist[k]||0)+1; });
+
+  // ── Type count
+  const typeDist = {};
+  flat.forEach(c => { typeDist[c.type] = (typeDist[c.type]||0)+1; });
+
+  // ── Rarity count
+  const rarityOrder = ['CR','GR','RR','SR','U','C','SPR'];
+  const rarityDist = {};
+  flat.forEach(c => { rarityDist[c.rarity||'?'] = (rarityDist[c.rarity||'?']||0)+1; });
+
+  // ── Color count
+  const colorDist = {};
+  flat.forEach(c => { colorDist[c.color||'?'] = (colorDist[c.color||'?']||0)+1; });
+
+  // ── Subtype: split into Race vs Character Name
+  const RACES = new Set(['Earth Pony','Pegasus','Unicorn','Alicorn','Dragon','Griffon']);
+  const raceDist = {}, nameDist = {};
+  flat.forEach(c => {
+    (c.subtype || []).forEach(s => {
+      if (RACES.has(s)) raceDist[s] = (raceDist[s]||0)+1;
+      else              nameDist[s] = (nameDist[s]||0)+1;
+    });
+  });
+  const raceItems = Object.entries(raceDist).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val}));
+  const nameItems = Object.entries(nameDist).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val}));
+
+  container.innerHTML = `
+    ${summaryCard(total, avgCost, avgPower)}
+    ${barChart('Cost Curve', costDist, ['#7c3aed','#8b5cf6','#a78bfa','#c4b5fd','#818cf8','#6366f1','#4f46e5','#3730a3'], true, '7+')}
+    ${barChart('Power Distribution', powerDist, ['#ec4899','#f472b6','#f9a8d4','#fbbf24','#fb923c','#f87171','#ef4444','#dc2626','#b91c1c'], false, '8+')}
+    ${horizBar('Rarity Breakdown', rarityOrder.filter(r=>rarityDist[r]).map(r=>({label:r,val:rarityDist[r]})), total, rarityColors())}
+    ${donutChart('Card Type', typeDist, typeColors())}
+    ${colorChart('Color Mix', colorDist)}
+    ${raceItems.length  ? horizBar('Pony Race', raceItems, flat.length, raceColors()) : ''}
+    ${nameItems.length  ? subtypeNameChart('Character Tags', nameItems, flat.length) : ''}
+  `;
+}
+
+let _analysisCollapsed = {};
+function toggleAnalysisCard(key) {
+  _analysisCollapsed[key] = !_analysisCollapsed[key];
+  const body = document.getElementById('ac-body-'+key);
+  const btn  = document.getElementById('ac-btn-'+key);
+  if (body) body.style.display = _analysisCollapsed[key] ? 'none' : '';
+  if (btn)  btn.textContent    = _analysisCollapsed[key] ? '▶' : '▼';
+}
+function acWrap(key, title, content) {
+  const collapsed = _analysisCollapsed[key] || false;
+  return `<div class="analysis-card">
+    <div class="analysis-title" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;" onclick="toggleAnalysisCard('${key}')">
+      <span>${title}</span>
+      <span id="ac-btn-${key}" style="font-size:0.7rem;color:var(--muted);">${collapsed?'▶':'▼'}</span>
+    </div>
+    <div id="ac-body-${key}" style="${collapsed?'display:none':''}">
+      ${content}
+    </div>
+  </div>`;
+}
+function summaryCard(total, avgCost, avgPower) {
+  const pct = Math.round((total/50)*100);
+  const fill = total >= 50 ? 'var(--green)' : total > 30 ? 'var(--gold)' : 'var(--purple)';
+  const body = `
+    <div class="stat-row"><span class="stat-label">การ์ดใน Main Deck</span><span class="stat-val" style="color:${fill}">${total} / 50 ใบ</span></div>
+    <div style="height:5px;background:var(--border2);border-radius:3px;margin:4px 0 8px;">
+      <div style="height:100%;width:${pct}%;background:${fill};border-radius:3px;"></div>
+    </div>
+    <div class="stat-row"><span class="stat-label">เฉลี่ย Cost</span><span class="stat-val">${avgCost}</span></div>
+    <div class="stat-row"><span class="stat-label">เฉลี่ย Power</span><span class="stat-val">${avgPower}</span></div>`;
+  return acWrap('summary','📋 Deck Summary', body);
+}
+
+function barChart(title, dist, colors, showCostLabel, lastLabel) {
+  const id = 'bc-'+title.replace(/\s+/g,'');
+  const keys = Object.keys(dist).map(Number).sort((a,b)=>a-b);
+  const max  = Math.max(...Object.values(dist), 1);
+  const BAR_H = 72; // fixed bar area height
+  const bars = keys.map(k => {
+    const v   = dist[k];
+    const h   = Math.max(2, Math.round((v/max)*BAR_H));
+    const col = colors[Math.min(k, colors.length-1)] || colors[0];
+    const lbl = (k===7 && lastLabel) ? lastLabel : (k===8 && lastLabel==='8+') ? '8+' : k;
+    return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;">
+      <div style="font-size:0.58rem;color:var(--muted);line-height:1.2;margin-bottom:2px;">${v}</div>
+      <div style="width:100%;height:${h}px;background:${col};border-radius:3px 3px 0 0;"></div>
+      <div style="font-size:0.58rem;color:var(--muted);line-height:1.4;margin-top:2px;">${lbl}</div>
+    </div>`;
+  }).join('');
+  const body = `<div style="display:flex;align-items:flex-end;gap:3px;padding-top:4px;">${bars}</div>`;
+  return acWrap(id, title, body);
+}
+
+function horizBar(title, items, total, colorMap) {
+  const rows = items.map(({label,val}) => {
+    const pct = Math.round((val/total)*100);
+    const col = colorMap[label] || '#9ca3af';
+    return `<div class="stat-row" style="gap:6px;">
+      <span class="stat-label" style="width:34px;flex-shrink:0;">${label}</span>
+      <div style="flex:1;height:10px;background:var(--border2);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:${col};border-radius:4px;"></div>
+      </div>
+      <span class="stat-val" style="width:22px;text-align:right;font-size:0.7rem;">${val}</span>
+    </div>`;
+  }).join('');
+  return acWrap('hz-'+title.replace(/\s+/g,''), title, rows);
+}
+
+function donutChart(title, dist, colorMap) {
+  const entries = Object.entries(dist);
+  const total = entries.reduce((s,[,v])=>s+v,0);
+  if (total === 0) return '';
+  const CX=60, CY=60, R=42, r=22;
+  let angle = -Math.PI/2;
+  let slices = '';
+  const legend = entries.map(([label,val]) => {
+    const frac = val/total;
+    const a1 = angle, a2 = angle + frac * 2 * Math.PI;
+    const lx1=CX+R*Math.cos(a1), ly1=CY+R*Math.sin(a1);
+    const lx2=CX+R*Math.cos(a2), ly2=CY+R*Math.sin(a2);
+    const ix1=CX+r*Math.cos(a1), iy1=CY+r*Math.sin(a1);
+    const ix2=CX+r*Math.cos(a2), iy2=CY+r*Math.sin(a2);
+    const large = frac > 0.5 ? 1 : 0;
+    const col = colorMap[label] || '#9ca3af';
+    slices += `<path d="M${lx1},${ly1} A${R},${R} 0 ${large},1 ${lx2},${ly2} L${ix2},${iy2} A${r},${r} 0 ${large},0 ${ix1},${iy1} Z" fill="${col}" opacity="0.9"/>`;
+    angle = a2;
+    const pct = Math.round(frac*100);
+    return `<div style="display:flex;align-items:center;gap:5px;font-size:0.68rem;">
+      <div style="width:9px;height:9px;border-radius:2px;background:${col};flex-shrink:0;"></div>
+      <span style="color:var(--muted);">${label}</span>
+      <span style="color:var(--text);font-weight:700;margin-left:auto;">${val} (${pct}%)</span>
+    </div>`;
+  }).join('');
+  const body = `<div style="display:flex;gap:10px;align-items:center;padding-top:4px;">
+    <svg width="110" height="110" viewBox="0 0 120 120" style="flex-shrink:0;">${slices}</svg>
+    <div style="flex:1;display:flex;flex-direction:column;gap:5px;">${legend}</div>
+  </div>`;
+  return acWrap('donut-'+title.replace(/\s+/g,''), title, body);
+}
+
+function colorChart(title, dist) {
+  const colorHex = {
+    'Orange':'#f97316','Yellow':'#eab308','Pink':'#ec4899',
+    'Purple':'#a855f7','Blue':'#3b82f6','White':'#e2e8f0','Black':'#374151'
+  };
+  const entries = Object.entries(dist);
+  const total = entries.reduce((s,[,v])=>s+v,0);
+  const rows = entries.sort((a,b)=>b[1]-a[1]).map(([label,val]) => {
+    const pct = Math.round((val/total)*100);
+    const col = colorHex[label] || '#9ca3af';
+    return `<div class="stat-row" style="gap:6px;">
+      <div style="width:10px;height:10px;border-radius:2px;background:${col};flex-shrink:0;"></div>
+      <span class="stat-label" style="flex:1;">${label}</span>
+      <div style="width:60px;height:8px;background:var(--border2);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:${col};border-radius:4px;"></div>
+      </div>
+      <span class="stat-val" style="width:24px;text-align:right;font-size:0.7rem;">${val}</span>
+    </div>`;
+  }).join('');
+  return acWrap('color-'+title.replace(/\s+/g,''), title, rows);
+}
+
+function rarityColors() {
+  return {CR:'#a78bfa',GR:'#fbbf24',RR:'#f472b6',SR:'#34d399',U:'#60a5fa',C:'#9ca3af',SPR:'#fb923c',ER:'#38bdf8'};
+}
+function typeColors() {
+  return {Character:'#a78bfa',Event:'#fb923c',Item:'#34d399',Scene:'#38bdf8',Story:'#f472b6'};
+}
+
+function raceColors() {
+  return {'Earth Pony':'#f97316','Pegasus':'#38bdf8','Unicorn':'#a78bfa','Alicorn':'#f472b6','Dragon':'#ef4444','Griffon':'#84cc16'};
+}
+
+function subtypeNameChart(title, items, total) {
+  // Show top 8 only to avoid overflow
+  const top = items.slice(0, 8);
+  const nameColorPalette = ['#ec4899','#f472b6','#fbbf24','#34d399','#60a5fa','#a78bfa','#fb923c','#38bdf8'];
+  const rows = top.map(({label, val}, i) => {
+    const pct = Math.round((val / total) * 100);
+    const col = nameColorPalette[i % nameColorPalette.length];
+    return `<div class="stat-row" style="gap:6px;">
+      <div style="width:8px;height:8px;border-radius:2px;background:${col};flex-shrink:0;margin-top:1px;"></div>
+      <span class="stat-label" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${label}</span>
+      <div style="width:50px;height:8px;background:var(--border2);border-radius:4px;overflow:hidden;flex-shrink:0;">
+        <div style="height:100%;width:${pct}%;background:${col};border-radius:4px;"></div>
+      </div>
+      <span class="stat-val" style="width:20px;text-align:right;font-size:0.68rem;">${val}</span>
+    </div>`;
+  }).join('');
+  const moreNote = items.length > 8
+    ? `<div style="font-size:0.62rem;color:var(--muted);margin-top:4px;text-align:right;">+${items.length-8} เพิ่มเติม</div>` : '';
+  return acWrap('sub-'+title.replace(/\s+/g,''), title, rows+moreNote);
+}
+
+// ════════════════════════════════════════════════════════════
+// CARD ZOOM
+// ════════════════════════════════════════════════════════════
+function openZoom(card) {
+  const modal = document.getElementById('zoom-modal');
+
+  // Image
+  const zmImg = document.getElementById('zm-img');
+  zmImg.innerHTML = card.imageUrl
+    ? `<img src="${card.imageUrl}" style="width:100%;height:100%;object-fit:cover;" alt="${card.name}">`
+    : `<span>${typeIcon(card.type)}</span>`;
+
+  // Name
+  document.getElementById('zm-name').textContent = card.name;
+
+  // Meta chips
+  const rarityColors = { CR:'#a78bfa', GR:'#fbbf24', RR:'#f472b6', SR:'#34d399', U:'#60a5fa', C:'#9ca3af', SPR:'#fb923c', ER:'#38bdf8' };
+  const rc = rarityColors[card.rarity] || 'var(--dim)';
+  let meta = '';
+  if (card.type)   meta += `<span class="type-pill ${typePill(card.type)}">${card.type}</span>`;
+  if (card.rarity) meta += `<span style="background:${rc}22;color:${rc};border:1px solid ${rc}55;border-radius:4px;padding:1px 7px;font-size:0.65rem;font-weight:800;">${card.rarity}</span>`;
+  if (card.color)  meta += `<span style="background:var(--surface2);color:var(--muted);border-radius:4px;padding:1px 7px;font-size:0.65rem;">${card.color}</span>`;
+  document.getElementById('zm-meta').innerHTML = meta;
+
+  // Stats
+  let stats = '';
+  if (card.cost  != null) stats += `<span style="font-size:0.72rem;color:var(--muted);">💎 Cost <strong style="color:var(--text)">${card.cost}</strong></span>`;
+  if (card.power != null) stats += `<span style="font-size:0.72rem;color:var(--muted);">⚔️ Power <strong style="color:var(--text)">${card.power}</strong></span>`;
+  document.getElementById('zm-stats').innerHTML = stats;
+
+  // Ability
+  const ab = card.ability || '';
+  document.getElementById('zm-ability').textContent = ab || '—';
+
+  modal.style.display = 'flex';
+}
+
+function closeZoom() {
+  document.getElementById('zoom-modal').style.display = 'none';
+}
+
+// Close zoom on Escape key
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeZoom(); });
+
+function openExport() {
+  const deckName = document.getElementById('deck-name').value || 'My Deck';
+  const mainTotal = state.main.reduce((s,c) => s+c.qty, 0);
+  const sceneTotal = state.scene.reduce((s,c) => s+c.qty, 0);
+
+  let text = `=== ${deckName} ===\n`;
+  text += `Generated: ${new Date().toLocaleDateString('th-TH')}\n\n`;
+
+  text += `[Main Character]\n`;
+  text += state.mc ? `  ${state.mc.name}${state.mc.code?' ('+state.mc.code+')':''}\n` : `  (ยังไม่ได้เลือก)\n`;
+
+  text += `\n[Main Deck — ${mainTotal}/50]\n`;
+  const groups = { Character: [], Item: [], Event: [] };
+  state.main.forEach(c => {
+    const g = groups[c.type] ? c.type : 'Event';
+    if (groups[c.type]) groups[c.type].push(c);
+  });
+  Object.entries(groups).forEach(([type, cards]) => {
+    if (cards.length === 0) return;
+    text += `  — ${type} (${cards.reduce((s,c)=>s+c.qty,0)})\n`;
+    cards.forEach(c => { text += `    ${c.qty}x ${c.name}${c.code?' ['+c.code+']':''}\n`; });
+  });
+
+  text += `\n[Scene Deck — ${sceneTotal} ใบ]\n`;
+  state.scene.forEach(c => { text += `  ${c.qty}x ${c.name}\n`; });
+  if (sceneTotal === 0) text += `  (ว่าง)\n`;
+
+  text += `\n[Story Deck]\n`;
+  const tiers = ['I','II','III','IV'];
+  state.story.forEach((s,i) => {
+    text += `  Tier ${tiers[i]}: ${s ? s.name : '(ยังไม่ได้เลือก)'}\n`;
+  });
+
+  document.getElementById('export-text').textContent = text;
+  document.getElementById('export-modal').classList.add('open');
+}
+function closeExport() { document.getElementById('export-modal').classList.remove('open'); }
+function copyExport() {
+  navigator.clipboard.writeText(document.getElementById('export-text').textContent);
+  toast('📋 Copied!', 'ok');
+}
+function downloadExport() {
+  const data = {
+    deckName: document.getElementById('deck-name').value,
+    exportedAt: new Date().toISOString(),
+    mc: state.mc ? { name:state.mc.name, code:state.mc.code, type:state.mc.type } : null,
+    main: state.main.map(c => ({ name:c.name, code:c.code, type:c.type, qty:c.qty })),
+    scene: state.scene.map(c => ({ name:c.name, code:c.code, qty:c.qty })),
+    story: state.story.map((s,i) => s ? { tier:i+1, name:s.name, code:s.code } : null),
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = (document.getElementById('deck-name').value || 'deck') + '.json'; a.click();
+}
+function downloadExportTxt() {
+  const text = document.getElementById('export-text').textContent;
+  const blob = new Blob([text], { type:'text/plain' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = (document.getElementById('deck-name').value || 'deck') + '.txt'; a.click();
+}
+
+// ════════════════════════════════════════════════════════════
+// SAVE / LOAD
+// ════════════════════════════════════════════════════════════
+function saveDeck() {
+  const data = {
+    deckName: document.getElementById('deck-name').value,
+    savedAt: new Date().toISOString(),
+    mc: state.mc,
+    main: state.main,
+    scene: state.scene,
+    story: state.story,
+  };
+  const blob = new Blob([JSON.stringify(data)], { type:'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = (document.getElementById('deck-name').value || 'deck') + '-draft.json'; a.click();
+  toast('💾 Saved!', 'ok');
+}
+function loadDeckClick() { document.getElementById('fi-load').click(); }
+function loadDeck(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.deckName) document.getElementById('deck-name').value = data.deckName;
+      state.mc = data.mc || null;
+      state.main = data.main || [];
+      state.scene = data.scene || [];
+      state.story = data.story || [null,null,null,null];
+      // restore imageUrl from library
+      const libMap = Object.fromEntries(state.library.map(c=>[c.id,c]));
+      if (state.mc)    state.mc    = {...(libMap[state.mc.id]   ||state.mc),    qty:undefined};
+      state.main  = state.main.map(c=>  ({...(libMap[c.id]     ||c),           qty:c.qty}));
+      state.scene = state.scene.map(c=> ({...(libMap[c.id]     ||c),           qty:c.qty}));
+      state.story = state.story.map(c=> c ? {...(libMap[c.id]  ||c)} : null);
+      renderMobMC(); renderMobMain(); renderMobScene(); renderMobStory(); mobUpdateSidebar(); renderMobLibrary();
+      toast('📂 โหลด Deck สำเร็จ', 'ok');
+    } catch { toast('❌ โหลดไม่ได้', 'err'); }
+  };
+  reader.readAsText(file); input.value = '';
+}
+
+// ════════════════════════════════════════════════════════════
+// CLEAR
+// ════════════════════════════════════════════════════════════
+function clearDeck() {
+  if (!confirm('ล้าง Deck ทั้งหมด?')) return;
+  state.mc = null; state.main = []; state.scene = []; state.story = [null,null,null,null];
+  renderMC(); renderMainCards(); renderSceneCards(); renderStory(); updateSidebar(); renderLibrary();
+  toast('🗑 Cleared', 'ok');
+}
+
+// ════════════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════════════
+function toast(msg, type='') {
+  const wrap = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 2800);
+}
+
+// ════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════
+function typeIcon(type) {
+  const icons = { 'Main Character':'🌟','Character':'🦄','Event':'✨','Item':'📦','Energy':'⚡','Story':'📜' };
+  return icons[type] || '🃏';
+}
+function typePill(type) {
+  const map = { 'Main Character':'tp-mc','Character':'tp-ch','Event':'tp-ev','Item':'tp-it','Energy':'tp-sc','Scene':'tp-sc','Story':'tp-st' };
+  return map[type] || 'tp-ch';
+}
+function rarityDot(r) {
+  const map = { 'Common':'rd-c','Uncommon':'rd-u','Rare':'rd-r','Super Rare':'rd-sr','Secret Rare':'rd-ssr' };
+  return map[r] || 'rd-c';
+}
+
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+renderMC();
+renderStory();
+updateSidebar();
+
+// ══════════════════════════════════════════════
+// MOBILE PAGE NAVIGATION
+// ══════════════════════════════════════════════
+
+
+function mobSnapshot() {
+  const page = document.getElementById('page-deck');
+  toast('📸 กำลัง Snapshot...','ok');
+  // Temporarily expand all content
+  const origOverflow = page.style.overflow;
+  const origHeight   = page.style.height;
+  page.style.overflow = 'visible';
+  page.style.height   = 'auto';
+  const content = document.getElementById('mob-content');
+  const origCO = content.style.overflow;
+  const origCH = content.style.height;
+  content.style.overflow = 'visible';
+  content.style.height   = 'auto';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const W = page.scrollWidth;
+    const H = page.scrollHeight;
+    html2canvas(page, {
+      backgroundColor:'#0f0820', scale:2,
+      useCORS:true, allowTaint:true, logging:false,
+      width:W, height:H, windowWidth:W+200, windowHeight:H,
+    }).then(canvas => {
+      page.style.overflow = origOverflow;
+      page.style.height   = origHeight;
+      content.style.overflow = origCO;
+      content.style.height   = origCH;
+      const deckName = document.getElementById('deck-name')?.value || 'deck';
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = deckName + '-snapshot.png';
+      a.click();
+      toast('✅ Snapshot สำเร็จ','ok');
+    }).catch(err => {
+      page.style.overflow = origOverflow; page.style.height = origHeight;
+      content.style.overflow = origCO; content.style.height = origCH;
+      toast('❌ Snapshot ล้มเหลว','err'); console.error(err);
+    });
+  }));
+}
+
+function toggleImportBar() {
+  const btns = document.getElementById('import-bar-btns');
+  const btn  = document.getElementById('import-toggle-btn');
+  const open = btns.style.display === 'none' || btns.style.display === '';
+  btns.style.display = open ? 'flex' : 'none';
+  if (btn) btn.textContent = open ? '▲' : '▼';
+}
+
+function switchMobPage(page) {
+  ['deck','lib','analysis'].forEach(p => {
+    document.getElementById('page-'+p).classList.toggle('active', p===page);
+    document.getElementById('nav-'+p).classList.toggle('active', p===page);
+  });
+  if (page==='lib')      renderMobLibrary();
+  if (page==='analysis') renderMobAnalysis();
+  if (page==='deck')     renderMobStory();
+}
+
+// ══════════════════════════════════════════════
+// MOBILE RENDER: MC
+// ══════════════════════════════════════════════
+function renderMobMC() {
+  const slot = document.getElementById('mob-mc-slot');
+  const chip = document.getElementById('mob-zc-mc');
+  if (!state.mc) {
+    chip.textContent = 'ยังไม่ได้เลือก'; chip.className = 'zone-chip warn';
+    slot.innerHTML = `<div style="border:2px dashed var(--border2);border-radius:12px;height:90px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.85rem;">🌟 เลือก Main Character จาก Library</div>`;
+    return;
+  }
+  const mc = state.mc;
+  chip.textContent = '✓ ' + mc.name; chip.className = 'zone-chip ok';
+  slot.innerHTML = `
+    <div class="mc-card-slot">
+      <div class="mc-img-box filled">
+        ${mc.imageUrl ? `<img src="${mc.imageUrl}" alt="${mc.name}">` : `<span style="font-size:2rem;">🌟</span>`}
+      </div>
+      <div class="mc-info">
+        <div class="mc-name">${mc.name}</div>
+        <div class="mc-meta">
+          <span class="type-pill tp-mc">Main Character</span>
+          ${mc.color ? `<span style="font-size:0.62rem;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--muted);">${mc.color}</span>` : ''}
+        </div>
+        <div class="mc-ability" style="font-size:0.7rem;">${(mc.ability||'').slice(0,100)}${mc.ability?.length>100?'…':''}</div>
+        <button class="mc-remove-btn" onclick="removeMobMC()">✕ เอาออก</button>
+      </div>
+    </div>`;
+}
+function removeMobMC() {
+  state.mc = null; renderMobMC(); mobUpdateSidebar();
+}
+
+// ══════════════════════════════════════════════
+// MOBILE RENDER: MAIN DECK
+// ══════════════════════════════════════════════
+function renderMobMain() {
+  const container = document.getElementById('mob-main-cards');
+  const sorted = sortMainCards(state.main);
+  if (!sorted.length) {
+    container.innerHTML = `<div class="empty-zone"><div class="ei">🃏</div><p>เพิ่มการ์ดจาก Library</p></div>`;
+    return;
+  }
+  container.innerHTML = '<div class="mob-card-grid" id="mob-main-grid"></div>';
+  const grid = container.querySelector('#mob-main-grid');
+  sorted.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'mob-card-tile';
+    // Image wrapper
+    const imgWrap = document.createElement('div');
+    imgWrap.className = 'mob-card-tile-img';
+    imgWrap.innerHTML = card.imageUrl
+      ? `<img src="${card.imageUrl}" alt="${card.name}" loading="lazy">`
+      : `<div class="mob-card-ph">${typeIcon(card.type)}</div>`;
+    if (card.qty > 1) {
+      const badge = document.createElement('span');
+      badge.className = 'mob-card-qty'; badge.textContent = card.qty;
+      imgWrap.appendChild(badge);
+    }
+    const zBtn = document.createElement('button');
+    zBtn.className = 'card-zoom-btn'; zBtn.textContent = '🔍';
+    zBtn.onclick = e => { e.stopPropagation(); mobZoomById(card.id); };
+    imgWrap.appendChild(zBtn);
+    // Control bar
+    const ctrl = document.createElement('div');
+    ctrl.className = 'mob-card-ctrl';
+    ctrl.innerHTML = `
+      <button class="btn-minus" onclick="mobChangeQty('main','${card.id}',-1)" ${card.qty<=1?'disabled':''}>−</button>
+      <button class="btn-plus"  onclick="mobChangeQty('main','${card.id}',1)"  ${card.qty>=4?'disabled':''}>+</button>
+      <button class="btn-rm"    onclick="mobRemoveCard('main','${card.id}')">✕</button>`;
+    el.appendChild(imgWrap);
+    el.appendChild(ctrl);
+    grid.appendChild(el);
+  });
+}
+
+// ══════════════════════════════════════════════
+// MOBILE RENDER: SCENE
+// ══════════════════════════════════════════════
+function renderMobScene() {
+  const container = document.getElementById('mob-scene-cards');
+  if (!state.scene.length) {
+    container.innerHTML = `<div class="empty-zone"><div class="ei">🎭</div><p>เพิ่ม Scene card จาก Library</p></div>`;
+    return;
+  }
+  container.innerHTML = '<div class="mob-card-grid"></div>';
+  const grid = container.querySelector('.mob-card-grid');
+  state.scene.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'mob-card-tile';
+    const imgWrap = document.createElement('div');
+    imgWrap.className = 'mob-card-tile-img';
+    imgWrap.innerHTML = card.imageUrl
+      ? `<img src="${card.imageUrl}" alt="${card.name}" loading="lazy">`
+      : `<div class="mob-card-ph">🎭</div>`;
+    if (card.qty > 1) {
+      const badge = document.createElement('span');
+      badge.className = 'mob-card-qty'; badge.textContent = card.qty;
+      imgWrap.appendChild(badge);
+    }
+    const zBtn = document.createElement('button');
+    zBtn.className = 'card-zoom-btn'; zBtn.textContent = '🔍';
+    zBtn.onclick = e => { e.stopPropagation(); mobZoomById(card.id); };
+    imgWrap.appendChild(zBtn);
+    const ctrl = document.createElement('div');
+    ctrl.className = 'mob-card-ctrl';
+    ctrl.innerHTML = `
+      <button class="btn-minus" onclick="mobChangeQty('scene','${card.id}',-1)" ${card.qty<=1?'disabled':''}>−</button>
+      <button class="btn-plus"  onclick="mobChangeQty('scene','${card.id}',1)">+</button>
+      <button class="btn-rm"    onclick="mobRemoveCard('scene','${card.id}')">✕</button>`;
+    el.appendChild(imgWrap);
+    el.appendChild(ctrl);
+    grid.appendChild(el);
+  });
+}
+
+// ══════════════════════════════════════════════
+// MOBILE RENDER: STORY
+// ══════════════════════════════════════════════
+function renderMobStory() {
+  const grid = document.getElementById('mob-story-grid');
+  const tiers = ['I','II','III','IV'];
+  grid.innerHTML = '';
+  state.story.forEach((card, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'mob-story-slot';
+    slot.innerHTML = `<div class="mob-story-tier">Tier ${tiers[i]}</div>
+      <div class="mob-story-img" onclick="storyUploadClick(${i})">
+        ${card ? (card.imageUrl ? `<img src="${card.imageUrl}" alt="${card.name}">` : `<span style="color:var(--gold);font-size:0.8rem;padding:6px;text-align:center;">${card.name}</span>`) : `<span style="font-size:1.5rem;">📜</span>`}
+        ${card ? `<button class="mob-story-rm" onclick="event.stopPropagation();storyRemove(${i})">✕</button>` : ''}
+      </div>`;
+    grid.appendChild(slot);
+  });
+  const missing = state.story.filter(s=>!s).length;
+  const warn = document.getElementById('mob-story-warn');
+  const chip = document.getElementById('mob-zc-story');
+  if (warn) warn.innerHTML = missing > 0 ? `⚠ ยังขาด ${missing} Tier` : '';
+  if (chip) { chip.textContent = missing===0?'✓ ครบ 4 Tier':`${4-missing}/4`; chip.className='zone-chip '+(missing===0?'ok':'warn'); }
+}
+
+// ══════════════════════════════════════════════
+// MOBILE RENDER: LIBRARY
+// ══════════════════════════════════════════════
+// ── Dropdown helpers ──
+function toggleDropdown(id) {
+  ['dd-type','dd-color','dd-rarity','dd-deck'].forEach(d => {
+    const el = document.getElementById(d);
+    if (el) el.style.display = (d===id && el.style.display==='none') ? 'block' : 'none';
+  });
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('[id^="dd-"]') && !e.target.closest('button[onclick*="toggleDropdown"]')) {
+    ['dd-type','dd-color','dd-rarity','dd-deck'].forEach(d => {
+      const el = document.getElementById(d); if (el) el.style.display='none';
+    });
+  }
+});
+function getChecked(ddId) {
+  return Array.from(document.querySelectorAll(`#${ddId} input[type=checkbox]:checked`)).map(el=>el.value);
+}
+function applyDropFilter() {
+  // update button labels
+  const types   = getChecked('dd-type');
+  const colors  = getChecked('dd-color');
+  const rarities= getChecked('dd-rarity');
+  document.getElementById('dd-type-label').textContent   = types.length   ? types.join(', ')   : 'Type';
+  document.getElementById('dd-color-label').textContent  = colors.length  ? colors.join(', ')  : 'Color';
+  document.getElementById('dd-rarity-label').textContent = rarities.length? rarities.join(', '): 'Rarity';
+  renderMobLibrary();
+}
+let libSortAsc = false; // default: rarity order desc (best first)
+function toggleSortDir() {
+  libSortAsc = !libSortAsc;
+  document.getElementById('sort-dir-btn').textContent = libSortAsc ? '↑' : '↓';
+  renderMobLibrary();
+}
+
+const RARITY_RANK = {CR:0,GR:1,RR:2,SR:3,U:4,C:5,SPR:6,ER:7};
+function getDeckCode(card) { return card.deck || (card.id||'').split('-')[0] || ''; }
+function getCardNum(id)    { const m=(id||'').match(/([A-Z]+)(\d+)$/i); return m?parseInt(m[2]):0; }
+function sortLibCards(cards) {
+  return [...cards].sort((a,b) => {
+    // 1st: deck code
+    const dc = getDeckCode(a).localeCompare(getDeckCode(b));
+    if (dc!==0) return libSortAsc ? -dc : dc;
+    // 2nd: rarity
+    const ra = RARITY_RANK[a.rarity]??99, rb = RARITY_RANK[b.rarity]??99;
+    const rd = libSortAsc ? rb-ra : ra-rb;
+    if (rd!==0) return rd;
+    // 3rd: card number
+    const diff = getCardNum(a.id) - getCardNum(b.id);
+    return libSortAsc ? -diff : diff;
+  });
+}
+
+function renderMobLibrary() {
+  const container = document.getElementById('mob-library');
+  const search  = (document.getElementById('lib-search')?.value||'').toLowerCase();
+  const types   = getChecked('dd-type');
+  const colors  = getChecked('dd-color');
+  const rarities= getChecked('dd-rarity');
+  let cards = state.library;
+  const decks2 = getChecked('dd-deck');
+  if (types.length)    cards = cards.filter(c=>types.includes(c.type));
+  if (colors.length)   cards = cards.filter(c=>colors.includes(c.color));
+  if (rarities.length) cards = cards.filter(c=>rarities.includes(c.rarity));
+  if (decks2.length)   cards = cards.filter(c=>decks2.includes(c.deck||(c.id||'').split('-')[0]));
+  if (search) cards = cards.filter(c=>c.name.toLowerCase().includes(search)||(c.id||'').toLowerCase().includes(search));
+  cards = sortLibCards(cards);
+  if (!cards.length) {
+    container.innerHTML = `<div class="empty-zone" style="grid-column:1/-1;"><div class="ei">🔍</div><p>ไม่พบการ์ด</p></div>`;
+    return;
+  }
+  container.innerHTML = '';
+  cards.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'lib-card-tile';
+    const inDeck = getDeckQty(card);
+    const hasMinus = inDeck > 0 && card.type!=='Main Character' && card.type!=='Story';
+    el.innerHTML = `
+      <div class="lib-card-tile-img">
+        ${card.imageUrl ? `<img src="${card.imageUrl}" alt="${card.name}" loading="lazy">` : `<div class="lib-card-ph"><span class="lib-icon">${typeIcon(card.type)}</span><span class="lib-name">${card.name}</span></div>`}
+        ${inDeck ? `<span class="lib-card-badge">${inDeck}</span>` : ''}
+        <button class="card-zoom-btn" onclick="event.stopPropagation();mobZoomById('${card.id}')">🔍</button>
+      </div>
+      <div class="mob-card-ctrl">
+        <button class="btn-minus" onclick="event.stopPropagation();libMinus('${card.id}','${card.type}')" ${!hasMinus?'disabled':''}>−</button>
+        <button class="btn-plus"  onclick="event.stopPropagation();libPlus('${card.id}')" ${inDeck>=4&&card.type!=='Main Character'&&card.type!=='Story'&&card.type!=='Scene'?'disabled':''}>+</button>
+      </div>`;
+
+    // zoom via 🔍 button only
+    container.appendChild(el);
+  });
+}
+
+
+function libPlus(id) {
+  const card = state.library.find(c=>c.id===id);
+  if (card) { mobAddCard(card); renderMobLibrary(); }
+}
+function libMinus(id, type) {
+  if (type==='Scene') { mobChangeQty('scene',id,-1); }
+  else { mobChangeQty('main',id,-1); }
+  renderMobLibrary();
+}
+
+function getDeckQty(card) {
+  if (card.type==='Main Character') return state.mc?.id===card.id?1:0;
+  if (card.type==='Scene') { const f=state.scene.find(c=>c.id===card.id); return f?f.qty:0; }
+  if (card.type==='Story') { const idx={'I':0,'II':1,'III':2,'IV':3}[card.story_stage]; return state.story[idx]?1:0; }
+  const f=state.main.find(c=>c.id===card.id); return f?f.qty:0;
+}
+
+function mobAddCard(card) {
+  const type = card.type;
+  if (type==='Main Character') {
+    if (state.mc) { toast('⚠️ มี Main Character แล้ว','warn'); return; }
+    // Check color lock (MC sets/must match main color)
+    if (card.color && card.color !== 'White') {
+      const mainColor = getDeckMainColor();
+      if (mainColor && mainColor !== card.color) {
+        (() => {
+      const CI = {Purple:'🌟',Yellow:'🦋',Pink:'🎈',Orange:'🍎',Blue:'⚡',Indigo:'💎',White:'⬜'};
+      toast(`${CI[mainColor]||'🎨'} สีหลักคือ ${mainColor} — MC ต้องสีเดียวกัน`, 'warn');
+    })(); return;
+      }
+    }
+    state.mc = {...card}; renderMobMC(); mobUpdateSidebar(); toast('⭐ '+card.name,'ok'); return;
+  }
+  if (type==='Scene') {
+    const ex = state.scene.find(c=>c.id===card.id);
+    if (ex) ex.qty++; else state.scene.push({...card, qty:1});
+    renderMobScene(); mobUpdateSidebar(); toast('🎭 '+card.name,'ok'); return;
+  }
+  if (type==='Story') {
+    const stageMap={'I':0,'II':1,'III':2,'IV':3};
+    const idx = stageMap[card.story_stage];
+    if (idx===undefined) { toast('⚠️ Story stage ไม่ถูกต้อง','warn'); return; }
+    if (state.story[idx]) { toast(`⚠️ Tier ${card.story_stage} มีการ์ดแล้ว`,'warn'); return; }
+    state.story[idx]={...card}; mobUpdateSidebar(); toast('📖 '+card.name,'ok'); return;
+  }
+  // ── Color lock check ──
+  if (card.color && card.color !== 'White') {
+    const mainColor = getDeckMainColor();
+    if (mainColor && mainColor !== card.color) {
+      (() => {
+      const CI = {Purple:'🌟',Yellow:'🦋',Pink:'🎈',Orange:'🍎',Blue:'⚡',Indigo:'💎',White:'⬜'};
+      toast(`${CI[mainColor]||'🎨'} สีหลักคือ ${mainColor} — ใส่ได้แค่ ${mainColor} + White`, 'warn');
+    })();
+      return;
+    }
+  }
+  // Main deck
+  const ex = state.main.find(c=>c.id===card.id);
+  if (ex) {
+    if (ex.qty>=4) { toast('⚠️ max 4 ใบ/แบบ','warn'); return; }
+    ex.qty++;
+  } else { state.main.push({...card, qty:1}); }
+  renderMobMain(); mobUpdateSidebar(); toast('🃏 '+card.name,'ok');
+  renderMobLibrary();
+}
+
+// ── Helper: get current main deck color (first non-White color found) ──
+function getDeckMainColor() {
+  for (const c of state.main) {
+    if (c.color && c.color !== 'White') return c.color;
+  }
+  if (state.mc && state.mc.color && state.mc.color !== 'White') return state.mc.color;
+  return null;
+}
+
+// ── Clear deck with confirm ──
+function mobClearDeck() {
+  if (!confirm('ล้างเด็คทั้งหมด?')) return;
+  state.mc    = null;
+  state.main  = [];
+  state.scene = [];
+  state.story = [null, null, null, null];
+  renderMobMC();
+  renderMobMain();
+  renderMobScene();
+  renderMobStory();
+  mobUpdateSidebar();
+  renderMobLibrary();
+  toast('🗑️ ล้างเด็คแล้ว', 'ok');
+}
+
+function mobChangeQty(zone, id, delta) {
+  const arr = state[zone];
+  const card = arr.find(c=>c.id===id);
+  if (!card) return;
+  card.qty = Math.max(0, Math.min(zone==='scene'?Infinity:4, card.qty+delta));
+  if (card.qty===0) { mobRemoveCard(zone, id); return; }
+  if (zone==='main') renderMobMain();
+  if (zone==='scene') renderMobScene();
+  mobUpdateSidebar(); renderMobLibrary();
+}
+function mobRemoveCard(zone, id) {
+  state[zone] = state[zone].filter(c=>c.id!==id);
+  if (zone==='main') renderMobMain();
+  if (zone==='scene') renderMobScene();
+  mobUpdateSidebar(); renderMobLibrary();
+}
+
+// ══════════════════════════════════════════════
+// MOBILE UPDATE SIDEBAR / CHIPS
+// ══════════════════════════════════════════════
+function mobUpdateSidebar() {
+  const mainTotal = state.main.reduce((s,c)=>s+c.qty,0);
+  const chip = document.getElementById('mob-zc-main');
+  if (chip) {
+    chip.textContent = mainTotal===50?'✓ 50 ใบ':`${mainTotal}/50`;
+    chip.className = 'zone-chip '+(mainTotal===50?'ok':mainTotal>50?'err':'warn');
+  }
+  // Color indicator
+  const colorEl = document.getElementById('mob-color-lock');
+  if (colorEl) {
+    const mc = getDeckMainColor ? getDeckMainColor() : null;
+    const colorDot = {Purple:'#a78bfa',Indigo:'#6366f1',Yellow:'#eab308',Pink:'#ec4899',Orange:'#f97316',Blue:'#3b82f6',White:'#cbd5e1'};
+    const colorIcon= {Purple:'🌟',Indigo:'💎',Yellow:'🦋',Pink:'🎈',Orange:'🍎',Blue:'⚡',White:'⬜'};
+    const dot = colorDot[mc]||'#9ca3af';
+    const ico = colorIcon?.[mc]||'●';
+    colorEl.innerHTML = mc
+      ? `<span style="color:${dot};font-size:0.9rem;margin-right:3px;">${ico}</span><span style="color:${dot};">${mc}</span>`
+      : `<span style="color:var(--dim);">ยังไม่มีสีหลัก</span>`;
+  }
+}
+
+// ══════════════════════════════════════════════
+// MOBILE ZOOM
+// ══════════════════════════════════════════════
+function mobZoomById(id) {
+  // Look up card from library (has imageUrl attached) or reconstruct from state
+  let card = state.library.find(c => c.id === id);
+  if (!card) card = state.main.find(c => c.id === id);
+  if (!card) card = state.scene.find(c => c.id === id);
+  if (!card) return;
+  openMobZoom(card);
+}
+function openMobZoom(card) {
+  const RC = {CR:'#a78bfa',GR:'#fbbf24',RR:'#f472b6',SR:'#34d399',U:'#60a5fa',C:'#9ca3af',SPR:'#fb923c',ER:'#38bdf8'};
+  // Image
+  document.getElementById('mzm-img').innerHTML = card.imageUrl
+    ? `<img src="${card.imageUrl}" style="width:100%;height:100%;object-fit:cover;">` : `<span>${typeIcon(card.type)}</span>`;
+  // Name + ID
+  document.getElementById('mzm-name').innerHTML =
+    `${card.name}<div style="font-family:'Nunito';font-size:0.62rem;color:var(--dim);margin-top:2px;">${card.id||''}</div>`;
+  // Pills
+  const rc = RC[card.rarity]||'var(--muted)';
+  let meta='';
+  if(card.type)   meta+=`<span class="type-pill ${typePill(card.type)}" style="font-size:0.7rem;padding:3px 9px;">${card.type}</span>`;
+  if(card.rarity) meta+=`<span style="background:${rc}22;color:${rc};border:1px solid ${rc}44;border-radius:6px;padding:3px 9px;font-size:0.7rem;font-weight:800;">${card.rarity}</span>`;
+  const COLOR_ICON = {Purple:'🌟',Yellow:'🦋',Pink:'🎈',Orange:'🍎',Blue:'⚡',Indigo:'💎',White:'⬜'};
+  const COLOR_HEX  = {Purple:'#a78bfa',Yellow:'#eab308',Pink:'#ec4899',Orange:'#f97316',Blue:'#3b82f6',Indigo:'#6366f1',White:'#cbd5e1'};
+  if(card.color) {
+    const cicon = COLOR_ICON[card.color]||'●';
+    const chex  = COLOR_HEX[card.color]||'#9ca3af';
+    meta+=`<span style="background:${chex}22;color:${chex};border:1px solid ${chex}44;border-radius:6px;padding:3px 9px;font-size:0.7rem;font-weight:700;">${cicon} ${card.color}</span>`;
+  }
+  if(card.deck)   meta+=`<span style="background:var(--surface2);color:var(--dim);border-radius:6px;padding:3px 9px;font-size:0.68rem;">${card.deck}</span>`;
+  document.getElementById('mzm-meta').innerHTML=meta;
+  // Stats blocks
+  let stats='';
+  if(card.cost!=null)  stats+=`<div style="flex:1;text-align:center;padding:10px 0;border-right:1px solid var(--border2);"><div style="font-size:1.1rem;">💎</div><div style="font-size:1.05rem;font-weight:800;color:var(--text);">${card.cost}</div><div style="font-size:0.6rem;color:var(--dim);">Cost</div></div>`;
+  if(card.power!=null) stats+=`<div style="flex:1;text-align:center;padding:10px 0;"><div style="font-size:1.1rem;">⚔️</div><div style="font-size:1.05rem;font-weight:800;color:var(--text);">${card.power}</div><div style="font-size:0.6rem;color:var(--dim);">Power</div></div>`;
+  document.getElementById('mzm-stats').innerHTML=stats||'<span style="color:var(--dim);font-size:0.8rem;padding:10px;">—</span>';
+  // Ability
+  document.getElementById('mzm-ability').textContent=card.ability||'(ไม่มี ability)';
+  document.getElementById('mob-zoom-modal').style.display='flex';
+}
+function closeMobZoom() { document.getElementById('mob-zoom-modal').style.display='none'; }
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeMobZoom(); });
+
+// ══════════════════════════════════════════════
+// MOBILE ANALYSIS — reuse desktop functions
+// ══════════════════════════════════════════════
+function renderMobAnalysis() {
+  const container = document.getElementById('mob-analysis-content');
+  const cards = state.main;
+  const total = cards.reduce((s,c)=>s+c.qty,0);
+  if (total===0) {
+    container.innerHTML='<div class="empty-zone"><div class="ei">📊</div><p>เพิ่มการ์ดใน Main Deck เพื่อดูสถิติ</p></div>';
+    return;
+  }
+  const flat=[];
+  cards.forEach(c=>{for(let i=0;i<c.qty;i++) flat.push(c);});
+  const costs=flat.map(c=>c.cost??0), powers=flat.map(c=>c.power??0);
+  const avgCost=(costs.reduce((a,b)=>a+b,0)/costs.length).toFixed(2);
+  const avgPower=(powers.reduce((a,b)=>a+b,0)/powers.length).toFixed(2);
+  const costDist={},powerDist={},typeDist={},rarityDist={},colorDist={};
+  flat.forEach(c=>{
+    const ck=Math.min(c.cost??0,7); costDist[ck]=(costDist[ck]||0)+1;
+    const pk=Math.min(c.power??0,8); powerDist[pk]=(powerDist[pk]||0)+1;
+    typeDist[c.type]=(typeDist[c.type]||0)+1;
+    rarityDist[c.rarity||'?']=(rarityDist[c.rarity||'?']||0)+1;
+    colorDist[c.color||'?']=(colorDist[c.color||'?']||0)+1;
+  });
+  const RACES=new Set(['Earth Pony','Pegasus','Unicorn','Alicorn']);
+  const raceDist={},nameDist={};
+  flat.forEach(c=>{(c.subtype||[]).forEach(s=>{if(RACES.has(s)) raceDist[s]=(raceDist[s]||0)+1; else nameDist[s]=(nameDist[s]||0)+1;});});
+  const rarityOrder=['CR','GR','RR','SR','U','C','SPR'];
+  const raceItems=Object.entries(raceDist).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val}));
+  const nameItems=Object.entries(nameDist).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val}));
+  container.innerHTML=`
+    ${summaryCard(total,avgCost,avgPower)}
+    ${barChart('Cost Curve',costDist,['#7c3aed','#8b5cf6','#a78bfa','#c4b5fd','#818cf8','#6366f1','#4f46e5','#3730a3'],true,'7+')}
+    ${barChart('Power Distribution',powerDist,['#ec4899','#f472b6','#f9a8d4','#fbbf24','#fb923c','#f87171','#ef4444','#dc2626','#b91c1c'],false,'8+')}
+    ${horizBar('Rarity Breakdown',rarityOrder.filter(r=>rarityDist[r]).map(r=>({label:r,val:rarityDist[r]})),total,rarityColors())}
+    ${donutChart('Card Type',typeDist,typeColors())}
+    ${colorChart('Color Mix',colorDist)}
+    ${raceItems.length?horizBar('Pony Race',raceItems,flat.length,raceColors()):''}
+    ${nameItems.length?subtypeNameChart('Character Tags',nameItems,flat.length):''}
+  `;
+}
+
+// Override updateSidebar for mobile
+const _origUpdateSidebar = typeof updateSidebar!=='undefined' ? updateSidebar : null;
+function updateSidebar() { mobUpdateSidebar(); }
+
+// Init mobile story grid on load
+document.addEventListener('DOMContentLoaded', () => {
+  renderMobStory();
+  preloadAssets();
+  renderMobLibrary();
+});
+
+// ══════════════════════════════════════════════
+// PRELOAD: auto-load JSON + card images from ./data/ and ./cards/
+// ══════════════════════════════════════════════
+const GITHUB_BASE = 'https://raw.githubusercontent.com/auac131/MLP-DB/main';
+
+async function preloadAssets() {
+  const isFile = location.protocol === 'file:';
+  if (isFile) { showFileProtocolBanner(); return; }
+
+  toast('⏳ กำลังโหลด...', 'ok');
+
+  // Strategy 1: relative path (works when hosted on GitHub Pages)
+  // Strategy 2: raw.githubusercontent.com (works from any https origin)
+  const SOURCES = [
+    { base: '.', label: 'GitHub Pages' },
+    { base: 'https://raw.githubusercontent.com/auac131/MLP-DB/main',  label: 'GitHub Raw (main)' },
+    { base: 'https://raw.githubusercontent.com/auac131/MLP-DB/master', label: 'GitHub Raw (master)' },
+  ];
+
+  for (const src of SOURCES) {
+    try {
+      const res = await fetch(src.base + '/MLP-DB.json');
+      if (!res.ok) continue;
+      const data = await res.json();
+      const cards = parseCardData(data);
+      cards.forEach(card => {
+        card.imageUrl = src.base + '/cards/' + card.id + '.jpg';
+      });
+      applyLibrary(cards, true);
+      renderMobLibrary();
+      toast(`📚 ${cards.length} การ์ด • โหลดสำเร็จ`, 'ok');
+      return;
+    } catch(e) {
+      console.warn(src.label + ' failed:', e.message);
+    }
+  }
+  toast('⚠️ โหลดไม่ได้ กรุณา import JSON เอง', 'warn');
+}
+
+function showFileProtocolBanner() {
+  // แสดง overlay อธิบายวิธีใช้
+  const banner = document.createElement('div');
+  banner.style.cssText = `
+    position:fixed; inset:0; z-index:9999;
+    background:rgba(15,8,32,0.97); display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:24px; text-align:center;
+  `;
+  banner.innerHTML = `
+    <div style="font-size:2.5rem;margin-bottom:12px;">⚠️</div>
+    <div style="font-family:'Fredoka One';font-size:1.2rem;color:#a78bfa;margin-bottom:10px;">
+      เปิดผ่าน file:// ไม่ได้
+    </div>
+    <div style="font-size:0.82rem;color:#9ca3af;line-height:1.8;max-width:340px;margin-bottom:20px;">
+      Browser ไม่อนุญาตให้โหลดข้อมูลจาก GitHub<br>
+      เมื่อเปิดไฟล์ HTML โดยตรง<br><br>
+      <strong style="color:#e2e8f0;">วิธีแก้:</strong><br>
+      1. เปิดด้วย Chrome/Edge แล้วลาก HTML ใส่<br>
+      2. หรือใช้ app เช่น <strong style="color:#fbbf24;">WebIntoApp</strong><br>
+      3. หรือกด "<strong style="color:#4ade80;">📥 Import JSON</strong>" เพื่อใส่ข้อมูลเอง
+    </div>
+    <button onclick="this.parentElement.remove(); renderMobLibrary();"
+      style="background:linear-gradient(135deg,#7c3aed,#ec4899);border:none;
+      border-radius:12px;color:#fff;padding:10px 24px;font-size:0.9rem;
+      font-family:'Nunito';font-weight:800;cursor:pointer;">
+      ✓ เข้าใจแล้ว (import เอง)
+    </button>
+  `;
+  document.body.appendChild(banner);
+}
+
+
+async function preloadCardImages(cards) {
+  const EXT = ['jpg','jpeg','png','webp'];
+  // Try each card, probe extensions in order
+  const tasks = cards.map(async card => {
+    for (const ext of EXT) {
+      try {
+        const url = `./cards/${card.id}.${ext}`;
+        const res = await fetch(url, { method: 'HEAD' });
+        if (res.ok) {
+          card.imageUrl = url;
+          // Update already-rendered library thumb
+          const thumb = document.getElementById(`lrt-${card.id}`);
+          if (thumb) thumb.innerHTML = `<img src="${url}" alt="${card.name}" loading="lazy">`;
+          break;
+        }
+      } catch(e) { /* not found */ }
+    }
+  });
+  // Batch in groups of 10 to avoid flooding requests
+  for (let i = 0; i < tasks.length; i += 10) {
+    await Promise.all(tasks.slice(i, i + 10));
+  }
+  renderMobLibrary();
+  const loaded = cards.filter(c => c.imageUrl).length;
+  if (loaded > 0) toast(`🖼️ โหลดรูป ${loaded} ใบ`, 'ok');
+}
+
+</script>
+
+
+<!-- Footer -->
+<div style="text-align:center;padding:10px 16px 20px;font-size:0.62rem;color:var(--dim);font-family:'Nunito';font-weight:600;letter-spacing:0.03em;flex-shrink:0;border-top:1px solid var(--border);background:var(--bg);line-height:1.8;">
+  <span style="color:var(--purple);opacity:0.7;">🌈</span>
+  MLP Card Game Deck Builder
+  <span style="color:var(--border2);margin:0 6px;">·</span>
+  Idea by <span style="color:var(--gold);opacity:0.85;">Kiattisak.V</span>
+  <span style="color:var(--border2);margin:0 6px;">·</span>
+  Created by <span style="color:var(--purple);opacity:0.85;">Claude Sonnet 4.6</span>
+</div>
+</body>
+</html>
