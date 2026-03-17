@@ -1,5 +1,95 @@
 [
   {
+    "id": "*SD01-RR01",
+    "name": "Twilight Sparkle",
+    "type": "Main Character",
+    "subtype": [
+      "Unicorn",
+      "Twilight Sparkle"
+    ],
+    "color": "Purple",
+    "cost": null,
+    "power": null,
+    "rarity": "*RR",
+    "deck": "SD01",
+    "ability": "(Shining Ruby Rare art card)"
+  },
+  {
+    "id": "*SD01-RR02",
+    "name": "Fluttershy",
+    "type": "Main Character",
+    "subtype": [
+      "Pegasus",
+      "Fluttershy"
+    ],
+    "color": "Yellow",
+    "cost": null,
+    "power": null,
+    "rarity": "*RR",
+    "deck": "SD01",
+    "ability": "(Shining Ruby Rare art card)"
+  },
+  {
+    "id": "*SD01-RR03",
+    "name": "Pinkie Pie",
+    "type": "Main Character",
+    "subtype": [
+      "Earth Pony",
+      "Pinkie Pie"
+    ],
+    "color": "Pink",
+    "cost": null,
+    "power": null,
+    "rarity": "*RR",
+    "deck": "SD01",
+    "ability": "(Shining Ruby Rare art card)"
+  },
+  {
+    "id": "*SD01-RR04",
+    "name": "Applejack",
+    "type": "Main Character",
+    "subtype": [
+      "Earth Pony",
+      "Applejack"
+    ],
+    "color": "Orange",
+    "cost": null,
+    "power": null,
+    "rarity": "*RR",
+    "deck": "SD01",
+    "ability": "(Shining Ruby Rare art card)"
+  },
+  {
+    "id": "*SD01-RR05",
+    "name": "Rainbow Dash",
+    "type": "Main Character",
+    "subtype": [
+      "Pegasus",
+      "Rainbow Dash"
+    ],
+    "color": "Blue",
+    "cost": null,
+    "power": null,
+    "rarity": "*RR",
+    "deck": "SD01",
+    "ability": "(Shining Ruby Rare art card)"
+  },
+  {
+    "id": "*SD01-RR06",
+    "name": "Rarity",
+    "type": "Main Character",
+    "subtype": [
+      "Unicorn",
+      "Rarity"
+    ],
+    "color": "Indigo",
+    "cost": null,
+    "power": null,
+    "rarity": "*RR",
+    "deck": "SD01",
+    "ability": "(Shining Ruby Rare art card)"
+  },
+  {
     "id": "SD01-C01",
     "name": "Twilight Sparkle",
     "type": "Character",
@@ -410,8 +500,23 @@
     "cost": null,
     "power": null,
     "rarity": "RR",
-    "deck": "SD01",
-    "ability": "(Rainbow Rare art card — no game text)"
+    "deck": "SD01A",
+    "ability": "(Ruby Rare art card)"
+  },
+  {
+    "id": "SD01-RR02",
+    "name": "Fluttershy",
+    "type": "Main Character",
+    "subtype": [
+      "Pegasus",
+      "Fluttershy"
+    ],
+    "color": "Yellow",
+    "cost": null,
+    "power": null,
+    "rarity": "RR",
+    "deck": "SD01B",
+    "ability": "(Ruby Rare art card)"
   },
   {
     "id": "SD01-RR03",
@@ -425,8 +530,23 @@
     "cost": null,
     "power": null,
     "rarity": "RR",
-    "deck": "SD01",
-    "ability": "(Rainbow Rare art card — no game text)"
+    "deck": "SD01C",
+    "ability": "(Ruby Rare art card)"
+  },
+  {
+    "id": "SD01-RR04",
+    "name": "Applejack",
+    "type": "Main Character",
+    "subtype": [
+      "Earth Pony",
+      "Applejack"
+    ],
+    "color": "Orange",
+    "cost": null,
+    "power": null,
+    "rarity": "RR",
+    "deck": "SD01D",
+    "ability": "(Ruby Rare art card)"
   },
   {
     "id": "SD01-RR05",
@@ -440,8 +560,8 @@
     "cost": null,
     "power": null,
     "rarity": "RR",
-    "deck": "SD01",
-    "ability": "(Rainbow Rare art card — no game text)"
+    "deck": "SD01E",
+    "ability": "(Ruby Rare art card)"
   },
   {
     "id": "SD01-RR06",
@@ -455,8 +575,8 @@
     "cost": null,
     "power": null,
     "rarity": "RR",
-    "deck": "SD01",
-    "ability": "(Rainbow Rare art card — no game text)"
+    "deck": "SD01F",
+    "ability": "(Ruby Rare art card)"
   },
   {
     "id": "SD01-SPR01",
@@ -1326,21 +1446,6 @@
     "ability": "[Adventure] While there is any 「Fluttershy」 in your Adventure Area, this Character gets +2 Inspiration in Rival's turn."
   },
   {
-    "id": "SD01-RR02",
-    "name": "Fluttershy",
-    "type": "Main Character",
-    "subtype": [
-      "Pegasus",
-      "Fluttershy"
-    ],
-    "color": "Yellow",
-    "cost": null,
-    "power": null,
-    "rarity": "RR",
-    "deck": "SD01B",
-    "ability": "(Rainbow Rare art card — no game text)"
-  },
-  {
     "id": "SD01C-C01",
     "name": "Pinkie Pie",
     "type": "Character",
@@ -1892,21 +1997,6 @@
     "rarity": "U",
     "deck": "SD01D",
     "ability": "[Adventure] [Tap] Choose 1 Scene in your Scene Area, untap it."
-  },
-  {
-    "id": "SD01-RR04",
-    "name": "Applejack",
-    "type": "Main Character",
-    "subtype": [
-      "Earth Pony",
-      "Applejack"
-    ],
-    "color": "Orange",
-    "cost": null,
-    "power": null,
-    "rarity": "RR",
-    "deck": "SD01D",
-    "ability": "(Rainbow Rare art card — no game text)"
   },
   {
     "id": "SD01E-C01",
