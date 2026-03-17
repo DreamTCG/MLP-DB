@@ -2,7 +2,7 @@
 
 A web-based deck builder for the **My Little Pony Card Game (KAYOU)** — playable directly in the browser, no installation required.
 
-🔗 **Live App:** [https://auac131.github.io/MLP-DB/](https://auac131.github.io/MLP-DB/)
+🔗 **Live App:** [https://dreamtcg.github.io/MLP-DB/](https://dreamtcg.github.io/MLP-DB/)
 
 ---
 
