@@ -484,17 +484,29 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
   <div class="zoom-inner" onclick="event.stopPropagation()">
     <div class="zoom-handle"></div>
     <button class="zoom-close" onclick="closeZoom()">✕</button>
-    <!-- Prev / Next navigation -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+    <!-- Nav + card image row -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+      <!-- Prev arrow — aligns with card center via flex align-items:center -->
       <button id="zm-prev" onclick="zoomNav(-1)"
-        style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);
-        border-radius:8px;padding:6px 14px;font-size:1rem;cursor:pointer;">◀</button>
-      <span id="zm-index" style="font-size:0.65rem;color:var(--dim);"></span>
+        style="flex-shrink:0;background:var(--surface2);border:1px solid var(--border2);
+        color:var(--muted);border-radius:8px;padding:8px 10px;font-size:1rem;
+        cursor:pointer;align-self:center;">◀</button>
+
+      <!-- Card image + index -->
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:0;">
+        <div id="zm-img" style="width:min(220px,100%);aspect-ratio:5/7;border-radius:14px;
+          overflow:hidden;background:var(--surface2);display:flex;align-items:center;
+          justify-content:center;font-size:3rem;
+          box-shadow:0 12px 36px rgba(0,0,0,0.6);"></div>
+        <span id="zm-index" style="font-size:0.65rem;color:var(--dim);margin-top:6px;"></span>
+      </div>
+
+      <!-- Next arrow -->
       <button id="zm-next" onclick="zoomNav(1)"
-        style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);
-        border-radius:8px;padding:6px 14px;font-size:1rem;cursor:pointer;">▶</button>
+        style="flex-shrink:0;background:var(--surface2);border:1px solid var(--border2);
+        color:var(--muted);border-radius:8px;padding:8px 10px;font-size:1rem;
+        cursor:pointer;align-self:center;">▶</button>
     </div>
-    <div id="zm-img" style="width:min(220px,70%);aspect-ratio:5/7;border-radius:14px;overflow:hidden;margin:0 auto 16px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:3rem;box-shadow:0 12px 36px rgba(0,0,0,0.6);"></div>
     <div id="zm-name" style="font-family:var(--font-head);font-size:1.25rem;text-align:center;margin-bottom:8px;line-height:1.3;"></div>
     <div id="zm-meta" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;"></div>
     <div id="zm-stats" style="display:flex;justify-content:center;margin-bottom:12px;background:var(--surface2);border-radius:10px;overflow:hidden;"></div>
@@ -1515,15 +1527,15 @@ function _renderZoom(card) {
   // Story card: horizontal layout (wide aspect)
   const zmImg = $('zm-img');
   if (card.type === 'Story') {
-    // Story cards: landscape 5:3
-    zmImg.style.width        = 'min(100%, 480px)';
+    // Landscape 5:3 — full center column width
+    zmImg.style.width        = '100%';
     zmImg.style.height       = '';
     zmImg.style.aspectRatio  = '5/3';
     zmImg.style.maxWidth     = 'none';
     zmImg.style.borderRadius = '10px';
   } else {
-    // Standard cards: portrait 5:7
-    zmImg.style.width        = 'min(220px, 70%)';
+    // Portrait 5:7
+    zmImg.style.width        = 'min(220px, 100%)';
     zmImg.style.height       = '';
     zmImg.style.aspectRatio  = '5/7';
     zmImg.style.maxWidth     = '';
@@ -1557,7 +1569,12 @@ function _renderZoom(card) {
   const qtyLbl = $('zm-qty-label');
   const qtyMinus = $('zm-qty-minus');
   const qtyPlus  = $('zm-qty-plus');
-  if (inDeck > 0 || card.type === 'Main Character' || card.type === 'Story') {
+  // Always show qty controls (hidden only for Scene/Story when not in deck)
+  const showQty = card.type === 'Main Character' || card.type === 'Story'
+    || card.type === 'Scene' ? inDeck > 0
+    : true; // always show for main deck cards
+
+  if (showQty) {
     qtyRow.style.display = 'flex';
     if (card.type === 'Main Character') {
       qtyLbl.textContent = inDeck ? '⭐ In Deck' : 'Not in Deck';
