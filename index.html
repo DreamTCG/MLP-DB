@@ -1148,10 +1148,23 @@ function addCard(card) {
     renderScene(); updateSidebar(); toast(`🎭 ${card.name}`,'ok'); return;
   }
   if (type==='Story') {
-    const idx={'I':0,'II':1,'III':2,'IV':3}[card.story_stage];
-    if (idx===undefined) { toast('⚠ Invalid story stage','warn'); return; }
-    if (state.story[idx]) { toast(`⚠ Tier ${card.story_stage} already filled`,'warn'); return; }
-    state.story[idx]={...card}; renderStory(); updateSidebar(); toast(`📖 ${card.name}`,'ok'); return;
+    // Auto-fill entire set from same deck code
+    const dk = card.deck || card.id.split('-')[0];
+    const setCards = state.library.filter(c => c.type==='Story' && (c.deck||c.id.split('-')[0])===dk);
+    const tiers = ['I','II','III','IV'];
+    let added = 0;
+    tiers.forEach((tier, i) => {
+      if (state.story[i]) return; // already filled
+      const match = setCards.find(c => c.story_stage===tier);
+      if (match) { state.story[i]={...match}; added++; }
+    });
+    if (added) {
+      renderStory(); updateSidebar();
+      toast(`📖 ${STORY_SETS[dk]||card.name} — ${added} tier(s) added`,'ok');
+    } else {
+      toast('⚠ Story slots already filled','warn');
+    }
+    return;
   }
   const ex=state.main.find(c=>c.id===card.id);
   if (ex) { if(ex.qty>=4){toast('⚠ Max 4 copies','warn');return;} ex.qty++; }
@@ -1287,38 +1300,13 @@ const STORY_SETS = {
   'SD01F':'A Dog and Pony Show',
 };
 
-function pickStorySet(deckCode) {
-  const tiers = ['I','II','III','IV'];
-  const setCards = state.library.filter(c => c.type==='Story' && c.deck===deckCode);
-  if (!setCards.length) { toast(`No story cards found for ${deckCode}`,'warn'); return; }
-  let added = 0;
-  tiers.forEach((tier, i) => {
-    if (state.story[i]) return; // slot already filled
-    const card = setCards.find(c => c.story_stage===tier);
-    if (card) { state.story[i]={...card}; added++; }
-  });
-  renderStory(); updateSidebar();
-  if (added) toast(`📖 ${STORY_SETS[deckCode]||deckCode} — ${added} tier(s) added`,'ok');
-  else toast('Story slots already filled','warn');
-}
+
 
 function renderStory() {
   const tiers=['I','II','III','IV'];
-  // Build set-picker row
-  const setPickerHTML = `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
-    ${Object.entries(STORY_SETS).map(([dk,name])=>
-      `<button onclick="pickStorySet('${dk}')" style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);border-radius:6px;padding:4px 9px;font-size:0.68rem;font-weight:700;cursor:pointer;font-family:var(--font-body);">${name}</button>`
-    ).join('')}
-    <button onclick="state.story=[null,null,null,null];renderStory();updateSidebar();" style="background:none;border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:6px;padding:4px 9px;font-size:0.68rem;font-weight:700;cursor:pointer;font-family:var(--font-body);">✕ Clear</button>
-  </div>`;
   ['story-grid-d','story-grid-m'].forEach(id=>{
     const grid=$(id); if(!grid) return;
     grid.innerHTML='';
-    // Add set picker
-    const pickerEl = document.createElement('div');
-    pickerEl.style.gridColumn='1/-1';
-    pickerEl.innerHTML=setPickerHTML;
-    grid.appendChild(pickerEl);
     state.story.forEach((card,i)=>{
       const slot=document.createElement('div');
       slot.className='story-slot';
@@ -1466,16 +1454,10 @@ function downloadExportTxt() {
 // ═══════════════════════════════════════════════════════
 let _storyUploadIdx=null;
 function storyUploadClick(i){
-  // Check if we can pick from library first
-  const stageMap=['I','II','III','IV'];
-  const available=state.library.filter(c=>c.type==='Story'&&c.story_stage===stageMap[i]&&!state.story[i]);
-  if(available.length){
-    // pick the first unassigned story card for this tier
-    const card=available[0];
-    state.story[i]={...card}; renderStory(); updateSidebar();
-    toast(`📖 ${card.name} (Tier ${stageMap[i]})`,'ok');
-  } else if(state.story[i]){
-    openZoom(state.story[i]);
+  // If slot has a card, zoom to view details
+  if(state.story[i]){
+    const storySet = state.story.filter(Boolean);
+    openZoom(state.story[i], storySet, 'story');
   }
 }
 function storyUpload(input){
@@ -1530,6 +1512,19 @@ function zoomQtyChange(delta) {
 }
 
 function _renderZoom(card) {
+  // Story card: horizontal layout (wide aspect)
+  const zmImg = $('zm-img');
+  if (card.type === 'Story') {
+    zmImg.style.width  = '100%';
+    zmImg.style.height = '160px';
+    zmImg.style.maxWidth = 'none';
+    zmImg.style.borderRadius = '10px';
+  } else {
+    zmImg.style.width  = '220px';
+    zmImg.style.height = '308px';
+    zmImg.style.maxWidth = '';
+    zmImg.style.borderRadius = '14px';
+  }
   const RC={CR:'#a78bfa',GR:'#fbbf24',RR:'#f472b6',SR:'#34d399',U:'#60a5fa',C:'#9ca3af',SPR:'#fb923c',ER:'#38bdf8'};
   $('zm-img').innerHTML=card.imageUrl?`<img src="${card.imageUrl}" style="width:100%;height:100%;object-fit:cover">`:`<span>${typeIcon(card.type)}</span>`;
   const rc=RC[card.rarity]||'var(--muted)';
