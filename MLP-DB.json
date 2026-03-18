@@ -804,7 +804,7 @@
     "power": 4,
     "rarity": "CR",
     "deck": "BP01",
-    "ability": "[Farewell] If there is any un[Tap]ped Scene in your Scene Area, choose 1 Character with Inspiration 4 or less in Rival's Adventure Area to Retire.",
+    "ability": "[Farewell] If there is any untapped Scene in your Scene Area, choose 1 Character with Inspiration 4 or less in Rival's Adventure Area to Retire.",
     "story_stage": null
   },
   {
@@ -900,7 +900,7 @@
     "power": 3,
     "rarity": "CR",
     "deck": "BP01",
-    "ability": "[Appear] Choose 2 Scenes in your Scene Area, un[Tap] them.",
+    "ability": "[Appear] Choose 2 Scenes in your Scene Area, untap them.",
     "story_stage": null
   },
   {
@@ -1092,7 +1092,7 @@
     "power": 5,
     "rarity": "GR",
     "deck": "BP01",
-    "ability": "[Adventure] [Tap] Choose 1 Scene in your Scene Area, un[Tap] it.",
+    "ability": "[Adventure] [Tap] Choose 1 Scene in your Scene Area, untap it.",
     "story_stage": null
   },
   {
@@ -1402,7 +1402,7 @@
     "power": null,
     "rarity": "SPR",
     "deck": "BP01",
-    "ability": "Only use when there is any [Tap]ped Character in your Adventure Area. Draw 2 cards.",
+    "ability": "Only use when there is any tapped Character in your Adventure Area. Draw 2 cards.",
     "story_stage": null
   },
   {
@@ -1648,7 +1648,7 @@
     "power": 5,
     "rarity": "SR",
     "deck": "BP01",
-    "ability": "[Adventure] While there is any un[Tap]ped Scene in your Scene Area, this Character gets +2 Inspiration.",
+    "ability": "[Adventure] While there is any untapped Scene in your Scene Area, this Character gets +2 Inspiration.",
     "story_stage": null
   },
   {
@@ -2310,7 +2310,7 @@
     "power": 6,
     "rarity": "CR",
     "deck": "SD01",
-    "ability": "[Appear] If there is any 「Winona」 in your Adventure Area, choose 1 Scene in your Scene Area, un[Tap] it.",
+    "ability": "[Appear] If there is any 「Winona」 in your Adventure Area, choose 1 Scene in your Scene Area, untap it.",
     "story_stage": null
   },
   {
@@ -3942,7 +3942,7 @@
     "power": 2,
     "rarity": "C",
     "deck": "SD01D",
-    "ability": "[Farewell] If there is any un[Tap]ped Scene in your Scene Area, draw 2 cards.",
+    "ability": "[Farewell] If there is any untapped Scene in your Scene Area, draw 2 cards.",
     "story_stage": null
   },
   {
@@ -4038,7 +4038,7 @@
     "story_title": "Applebuck Season",
     "story_subtitle": "Stubborn Applejack",
     "story_stage": "II",
-    "ability": "When promoted to this stage, choose 1 Scene in your Scene Area, un[Tap] it."
+    "ability": "When promoted to this stage, choose 1 Scene in your Scene Area, untap it."
   },
   {
     "id": "SD01D-C08",
@@ -4168,7 +4168,7 @@
     "power": 4,
     "rarity": "U",
     "deck": "SD01D",
-    "ability": "[Adventure] While there is any un[Tap]ped Scene in your Scene Area, this Character gets +2 Inspiration.",
+    "ability": "[Adventure] While there is any untapped Scene in your Scene Area, this Character gets +2 Inspiration.",
     "story_stage": null
   },
   {
@@ -4217,7 +4217,7 @@
     "power": 4,
     "rarity": "U",
     "deck": "SD01D",
-    "ability": "[Adventure] [Tap] Choose 1 Scene in your Scene Area, un[Tap] it.",
+    "ability": "[Adventure] [Tap] Choose 1 Scene in your Scene Area, untap it.",
     "story_stage": null
   },
   {
@@ -4863,7 +4863,7 @@
     "power": 4,
     "rarity": "※CR",
     "deck": "BP01",
-    "ability": "[Farewell] If there is any un[Tap]ped Scene in your Scene Area, choose 1 Character with Inspiration 4 or less in Rival's Adventure Area to Retire.",
+    "ability": "[Farewell] If there is any untapped Scene in your Scene Area, choose 1 Character with Inspiration 4 or less in Rival's Adventure Area to Retire.",
     "story_stage": null
   },
   {
@@ -4959,7 +4959,7 @@
     "power": 3,
     "rarity": "※CR",
     "deck": "BP01",
-    "ability": "[Appear] Choose 2 Scenes in your Scene Area, un[Tap] them.",
+    "ability": "[Appear] Choose 2 Scenes in your Scene Area, untap them.",
     "story_stage": null
   },
   {
