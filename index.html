@@ -401,9 +401,12 @@ html, body { height: 100%; font-family: var(--font-body); background: var(--bg);
 }
 .zoom-inner {
   background:var(--surface); border-top:1px solid var(--border2);
-  border-radius:20px 20px 0 0; padding:8px 20px 36px;
+  border-radius:20px 20px 0 0; padding:8px 20px 0;
   width:100%; max-width:600px;
-  position:relative; max-height:94vh; overflow-y:auto;
+  position:relative;
+  height:92vh; max-height:92vh;
+  display:flex; flex-direction:column;
+  overflow:hidden;
   box-shadow:0 -12px 48px rgba(0,0,0,0.7);
   animation:slideUp 0.22s ease;
 }
@@ -507,21 +510,43 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         color:var(--muted);border-radius:8px;padding:8px 10px;font-size:1rem;
         cursor:pointer;align-self:center;">▶</button>
     </div>
-    <div id="zm-name" style="font-family:var(--font-head);font-size:1.25rem;text-align:center;margin-bottom:8px;line-height:1.3;"></div>
-    <div id="zm-meta" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;"></div>
-    <div id="zm-stats" style="display:flex;justify-content:center;margin-bottom:12px;background:var(--surface2);border-radius:10px;overflow:hidden;"></div>
-    <!-- Qty controls (shown only when card is in deck) -->
-    <div id="zm-qty-row" style="display:none;justify-content:center;align-items:center;gap:12px;margin-bottom:12px;
-      background:var(--surface2);border-radius:10px;padding:8px 16px;">
-      <button id="zm-qty-minus" onclick="zoomQtyChange(-1)"
-        style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(248,113,113,0.2);
-        color:#f87171;font-size:1.1rem;font-weight:800;cursor:pointer;">−</button>
-      <span id="zm-qty-label" style="font-size:0.8rem;font-weight:700;color:var(--text);min-width:80px;text-align:center;"></span>
-      <button id="zm-qty-plus" onclick="zoomQtyChange(1)"
-        style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(74,222,128,0.2);
-        color:#4ade80;font-size:1.1rem;font-weight:800;cursor:pointer;">+</button>
+    <!-- Fixed info: name, meta, stats, qty -->
+    <div style="flex-shrink:0;padding-bottom:4px;">
+      <div id="zm-name" style="font-family:var(--font-head);font-size:1.25rem;text-align:center;margin-bottom:8px;line-height:1.3;"></div>
+      <div id="zm-meta" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;"></div>
+      <div id="zm-stats" style="display:flex;justify-content:center;margin-bottom:12px;background:var(--surface2);border-radius:10px;overflow:hidden;"></div>
+      <!-- Qty controls -->
+      <div id="zm-qty-row" style="display:none;justify-content:center;align-items:center;gap:12px;margin-bottom:12px;
+        background:var(--surface2);border-radius:10px;padding:8px 16px;">
+        <button id="zm-qty-minus" onclick="zoomQtyChange(-1)"
+          style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(248,113,113,0.2);
+          color:#f87171;font-size:1.1rem;font-weight:800;cursor:pointer;">−</button>
+        <span id="zm-qty-label" style="font-size:0.8rem;font-weight:700;color:var(--text);min-width:80px;text-align:center;"></span>
+        <button id="zm-qty-plus" onclick="zoomQtyChange(1)"
+          style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(74,222,128,0.2);
+          color:#4ade80;font-size:1.1rem;font-weight:800;cursor:pointer;">+</button>
+      </div>
     </div>
-    <div id="zm-ability" style="font-size:0.78rem;color:var(--muted);line-height:1.8;padding:12px;background:var(--surface2);border-radius:10px;"></div>
+    <!-- Scrollable ability area + font size controls -->
+    <div style="flex:1;overflow-y:auto;min-height:0;padding-bottom:36px;">
+      <!-- Font size controls -->
+      <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-bottom:6px;">
+        <span style="font-size:0.6rem;color:var(--dim);">Text size</span>
+        <button onclick="zoomFontChange(-1)"
+          style="width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);
+          background:var(--surface2);color:var(--muted);font-size:0.85rem;font-weight:700;
+          cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">A−</button>
+        <button onclick="zoomFontChange(1)"
+          style="width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);
+          background:var(--surface2);color:var(--muted);font-size:0.85rem;font-weight:700;
+          cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">A+</button>
+        <button onclick="zoomFontReset()"
+          style="height:24px;padding:0 7px;border-radius:6px;border:1px solid var(--border2);
+          background:var(--surface2);color:var(--dim);font-size:0.6rem;
+          cursor:pointer;flex-shrink:0;">Reset</button>
+      </div>
+      <div id="zm-ability" style="font-size:0.78rem;color:var(--muted);line-height:1.8;padding:12px;background:var(--surface2);border-radius:10px;"></div>
+    </div>
   </div>
 </div>
 
@@ -1539,6 +1564,7 @@ function _renderZoom(card) {
   if(card.power!=null) stats+=`<div style="flex:1;text-align:center;padding:10px 0"><div style="font-size:1.1rem">⚔️</div><div style="font-size:1rem;font-weight:800">${card.power}</div><div style="font-size:0.6rem;color:var(--dim)">Power</div></div>`;
   $('zm-stats').innerHTML=stats||`<span style="color:var(--dim);font-size:0.8rem;padding:10px">—</span>`;
   $('zm-ability').textContent=card.ability||'(No ability)';
+  _applyZoomFont();
   // Nav index
   const navTotal = _zmCtx.cards.length;
   const navIdx   = _zmCtx.idx;
@@ -1580,6 +1606,26 @@ function _renderZoom(card) {
   $('zoom-modal').style.display='flex';
 }
 function closeZoom() { $('zoom-modal').style.display='none'; }
+
+// ── Zoom font size (persistent) ──
+let _zmFontSize = parseFloat(localStorage.getItem('zm-font-size') || '0.78');
+const ZM_FONT_MIN = 0.6, ZM_FONT_MAX = 1.2, ZM_FONT_STEP = 0.06;
+
+function zoomFontChange(dir) {
+  _zmFontSize = Math.min(ZM_FONT_MAX, Math.max(ZM_FONT_MIN, _zmFontSize + dir * ZM_FONT_STEP));
+  _zmFontSize = Math.round(_zmFontSize * 100) / 100;
+  localStorage.setItem('zm-font-size', _zmFontSize);
+  _applyZoomFont();
+}
+function zoomFontReset() {
+  _zmFontSize = 0.78;
+  localStorage.removeItem('zm-font-size');
+  _applyZoomFont();
+}
+function _applyZoomFont() {
+  const el = $('zm-ability');
+  if (el) el.style.fontSize = _zmFontSize + 'rem';
+}
 
 // Touch swipe on zoom modal
 (function(){
