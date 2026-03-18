@@ -567,56 +567,24 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
             <label class="dd-item"><input type="checkbox" value="Story"          onchange="renderLibrary()"> Story</label>
           </div>
         </div>
-        <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('dd-kw-d')"><span id="dd-kw-d-lbl">Keyword</span><span style="font-size:0.55rem">▼</span></button>
-          <div class="dd-menu" id="dd-kw-d">
-            <label class="dd-item"><input type="checkbox" value="Alicorn" onchange="renderLibrary()"> Alicorn</label>
-            <label class="dd-item"><input type="checkbox" value="Angel" onchange="renderLibrary()"> Angel</label>
-            <label class="dd-item"><input type="checkbox" value="Apple Bloom" onchange="renderLibrary()"> Apple Bloom</label>
-            <label class="dd-item"><input type="checkbox" value="Applejack" onchange="renderLibrary()"> Applejack</label>
-            <label class="dd-item"><input type="checkbox" value="Big McIntosh" onchange="renderLibrary()"> Big McIntosh</label>
-            <label class="dd-item"><input type="checkbox" value="Cat" onchange="renderLibrary()"> Cat</label>
-            <label class="dd-item"><input type="checkbox" value="Crocodile" onchange="renderLibrary()"> Crocodile</label>
-            <label class="dd-item"><input type="checkbox" value="Dog" onchange="renderLibrary()"> Dog</label>
-            <label class="dd-item"><input type="checkbox" value="Dragon" onchange="renderLibrary()"> Dragon</label>
-            <label class="dd-item"><input type="checkbox" value="Earth Pony" onchange="renderLibrary()"> Earth Pony</label>
-            <label class="dd-item"><input type="checkbox" value="Everyday" onchange="renderLibrary()"> Everyday</label>
-            <label class="dd-item"><input type="checkbox" value="Fluttershy" onchange="renderLibrary()"> Fluttershy</label>
-            <label class="dd-item"><input type="checkbox" value="Gummy" onchange="renderLibrary()"> Gummy</label>
-            <label class="dd-item"><input type="checkbox" value="Mrs.Cake" onchange="renderLibrary()"> Mrs.Cake</label>
-            <label class="dd-item"><input type="checkbox" value="Opal" onchange="renderLibrary()"> Opal</label>
-            <label class="dd-item"><input type="checkbox" value="Owl" onchange="renderLibrary()"> Owl</label>
-            <label class="dd-item"><input type="checkbox" value="Owlowiscious" onchange="renderLibrary()"> Owlowiscious</label>
-            <label class="dd-item"><input type="checkbox" value="Pegasus" onchange="renderLibrary()"> Pegasus</label>
-            <label class="dd-item"><input type="checkbox" value="Pet" onchange="renderLibrary()"> Pet</label>
-            <label class="dd-item"><input type="checkbox" value="Philomena" onchange="renderLibrary()"> Philomena</label>
-            <label class="dd-item"><input type="checkbox" value="Phoenix" onchange="renderLibrary()"> Phoenix</label>
-            <label class="dd-item"><input type="checkbox" value="Pinkie Pie" onchange="renderLibrary()"> Pinkie Pie</label>
-            <label class="dd-item"><input type="checkbox" value="Rabbit" onchange="renderLibrary()"> Rabbit</label>
-            <label class="dd-item"><input type="checkbox" value="Rainbow Dash" onchange="renderLibrary()"> Rainbow Dash</label>
-            <label class="dd-item"><input type="checkbox" value="Rarity" onchange="renderLibrary()"> Rarity</label>
-            <label class="dd-item"><input type="checkbox" value="Spike" onchange="renderLibrary()"> Spike</label>
-            <label class="dd-item"><input type="checkbox" value="Twilight Sparkle" onchange="renderLibrary()"> Twilight Sparkle</label>
-            <label class="dd-item"><input type="checkbox" value="Unicorn" onchange="renderLibrary()"> Unicorn</label>
-          </div>
-        </div>
+
         <div class="dd-wrap">
           <button class="dd-btn" onclick="toggleDD('dd-rarity-d')"><span id="dd-rarity-d-lbl">Rarity</span><span style="font-size:0.55rem">▼</span></button>
-          <div class="dd-menu" id="dd-rarity-d">
-            <label class="dd-item"><input type="checkbox" value="CR"   onchange="renderLibrary()"> CR</label>
-            <label class="dd-item"><input type="checkbox" value="GR"   onchange="renderLibrary()"> GR</label>
-            <label class="dd-item"><input type="checkbox" value="SR"   onchange="renderLibrary()"> SR</label>
-            <label class="dd-item"><input type="checkbox" value="U"    onchange="renderLibrary()"> U</label>
-            <label class="dd-item"><input type="checkbox" value="C"    onchange="renderLibrary()"> C</label>
-            <label class="dd-item"><input type="checkbox" value="RR"   onchange="renderLibrary()"> RR</label>
-            <label class="dd-item"><input type="checkbox" value="ER"   onchange="renderLibrary()"> ER</label>
+                    <div class="dd-menu" id="dd-rarity-d">
+            <label class="dd-item"><input type="checkbox" value="CR"  onchange="renderLibrary()"> CR</label>
+            <label class="dd-item"><input type="checkbox" value="GR"  onchange="renderLibrary()"> GR</label>
+            <label class="dd-item"><input type="checkbox" value="SR"  onchange="renderLibrary()"> SR</label>
+            <label class="dd-item"><input type="checkbox" value="U"  onchange="renderLibrary()"> U</label>
+            <label class="dd-item"><input type="checkbox" value="C"  onchange="renderLibrary()"> C</label>
+            <label class="dd-item"><input type="checkbox" value="RR"  onchange="renderLibrary()"> RR</label>
+            <label class="dd-item"><input type="checkbox" value="ER"  onchange="renderLibrary()"> ER</label>
             <label class="dd-item"><input type="checkbox" value="SPR"  onchange="renderLibrary()"> SPR</label>
-            <label class="dd-item"><input type="checkbox" value="*CR"  onchange="renderLibrary()"> ✦ *CR</label>
-            <label class="dd-item"><input type="checkbox" value="*GR"  onchange="renderLibrary()"> ✦ *GR</label>
-            <label class="dd-item"><input type="checkbox" value="*SR"  onchange="renderLibrary()"> ✦ *SR</label>
-            <label class="dd-item"><input type="checkbox" value="*RR"  onchange="renderLibrary()"> ✦ *RR</label>
-            <label class="dd-item"><input type="checkbox" value="*ER"  onchange="renderLibrary()"> ✦ *ER</label>
-            <label class="dd-item"><input type="checkbox" value="*SPR" onchange="renderLibrary()"> ✦ *SPR</label>
+            <label class="dd-item"><input type="checkbox" value="※CR" onchange="renderLibrary()"> ※ CR</label>
+            <label class="dd-item"><input type="checkbox" value="※GR" onchange="renderLibrary()"> ※ GR</label>
+            <label class="dd-item"><input type="checkbox" value="※SR" onchange="renderLibrary()"> ※ SR</label>
+            <label class="dd-item"><input type="checkbox" value="※RR" onchange="renderLibrary()"> ※ RR</label>
+            <label class="dd-item"><input type="checkbox" value="※ER" onchange="renderLibrary()"> ※ ER</label>
+            <label class="dd-item"><input type="checkbox" value="※SPR" onchange="renderLibrary()"> ※ SPR</label>
           </div>
         </div>
         <div class="dd-wrap">
@@ -624,6 +592,8 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
           <div class="dd-menu" id="dd-set-d"></div>
         </div>
         <button class="sort-btn" id="sort-btn-d" onclick="toggleSort()" title="Toggle sort order">↓</button>
+        <button class="sort-btn" onclick="clearAllFilters()" title="Clear all filters" style="font-size:0.65rem;">✕</button>
+        <button id="alt-toggle-btn-d" class="sort-btn" onclick="toggleAltFilter()" title="Toggle alt rarity display" style="font-size:0.6rem;min-width:42px;">All</button>
       </div>
     </div>
     <div class="panel-body" style="padding:8px 10px;">
@@ -726,56 +696,24 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
             <label class="dd-item"><input type="checkbox" value="Story"          onchange="renderLibrary()"> Story</label>
           </div>
         </div>
-        <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('dd-kw-m')"><span id="dd-kw-m-lbl">Keyword</span><span style="font-size:0.55rem">▼</span></button>
-          <div class="dd-menu" id="dd-kw-m">
-            <label class="dd-item"><input type="checkbox" value="Alicorn" onchange="renderLibrary()"> Alicorn</label>
-            <label class="dd-item"><input type="checkbox" value="Angel" onchange="renderLibrary()"> Angel</label>
-            <label class="dd-item"><input type="checkbox" value="Apple Bloom" onchange="renderLibrary()"> Apple Bloom</label>
-            <label class="dd-item"><input type="checkbox" value="Applejack" onchange="renderLibrary()"> Applejack</label>
-            <label class="dd-item"><input type="checkbox" value="Big McIntosh" onchange="renderLibrary()"> Big McIntosh</label>
-            <label class="dd-item"><input type="checkbox" value="Cat" onchange="renderLibrary()"> Cat</label>
-            <label class="dd-item"><input type="checkbox" value="Crocodile" onchange="renderLibrary()"> Crocodile</label>
-            <label class="dd-item"><input type="checkbox" value="Dog" onchange="renderLibrary()"> Dog</label>
-            <label class="dd-item"><input type="checkbox" value="Dragon" onchange="renderLibrary()"> Dragon</label>
-            <label class="dd-item"><input type="checkbox" value="Earth Pony" onchange="renderLibrary()"> Earth Pony</label>
-            <label class="dd-item"><input type="checkbox" value="Everyday" onchange="renderLibrary()"> Everyday</label>
-            <label class="dd-item"><input type="checkbox" value="Fluttershy" onchange="renderLibrary()"> Fluttershy</label>
-            <label class="dd-item"><input type="checkbox" value="Gummy" onchange="renderLibrary()"> Gummy</label>
-            <label class="dd-item"><input type="checkbox" value="Mrs.Cake" onchange="renderLibrary()"> Mrs.Cake</label>
-            <label class="dd-item"><input type="checkbox" value="Opal" onchange="renderLibrary()"> Opal</label>
-            <label class="dd-item"><input type="checkbox" value="Owl" onchange="renderLibrary()"> Owl</label>
-            <label class="dd-item"><input type="checkbox" value="Owlowiscious" onchange="renderLibrary()"> Owlowiscious</label>
-            <label class="dd-item"><input type="checkbox" value="Pegasus" onchange="renderLibrary()"> Pegasus</label>
-            <label class="dd-item"><input type="checkbox" value="Pet" onchange="renderLibrary()"> Pet</label>
-            <label class="dd-item"><input type="checkbox" value="Philomena" onchange="renderLibrary()"> Philomena</label>
-            <label class="dd-item"><input type="checkbox" value="Phoenix" onchange="renderLibrary()"> Phoenix</label>
-            <label class="dd-item"><input type="checkbox" value="Pinkie Pie" onchange="renderLibrary()"> Pinkie Pie</label>
-            <label class="dd-item"><input type="checkbox" value="Rabbit" onchange="renderLibrary()"> Rabbit</label>
-            <label class="dd-item"><input type="checkbox" value="Rainbow Dash" onchange="renderLibrary()"> Rainbow Dash</label>
-            <label class="dd-item"><input type="checkbox" value="Rarity" onchange="renderLibrary()"> Rarity</label>
-            <label class="dd-item"><input type="checkbox" value="Spike" onchange="renderLibrary()"> Spike</label>
-            <label class="dd-item"><input type="checkbox" value="Twilight Sparkle" onchange="renderLibrary()"> Twilight Sparkle</label>
-            <label class="dd-item"><input type="checkbox" value="Unicorn" onchange="renderLibrary()"> Unicorn</label>
-          </div>
-        </div>
+
         <div class="dd-wrap">
           <button class="dd-btn" onclick="toggleDD('dd-rarity-m')"><span id="dd-rarity-m-lbl">Rarity</span><span style="font-size:0.55rem">▼</span></button>
-          <div class="dd-menu" id="dd-rarity-m">
-            <label class="dd-item"><input type="checkbox" value="CR"   onchange="renderLibrary()"> CR</label>
-            <label class="dd-item"><input type="checkbox" value="GR"   onchange="renderLibrary()"> GR</label>
-            <label class="dd-item"><input type="checkbox" value="SR"   onchange="renderLibrary()"> SR</label>
-            <label class="dd-item"><input type="checkbox" value="U"    onchange="renderLibrary()"> U</label>
-            <label class="dd-item"><input type="checkbox" value="C"    onchange="renderLibrary()"> C</label>
-            <label class="dd-item"><input type="checkbox" value="RR"   onchange="renderLibrary()"> RR</label>
-            <label class="dd-item"><input type="checkbox" value="ER"   onchange="renderLibrary()"> ER</label>
+                    <div class="dd-menu" id="dd-rarity-m">
+            <label class="dd-item"><input type="checkbox" value="CR"  onchange="renderLibrary()"> CR</label>
+            <label class="dd-item"><input type="checkbox" value="GR"  onchange="renderLibrary()"> GR</label>
+            <label class="dd-item"><input type="checkbox" value="SR"  onchange="renderLibrary()"> SR</label>
+            <label class="dd-item"><input type="checkbox" value="U"  onchange="renderLibrary()"> U</label>
+            <label class="dd-item"><input type="checkbox" value="C"  onchange="renderLibrary()"> C</label>
+            <label class="dd-item"><input type="checkbox" value="RR"  onchange="renderLibrary()"> RR</label>
+            <label class="dd-item"><input type="checkbox" value="ER"  onchange="renderLibrary()"> ER</label>
             <label class="dd-item"><input type="checkbox" value="SPR"  onchange="renderLibrary()"> SPR</label>
-            <label class="dd-item"><input type="checkbox" value="*CR"  onchange="renderLibrary()"> ✦ *CR</label>
-            <label class="dd-item"><input type="checkbox" value="*GR"  onchange="renderLibrary()"> ✦ *GR</label>
-            <label class="dd-item"><input type="checkbox" value="*SR"  onchange="renderLibrary()"> ✦ *SR</label>
-            <label class="dd-item"><input type="checkbox" value="*RR"  onchange="renderLibrary()"> ✦ *RR</label>
-            <label class="dd-item"><input type="checkbox" value="*ER"  onchange="renderLibrary()"> ✦ *ER</label>
-            <label class="dd-item"><input type="checkbox" value="*SPR" onchange="renderLibrary()"> ✦ *SPR</label>
+            <label class="dd-item"><input type="checkbox" value="※CR" onchange="renderLibrary()"> ※ CR</label>
+            <label class="dd-item"><input type="checkbox" value="※GR" onchange="renderLibrary()"> ※ GR</label>
+            <label class="dd-item"><input type="checkbox" value="※SR" onchange="renderLibrary()"> ※ SR</label>
+            <label class="dd-item"><input type="checkbox" value="※RR" onchange="renderLibrary()"> ※ RR</label>
+            <label class="dd-item"><input type="checkbox" value="※ER" onchange="renderLibrary()"> ※ ER</label>
+            <label class="dd-item"><input type="checkbox" value="※SPR" onchange="renderLibrary()"> ※ SPR</label>
           </div>
         </div>
         <div class="dd-wrap">
@@ -783,6 +721,8 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
           <div class="dd-menu" id="dd-set-m"></div>
         </div>
         <button class="sort-btn" id="sort-btn-m" onclick="toggleSort()" title="Toggle sort">↓</button>
+        <button class="sort-btn" onclick="clearAllFilters()" title="Clear all filters" style="font-size:0.65rem;">✕</button>
+        <button id="alt-toggle-btn-m" class="sort-btn" onclick="toggleAltFilter()" title="Toggle alt rarity display" style="font-size:0.6rem;min-width:42px;">All</button>
       </div>
     </div>
     <div style="flex:1;overflow-y:auto;padding:8px 10px 72px;">
@@ -902,14 +842,14 @@ function typePill(t) {
 
 const RARITY_RANK = {
   'CR':0,'GR':1,'SR':2,'U':3,'C':4,'RR':5,'ER':6,'SPR':7,
-  '*CR':8,'*GR':9,'*SR':10,'*RR':11,'*ER':12,'*SPR':13,
+  '※CR':8,'※GR':9,'※SR':10,'※RR':11,'※ER':12,'※SPR':13,
 };
 // Full rarity names
 const RARITY_NAME = {
   'CR':'Colorful Rare','GR':'Gold Rare','SR':'Silver Rare',
   'U':'Uncommon','C':'Common','RR':'Ruby Rare','ER':'Emerald Rare','SPR':'Sapphire Rare',
-  '*CR':'Shining Colorful Rare','*GR':'Shining Gold Rare','*SR':'Shining Silver Rare',
-  '*RR':'Shining Ruby Rare','*ER':'Shining Emerald Rare','*SPR':'Shining Sapphire Rare',
+  '※CR':'Shining Colorful Rare','※GR':'Shining Gold Rare','※SR':'Shining Silver Rare',
+  '※RR':'Shining Ruby Rare','※ER':'Shining Emerald Rare','※SPR':'Shining Sapphire Rare',
 };
 const COLOR_ICON  = {Purple:'🌟',Indigo:'💎',Yellow:'🦋',Pink:'🎈',Orange:'🍎',Blue:'⚡',White:'⬜'};
 const COLOR_HEX   = {Purple:'#a78bfa',Indigo:'#6366f1',Yellow:'#eab308',Pink:'#ec4899',Orange:'#f97316',Blue:'#3b82f6',White:'#cbd5e1'};
@@ -949,7 +889,7 @@ function getCheckedVals(menuId) {
 function syncFilters(changedId) {
   // find pairs d↔m
   const pairs = [
-    ['dd-type-d','dd-type-m'],['dd-kw-d','dd-kw-m'],
+    ['dd-type-d','dd-type-m'],
     ['dd-rarity-d','dd-rarity-m'],['dd-set-d','dd-set-m']
   ];
   pairs.forEach(([d,m]) => {
@@ -965,7 +905,7 @@ function syncFilters(changedId) {
 function updateFilterLabels() {
   const pairs = [
     {d:'dd-type-d',  m:'dd-type-m',  dl:'dd-type-d-lbl',  ml:'dd-type-m-lbl',  def:'Type'},
-    {d:'dd-kw-d',    m:'dd-kw-m',    dl:'dd-kw-d-lbl',    ml:'dd-kw-m-lbl',    def:'Keyword'},
+
     {d:'dd-rarity-d',m:'dd-rarity-m',dl:'dd-rarity-d-lbl',ml:'dd-rarity-m-lbl',def:'Rarity'},
     {d:'dd-set-d',   m:'dd-set-m',   dl:'dd-set-d-lbl',   ml:'dd-set-m-lbl',   def:'Set'},
   ];
@@ -1070,19 +1010,53 @@ function buildSetDropdowns() {
 // ═══════════════════════════════════════════════════════
 // RENDER LIBRARY (shared — renders to both grids)
 // ═══════════════════════════════════════════════════════
+
+// ─── Alt rarity toggle: All → No Alt → Alt Only ───
+let _altMode = 'all'; // 'all' | 'no-alt' | 'alt-only'
+const ALT_RARITIES_SET = new Set(['※CR','※GR','※SR','※RR','※ER','※SPR']);
+
+function toggleAltFilter() {
+  if (_altMode === 'all')      _altMode = 'no-alt';
+  else if (_altMode === 'no-alt') _altMode = 'alt-only';
+  else                         _altMode = 'all';
+  const label = {'all':'All','no-alt':'No ※','alt-only':'※ Only'}[_altMode];
+  ['alt-toggle-btn-d','alt-toggle-btn-m'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent=label;
+  });
+  renderLibrary();
+}
+
+function clearAllFilters() {
+  // Uncheck all filter checkboxes
+  ['dd-type-d','dd-type-m','dd-rarity-d','dd-rarity-m','dd-set-d','dd-set-m'].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=false);
+  });
+  // Clear search
+  ['lib-search-d','lib-search-m'].forEach(id=>{const el=$(id);if(el)el.value='';});
+  // Reset alt mode
+  _altMode='all';
+  ['alt-toggle-btn-d','alt-toggle-btn-m'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent='All';
+  });
+  updateFilterLabels();
+  renderLibrary();
+}
+
 function renderLibrary() {
   const search = (($('lib-search-d')||{}).value||($('lib-search-m')||{}).value||'').toLowerCase();
   const types    = getCheckedVals('dd-type-d');
-  const keywords = getCheckedVals('dd-kw-d');
   const rarities = getCheckedVals('dd-rarity-d');
   const sets     = getCheckedVals('dd-set-d');
 
   let cards = state.library;
   if (types.length)    cards = cards.filter(c=>types.includes(c.type));
-  if (keywords.length) cards = cards.filter(c=>(c.subtype||[]).some(s=>keywords.includes(s)));
   if (rarities.length) cards = cards.filter(c=>rarities.includes(c.rarity));
   if (sets.length)     cards = cards.filter(c=>sets.includes(c.deck));
-  if (search)          cards = cards.filter(c=>c.name.toLowerCase().includes(search)||c.id.toLowerCase().includes(search));
+  // Alt rarity toggle
+  if (_altMode === 'no-alt')   cards = cards.filter(c=>!ALT_RARITIES_SET.has(c.rarity));
+  if (_altMode === 'alt-only') cards = cards.filter(c=>ALT_RARITIES_SET.has(c.rarity));
+  if (search)          cards = cards.filter(c=>c.name.toLowerCase().includes(search)||c.id.toLowerCase().includes(search)||(c.subtype||[]).some(s=>s.toLowerCase().includes(search)));
   cards = sortLibCards(cards);
 
   updateFilterLabels();
@@ -1550,7 +1524,7 @@ function _renderZoom(card) {
     zmImg.style.maxWidth     = '';
     zmImg.style.borderRadius = '14px';
   }
-  const RC={CR:'#a78bfa',GR:'#fbbf24',RR:'#f472b6',SR:'#34d399',U:'#60a5fa',C:'#9ca3af',SPR:'#fb923c',ER:'#38bdf8'};
+  const RC={CR:'#a78bfa',GR:'#fbbf24',RR:'#f472b6',SR:'#34d399',U:'#60a5fa',C:'#9ca3af',SPR:'#fb923c',ER:'#38bdf8','※CR':'#d4a0ff','※GR':'#ffe066','※SR':'#6effc2','※RR':'#ff9de2','※ER':'#7ee8ff','※SPR':'#ffc57a'};
   $('zm-img').innerHTML=card.imageUrl?`<img src="${card.imageUrl}" style="width:100%;height:100%;object-fit:cover">`:`<span>${typeIcon(card.type)}</span>`;
   const rc=RC[card.rarity]||'var(--muted)';
   $('zm-name').innerHTML=`${card.name}<div style="font-family:var(--font-body);font-size:0.62rem;color:var(--dim);margin-top:2px">${card.id}</div>`;
@@ -1868,8 +1842,8 @@ function colorChart(title,dist){
 function rarityColors(){return{
   CR:'#a78bfa',GR:'#fbbf24',SR:'#34d399',U:'#60a5fa',C:'#9ca3af',
   RR:'#f472b6',ER:'#38bdf8',SPR:'#fb923c',
-  '*CR':'#d4a0ff','*GR':'#ffe066','*SR':'#6effc2',
-  '*RR':'#ff9de2','*ER':'#7ee8ff','*SPR':'#ffc57a',
+  '※CR':'#d4a0ff','※GR':'#ffe066','※SR':'#6effc2',
+  '※RR':'#ff9de2','※ER':'#7ee8ff','※SPR':'#ffc57a',
 };}
 function typeColors(){return{Character:'#a78bfa',Event:'#fb923c',Item:'#34d399',Scene:'#38bdf8','Main Character':'#ec4899',Story:'#f59e0b'};}
 function raceColors(){return{Unicorn:'#a78bfa',Pegasus:'#38bdf8','Earth Pony':'#f97316',Alicorn:'#fbbf24'};}
@@ -1905,7 +1879,7 @@ function renderAnalysis() {
   const RACES=new Set(['Earth Pony','Pegasus','Unicorn','Alicorn']);
   const raceDist={},nameDist={};
   flat.forEach(c=>{(c.subtype||[]).forEach(s=>{if(RACES.has(s))raceDist[s]=(raceDist[s]||0)+1;else nameDist[s]=(nameDist[s]||0)+1;});});
-  const rarityOrder=['CR','GR','SR','U','C','RR','ER','SPR','*CR','*GR','*SR','*RR','*ER','*SPR'];
+  const rarityOrder=['CR','GR','SR','U','C','RR','ER','SPR','※CR','※GR','※SR','※RR','※ER','※SPR'];
   const raceItems=Object.entries(raceDist).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val}));
   const nameItems=Object.entries(nameDist).sort((a,b)=>b[1]-a[1]).map(([label,val])=>({label,val}));
   const html=`
