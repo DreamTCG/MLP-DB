@@ -1,557 +1,5 @@
 [
   {
-    "id": "※BP01-RR01",
-    "name": "Twilight Sparkle",
-    "type": "Character",
-    "subtype": [
-      "Unicorn",
-      "Twilight Sparkle"
-    ],
-    "color": "Purple",
-    "cost": null,
-    "power": null,
-    "rarity": "※RR",
-    "deck": "BP01",
-    "ability": "(Ruby Rare art card)",
-    "story_stage": null
-  },
-  {
-    "id": "※BP01-RR02",
-    "name": "Fluttershy",
-    "type": "Character",
-    "subtype": [
-      "Pegasus",
-      "Fluttershy"
-    ],
-    "color": "Yellow",
-    "cost": null,
-    "power": null,
-    "rarity": "※RR",
-    "deck": "BP01",
-    "ability": "(Ruby Rare art card)",
-    "story_stage": null
-  },
-  {
-    "id": "※BP01-RR03",
-    "name": "Pinkie Pie",
-    "type": "Character",
-    "subtype": [
-      "Earth Pony",
-      "Pinkie Pie"
-    ],
-    "color": "Pink",
-    "cost": null,
-    "power": null,
-    "rarity": "※RR",
-    "deck": "BP01",
-    "ability": "(Ruby Rare art card)",
-    "story_stage": null
-  },
-  {
-    "id": "※BP01-RR04",
-    "name": "Applejack",
-    "type": "Character",
-    "subtype": [
-      "Earth Pony",
-      "Applejack"
-    ],
-    "color": "Orange",
-    "cost": null,
-    "power": null,
-    "rarity": "※RR",
-    "deck": "BP01",
-    "ability": "(Ruby Rare art card)",
-    "story_stage": null
-  },
-  {
-    "id": "※BP01-RR05",
-    "name": "Rainbow Dash",
-    "type": "Character",
-    "subtype": [
-      "Pegasus",
-      "Rainbow Dash"
-    ],
-    "color": "Blue",
-    "cost": null,
-    "power": null,
-    "rarity": "※RR",
-    "deck": "BP01",
-    "ability": "(Ruby Rare art card)",
-    "story_stage": null
-  },
-  {
-    "id": "※BP01-RR06",
-    "name": "Rarity",
-    "type": "Character",
-    "subtype": [
-      "Unicorn",
-      "Rarity"
-    ],
-    "color": "White",
-    "cost": null,
-    "power": null,
-    "rarity": "※RR",
-    "deck": "BP01",
-    "ability": "(Ruby Rare art card)",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER01D",
-    "name": "Golden Oak Library",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Purple",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Twilight Sparkle」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER01N",
-    "name": "Golden Oak Library",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Purple",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Twilight Sparkle」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER02D",
-    "name": "Fluttershy's Cottage",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Yellow",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Fluttershy」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER02N",
-    "name": "Fluttershy's Cottage",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Yellow",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Fluttershy」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER03D",
-    "name": "Sugarcube Corner",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Pink",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Pinkie Pie」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER03N",
-    "name": "Sugarcube Corner",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Pink",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Pinkie Pie」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER04D",
-    "name": "Sweet Apple Acres",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Orange",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Applejack」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER04N",
-    "name": "Sweet Apple Acres",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Orange",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Applejack」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER05D",
-    "name": "Cloudominium",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Blue",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Rainbow Dash」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER05N",
-    "name": "Cloudominium",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Blue",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Rainbow Dash」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER06D",
-    "name": "Carousel Boutique",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Indigo",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Rarity」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER06N",
-    "name": "Carousel Boutique",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Indigo",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Rarity」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER07D",
-    "name": "Canterlot Tower",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Purple",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Twilight Sparkle」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER07N",
-    "name": "Canterlot Tower",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Purple",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Twilight Sparkle」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER08D",
-    "name": "Ponyville Suburb",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Yellow",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Fluttershy」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER08N",
-    "name": "Ponyville Suburb",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Yellow",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Fluttershy」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER09D",
-    "name": "Ponyville Street",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Pink",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Pinkie Pie」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER09N",
-    "name": "Ponyville Street",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Pink",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Pinkie Pie」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER10D",
-    "name": "Road at Sweet Apple Acres",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Orange",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Applejack」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER10N",
-    "name": "Road at Sweet Apple Acres",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Orange",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Applejack」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER11D",
-    "name": "Stairs of Cloudsdale",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Blue",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Rainbow Dash」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER11N",
-    "name": "Stairs of Cloudsdale",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Blue",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Rainbow Dash」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER12D",
-    "name": "Manehattan Streets",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Indigo",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Rarity」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-ER12N",
-    "name": "Manehattan Streets",
-    "type": "Scene",
-    "subtype": [
-      "Everyday"
-    ],
-    "color": "Indigo",
-    "cost": null,
-    "power": null,
-    "rarity": "※ER",
-    "deck": "SD01",
-    "ability": "[Inspo Boost] Your 「Rarity」 gets +1 Inspiration until the end of this Contact.",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-RR01",
-    "name": "Twilight Sparkle",
-    "type": "Main Character",
-    "subtype": [
-      "Unicorn",
-      "Twilight Sparkle"
-    ],
-    "color": "Purple",
-    "cost": null,
-    "power": null,
-    "rarity": "※RR",
-    "deck": "SD01",
-    "ability": "(Shining Ruby Rare art card)",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-RR02",
-    "name": "Fluttershy",
-    "type": "Main Character",
-    "subtype": [
-      "Pegasus",
-      "Fluttershy"
-    ],
-    "color": "Yellow",
-    "cost": null,
-    "power": null,
-    "rarity": "※RR",
-    "deck": "SD01",
-    "ability": "(Shining Ruby Rare art card)",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-RR03",
-    "name": "Pinkie Pie",
-    "type": "Main Character",
-    "subtype": [
-      "Earth Pony",
-      "Pinkie Pie"
-    ],
-    "color": "Pink",
-    "cost": null,
-    "power": null,
-    "rarity": "※RR",
-    "deck": "SD01",
-    "ability": "(Shining Ruby Rare art card)",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-RR04",
-    "name": "Applejack",
-    "type": "Main Character",
-    "subtype": [
-      "Earth Pony",
-      "Applejack"
-    ],
-    "color": "Orange",
-    "cost": null,
-    "power": null,
-    "rarity": "※RR",
-    "deck": "SD01",
-    "ability": "(Shining Ruby Rare art card)",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-RR05",
-    "name": "Rainbow Dash",
-    "type": "Main Character",
-    "subtype": [
-      "Pegasus",
-      "Rainbow Dash"
-    ],
-    "color": "Blue",
-    "cost": null,
-    "power": null,
-    "rarity": "※RR",
-    "deck": "SD01",
-    "ability": "(Shining Ruby Rare art card)",
-    "story_stage": null
-  },
-  {
-    "id": "※SD01-RR06",
-    "name": "Rarity",
-    "type": "Main Character",
-    "subtype": [
-      "Unicorn",
-      "Rarity"
-    ],
-    "color": "Indigo",
-    "cost": null,
-    "power": null,
-    "rarity": "※RR",
-    "deck": "SD01",
-    "ability": "(Shining Ruby Rare art card)",
-    "story_stage": null
-  },
-  {
     "id": "BP01-C01",
     "name": "Twilight Sparkle",
     "type": "Character",
@@ -1575,7 +1023,7 @@
       "Unicorn",
       "Rarity"
     ],
-    "color": "White",
+    "color": "Indigo",
     "cost": 5,
     "power": 6,
     "rarity": "GR",
@@ -1767,7 +1215,7 @@
       "Unicorn",
       "Rarity"
     ],
-    "color": "White",
+    "color": "Indigo",
     "cost": null,
     "power": null,
     "rarity": "RR",
@@ -2049,6 +1497,19 @@
     "story_stage": null
   },
   {
+    "id": "BP01-SPR21",
+    "name": "Horseshoe",
+    "type": "Item",
+    "subtype": [],
+    "color": "",
+    "cost": 2,
+    "power": null,
+    "rarity": "SPR",
+    "deck": "BP01",
+    "ability": "Only adorn 「Rainbow Dash」. Adorned Character with Cost of Force of Harmony 2 or less gets +2 Inspiration.",
+    "story_stage": null
+  },
+  {
     "id": "BP01-SPR22",
     "name": "Super Spicy Sauce",
     "type": "Item",
@@ -2072,19 +1533,6 @@
     "rarity": "SPR",
     "deck": "BP01",
     "ability": "Only adorn 「Applejack」. When adorned Character Retires in Contact, move this Item to Retirement Area instead.",
-    "story_stage": null
-  },
-  {
-    "id": "BP01-SPR24",
-    "name": "Horseshoe",
-    "type": "Item",
-    "subtype": [],
-    "color": "",
-    "cost": 2,
-    "power": null,
-    "rarity": "SPR",
-    "deck": "BP01",
-    "ability": "Only adorn 「Rainbow Dash」. Adorned Character with Cost of Force of Harmony 2 or less gets +2 Inspiration.",
     "story_stage": null
   },
   {
@@ -5352,6 +4800,989 @@
     "rarity": "U",
     "deck": "SD01F",
     "ability": "[Appear] Choose 1 [Rarity] in your Adventure Area, it gets +2 Inspiration until the end of turn.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-CR01",
+    "name": "Twilight Sparkle",
+    "type": "Character",
+    "subtype": [
+      "Unicorn",
+      "Twilight Sparkle"
+    ],
+    "color": "Purple",
+    "cost": 4,
+    "power": 5,
+    "rarity": "※CR",
+    "deck": "BP01",
+    "ability": "[Appear] If there is any Event in your Retirement Area, choose 1 Character in Rival's Adventure Area, it gets -3 Inspiration until the end of turn.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-CR02",
+    "name": "Fluttershy",
+    "type": "Character",
+    "subtype": [
+      "Pegasus",
+      "Fluttershy"
+    ],
+    "color": "Yellow",
+    "cost": 3,
+    "power": 4,
+    "rarity": "※CR",
+    "deck": "BP01",
+    "ability": "[Appear] Choose 1 「Pet」 in your Adventure Area, it gets +2 Inspiration until the end of turn.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-CR03",
+    "name": "Pinkie Pie",
+    "type": "Character",
+    "subtype": [
+      "Earth Pony",
+      "Pinkie Pie"
+    ],
+    "color": "Pink",
+    "cost": 2,
+    "power": 3,
+    "rarity": "※CR",
+    "deck": "BP01",
+    "ability": "[Appear] Reveal the top 3 cards of your Deck, choose 1 Item from them, add it to Hand, move the rest to Retirement Area.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-CR04",
+    "name": "Applejack",
+    "type": "Character",
+    "subtype": [
+      "Earth Pony",
+      "Applejack"
+    ],
+    "color": "Orange",
+    "cost": 3,
+    "power": 4,
+    "rarity": "※CR",
+    "deck": "BP01",
+    "ability": "[Farewell] If there is any un[Tap]ped Scene in your Scene Area, choose 1 Character with Inspiration 4 or less in Rival's Adventure Area to Retire.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-CR05",
+    "name": "Rainbow Dash",
+    "type": "Character",
+    "subtype": [
+      "Pegasus",
+      "Rainbow Dash"
+    ],
+    "color": "Blue",
+    "cost": 2,
+    "power": 3,
+    "rarity": "※CR",
+    "deck": "BP01",
+    "ability": "[Farewell] Choose 1 Character with Inspiration 2 or less in Rival's Adventure Area to Retire.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-CR06",
+    "name": "Rarity",
+    "type": "Character",
+    "subtype": [
+      "Unicorn",
+      "Rarity"
+    ],
+    "color": "Indigo",
+    "cost": 4,
+    "power": 5,
+    "rarity": "※CR",
+    "deck": "BP01",
+    "ability": "[Farewell] Choose 1 「Rarity」 with Cost of Force of Harmony 3 or less in your Retirement Area, add it to Hand.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-CR07",
+    "name": "Twilight Sparkle",
+    "type": "Character",
+    "subtype": [
+      "Unicorn",
+      "Twilight Sparkle"
+    ],
+    "color": "Purple",
+    "cost": 2,
+    "power": 3,
+    "rarity": "※CR",
+    "deck": "BP01",
+    "ability": "[Adventure] While there is any Event in your Retirement Area, this Character gets +2 Inspiration in your turn.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-CR08",
+    "name": "Fluttershy",
+    "type": "Character",
+    "subtype": [
+      "Pegasus",
+      "Fluttershy"
+    ],
+    "color": "Yellow",
+    "cost": 3,
+    "power": 5,
+    "rarity": "※CR",
+    "deck": "BP01",
+    "ability": "[Farewell] Choose 1 「Pet」 in your Adventure Area, it gets +1 Inspiration until the end of turn.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-CR09",
+    "name": "Pinkie Pie",
+    "type": "Character",
+    "subtype": [
+      "Earth Pony",
+      "Pinkie Pie"
+    ],
+    "color": "Pink",
+    "cost": 5,
+    "power": 6,
+    "rarity": "※CR",
+    "deck": "BP01",
+    "ability": "[Adventure] [Tap] Choose 1 Item with Cost of Force of Harmony 2 or less in your Retirement Area, add it to Hand.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-CR10",
+    "name": "Applejack",
+    "type": "Character",
+    "subtype": [
+      "Earth Pony",
+      "Applejack"
+    ],
+    "color": "Orange",
+    "cost": 3,
+    "power": 3,
+    "rarity": "※CR",
+    "deck": "BP01",
+    "ability": "[Appear] Choose 2 Scenes in your Scene Area, un[Tap] them.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-CR11",
+    "name": "Rainbow Dash",
+    "type": "Character",
+    "subtype": [
+      "Pegasus",
+      "Rainbow Dash"
+    ],
+    "color": "Blue",
+    "cost": 4,
+    "power": 5,
+    "rarity": "※CR",
+    "deck": "BP01",
+    "ability": "[Adventure] [Tap] Choose 1 other 「Pegasus」 in your Adventure Area, it gets +2 Inspiration until the end of turn.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-CR12",
+    "name": "Rarity",
+    "type": "Character",
+    "subtype": [
+      "Unicorn",
+      "Rarity"
+    ],
+    "color": "Indigo",
+    "cost": 2,
+    "power": 4,
+    "rarity": "※CR",
+    "deck": "BP01",
+    "ability": "[Appear] If there is any other 「Rarity」 in your Adventure Area, choose 1 Character in Rival's Adventure Area, it gets -1 Inspiration until the end of turn.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-GR01",
+    "name": "Twilight Sparkle",
+    "type": "Character",
+    "subtype": [
+      "Unicorn",
+      "Twilight Sparkle"
+    ],
+    "color": "Purple",
+    "cost": 3,
+    "power": 5,
+    "rarity": "※GR",
+    "deck": "BP01",
+    "ability": "[Appear] If there is any Event in your Retirement Area, choose 1 「Spike」 in your Adventure Area, it gets +1 Inspiration until the end of turn.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-GR02",
+    "name": "Fluttershy",
+    "type": "Character",
+    "subtype": [
+      "Pegasus",
+      "Fluttershy"
+    ],
+    "color": "Yellow",
+    "cost": 4,
+    "power": 6,
+    "rarity": "※GR",
+    "deck": "BP01",
+    "ability": "[Pre-plan] If there is any 「Pet」 in your Adventure Area, draw 2 cards.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-GR03",
+    "name": "Pinkie Pie",
+    "type": "Character",
+    "subtype": [
+      "Earth Pony",
+      "Pinkie Pie"
+    ],
+    "color": "Pink",
+    "cost": 3,
+    "power": 4,
+    "rarity": "※GR",
+    "deck": "BP01",
+    "ability": "[Appear] If there is any Item in your Retirement Area, draw 1 card.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-GR04",
+    "name": "Applejack",
+    "type": "Character",
+    "subtype": [
+      "Earth Pony",
+      "Applejack"
+    ],
+    "color": "Orange",
+    "cost": 4,
+    "power": 6,
+    "rarity": "※GR",
+    "deck": "BP01",
+    "ability": "[Pre-plan] Draw 1 card.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-GR05",
+    "name": "Rainbow Dash",
+    "type": "Character",
+    "subtype": [
+      "Pegasus",
+      "Rainbow Dash"
+    ],
+    "color": "Blue",
+    "cost": 7,
+    "power": 9,
+    "rarity": "※GR",
+    "deck": "BP01",
+    "ability": "While there is no Character in your Adventure Area, this Character gets -1 Cost of Force of Harmony when played from Hand.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-GR06",
+    "name": "Rarity",
+    "type": "Character",
+    "subtype": [
+      "Unicorn",
+      "Rarity"
+    ],
+    "color": "Indigo",
+    "cost": 5,
+    "power": 6,
+    "rarity": "※GR",
+    "deck": "BP01",
+    "ability": "[Adventure] [Tap] Choose 1 「Rarity」 in your Adventure Area, it gets +2 Inspiration until the end of turn.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-RR01",
+    "name": "Twilight Sparkle",
+    "type": "Character",
+    "subtype": [
+      "Unicorn",
+      "Twilight Sparkle"
+    ],
+    "color": "Purple",
+    "cost": null,
+    "power": null,
+    "rarity": "※RR",
+    "deck": "BP01",
+    "ability": "(Ruby Rare art card)",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-RR02",
+    "name": "Fluttershy",
+    "type": "Character",
+    "subtype": [
+      "Pegasus",
+      "Fluttershy"
+    ],
+    "color": "Yellow",
+    "cost": null,
+    "power": null,
+    "rarity": "※RR",
+    "deck": "BP01",
+    "ability": "(Ruby Rare art card)",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-RR03",
+    "name": "Pinkie Pie",
+    "type": "Character",
+    "subtype": [
+      "Earth Pony",
+      "Pinkie Pie"
+    ],
+    "color": "Pink",
+    "cost": null,
+    "power": null,
+    "rarity": "※RR",
+    "deck": "BP01",
+    "ability": "(Ruby Rare art card)",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-RR04",
+    "name": "Applejack",
+    "type": "Character",
+    "subtype": [
+      "Earth Pony",
+      "Applejack"
+    ],
+    "color": "Orange",
+    "cost": null,
+    "power": null,
+    "rarity": "※RR",
+    "deck": "BP01",
+    "ability": "(Ruby Rare art card)",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-RR05",
+    "name": "Rainbow Dash",
+    "type": "Character",
+    "subtype": [
+      "Pegasus",
+      "Rainbow Dash"
+    ],
+    "color": "Blue",
+    "cost": null,
+    "power": null,
+    "rarity": "※RR",
+    "deck": "BP01",
+    "ability": "(Ruby Rare art card)",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-RR06",
+    "name": "Rarity",
+    "type": "Character",
+    "subtype": [
+      "Unicorn",
+      "Rarity"
+    ],
+    "color": "Indigo",
+    "cost": null,
+    "power": null,
+    "rarity": "※RR",
+    "deck": "BP01",
+    "ability": "(Ruby Rare art card)",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-SPR01",
+    "name": "Sunlight in the Rain",
+    "type": "Event",
+    "subtype": [],
+    "color": "",
+    "cost": 2,
+    "power": null,
+    "rarity": "※SPR",
+    "deck": "BP01",
+    "ability": "Only use when there is any 「Rainbow Dash」 with Cost of Force of Harmony 3 or less in your Adventure Area. Draw 2 cards.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-SPR02",
+    "name": "Time for Clean-up!",
+    "type": "Event",
+    "subtype": [],
+    "color": "",
+    "cost": 3,
+    "power": null,
+    "rarity": "※SPR",
+    "deck": "BP01",
+    "ability": "Choose 1 Character with Inspiration 4 or less in Rival's Adventure Area to Retire.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-SPR03",
+    "name": "Deliver letters",
+    "type": "Event",
+    "subtype": [],
+    "color": "",
+    "cost": 1,
+    "power": null,
+    "rarity": "※SPR",
+    "deck": "BP01",
+    "ability": "Only use when there is any 「Twilight Sparkle」 or 「Spike」 in your Adventure Area. Draw 1 card.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-SPR05",
+    "name": "Prepared to Go",
+    "type": "Event",
+    "subtype": [],
+    "color": "",
+    "cost": 2,
+    "power": null,
+    "rarity": "※SPR",
+    "deck": "BP01",
+    "ability": "Choose 1 「Pinkie Pie」 in your Adventure Area, it gets +2 Inspiration until the end of turn.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-SPR07",
+    "name": "Hair Curling",
+    "type": "Event",
+    "subtype": [],
+    "color": "",
+    "cost": 2,
+    "power": null,
+    "rarity": "※SPR",
+    "deck": "BP01",
+    "ability": "Only use when there are 2 or more Characters in Rival's Adventure Area. Draw 2 cards.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-SPR08",
+    "name": "Pillow Fight",
+    "type": "Event",
+    "subtype": [],
+    "color": "",
+    "cost": 2,
+    "power": null,
+    "rarity": "※SPR",
+    "deck": "BP01",
+    "ability": "Choose 1 Character in Rival's Adventure Area, it gets -1 Inspiration until the end of turn.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-SPR09",
+    "name": "Rain Under the Roof",
+    "type": "Event",
+    "subtype": [],
+    "color": "",
+    "cost": 3,
+    "power": null,
+    "rarity": "※SPR",
+    "deck": "BP01",
+    "ability": "All Characters in Rival's Adventure Area get -1 Inspiration until the end of turn.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-SPR12",
+    "name": "Hoof Power Test",
+    "type": "Event",
+    "subtype": [],
+    "color": "",
+    "cost": 3,
+    "power": null,
+    "rarity": "※SPR",
+    "deck": "BP01",
+    "ability": "Choose 1 「Applejack」 in your Adventure Area, it gets +3 Inspiration until the end of turn.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-SPR13",
+    "name": "Tense Competition",
+    "type": "Event",
+    "subtype": [],
+    "color": "",
+    "cost": 2,
+    "power": null,
+    "rarity": "※SPR",
+    "deck": "BP01",
+    "ability": "Choose 1 「Fluttershy」 in your Adventure Area, it gets +1 Inspiration for each Character in your Adventure Area.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-SPR18",
+    "name": "Accidentally Burnt Book",
+    "type": "Event",
+    "subtype": [],
+    "color": "",
+    "cost": 2,
+    "power": null,
+    "rarity": "※SPR",
+    "deck": "BP01",
+    "ability": "Only use when there is any Event in your Retirement Area. Choose 1 Character in your Adventure Area, it gets +2 Inspiration until the end of turn.",
+    "story_stage": null
+  },
+  {
+    "id": "※BP01-SPR21",
+    "name": "Found Scroll",
+    "type": "Event",
+    "subtype": [],
+    "color": "",
+    "cost": 1,
+    "power": null,
+    "rarity": "※SPR",
+    "deck": "BP01",
+    "ability": "Only use when there is any 「Twilight Sparkle」 in your Adventure Area. Draw 2 cards, discard 1 card.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER01D",
+    "name": "Golden Oak Library",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Purple",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Twilight Sparkle」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER01N",
+    "name": "Golden Oak Library",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Purple",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Twilight Sparkle」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER02D",
+    "name": "Fluttershy's Cottage",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Yellow",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Fluttershy」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER02N",
+    "name": "Fluttershy's Cottage",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Yellow",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Fluttershy」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER03D",
+    "name": "Sugarcube Corner",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Pink",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Pinkie Pie」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER03N",
+    "name": "Sugarcube Corner",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Pink",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Pinkie Pie」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER04D",
+    "name": "Sweet Apple Acres",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Orange",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Applejack」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER04N",
+    "name": "Sweet Apple Acres",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Orange",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Applejack」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER05D",
+    "name": "Cloudominium",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Blue",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Rainbow Dash」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER05N",
+    "name": "Cloudominium",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Blue",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Rainbow Dash」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER06D",
+    "name": "Carousel Boutique",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Indigo",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Rarity」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER06N",
+    "name": "Carousel Boutique",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Indigo",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Rarity」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER07D",
+    "name": "Canterlot Tower",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Purple",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Twilight Sparkle」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER07N",
+    "name": "Canterlot Tower",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Purple",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Twilight Sparkle」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER08D",
+    "name": "Ponyville Suburb",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Yellow",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Fluttershy」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER08N",
+    "name": "Ponyville Suburb",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Yellow",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Fluttershy」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER09D",
+    "name": "Ponyville Street",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Pink",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Pinkie Pie」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER09N",
+    "name": "Ponyville Street",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Pink",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Pinkie Pie」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER10D",
+    "name": "Road at Sweet Apple Acres",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Orange",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Applejack」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER10N",
+    "name": "Road at Sweet Apple Acres",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Orange",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Applejack」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER11D",
+    "name": "Stairs of Cloudsdale",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Blue",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Rainbow Dash」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER11N",
+    "name": "Stairs of Cloudsdale",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Blue",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Rainbow Dash」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER12D",
+    "name": "Manehattan Streets",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Indigo",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Rarity」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-ER12N",
+    "name": "Manehattan Streets",
+    "type": "Scene",
+    "subtype": [
+      "Everyday"
+    ],
+    "color": "Indigo",
+    "cost": null,
+    "power": null,
+    "rarity": "※ER",
+    "deck": "SD01",
+    "ability": "[Inspo Boost] Your 「Rarity」 gets +1 Inspiration until the end of this Contact.",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-RR01",
+    "name": "Twilight Sparkle",
+    "type": "Main Character",
+    "subtype": [
+      "Unicorn",
+      "Twilight Sparkle"
+    ],
+    "color": "Purple",
+    "cost": null,
+    "power": null,
+    "rarity": "※RR",
+    "deck": "SD01",
+    "ability": "(Shining Ruby Rare art card)",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-RR02",
+    "name": "Fluttershy",
+    "type": "Main Character",
+    "subtype": [
+      "Pegasus",
+      "Fluttershy"
+    ],
+    "color": "Yellow",
+    "cost": null,
+    "power": null,
+    "rarity": "※RR",
+    "deck": "SD01",
+    "ability": "(Shining Ruby Rare art card)",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-RR03",
+    "name": "Pinkie Pie",
+    "type": "Main Character",
+    "subtype": [
+      "Earth Pony",
+      "Pinkie Pie"
+    ],
+    "color": "Pink",
+    "cost": null,
+    "power": null,
+    "rarity": "※RR",
+    "deck": "SD01",
+    "ability": "(Shining Ruby Rare art card)",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-RR04",
+    "name": "Applejack",
+    "type": "Main Character",
+    "subtype": [
+      "Earth Pony",
+      "Applejack"
+    ],
+    "color": "Orange",
+    "cost": null,
+    "power": null,
+    "rarity": "※RR",
+    "deck": "SD01",
+    "ability": "(Shining Ruby Rare art card)",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-RR05",
+    "name": "Rainbow Dash",
+    "type": "Main Character",
+    "subtype": [
+      "Pegasus",
+      "Rainbow Dash"
+    ],
+    "color": "Blue",
+    "cost": null,
+    "power": null,
+    "rarity": "※RR",
+    "deck": "SD01",
+    "ability": "(Shining Ruby Rare art card)",
+    "story_stage": null
+  },
+  {
+    "id": "※SD01-RR06",
+    "name": "Rarity",
+    "type": "Main Character",
+    "subtype": [
+      "Unicorn",
+      "Rarity"
+    ],
+    "color": "Indigo",
+    "cost": null,
+    "power": null,
+    "rarity": "※RR",
+    "deck": "SD01",
+    "ability": "(Shining Ruby Rare art card)",
     "story_stage": null
   }
 ]
