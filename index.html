@@ -635,6 +635,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
       <button class="hdr-btn danger" onclick="clearDeck()">🗑 Clear</button>
       <button class="hdr-btn primary" onclick="snapshot()">📸 Snapshot</button>
       <button class="hdr-btn" onclick="openExport()">📤 Export</button>
+      <button class="hdr-btn" onclick="testDraw()">🎴 Test Draw</button>
       <button class="hdr-btn" onclick="saveDeck()">💾 Save</button>
       <button class="hdr-btn" onclick="document.getElementById('fi-load').click()">📂 Load</button>
       <button id="analysis-toggle-btn" class="hdr-btn"
@@ -771,6 +772,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <button class="imp-btn" onclick="document.getElementById('fi-load').click()">📂 Load Draft</button>
         <button class="imp-btn" onclick="saveDeck()">💾 Save Draft</button>
         <button class="imp-btn" onclick="openExport()">📤 Export</button>
+        <button class="imp-btn" onclick="testDraw()">🎴 Test Draw</button>
       </div>
     </div>
     <div id="mob-deck-content" style="flex:1;overflow-y:auto;padding:10px 10px 72px;">
@@ -2015,11 +2017,107 @@ document.addEventListener('DOMContentLoaded', () => {
   renderLibrary(); updateSidebar();
   preloadAssets();
 });
+
+
+// ═══════════════════════════════════════
+//  Test Draw
+// ═══════════════════════════════════════
+function testDraw() {
+  // Build flat pool from main deck (expand qty)
+  const pool = [];
+  (state.main || []).forEach(entry => {
+    const qty = entry.qty || 1;
+    for (let i = 0; i < qty; i++) pool.push(entry);
+  });
+
+  const total = pool.length;
+  const drawCount = Math.min(5, total);
+
+  // Fisher-Yates shuffle for uniform probability
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+
+  const hand = pool.slice(0, drawCount);
+
+  // Status label
+  const statusEl = document.getElementById('td-status');
+  if (statusEl) {
+    statusEl.textContent = total < 50
+      ? `⚠ Deck incomplete (${total}/50) — drawing ${drawCount} card${drawCount!==1?'s':''}`
+      : `Drawing ${drawCount} cards from ${total}-card deck`;
+    statusEl.style.color = total < 50 ? '#f59e0b' : 'var(--dim)';
+  }
+
+  // Render hand
+  const handEl = document.getElementById('td-hand');
+  if (!handEl) return;
+  handEl.innerHTML = '';
+
+  if (hand.length === 0) {
+    handEl.innerHTML = '<span style="color:var(--dim);font-size:0.8rem;">No cards in main deck.</span>';
+  } else {
+    hand.forEach(entry => {
+      const card = entry; // entry has all card fields + qty
+      const isStory = card.type === 'Story';
+      const ar = isStory ? '5/3' : '5/7';
+      const w = isStory ? '90px' : '72px';
+
+      const tile = document.createElement('div');
+      tile.style.cssText = `width:${w};cursor:pointer;flex-shrink:0;`;
+      tile.title = `${card.name} (${card.id})`;
+      tile.onclick = () => { closeTestDraw(); openZoom(card, hand, 'testdraw'); };
+
+      const imgWrap = document.createElement('div');
+      imgWrap.style.cssText = `width:${w};aspect-ratio:${ar};border-radius:8px;overflow:hidden;
+        background:var(--surface2);box-shadow:0 4px 14px rgba(0,0,0,0.5);`;
+
+      const img = document.createElement('img');
+      const imgId = card.id.replace('※','');
+      img.src = `./cards/${imgId}.jpg`;
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+      img.onerror = () => { img.style.display='none'; imgWrap.textContent='🃏'; };
+
+      imgWrap.appendChild(img);
+
+      const label = document.createElement('div');
+      label.style.cssText = 'font-size:0.55rem;color:var(--dim);text-align:center;margin-top:3px;line-height:1.3;';
+      label.textContent = card.name;
+
+      tile.appendChild(imgWrap);
+      tile.appendChild(label);
+      handEl.appendChild(tile);
+    });
+  }
+
+  // Show modal
+  const modal = document.getElementById('test-draw-modal');
+  if (modal) { modal.style.display = 'flex'; }
+}
+
+function closeTestDraw() {
+  const modal = document.getElementById('test-draw-modal');
+  if (modal) modal.style.display = 'none';
+}
 </script>
 
 <!-- Footer -->
 <div style="display:none;text-align:center;padding:8px;font-size:0.6rem;color:var(--dim);font-family:var(--font-body);border-top:1px solid var(--border);background:var(--bg);">
   🌈 MLP Card Game Deck Builder · Idea by <strong>Kiattisak.V</strong> · Created by <strong>Claude Sonnet 4.6</strong>
 </div>
+<!-- Test Draw Modal -->
+<div class="modal-overlay" id="test-draw-modal" onclick="closeTestDraw()">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:520px;">
+    <div class="modal-title">🎴 Test Draw</div>
+    <div id="td-status" style="font-size:0.72rem;color:var(--dim);text-align:center;margin-bottom:10px;"></div>
+    <div id="td-hand" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;"></div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn primary" onclick="testDraw()">🔀 Draw Again</button>
+      <button class="btn" onclick="closeTestDraw()">✕ Close</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
