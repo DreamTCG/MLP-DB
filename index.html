@@ -487,6 +487,21 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
   <div class="zoom-inner" onclick="event.stopPropagation()">
     <div class="zoom-handle"></div>
     <button class="zoom-close" onclick="closeZoom()">✕</button>
+    <!-- Font size controls — top-left corner -->
+    <div style="position:absolute;top:14px;left:14px;display:flex;align-items:center;gap:4px;z-index:1;">
+      <button onclick="zoomFontChange(-1)" title="Decrease text size"
+        style="width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);
+        background:var(--surface2);color:var(--muted);font-size:0.7rem;font-weight:700;
+        cursor:pointer;line-height:1;">A−</button>
+      <button onclick="zoomFontChange(1)" title="Increase text size"
+        style="width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);
+        background:var(--surface2);color:var(--muted);font-size:0.7rem;font-weight:700;
+        cursor:pointer;line-height:1;">A+</button>
+      <button onclick="zoomFontReset()" title="Reset text size"
+        style="height:24px;padding:0 6px;border-radius:6px;border:1px solid var(--border2);
+        background:var(--surface2);color:var(--dim);font-size:0.6rem;
+        cursor:pointer;line-height:1;">↺</button>
+    </div>
     <!-- Nav + card image row -->
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
       <!-- Prev arrow — aligns with card center via flex align-items:center -->
@@ -529,22 +544,6 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
     </div>
     <!-- Scrollable ability area + font size controls -->
     <div style="flex:1;overflow-y:auto;min-height:0;padding-bottom:36px;">
-      <!-- Font size controls -->
-      <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-bottom:6px;">
-        <span style="font-size:0.6rem;color:var(--dim);">Text size</span>
-        <button onclick="zoomFontChange(-1)"
-          style="width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);
-          background:var(--surface2);color:var(--muted);font-size:0.85rem;font-weight:700;
-          cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">A−</button>
-        <button onclick="zoomFontChange(1)"
-          style="width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);
-          background:var(--surface2);color:var(--muted);font-size:0.85rem;font-weight:700;
-          cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">A+</button>
-        <button onclick="zoomFontReset()"
-          style="height:24px;padding:0 7px;border-radius:6px;border:1px solid var(--border2);
-          background:var(--surface2);color:var(--dim);font-size:0.6rem;
-          cursor:pointer;flex-shrink:0;">Reset</button>
-      </div>
       <div id="zm-ability" style="font-size:0.78rem;color:var(--muted);line-height:1.8;padding:12px;background:var(--surface2);border-radius:10px;"></div>
     </div>
   </div>
