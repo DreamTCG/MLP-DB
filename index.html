@@ -1169,9 +1169,9 @@ function addCard(card) {
     renderScene(); updateSidebar(); toast(`🎭 ${card.name}`,'ok'); return;
   }
   if (type==='Story') {
-    // Auto-fill entire set from same deck code
-    const dk = card.deck || card.id.split('-')[0];
-    const setCards = state.library.filter(c => c.type==='Story' && (c.deck||c.id.split('-')[0])===dk);
+    // Auto-fill by matching story name (card.name) — same title = same story set
+    const storyName = card.name;
+    const setCards = state.library.filter(c => c.type==='Story' && c.name===storyName);
     const tiers = ['I','II','III','IV'];
     let added = 0;
     tiers.forEach((tier, i) => {
@@ -1181,7 +1181,7 @@ function addCard(card) {
     });
     if (added) {
       renderStory(); updateSidebar();
-      toast(`📖 ${STORY_SETS[dk]||card.name} — ${added} tier(s) added`,'ok');
+      toast(`📖 ${storyName} — ${added} tier(s) added`,'ok');
     } else {
       toast('⚠ Story slots already filled','warn');
     }
