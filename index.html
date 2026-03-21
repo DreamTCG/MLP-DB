@@ -1164,7 +1164,8 @@ function renderLibrary() {
     cards.forEach(card => {
       const inDeck = getDeckQty(card);
       const hasMinus = inDeck>0 && card.type!=='Main Character' && card.type!=='Story';
-      const maxed    = inDeck>=4 && card.type!=='Main Character' && card.type!=='Story' && card.type!=='Scene';
+      const combinedQty = (card.type==='Character'||card.type==='Event'||card.type==='Item') ? getMainQtyByBaseId(card.id) : inDeck;
+      const maxed    = combinedQty>=4 && card.type!=='Main Character' && card.type!=='Story' && card.type!=='Scene';
       const el = document.createElement('div');
       el.className = 'card-tile';
       const imgWrap = document.createElement('div');
@@ -1195,6 +1196,15 @@ function renderLibrary() {
       grid.appendChild(el);
     });
   });
+}
+
+// ── Alt art ID helpers ──
+// Strip ※ prefix to get canonical base ID for copy-limit counting
+function baseCardId(id) { return (id||'').replace(/^※/, ''); }
+// Get total qty in main deck counting both base and alt art versions together
+function getMainQtyByBaseId(cardId) {
+  const bid = baseCardId(cardId);
+  return state.main.reduce((sum, c) => baseCardId(c.id) === bid ? sum + c.qty : sum, 0);
 }
 
 function getDeckQty(card) {
@@ -1251,7 +1261,10 @@ function addCard(card) {
     return;
   }
   const ex=state.main.find(c=>c.id===card.id);
-  if (ex) { if(ex.qty>=4){toast('⚠ Max 4 copies','warn');return;} ex.qty++; }
+  // Check combined qty (base + all alt art versions) does not exceed 4
+  const combinedTotal = getMainQtyByBaseId(card.id);
+  if (combinedTotal >= 4) { toast('⚠ Max 4 copies (base + alt combined)','warn'); return; }
+  if (ex) { ex.qty++; }
   else state.main.push({...card,qty:1});
   renderMain(); updateSidebar(); toast(`🃏 ${card.name}`,'ok');
   renderLibrary();
@@ -1624,8 +1637,15 @@ function _renderZoom(card) {
   if(card.deck)   meta+=`<span style="background:var(--surface2);color:var(--dim);border-radius:6px;padding:3px 9px;font-size:0.68rem">${card.deck}</span>`;
   $('zm-meta').innerHTML=meta;
   let stats='';
-  if(card.cost!=null)  stats+=`<div style="flex:1;text-align:center;padding:10px 0;border-right:1px solid var(--border2)"><div style="font-size:1.1rem">💎</div><div style="font-size:1rem;font-weight:800">${card.cost}</div><div style="font-size:0.6rem;color:var(--dim)">Cost</div></div>`;
-  if(card.power!=null) stats+=`<div style="flex:1;text-align:center;padding:10px 0"><div style="font-size:1.1rem">⚔️</div><div style="font-size:1rem;font-weight:800">${card.power}</div><div style="font-size:0.6rem;color:var(--dim)">Power</div></div>`;
+  const hasCost  = card.cost  != null;
+  const hasPower = card.power != null;
+  if (hasCost || hasPower) {
+    stats += `<div style="display:flex;align-items:center;justify-content:center;gap:${hasCost&&hasPower?'20px':'0'};padding:10px 16px;width:100%;">`;
+    if (hasCost)  stats += `<div style="display:flex;align-items:center;gap:6px;"><span style="font-size:1.1rem;line-height:1">💎</span><span style="font-size:1.1rem;font-weight:800;line-height:1">${card.cost}</span><span style="font-size:0.62rem;color:var(--dim);line-height:1;margin-top:1px">Cost</span></div>`;
+    if (hasCost && hasPower) stats += `<span style="width:1px;height:28px;background:var(--border2);display:inline-block;flex-shrink:0;"></span>`;
+    if (hasPower) stats += `<div style="display:flex;align-items:center;gap:6px;"><span style="font-size:1.1rem;line-height:1">⚔️</span><span style="font-size:1.1rem;font-weight:800;line-height:1">${card.power}</span><span style="font-size:0.62rem;color:var(--dim);line-height:1;margin-top:1px">Power</span></div>`;
+    stats += `</div>`;
+  }
   $('zm-stats').innerHTML=stats||`<span style="color:var(--dim);font-size:0.8rem;padding:10px">—</span>`;
   $('zm-ability').textContent=card.ability||'(No ability)';
   _applyZoomFont();
@@ -1663,8 +1683,10 @@ function _renderZoom(card) {
       qtyMinus.disabled = !inDeck;
       qtyPlus.disabled  = !!inDeck;
     } else {
-      const maxed = card.type !== 'Scene' && inDeck >= 4;
+      const combinedQty = (card.type !== 'Scene') ? getMainQtyByBaseId(card.id) : inDeck;
+      const maxed = card.type !== 'Scene' && combinedQty >= 4;
       qtyLbl.textContent = inDeck ? `× ${inDeck} in Deck` : 'Not in Deck';
+      if (combinedQty > inDeck) qtyLbl.textContent += ` (${combinedQty} total w/ alt)`;
       qtyMinus.disabled = inDeck <= 0;
       qtyPlus.disabled  = maxed;
     }
