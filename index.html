@@ -394,10 +394,6 @@ html, body { height: 100%; font-family: var(--font-body); background: var(--bg);
 .import-toggle-btn { background:none; border:none; color:var(--muted); font-size:0.85rem; cursor:pointer; padding:2px 5px; }
 .import-btns { display:none; flex-wrap:wrap; gap:5px; padding:0 12px 8px; }
 .import-btns.open { display:flex; }
-@media (min-width:900px) {
-  .import-btns { display:flex !important; }   /* always open on desktop */
-  .import-toggle { display:none !important; } /* hide toggle button on desktop */
-}
 .imp-btn {
   background:var(--surface2); border:1px solid var(--border2);
   color:var(--muted); border-radius:6px; padding:4px 10px;
@@ -423,14 +419,13 @@ html, body { height: 100%; font-family: var(--font-body); background: var(--bg);
 #zoom-modal {
   display:none; position:fixed; inset:0; z-index:500;
   background:rgba(0,0,0,0.88); align-items:flex-end; justify-content:center;
-  overflow-y:auto;
 }
 .zoom-inner {
   background:var(--surface); border-top:1px solid var(--border2);
   border-radius:20px 20px 0 0; padding:8px 20px 0;
   width:100%; max-width:600px;
   position:relative;
-  height:92svh; max-height:92svh;
+  height:92vh; max-height:92vh;
   display:flex; flex-direction:column;
   overflow:hidden;
   box-shadow:0 -12px 48px rgba(0,0,0,0.7);
@@ -513,7 +508,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
   <div class="zoom-inner" onclick="event.stopPropagation()">
     <div class="zoom-handle"></div>
     <button class="zoom-close" onclick="closeZoom()">✕</button>
-    <!-- Font size + language controls — top-left corner -->
+    <!-- Font size controls — top-left corner -->
     <div style="position:absolute;top:14px;left:14px;display:flex;align-items:center;gap:4px;z-index:1;">
       <button onclick="zoomFontChange(-1)" title="Decrease text size"
         style="width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);
@@ -527,11 +522,6 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         style="height:24px;padding:0 6px;border-radius:6px;border:1px solid var(--border2);
         background:var(--surface2);color:var(--dim);font-size:0.6rem;
         cursor:pointer;line-height:1;">↺</button>
-      <div style="width:1px;height:16px;background:var(--border2);margin:0 2px;"></div>
-      <button id="lang-toggle-btn" onclick="toggleZoomLang()" title="Toggle language"
-        style="height:24px;padding:0 8px;border-radius:6px;border:1px solid var(--border2);
-        background:var(--surface2);color:var(--muted);font-size:0.65rem;font-weight:700;
-        cursor:pointer;line-height:1;letter-spacing:.02em;">EN</button>
     </div>
     <!-- Nav + card image row -->
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
@@ -546,7 +536,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <div id="zm-img" style="width:min(220px,100%);aspect-ratio:5/7;border-radius:14px;
           overflow:hidden;background:var(--surface2);display:flex;align-items:center;
           justify-content:center;font-size:3rem;
-          box-shadow:0 12px 36px rgba(0,0,0,0.6);max-height:36svh;"></div>
+          box-shadow:0 12px 36px rgba(0,0,0,0.6);"></div>
         <span id="zm-index" style="font-size:0.65rem;color:var(--dim);margin-top:6px;"></span>
       </div>
 
@@ -665,7 +655,11 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
       <div id="color-lock-indicator"></div>
       <button class="hdr-btn danger" onclick="clearDeck()">🗑 Clear</button>
       <button class="hdr-btn primary" onclick="snapshot()">📸 Snapshot</button>
+      <button class="hdr-btn" onclick="openExport()">📤 Export</button>
       <button class="hdr-btn" id="theme-btn-d" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
+      <button class="hdr-btn" onclick="testDraw()">🎴 Test Draw</button>
+      <button class="hdr-btn" onclick="saveDeck()">💾 Save</button>
+      <button class="hdr-btn" onclick="document.getElementById('fi-load').click()">📂 Load</button>
       <button id="analysis-toggle-btn" class="hdr-btn"
         onclick="toggleAnalysisPanel()"
         style="white-space:nowrap;">📊 Hide</button>
@@ -677,10 +671,6 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <button class="import-toggle-btn" id="imp-toggle-btn" onclick="toggleImportBar()">▼</button>
       </div>
       <div class="import-btns" id="imp-btns">
-        <button class="imp-btn" onclick="document.getElementById('fi-load').click()">📂 Load Draft</button>
-        <button class="imp-btn" onclick="saveDeck()">💾 Save Draft</button>
-        <button class="imp-btn" onclick="openExport()">📤 Export</button>
-        <button class="imp-btn" onclick="testDraw()">🎴 Test Draw</button>
       </div>
     </div>
     <!-- Deck content -->
@@ -698,14 +688,6 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <div class="zone-hdr">
           <span class="zone-label">🃏 Main Deck</span>
           <span class="zone-chip warn" id="zc-main">0/50</span>
-          <div style="display:flex;gap:3px;margin-left:auto;">
-            <button id="sort-cost-btn" onclick="setDeckSort('cost')"
-              style="font-size:0.6rem;padding:2px 6px;border-radius:5px;border:1px solid var(--border2);
-              background:var(--surface2);color:var(--muted);cursor:pointer;white-space:nowrap;">Cost ↕</button>
-            <button id="sort-rarity-btn" onclick="setDeckSort('rarity')"
-              style="font-size:0.6rem;padding:2px 6px;border-radius:5px;border:1px solid var(--border2);
-              background:var(--purple);color:#fff;cursor:pointer;white-space:nowrap;">Rarity</button>
-          </div>
         </div>
         <div class="card-grid lg" id="main-grid-d"></div>
       </div>
@@ -786,8 +768,8 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
           <div class="dd-menu" id="dd-set-m"></div>
         </div>
         <button class="sort-btn" id="sort-btn-m" onclick="toggleSort()" title="Toggle sort">↓</button>
-        <button class="sort-btn" onclick="clearAllFilters()" title="Clear all filters" style="font-size:0.65rem;">✕</button>
-        <button id="alt-toggle-btn-m" class="sort-btn" onclick="toggleAltFilter()" title="Toggle alt rarity display" style="font-size:0.6rem;min-width:42px;">All</button>
+        <button class="sort-btn" onclick="clearAllFilters()" title="Clear all filters" >✕</button>
+        <button id="alt-toggle-btn-m" class="sort-btn" onclick="toggleAltFilter()" title="Toggle alt rarity display" style="min-width:42px;">All</button>
       </div>
     </div>
     <div style="flex:1;overflow-y:auto;padding:8px 10px 72px;">
@@ -828,14 +810,6 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <div class="zone-hdr">
           <span class="zone-label">🃏 Main Deck</span>
           <span class="zone-chip warn" id="zc-main-m">0/50</span>
-          <div style="display:flex;gap:3px;margin-left:auto;">
-            <button id="sort-cost-btn-m" onclick="setDeckSort('cost')" title="Sort by Cost"
-              style="font-size:0.6rem;padding:2px 6px;border-radius:5px;border:1px solid var(--border2);
-              background:var(--surface2);color:var(--muted);cursor:pointer;white-space:nowrap;">Cost ↕</button>
-            <button id="sort-rarity-btn-m" onclick="setDeckSort('rarity')" title="Sort by Rarity"
-              style="font-size:0.6rem;padding:2px 6px;border-radius:5px;border:1px solid var(--border2);
-              background:var(--purple);color:#fff;cursor:pointer;white-space:nowrap;">Rarity</button>
-          </div>
         </div>
         <div class="card-grid" id="main-grid-m"></div>
       </div>
@@ -1022,65 +996,11 @@ function sortLibCards(cards) {
     return state.sortAsc ? -diff : diff;
   });
 }
-// ── Deck sort state ──
-let _deckSort = 'rarity'; // 'rarity' | 'cost-asc' | 'cost-desc'
-
-// Strip ※ prefix to normalize alt-art to same rarity rank as original
-function _baseRarityRank(rarity) {
-  const base = (rarity||'').replace(/^※/, '');
-  return RARITY_RANK[base] ?? RARITY_RANK[rarity] ?? 99;
-}
-
 function sortMainCards(cards) {
   return [...cards].sort((a,b)=>{
-    if (_deckSort === 'cost-asc') {
-      const cd = (a.cost??99) - (b.cost??99);
-      if (cd!==0) return cd;
-      return _baseRarityRank(a.rarity) - _baseRarityRank(b.rarity);
-    }
-    if (_deckSort === 'cost-desc') {
-      const cd = (b.cost??99) - (a.cost??99);
-      if (cd!==0) return cd;
-      return _baseRarityRank(a.rarity) - _baseRarityRank(b.rarity);
-    }
-    // default: rarity (※ counts same as base)
-    const ro = _baseRarityRank(a.rarity) - _baseRarityRank(b.rarity);
+    const ro=(RARITY_RANK[a.rarity]??99)-(RARITY_RANK[b.rarity]??99);
     if(ro!==0) return ro;
     return getCardNum(a.id)-getCardNum(b.id);
-  });
-}
-
-function setDeckSort(mode) {
-  if (mode === 'cost') {
-    // toggle cost-asc ↔ cost-desc
-    _deckSort = _deckSort === 'cost-asc' ? 'cost-desc' : 'cost-asc';
-  } else {
-    _deckSort = 'rarity';
-  }
-  _updateSortBtns();
-  renderDeck();
-}
-
-function _updateSortBtns() {
-  const active  = 'var(--purple)';
-  const inact   = 'var(--surface2)';
-  const acText  = '#fff';
-  const inText  = 'var(--muted)';
-  const isCost  = _deckSort.startsWith('cost');
-  const arrow   = _deckSort === 'cost-asc' ? '↑' : (_deckSort === 'cost-desc' ? '↓' : '↕');
-
-  ['sort-cost-btn','sort-cost-btn-m'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.style.background = isCost ? active : inact;
-    el.style.color = isCost ? acText : inText;
-    el.textContent = `Cost ${arrow}`;
-  });
-  ['sort-rarity-btn','sort-rarity-btn-m'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.style.background = !isCost ? active : inact;
-    el.style.color = !isCost ? acText : inText;
   });
 }
 
@@ -1099,7 +1019,7 @@ function parseCardData(data) {
     power:       card.power!=null?card.power:null,
     rarity:      card.rarity||'C',
     deck:        card.deck||(card.id||'').split('-')[0]||'',
-    ability:     card.ability_en||card.ability||'',
+    ability:     card.ability||'',
     story_stage: card.story_stage||null,
     imageUrl:    card.imageUrl||'',
   }));
@@ -1380,7 +1300,7 @@ function renderMC() {
       <div class="mc-info">
         <div class="mc-name">${c.name}</div>
         <div class="mc-meta">${c.rarity||''} · <span style="color:${rc}">${COLOR_ICON[c.color]||''} ${c.color||''}</span><br>${(c.subtype||[]).join(', ')}</div>
-        ${(c.ability_en||c.ability)?`<div style="font-size:0.65rem;color:var(--muted);margin-top:4px;line-height:1.5">${c.ability_en||c.ability}</div>`:''}
+        ${c.ability?`<div style="font-size:0.65rem;color:var(--muted);margin-top:4px;line-height:1.5">${c.ability}</div>`:''}
       </div>
       <button class="mc-rm" onclick="removeCard('mc','${c.id}')">✕ Remove</button>
     </div>`;
@@ -1656,7 +1576,7 @@ function _renderZoom(card) {
   const RC={CR:'#a78bfa',GR:'#fbbf24',RR:'#f472b6',SR:'#34d399',U:'#60a5fa',C:'#9ca3af',SPR:'#fb923c',ER:'#38bdf8','※CR':'#d4a0ff','※GR':'#ffe066','※SR':'#6effc2','※RR':'#ff9de2','※ER':'#7ee8ff','※SPR':'#ffc57a'};
   $('zm-img').innerHTML=card.imageUrl?`<img src="${card.imageUrl}" style="width:100%;height:100%;object-fit:cover">`:`<span>${typeIcon(card.type)}</span>`;
   const rc=RC[card.rarity]||'var(--muted)';
-  // zm-name rendered via _applyZoomLang below
+  $('zm-name').innerHTML=`${card.name}<div style="font-family:var(--font-body);font-size:0.62rem;color:var(--dim);margin-top:2px">${card.id}</div>`;
   let meta='';
   if(card.type)   meta+=`<span class="type-pill ${typePill(card.type)}" style="font-size:0.7rem;padding:3px 9px">${card.type}</span>`;
   if(card.rarity) meta+=`<span style="background:${rc}22;color:${rc};border:1px solid ${rc}44;border-radius:6px;padding:3px 9px;font-size:0.7rem;font-weight:800" title="${RARITY_NAME[card.rarity]||card.rarity}">${card.rarity}</span>`;
@@ -1664,12 +1584,11 @@ function _renderZoom(card) {
   if(card.deck)   meta+=`<span style="background:var(--surface2);color:var(--dim);border-radius:6px;padding:3px 9px;font-size:0.68rem">${card.deck}</span>`;
   $('zm-meta').innerHTML=meta;
   let stats='';
-    if(card.cost!=null)  stats+=`<div style="display:flex;align-items:center;gap:6px;padding:8px 20px;border-right:1px solid var(--border2)"><span style="font-size:1rem">💎</span><span style="font-size:1rem;font-weight:800">${card.cost}</span><span style="font-size:0.68rem;color:var(--dim);margin-left:2px">Cost</span></div>`;
-  if(card.power!=null) stats+=`<div style="display:flex;align-items:center;gap:6px;padding:8px 20px"><span style="font-size:1rem">⚔️</span><span style="font-size:1rem;font-weight:800">${card.power}</span><span style="font-size:0.68rem;color:var(--dim);margin-left:2px">Power</span></div>`;
+  if(card.cost!=null)  stats+=`<div style="flex:1;text-align:center;padding:10px 0;border-right:1px solid var(--border2)"><div style="font-size:1.1rem">💎</div><div style="font-size:1rem;font-weight:800">${card.cost}</div><div style="font-size:0.6rem;color:var(--dim)">Cost</div></div>`;
+  if(card.power!=null) stats+=`<div style="flex:1;text-align:center;padding:10px 0"><div style="font-size:1.1rem">⚔️</div><div style="font-size:1rem;font-weight:800">${card.power}</div><div style="font-size:0.6rem;color:var(--dim)">Power</div></div>`;
   $('zm-stats').innerHTML=stats||`<span style="color:var(--dim);font-size:0.8rem;padding:10px">—</span>`;
-  _zmCurrentCard = card;
-  _applyZoomLang(card);
-  _updateLangBtn();
+  $('zm-ability').textContent=card.ability||'(No ability)';
+  _applyZoomFont();
   // Nav index
   const navTotal = _zmCtx.cards.length;
   const navIdx   = _zmCtx.idx;
@@ -1753,39 +1672,6 @@ function zoomFontReset() {
 function _applyZoomFont() {
   const el = $('zm-ability');
   if (el) el.style.fontSize = _zmFontSize + 'rem';
-}
-
-// ── Zoom language toggle ──
-let _zmLang = localStorage.getItem('zm-lang') || 'en'; // 'en' | 'th'
-let _zmCurrentCard = null; // keep reference to re-render on toggle
-
-function toggleZoomLang() {
-  _zmLang = _zmLang === 'en' ? 'th' : 'en';
-  localStorage.setItem('zm-lang', _zmLang);
-  _updateLangBtn();
-  if (_zmCurrentCard) _applyZoomLang(_zmCurrentCard);
-}
-
-function _updateLangBtn() {
-  const btn = document.getElementById('lang-toggle-btn');
-  if (btn) btn.textContent = _zmLang === 'en' ? 'TH' : 'EN';
-}
-
-function _applyZoomLang(card) {
-  // ability
-  const abilityEl = $('zm-ability');
-  if (abilityEl) {
-    const txt = (_zmLang === 'th' && card.ability_th) ? card.ability_th
-               : (card.ability_en || card.ability || '(No ability)');
-    abilityEl.textContent = txt;
-    _applyZoomFont();
-  }
-  // name — keep innerHTML structure (name + id sub-div), just swap display name
-  const nameEl = $('zm-name');
-  if (nameEl) {
-    const displayName = (_zmLang === 'th' && card.name_th) ? card.name_th : (card.name || '');
-    nameEl.innerHTML = `${displayName}<div style="font-family:var(--font-body);font-size:0.62rem;color:var(--dim);margin-top:2px">${card.id}</div>`;
-  }
 }
 
 // Touch swipe on zoom modal
@@ -2004,7 +1890,7 @@ function barChart(title,dist,colors,_s,lastLabel){
   const bars=keys.map(k=>{
     const v=dist[k], h=Math.max(2,Math.round((v/max)*BAR_H));
     const col=colors[Math.min(k,colors.length-1)]||colors[0];
-    const lbl=(k===7&&lastLabel)?lastLabel:(k===8&&lastLabel==='8+')?'8+':k;
+    const lbl=(k===8&&lastLabel)?lastLabel:(k===8&&lastLabel==='8+')?'8+':k;
     return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:0">
       <div style="font-size:0.55rem;color:var(--muted);margin-bottom:1px">${v}</div>
       <div style="width:100%;height:${h}px;background:${col};border-radius:2px 2px 0 0"></div>
