@@ -660,7 +660,6 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
       <div id="color-lock-indicator"></div>
       <button class="hdr-btn danger" onclick="clearDeck()">🗑 Clear</button>
       <button class="hdr-btn primary" onclick="snapshot()">📸 Snapshot</button>
-      <button class="hdr-btn" onclick="openExport()">📤 Export</button>
       <button class="hdr-btn" id="theme-btn-d" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
       <button class="hdr-btn" onclick="testDraw()">🎴 Test Draw</button>
       <button class="hdr-btn" onclick="saveDeck()">💾 Save</button>
@@ -693,6 +692,14 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <div class="zone-hdr">
           <span class="zone-label">🃏 Main Deck</span>
           <span class="zone-chip warn" id="zc-main">0/50</span>
+          <div style="display:flex;gap:3px;margin-left:auto;">
+            <button id="sort-cost-btn" onclick="setDeckSort('cost')"
+              style="font-size:0.6rem;padding:2px 6px;border-radius:5px;border:1px solid var(--border2);
+              background:var(--surface2);color:var(--muted);cursor:pointer;white-space:nowrap;">Cost ↕</button>
+            <button id="sort-rarity-btn" onclick="setDeckSort('rarity')"
+              style="font-size:0.6rem;padding:2px 6px;border-radius:5px;border:1px solid var(--border2);
+              background:var(--purple);color:#fff;cursor:pointer;white-space:nowrap;">Rarity</button>
+          </div>
         </div>
         <div class="card-grid lg" id="main-grid-d"></div>
       </div>
@@ -773,8 +780,8 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
           <div class="dd-menu" id="dd-set-m"></div>
         </div>
         <button class="sort-btn" id="sort-btn-m" onclick="toggleSort()" title="Toggle sort">↓</button>
-        <button class="sort-btn" onclick="clearAllFilters()" title="Clear all filters" >✕</button>
-        <button id="alt-toggle-btn-m" class="sort-btn" onclick="toggleAltFilter()" title="Toggle alt rarity display" style="min-width:42px;">All</button>
+        <button class="sort-btn" onclick="clearAllFilters()" title="Clear all filters" style="font-size:0.65rem;">✕</button>
+        <button id="alt-toggle-btn-m" class="sort-btn" onclick="toggleAltFilter()" title="Toggle alt rarity display" style="font-size:0.6rem;min-width:42px;">All</button>
       </div>
     </div>
     <div style="flex:1;overflow-y:auto;padding:8px 10px 72px;">
@@ -815,6 +822,14 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <div class="zone-hdr">
           <span class="zone-label">🃏 Main Deck</span>
           <span class="zone-chip warn" id="zc-main-m">0/50</span>
+          <div style="display:flex;gap:3px;margin-left:auto;">
+            <button id="sort-cost-btn-m" onclick="setDeckSort('cost')" title="Sort by Cost"
+              style="font-size:0.6rem;padding:2px 6px;border-radius:5px;border:1px solid var(--border2);
+              background:var(--surface2);color:var(--muted);cursor:pointer;white-space:nowrap;">Cost ↕</button>
+            <button id="sort-rarity-btn-m" onclick="setDeckSort('rarity')" title="Sort by Rarity"
+              style="font-size:0.6rem;padding:2px 6px;border-radius:5px;border:1px solid var(--border2);
+              background:var(--purple);color:#fff;cursor:pointer;white-space:nowrap;">Rarity</button>
+          </div>
         </div>
         <div class="card-grid" id="main-grid-m"></div>
       </div>
@@ -1001,11 +1016,65 @@ function sortLibCards(cards) {
     return state.sortAsc ? -diff : diff;
   });
 }
+// ── Deck sort state ──
+let _deckSort = 'rarity'; // 'rarity' | 'cost-asc' | 'cost-desc'
+
+// Strip ※ prefix to normalize alt-art to same rarity rank as original
+function _baseRarityRank(rarity) {
+  const base = (rarity||'').replace(/^※/, '');
+  return RARITY_RANK[base] ?? RARITY_RANK[rarity] ?? 99;
+}
+
 function sortMainCards(cards) {
   return [...cards].sort((a,b)=>{
-    const ro=(RARITY_RANK[a.rarity]??99)-(RARITY_RANK[b.rarity]??99);
+    if (_deckSort === 'cost-asc') {
+      const cd = (a.cost??99) - (b.cost??99);
+      if (cd!==0) return cd;
+      return _baseRarityRank(a.rarity) - _baseRarityRank(b.rarity);
+    }
+    if (_deckSort === 'cost-desc') {
+      const cd = (b.cost??99) - (a.cost??99);
+      if (cd!==0) return cd;
+      return _baseRarityRank(a.rarity) - _baseRarityRank(b.rarity);
+    }
+    // default: rarity (※ counts same as base)
+    const ro = _baseRarityRank(a.rarity) - _baseRarityRank(b.rarity);
     if(ro!==0) return ro;
     return getCardNum(a.id)-getCardNum(b.id);
+  });
+}
+
+function setDeckSort(mode) {
+  if (mode === 'cost') {
+    // toggle cost-asc ↔ cost-desc
+    _deckSort = _deckSort === 'cost-asc' ? 'cost-desc' : 'cost-asc';
+  } else {
+    _deckSort = 'rarity';
+  }
+  _updateSortBtns();
+  renderDeck();
+}
+
+function _updateSortBtns() {
+  const active  = 'var(--purple)';
+  const inact   = 'var(--surface2)';
+  const acText  = '#fff';
+  const inText  = 'var(--muted)';
+  const isCost  = _deckSort.startsWith('cost');
+  const arrow   = _deckSort === 'cost-asc' ? '↑' : (_deckSort === 'cost-desc' ? '↓' : '↕');
+
+  ['sort-cost-btn','sort-cost-btn-m'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.background = isCost ? active : inact;
+    el.style.color = isCost ? acText : inText;
+    el.textContent = `Cost ${arrow}`;
+  });
+  ['sort-rarity-btn','sort-rarity-btn-m'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.background = !isCost ? active : inact;
+    el.style.color = !isCost ? acText : inText;
   });
 }
 
