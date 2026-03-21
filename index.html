@@ -522,6 +522,10 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         style="height:24px;padding:0 6px;border-radius:6px;border:1px solid var(--border2);
         background:var(--surface2);color:var(--dim);font-size:0.6rem;
         cursor:pointer;line-height:1;">↺</button>
+      <button id="zm-lang-btn" onclick="toggleZoomLang()" title="Toggle EN/TH ability text"
+        style="height:24px;padding:0 7px;border-radius:6px;border:1px solid var(--border2);
+        background:var(--surface2);color:var(--purple-l);font-size:0.6rem;font-weight:800;
+        cursor:pointer;line-height:1;">EN</button>
     </div>
     <!-- Nav + card image row -->
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
@@ -687,7 +691,13 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
       <div class="zone-section">
         <div class="zone-hdr">
           <span class="zone-label">🃏 Main Deck</span>
-          <span class="zone-chip warn" id="zc-main">0/50</span>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <button id="main-sort-btn-d" onclick="toggleMainSort()"
+              style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);
+              border-radius:6px;padding:2px 8px;font-size:0.62rem;font-weight:800;
+              cursor:pointer;font-family:var(--font-body);">✨ Rarity</button>
+            <span class="zone-chip warn" id="zc-main">0/50</span>
+          </div>
         </div>
         <div class="card-grid lg" id="main-grid-d"></div>
       </div>
@@ -809,7 +819,13 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
       <div class="zone-section">
         <div class="zone-hdr">
           <span class="zone-label">🃏 Main Deck</span>
-          <span class="zone-chip warn" id="zc-main-m">0/50</span>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <button id="main-sort-btn-m" onclick="toggleMainSort()"
+              style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);
+              border-radius:6px;padding:2px 8px;font-size:0.62rem;font-weight:800;
+              cursor:pointer;font-family:var(--font-body);">✨ Rarity</button>
+            <span class="zone-chip warn" id="zc-main-m">0/50</span>
+          </div>
         </div>
         <div class="card-grid" id="main-grid-m"></div>
       </div>
@@ -863,7 +879,8 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
 // ═══════════════════════════════════════════════════════
 const state = {
   mc: null, main: [], scene: [], story: [null,null,null,null],
-  library: [], sortAsc: false
+  library: [], sortAsc: false,
+  mainSortMode: 'rarity' // 'rarity' | 'cost'
 };
 
 // ═══════════════════════════════════════════════════════
@@ -996,12 +1013,34 @@ function sortLibCards(cards) {
     return state.sortAsc ? -diff : diff;
   });
 }
+// Normalize rarity: strip ※ prefix so alt art ranks same as base
+function baseRarityRank(rarity) {
+  const base = (rarity||'').replace(/^※/, '');
+  return RARITY_RANK[base] ?? RARITY_RANK[rarity] ?? 99;
+}
+
 function sortMainCards(cards) {
   return [...cards].sort((a,b)=>{
-    const ro=(RARITY_RANK[a.rarity]??99)-(RARITY_RANK[b.rarity]??99);
-    if(ro!==0) return ro;
-    return getCardNum(a.id)-getCardNum(b.id);
+    if (state.mainSortMode === 'cost') {
+      const ca = a.cost != null ? a.cost : 999;
+      const cb = b.cost != null ? b.cost : 999;
+      if (ca !== cb) return ca - cb;
+      return getCardNum(a.id) - getCardNum(b.id);
+    }
+    // default: rarity (alt art same rank as base)
+    const ro = baseRarityRank(a.rarity) - baseRarityRank(b.rarity);
+    if (ro !== 0) return ro;
+    return getCardNum(a.id) - getCardNum(b.id);
   });
+}
+
+function toggleMainSort() {
+  state.mainSortMode = state.mainSortMode === 'rarity' ? 'cost' : 'rarity';
+  const label = state.mainSortMode === 'cost' ? '💎 Cost' : '✨ Rarity';
+  ['main-sort-btn-d','main-sort-btn-m'].forEach(id => {
+    const el = $(id); if (el) el.textContent = label;
+  });
+  renderMain();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1020,6 +1059,7 @@ function parseCardData(data) {
     rarity:      card.rarity||'C',
     deck:        card.deck||(card.id||'').split('-')[0]||'',
     ability:     card.ability||'',
+    ability_th:  card.ability_th||'',
     story_stage: card.story_stage||null,
     imageUrl:    card.imageUrl||'',
   }));
@@ -1589,6 +1629,11 @@ function _renderZoom(card) {
   $('zm-stats').innerHTML=stats||`<span style="color:var(--dim);font-size:0.8rem;padding:10px">—</span>`;
   $('zm-ability').textContent=card.ability||'(No ability)';
   _applyZoomFont();
+  // Sync lang button label
+  const langBtn = $('zm-lang-btn');
+  if (langBtn) langBtn.textContent = _zmLang;
+  // Apply correct language ability text
+  _applyZoomAbility(card);
   // Nav index
   const navTotal = _zmCtx.cards.length;
   const navIdx   = _zmCtx.idx;
@@ -1667,6 +1712,26 @@ function zoomFontChange(dir) {
 function zoomFontReset() {
   _zmFontSize = 0.78;
   localStorage.removeItem('zm-font-size');
+  _applyZoomFont();
+}
+
+// ── Zoom language toggle (EN/TH) ──
+let _zmLang = localStorage.getItem('zm-lang') || 'EN'; // 'EN' | 'TH'
+function toggleZoomLang() {
+  _zmLang = _zmLang === 'EN' ? 'TH' : 'EN';
+  localStorage.setItem('zm-lang', _zmLang);
+  const btn = $('zm-lang-btn');
+  if (btn) btn.textContent = _zmLang;
+  // Re-render current card ability text
+  const card = _zmCtx.cards[_zmCtx.idx];
+  if (card) _applyZoomAbility(card);
+}
+function _applyZoomAbility(card) {
+  const el = $('zm-ability');
+  if (!el) return;
+  const text = (_zmLang === 'TH' && card.ability_th) ? card.ability_th
+             : (card.ability || '(No ability)');
+  el.textContent = text;
   _applyZoomFont();
 }
 function _applyZoomFont() {
