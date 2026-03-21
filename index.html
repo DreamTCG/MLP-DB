@@ -508,7 +508,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
   <div class="zoom-inner" onclick="event.stopPropagation()">
     <div class="zoom-handle"></div>
     <button class="zoom-close" onclick="closeZoom()">✕</button>
-    <!-- Font size controls — top-left corner -->
+    <!-- Font size + language controls — top-left corner -->
     <div style="position:absolute;top:14px;left:14px;display:flex;align-items:center;gap:4px;z-index:1;">
       <button onclick="zoomFontChange(-1)" title="Decrease text size"
         style="width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);
@@ -522,6 +522,11 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         style="height:24px;padding:0 6px;border-radius:6px;border:1px solid var(--border2);
         background:var(--surface2);color:var(--dim);font-size:0.6rem;
         cursor:pointer;line-height:1;">↺</button>
+      <div style="width:1px;height:16px;background:var(--border2);margin:0 2px;"></div>
+      <button id="lang-toggle-btn" onclick="toggleZoomLang()" title="Toggle language"
+        style="height:24px;padding:0 8px;border-radius:6px;border:1px solid var(--border2);
+        background:var(--surface2);color:var(--muted);font-size:0.65rem;font-weight:700;
+        cursor:pointer;line-height:1;letter-spacing:.02em;">EN</button>
     </div>
     <!-- Nav + card image row -->
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
@@ -1019,7 +1024,7 @@ function parseCardData(data) {
     power:       card.power!=null?card.power:null,
     rarity:      card.rarity||'C',
     deck:        card.deck||(card.id||'').split('-')[0]||'',
-    ability:     card.ability||'',
+    ability:     card.ability_en||card.ability||'',
     story_stage: card.story_stage||null,
     imageUrl:    card.imageUrl||'',
   }));
@@ -1300,7 +1305,7 @@ function renderMC() {
       <div class="mc-info">
         <div class="mc-name">${c.name}</div>
         <div class="mc-meta">${c.rarity||''} · <span style="color:${rc}">${COLOR_ICON[c.color]||''} ${c.color||''}</span><br>${(c.subtype||[]).join(', ')}</div>
-        ${c.ability?`<div style="font-size:0.65rem;color:var(--muted);margin-top:4px;line-height:1.5">${c.ability}</div>`:''}
+        ${(c.ability_en||c.ability)?`<div style="font-size:0.65rem;color:var(--muted);margin-top:4px;line-height:1.5">${c.ability_en||c.ability}</div>`:''}
       </div>
       <button class="mc-rm" onclick="removeCard('mc','${c.id}')">✕ Remove</button>
     </div>`;
@@ -1587,8 +1592,9 @@ function _renderZoom(card) {
   if(card.cost!=null)  stats+=`<div style="flex:1;text-align:center;padding:10px 0;border-right:1px solid var(--border2)"><div style="font-size:1.1rem">💎</div><div style="font-size:1rem;font-weight:800">${card.cost}</div><div style="font-size:0.6rem;color:var(--dim)">Cost</div></div>`;
   if(card.power!=null) stats+=`<div style="flex:1;text-align:center;padding:10px 0"><div style="font-size:1.1rem">⚔️</div><div style="font-size:1rem;font-weight:800">${card.power}</div><div style="font-size:0.6rem;color:var(--dim)">Power</div></div>`;
   $('zm-stats').innerHTML=stats||`<span style="color:var(--dim);font-size:0.8rem;padding:10px">—</span>`;
-  $('zm-ability').textContent=card.ability||'(No ability)';
-  _applyZoomFont();
+  _zmCurrentCard = card;
+  _applyZoomLang(card);
+  _updateLangBtn();
   // Nav index
   const navTotal = _zmCtx.cards.length;
   const navIdx   = _zmCtx.idx;
@@ -1672,6 +1678,40 @@ function zoomFontReset() {
 function _applyZoomFont() {
   const el = $('zm-ability');
   if (el) el.style.fontSize = _zmFontSize + 'rem';
+}
+
+// ── Zoom language toggle ──
+let _zmLang = localStorage.getItem('zm-lang') || 'en'; // 'en' | 'th'
+let _zmCurrentCard = null; // keep reference to re-render on toggle
+
+function toggleZoomLang() {
+  _zmLang = _zmLang === 'en' ? 'th' : 'en';
+  localStorage.setItem('zm-lang', _zmLang);
+  _updateLangBtn();
+  if (_zmCurrentCard) _applyZoomLang(_zmCurrentCard);
+}
+
+function _updateLangBtn() {
+  const btn = document.getElementById('lang-toggle-btn');
+  if (btn) btn.textContent = _zmLang === 'en' ? 'TH' : 'EN';
+}
+
+function _applyZoomLang(card) {
+  // ability
+  const abilityEl = $('zm-ability');
+  if (abilityEl) {
+    const txt = (_zmLang === 'th' && card.ability_th) ? card.ability_th
+               : (card.ability_en || card.ability || '(No ability)');
+    abilityEl.textContent = txt;
+    _applyZoomFont();
+  }
+  // name
+  const nameEl = $('zm-name');
+  if (nameEl && card.name_th && _zmLang === 'th') {
+    nameEl.textContent = card.name_th;
+  } else if (nameEl) {
+    nameEl.textContent = card.name || '';
+  }
 }
 
 // Touch swipe on zoom modal
@@ -1890,7 +1930,7 @@ function barChart(title,dist,colors,_s,lastLabel){
   const bars=keys.map(k=>{
     const v=dist[k], h=Math.max(2,Math.round((v/max)*BAR_H));
     const col=colors[Math.min(k,colors.length-1)]||colors[0];
-    const lbl=(k===8&&lastLabel)?lastLabel:(k===8&&lastLabel==='8+')?'8+':k;
+    const lbl=(k===7&&lastLabel)?lastLabel:(k===8&&lastLabel==='8+')?'8+':k;
     return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:0">
       <div style="font-size:0.55rem;color:var(--muted);margin-bottom:1px">${v}</div>
       <div style="width:100%;height:${h}px;background:${col};border-radius:2px 2px 0 0"></div>
