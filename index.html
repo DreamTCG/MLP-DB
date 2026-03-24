@@ -889,7 +889,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
 const state = {
   mc: null, main: [], scene: [], story: [null,null,null,null],
   library: [], sortAsc: false,
-  mainSortMode: 'rarity' // 'rarity' | 'cost'
+  mainSortMode: 'rarity' // 'rarity' | 'cost-asc' | 'cost-desc'
 };
 
 // ═══════════════════════════════════════════════════════
@@ -1030,10 +1030,11 @@ function baseRarityRank(rarity) {
 
 function sortMainCards(cards) {
   return [...cards].sort((a,b)=>{
-    if (state.mainSortMode === 'cost') {
+    if (state.mainSortMode === 'cost-asc' || state.mainSortMode === 'cost-desc') {
       const ca = a.cost != null ? a.cost : 999;
       const cb = b.cost != null ? b.cost : 999;
-      if (ca !== cb) return ca - cb;
+      const dir = state.mainSortMode === 'cost-asc' ? 1 : -1;
+      if (ca !== cb) return dir * (ca - cb);
       return getCardNum(a.id) - getCardNum(b.id);
     }
     // default: rarity (alt art same rank as base)
@@ -1044,8 +1045,11 @@ function sortMainCards(cards) {
 }
 
 function toggleMainSort() {
-  state.mainSortMode = state.mainSortMode === 'rarity' ? 'cost' : 'rarity';
-  const label = state.mainSortMode === 'cost' ? '💎 Cost' : '✨ Rarity';
+  // Cycle: rarity → cost-asc → cost-desc → rarity
+  const cycle = { 'rarity': 'cost-asc', 'cost-asc': 'cost-desc', 'cost-desc': 'rarity' };
+  const labels = { 'rarity': '✨ Rarity', 'cost-asc': '💎 Cost ↑', 'cost-desc': '💎 Cost ↓' };
+  state.mainSortMode = cycle[state.mainSortMode] || 'rarity';
+  const label = labels[state.mainSortMode];
   ['main-sort-btn-d','main-sort-btn-m'].forEach(id => {
     const el = $(id); if (el) el.textContent = label;
   });
@@ -1824,128 +1828,174 @@ function toggleImportBar() {
 // SNAPSHOT — Fixed: capture deck-scroll only, no nav overlap
 // ═══════════════════════════════════════════════════════
 function snapshot() {
-  const mob = window.innerWidth < 900;
-  toast('📸 Capturing...','ok');
+  toast('📸 Building snapshot...', 'ok');
 
-  // On mobile: clone deck content into off-screen div to capture
-  if (mob) {
-    const src = $('mob-deck-content');
-    if (!src) { toast('⚠ No deck content found','warn'); return; }
+  // ── Canvas dimensions: 900×1200 (3:4 portrait), export at 2× = 1800×2400px ──
+  const CW = 900, CH = 1200, SCALE = 2;
+  const PAD = 28;
 
-    // Briefly measure real width by temporarily showing parent page
-    const page = $('mob-page-deck');
-    const pageWasHidden = page && page.style.display === 'none';
-    if (pageWasHidden) {
-      page.style.display = 'flex';
-      page.style.visibility = 'hidden'; // show but invisible
-    }
+  const deckName = (($('deck-name') || $('deck-name-m') || {}).value || 'My Deck');
+  const mainTotal  = state.main.reduce((s,c) => s + c.qty, 0);
+  const sceneTotal = state.scene.reduce((s,c) => s + c.qty, 0);
+  const storyFilled = state.story.filter(Boolean).length;
+  const sortedMain = sortMainCards(state.main);
 
-    const W = src.offsetWidth || window.innerWidth || 360;
+  const TYPE_ICON = {Character:'🐴', Event:'⚡', Item:'🎁', Scene:'🎭', Story:'📜', 'Main Character':'⭐'};
+  const TYPE_DOT  = {Character:'#a78bfa', Event:'#fb923c', Item:'#34d399'};
 
-    if (pageWasHidden) {
-      page.style.display = 'none';
-      page.style.visibility = '';
-    }
+  // ── Card tile (5:7, image-focused) ──
+  function makeTileHTML(card) {
+    const icon = TYPE_ICON[card.type] || '🃏';
+    const dot  = TYPE_DOT[card.type] || '';
+    const imgHTML = card.imageUrl
+      ? `<img src="${card.imageUrl}" style="width:100%;height:100%;object-fit:cover;display:block;">`
+      : `<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;">
+           <span style="font-size:1.8rem;line-height:1">${icon}</span>
+           <span style="font-size:0.38rem;font-weight:800;color:#7055a0;text-align:center;padding:0 5px;line-height:1.3">${card.name}</span>
+         </div>`;
+    const qtyHTML = card.qty > 1
+      ? `<div style="position:absolute;top:4px;right:4px;min-width:18px;height:18px;border-radius:9px;background:rgba(109,40,217,0.9);color:#fff;font-size:0.48rem;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 4px;border:1.5px solid rgba(255,255,255,0.25);">×${card.qty}</div>`
+      : '';
+    const costHTML = card.cost != null
+      ? `<div style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.75);color:#c4b5fd;font-size:0.42rem;font-weight:800;padding:2px 4px;border-radius:3px;line-height:1.4;">💎${card.cost}</div>`
+      : '';
+    const dotHTML = dot
+      ? `<div style="position:absolute;bottom:4px;right:4px;width:7px;height:7px;border-radius:50%;background:${dot};border:1px solid rgba(255,255,255,0.2);"></div>`
+      : '';
+    return `<div style="position:relative;aspect-ratio:5/7;border-radius:6px;overflow:hidden;background:#1e1040;border:1px solid #2d1f5e;">
+      ${imgHTML}${qtyHTML}${costHTML}${dotHTML}
+    </div>`;
+  }
 
-    // Build off-screen clone
-    const wrap = document.createElement('div');
-    wrap.style.cssText = `position:fixed;left:-9999px;top:0;width:${W}px;background:#0f0820;z-index:-1;pointer-events:none;`;
-    const clone = src.cloneNode(true);
-    clone.style.cssText = `width:${W}px;height:auto;overflow:visible;padding:10px;`;
-    wrap.appendChild(clone);
-    document.body.appendChild(wrap);
+  // ── Zone label ──
+  function zoneLabelHTML(text) {
+    return `<div style="padding:6px ${PAD}px 4px;font-size:0.44rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:#4a2a78;display:flex;align-items:center;gap:6px;flex-shrink:0;">
+      ${text}
+      <div style="flex:1;height:1px;background:rgba(255,255,255,0.06);"></div>
+    </div>`;
+  }
 
-    // Let browser layout the clone
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      const H = clone.scrollHeight || wrap.scrollHeight;
-      html2canvas(clone, {
-        backgroundColor: '#0f0820', scale: 2,
+  // ── Main grid: 6 cols × 3 rows = 18 slots ──
+  const MAIN_SLOTS = 18;
+  const mainCards = sortedMain.slice(0, MAIN_SLOTS);
+  while (mainCards.length < MAIN_SLOTS) mainCards.push(null);
+  const mainGridHTML = `<div style="padding:0 ${PAD}px 6px;display:grid;grid-template-columns:repeat(6,1fr);gap:6px;flex-shrink:0;">
+    ${mainCards.map(c => c
+      ? makeTileHTML(c)
+      : `<div style="aspect-ratio:5/7;border-radius:6px;background:rgba(255,255,255,0.015);border:1px dashed rgba(255,255,255,0.05);"></div>`
+    ).join('')}
+  </div>`;
+
+  // ── Scene row: 8 slots ──
+  const scenePadded = [...state.scene];
+  while (scenePadded.length < 8) scenePadded.push(null);
+  const sceneRowHTML = `<div style="padding:0 ${PAD}px 6px;display:grid;grid-template-columns:repeat(8,1fr);gap:5px;flex-shrink:0;">
+    ${scenePadded.slice(0,8).map(card => {
+      if (!card) return `<div style="aspect-ratio:5/7;border-radius:4px;background:rgba(255,255,255,0.01);border:1px dashed rgba(255,255,255,0.05);opacity:0.15;"></div>`;
+      const imgHTML = card.imageUrl
+        ? `<img src="${card.imageUrl}" style="width:100%;height:100%;object-fit:cover;display:block;">`
+        : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;">🎭</div>`;
+      const qtyBadge = card.qty > 1
+        ? `<div style="position:absolute;top:2px;right:2px;font-size:0.34rem;font-weight:800;background:rgba(2,132,199,0.88);color:#e0f2fe;padding:1px 3px;border-radius:2px;line-height:1.4;">×${card.qty}</div>`
+        : '';
+      return `<div style="position:relative;aspect-ratio:5/7;border-radius:4px;overflow:hidden;background:#0e1a2e;border:1px solid #1a2f4a;">${imgHTML}${qtyBadge}</div>`;
+    }).join('')}
+  </div>`;
+
+  // ── Story row: 4 landscape tiles ──
+  const TIERS = ['I','II','III','IV'];
+  const storyRowHTML = `<div style="padding:0 ${PAD}px 8px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;flex-shrink:0;">
+    ${state.story.map((card, i) => {
+      const imgHTML = card?.imageUrl
+        ? `<img src="${card.imageUrl}" style="width:100%;height:100%;object-fit:cover;display:block;">`
+        : `<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:0.9rem;gap:2px;color:#7a5820;">📜
+             <span style="font-size:0.34rem;text-align:center;padding:0 4px;line-height:1.3;">${card?.name||''}</span>
+           </div>`;
+      return `<div style="position:relative;aspect-ratio:5/3;border-radius:5px;overflow:hidden;background:#12100a;border:1px solid rgba(245,158,11,0.18);">
+        ${imgHTML}
+        <div style="position:absolute;top:3px;left:4px;font-size:0.34rem;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:0.1em;">Stage ${TIERS[i]}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  // ── MC row ──
+  const mc = state.mc;
+  const mcImgHTML = mc?.imageUrl
+    ? `<img src="${mc.imageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:5px;">`
+    : `<span style="font-size:1.1rem;">⭐</span>`;
+  const mcHTML = `<div style="flex-shrink:0;padding:8px ${PAD}px;display:flex;align-items:center;gap:10px;background:rgba(219,39,119,0.05);border-bottom:1px solid rgba(219,39,119,0.12);">
+    <div style="width:38px;height:53px;border-radius:5px;background:#2a1045;border:1.5px solid #db2777;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;">${mcImgHTML}</div>
+    <div>
+      <div style="font-size:0.44rem;font-weight:800;color:#db2777;text-transform:uppercase;letter-spacing:0.12em;">⭐ Main Character</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:0.88rem;color:#ec4899;line-height:1.15;margin-top:2px;">${mc?.name||'(none)'}</div>
+      <div style="font-size:0.46rem;color:#5a3a80;margin-top:2px;">${[mc?.rarity, mc?.color, ...(mc?.subtype||[])].filter(Boolean).join(' · ')}</div>
+    </div>
+  </div>`;
+
+  // ── Stat chips ──
+  const chips = [
+    `🃏 ${mainTotal} cards`,
+    `🎭 ${sceneTotal} scenes`,
+    storyFilled === 4 ? '📖 Story ✓' : `📖 ${storyFilled}/4`
+  ].map(t => `<span style="font-size:0.4rem;font-weight:800;padding:2px 6px;border-radius:8px;background:rgba(124,58,237,0.08);color:#5a3aad;border:1px solid rgba(124,58,237,0.15);">${t}</span>`).join('');
+
+  // ── Full canvas HTML ──
+  const snapHTML = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{margin:0;background:#0c0618;}</style>
+</head><body>
+<div style="width:${CW}px;height:${CH}px;background:linear-gradient(155deg,#100920 0%,#1b1138 50%,#110828 100%);overflow:hidden;display:flex;flex-direction:column;font-family:'Nunito',sans-serif;">
+  <div style="height:6px;flex-shrink:0;background:linear-gradient(90deg,#7c3aed,#db2777,#f59e0b,#db2777,#7c3aed);"></div>
+  <div style="flex-shrink:0;padding:11px ${PAD}px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.06);">
+    <div>
+      <div style="font-family:'Fredoka One',cursive;font-size:1.35rem;color:#e8e0ff;line-height:1;">${deckName}</div>
+      <div style="font-size:0.52rem;color:#5a3a80;margin-top:4px;letter-spacing:0.04em;">Main Deck · ${mainTotal} cards &nbsp;·&nbsp; Scene · ${sceneTotal} &nbsp;·&nbsp; Story · ${storyFilled}/4</div>
+    </div>
+    <div style="font-family:'Fredoka One',cursive;font-size:0.6rem;color:#3a2460;text-align:right;line-height:1.6;">🌈 MLP TCG<br>Deck Builder</div>
+  </div>
+  ${mcHTML}
+  ${zoneLabelHTML('🃏 Main Deck — ' + mainTotal + ' cards')}
+  ${mainGridHTML}
+  ${zoneLabelHTML('🎭 Scene Deck — ' + sceneTotal + ' cards')}
+  ${sceneRowHTML}
+  ${zoneLabelHTML('📖 Story Deck')}
+  ${storyRowHTML}
+  <div style="margin-top:auto;flex-shrink:0;padding:7px ${PAD}px;border-top:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:0.4rem;color:#2e1e50;line-height:1.7;">🌈 MLP Card Game Deck Builder · dreamtcg.github.io/MLP-DB/<br>Fan-made tool · Not affiliated with Hasbro or KAYOU</div>
+    <div style="display:flex;gap:5px;">${chips}</div>
+  </div>
+</div>
+</body></html>`;
+
+  // ── Render via hidden iframe → html2canvas ──
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = `position:fixed;left:-9999px;top:0;width:${CW}px;height:${CH}px;border:none;visibility:hidden;`;
+  document.body.appendChild(iframe);
+  iframe.onload = () => {
+    setTimeout(() => {
+      html2canvas(iframe.contentDocument.body.firstElementChild, {
+        backgroundColor: null, scale: SCALE,
         useCORS: true, allowTaint: true, logging: false,
-        width: W, height: H,
-        windowWidth: W, windowHeight: H,
+        width: CW, height: CH, windowWidth: CW, windowHeight: CH,
       }).then(canvas => {
-        document.body.removeChild(wrap);
-        const name = (($('deck-name-m')||$('deck-name')||{}).value||'deck').replace(/\s+/g,'_');
+        document.body.removeChild(iframe);
+        const name = deckName.replace(/\s+/g,'_') || 'deck';
         const a = document.createElement('a');
         a.href = canvas.toDataURL('image/png');
         a.download = name + '_snapshot.png';
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        toast('✅ Snapshot saved','ok');
+        toast('✅ Snapshot saved — ' + CW*SCALE + '×' + CH*SCALE + 'px', 'ok');
       }).catch(err => {
-        if (document.body.contains(wrap)) document.body.removeChild(wrap);
-        toast('❌ Snapshot failed: '+err.message,'err');
+        document.body.removeChild(iframe);
+        toast('❌ Snapshot failed: ' + err.message, 'err');
         console.error(err);
       });
-    }));
-    return;
-  }
-
-  // Desktop: rebuild deck content into isolated off-screen container
-  const src = $('deck-scroll');
-  if (!src) { toast('⚠ Nothing to capture','warn'); return; }
-
-  // Measure true content width from the panel itself
-  const panelDeck = document.getElementById('panel-deck');
-  const W = src.clientWidth || (panelDeck ? panelDeck.clientWidth - 2 : 0) || 600;
-
-  // Outer wrapper — isolated block, no flex/grid inheritance
-  const wrap = document.createElement('div');
-  wrap.style.cssText = [
-    'position:fixed','left:-9999px','top:0',
-    `width:${W}px`,
-    'background:#0f0820',
-    'display:block',       // NOT flex — prevents layout leaking from parent
-    'z-index:-1',
-    'pointer-events:none',
-    'overflow:visible',
-  ].join(';');
-
-  // Deep-clone content
-  const clone = src.cloneNode(true);
-  clone.style.cssText = [
-    `width:${W}px`,
-    'height:auto',
-    'max-height:none',
-    'overflow:visible',
-    'flex:none',           // detach from any flex parent
-    'display:block',
-    'padding:10px',
-    'box-sizing:border-box',
-  ].join(';');
-
-  // Remove any fixed/absolute positioned children that shouldn't appear
-  clone.querySelectorAll('[style*="position:fixed"],[style*="position: fixed"]').forEach(el=>el.remove());
-
-  wrap.appendChild(clone);
-  document.body.appendChild(wrap);
-
-  // Two rAF: first lets DOM attach, second lets paint complete
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    const H = Math.max(clone.scrollHeight, clone.offsetHeight);
-    html2canvas(clone, {
-      backgroundColor: '#0f0820',
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      logging: false,
-      width: W,
-      height: H,
-      windowWidth: W + 80,
-      windowHeight: H + 80,
-    }).then(canvas => {
-      document.body.removeChild(wrap);
-      const name = (($('deck-name')||{}).value||'deck').replace(/\s+/g,'_');
-      const a = document.createElement('a');
-      a.href = canvas.toDataURL('image/png');
-      a.download = name + '_snapshot.png';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      toast('✅ Snapshot saved','ok');
-    }).catch(err => {
-      if (document.body.contains(wrap)) document.body.removeChild(wrap);
-      toast('❌ Snapshot failed: '+err.message,'err');
-      console.error(err);
-    });
-  }));
+    }, 600);
+  };
+  iframe.contentDocument.open();
+  iframe.contentDocument.write(snapHTML);
+  iframe.contentDocument.close();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2077,16 +2127,22 @@ function renderAnalysis() {
     return;
   }
   const flat=[];cards.forEach(c=>{for(let i=0;i<c.qty;i++)flat.push(c);});
-  const costs=flat.map(c=>c.cost??0),powers=flat.map(c=>c.power??0);
+  const costs=flat.map(c=>c.cost??0);
   const avgCost=(costs.reduce((a,b)=>a+b,0)/costs.length).toFixed(2);
-  const avgPower=(powers.reduce((a,b)=>a+b,0)/powers.length).toFixed(2);
+  // Power avg & distribution: exclude Event and Item (they have no meaningful power)
+  const flatPower=flat.filter(c=>c.type!=='Event'&&c.type!=='Item');
+  const powers=flatPower.map(c=>c.power??0);
+  const avgPower=powers.length?(powers.reduce((a,b)=>a+b,0)/powers.length).toFixed(2):'—';
   const costDist={},powerDist={},typeDist={},rarityDist={},colorDist={};
   flat.forEach(c=>{
     const ck=Math.min(c.cost??0,7);costDist[ck]=(costDist[ck]||0)+1;
-    const pk=Math.min(c.power??0,8);powerDist[pk]=(powerDist[pk]||0)+1;
     typeDist[c.type]=(typeDist[c.type]||0)+1;
     rarityDist[c.rarity||'?']=(rarityDist[c.rarity||'?']||0)+1;
     colorDist[c.color||'?']=(colorDist[c.color||'?']||0)+1;
+  });
+  // Power distribution: only Character cards (not Event/Item)
+  flatPower.forEach(c=>{
+    const pk=Math.min(c.power??0,8);powerDist[pk]=(powerDist[pk]||0)+1;
   });
   const RACES=new Set(['Earth Pony','Pegasus','Unicorn','Alicorn']);
   const raceDist={},nameDist={};
