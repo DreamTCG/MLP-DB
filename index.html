@@ -1856,9 +1856,7 @@ function snapshot() {
     const qtyHTML = card.qty > 1
       ? `<div style="position:absolute;top:4px;right:4px;min-width:18px;height:18px;border-radius:9px;background:rgba(109,40,217,0.9);color:#fff;font-size:0.48rem;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 4px;border:1.5px solid rgba(255,255,255,0.25);">×${card.qty}</div>`
       : '';
-    const costHTML = card.cost != null
-      ? `<div style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.75);color:#c4b5fd;font-size:0.42rem;font-weight:800;padding:2px 4px;border-radius:3px;line-height:1.4;">💎${card.cost}</div>`
-      : '';
+    const costHTML = '';
     const dotHTML = dot
       ? `<div style="position:absolute;bottom:4px;right:4px;width:7px;height:7px;border-radius:50%;background:${dot};border:1px solid rgba(255,255,255,0.2);"></div>`
       : '';
@@ -1886,11 +1884,11 @@ function snapshot() {
     ).join('')}
   </div>`;
 
-  // ── Scene row: 8 slots ──
+  // ── Scene row: 6 slots (matches main deck column count) ──
   const scenePadded = [...state.scene];
-  while (scenePadded.length < 8) scenePadded.push(null);
-  const sceneRowHTML = `<div style="padding:0 ${PAD}px 6px;display:grid;grid-template-columns:repeat(8,1fr);gap:5px;flex-shrink:0;">
-    ${scenePadded.slice(0,8).map(card => {
+  while (scenePadded.length < 6) scenePadded.push(null);
+  const sceneRowHTML = `<div style="padding:0 ${PAD}px 6px;display:grid;grid-template-columns:repeat(6,1fr);gap:6px;flex-shrink:0;">
+    ${scenePadded.slice(0,6).map(card => {
       if (!card) return `<div style="aspect-ratio:5/7;border-radius:4px;background:rgba(255,255,255,0.01);border:1px dashed rgba(255,255,255,0.05);opacity:0.15;"></div>`;
       const imgHTML = card.imageUrl
         ? `<img src="${card.imageUrl}" style="width:100%;height:100%;object-fit:cover;display:block;">`
