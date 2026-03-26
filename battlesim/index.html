@@ -295,6 +295,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .egbox.win h2{color:var(--gold);}
 .egbox.lose h2{color:var(--red);}
 .egbox p{font-size:14px;color:var(--text2);margin-bottom:22px;}
+.mulligan-title{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);margin-bottom:6px;}
 .mulligan-overlay{position:fixed;inset:0;z-index:650;display:none;align-items:flex-start;justify-content:center;padding-top:58px;background:transparent;pointer-events:none;}
 .mulligan-overlay.show{display:flex;}
 .mulligan-box{width:min(92vw,460px);background:rgba(30,26,58,.97);border:.5px solid var(--border2);border-radius:12px;padding:16px;box-shadow:0 12px 36px rgba(0,0,0,.45);pointer-events:auto;}
@@ -963,6 +964,15 @@ function drawOpeningHands(){
 }
 
 function askMulligan(title, text){
+  return new Promise(resolve => {
+    showModal(
+      title,
+      `<div class="mulligan-title">${title}</div><div style="font-size:12px;color:var(--text2);line-height:1.5">${text}</div>`,
+      [
+        { label:'เก็บมือนี้', fn:()=>resolve(false) },
+        { label:'Mulligan', primary:true, fn:()=>resolve(true) }
+      ]
+    );
   const ov=document.getElementById('mulligan-overlay');
   const t=document.getElementById('mulligan-title');
   const d=document.getElementById('mulligan-text');
