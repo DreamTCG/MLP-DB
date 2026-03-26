@@ -643,7 +643,6 @@ const DECK_THEME = {
 // Cache so each deck is fetched only once per session
 const DECK_CACHE = {};
 
-//<<<<<<< codex/fix-json-loading-on-battlesim-landing-page-0cytmr
 function withCardAssetUrls(raw){
   const fixUrl = c => ({ ...c, imageUrl: c?.imageUrl ? CARDS_BASE + c.imageUrl.split('/').pop() : null });
   const d = normalizeDeck(raw);
@@ -714,7 +713,7 @@ async function fetchDeck(key) {
     console.error('Failed to fetch deck', key, e);
     return null;
   }
-//>>>>>>> main
+
 }
 
 /* ═══════════════════════════════════
@@ -1717,6 +1716,7 @@ function sceneInspo(i){
   log(`Inspo Boost: ${s.name}`,'act');
   renderScene();renderAdv();
 }
+function sceneTap(i){
   const s=G.sceneArea[i];if(!s)return;
   if(G.phase!=='main'){log('Tap Scene ได้ใน Main Phase','warn');return;}
   if(s._tapped){log(`"${s.name}" tapped ไปแล้ว`,'warn');return;}
