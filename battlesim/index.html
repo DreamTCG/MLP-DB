@@ -620,23 +620,36 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
    Cards images: /cards/*.jpg  (shared with deck builder)
 ═══════════════════════════════════ */
 
-const DECKS_BASE = './decks/';
-// Card images are at ../cards/ relative to /battlesim/index.html
-const CARDS_BASE = '../cards/';
+// Base URL for raw GitHub assets (works both on GitHub Pages and locally via Live Server)
+const BASE = (() => {
+  const loc = window.location.pathname;
+  // Decks folder lives at /battlesim/decks/ relative to repo root
+  // On GitHub Pages: /battlesim/decks/  |  Locally: ./decks/ (same dir)
+  if (loc.includes('/battlesim')) return loc.replace(/\/battlesim\/.*$/, '/battlesim/decks/');
+  return './decks/';
+})();
+
+// Card images are at /cards/ relative to repo root
+const CARDS_BASE = (() => {
+  const loc = window.location.pathname;
+  if (loc.includes('/battlesim')) return loc.replace(/\/battlesim\/.*$/, '/cards/');
+  return '../cards/';
+})();
 
 /* ═══════════════════════════════════
    GLOBAL GAME STATE & UTILITIES
 ═══════════════════════════════════ */
 const G = {};  // Global game state object
- 
+
 // Story stage ordering used for sorting story cards
 const SL = ['I', 'II', 'III', 'IV'];
- 
-// Expand cards with qty > 1 into individual copies
+
+// Expand cards with qty > 1 into individual copies, each with a unique runtime ID
+let _uidSeq = 0;
 function expand(cards) {
-  return cards.flatMap(c => Array(c.qty || 1).fill(null).map(() => ({ ...c })));
+  return cards.flatMap(c => Array(c.qty || 1).fill(null).map(() => ({ ...c, _uid: `u${++_uidSeq}` })));
 }
- 
+
 // Fisher-Yates shuffle (returns a new array)
 function shuffle(arr) {
   const a = [...arr];
@@ -646,24 +659,33 @@ function shuffle(arr) {
   }
   return a;
 }
- 
-// Preloaded deck files from /battlesim/decks
-const PRESET_DECK_FILES = [
-  'SD01A_TS.json',
-  'SD01B_FS.json',
-  'SD01C_PP.json',
-  'SD01D_AJ.json',
-  'SD01E_RD.json',
-  'SD01F_RR.json',
-];
-const PRESET_DECKS = [];
-const DECK_THEME = {
-  SD01A: { emoji:'🦄', color:'#a78bfa' },
-  SD01B: { emoji:'🦋', color:'#fde68a' },
-  SD01C: { emoji:'🎉', color:'#f9a8d4' },
-  SD01D: { emoji:'🍎', color:'#fb923c' },
-  SD01E: { emoji:'⚡', color:'#60a5fa' },
-  SD01F: { emoji:'💎', color:'#c4b5fd' },
+
+// Card type → icon mapping
+const TICON = {
+  'Character': '🐴',
+  'Event':     '⚡',
+  'Item':      '📦',
+  'Scene':     '🌄',
+};
+
+// Card subtype → icon mapping
+const SICON = {
+  'Twilight Sparkle': '🦄',
+  'Fluttershy':       '🦋',
+  'Pinkie Pie':       '🎉',
+  'Applejack':        '🍎',
+  'Rainbow Dash':     '⚡',
+  'Rarity':           '💎',
+};
+
+// Known preset decks (key → filename, label, emoji, color)
+const DECK_META = {
+  SD01A_TS: { emoji:'🦄', label:'Twilight Sparkle', color:'#a78bfa', file:'SD01A_TS.json' },
+  SD01B_FS: { emoji:'🦋', label:'Fluttershy',       color:'#fde68a', file:'SD01B_FS.json' },
+  SD01C_PP: { emoji:'🎉', label:'Pinkie Pie',        color:'#f9a8d4', file:'SD01C_PP.json' },
+  SD01D_AJ: { emoji:'🍎', label:'Applejack',         color:'#fb923c', file:'SD01D_AJ.json' },
+  SD01E_RD: { emoji:'⚡', label:'Rainbow Dash',      color:'#60a5fa', file:'SD01E_RD.json' },
+  SD01F_RR: { emoji:'💎', label:'Rarity',            color:'#c4b5fd', file:'SD01F_RR.json' },
 };
 
 // Cache so each deck is fetched only once per session
@@ -1849,14 +1871,6 @@ function sceneInspo(i){
   s._flipped=true;
   log(`Inspo Boost: ${s.name}`,'act');
   renderScene();renderAdv();
-}
-function sceneTap(i){
-  const s=G.sceneArea[i];if(!s)return;
-  if(G.phase!=='main'){log('Tap Scene ได้ใน Main Phase','warn');return;}
-  if(s._tapped){log(`"${s.name}" tapped ไปแล้ว`,'warn');return;}
-  s._tapped=true;G.harmony++;
-  log(`Tap "${s.name}" → +1✦ (รวม:${G.harmony})`,'act');
-  updateHarmony();renderScene();
 }
 
 function renderStory(){
