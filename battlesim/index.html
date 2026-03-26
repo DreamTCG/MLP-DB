@@ -643,6 +643,7 @@ const DECK_THEME = {
 // Cache so each deck is fetched only once per session
 const DECK_CACHE = {};
 
+//<<<<<<< codex/fix-json-loading-on-battlesim-landing-page-0cytmr
 function withCardAssetUrls(raw){
   const fixUrl = c => ({ ...c, imageUrl: c?.imageUrl ? CARDS_BASE + c.imageUrl.split('/').pop() : null });
   const d = normalizeDeck(raw);
@@ -692,6 +693,28 @@ async function preloadPresetDecks() {
     }
   }));
   PRESET_DECKS.push(...results);
+//=======
+async function fetchDeck(key) {
+  if (DECK_CACHE[key]) return DECK_CACHE[key];
+  const meta = DECK_META[key];
+  if (!meta) return null;
+  try {
+    const res = await fetch(new URL(`decks/${meta.file}`, BASE_URL));
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    // Rewrite imageUrl to absolute path using CARDS_BASE
+    const fixUrl = c => ({ ...c, imageUrl: c.imageUrl ? CARDS_BASE + c.imageUrl.split('/').pop() : null });
+    data.main  = (data.main  || []).map(fixUrl);
+    data.scene = (data.scene || []).map(fixUrl);
+    data.story = (data.story || []).map(fixUrl);
+    if (data.mc) data.mc = fixUrl(data.mc);
+    DECK_CACHE[key] = data;
+    return data;
+  } catch(e) {
+    console.error('Failed to fetch deck', key, e);
+    return null;
+  }
+//>>>>>>> main
 }
 
 /* ═══════════════════════════════════
