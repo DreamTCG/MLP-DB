@@ -891,6 +891,29 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch { setSetupMessage('JSON ไม่ถูกต้อง','error'); } };
       r.readAsText(f);
     });
+
+    const ua = document.getElementById('upload-area');
+    if(ua) {
+      ua.addEventListener('dragover', e => { e.preventDefault(); ua.classList.add('dragover'); });
+      ua.addEventListener('dragleave', () => ua.classList.remove('dragover'));
+      ua.addEventListener('drop', e => {
+        e.preventDefault(); ua.classList.remove('dragover');
+        const f = e.dataTransfer.files[0]; if(!f) return;
+        const r = new FileReader();
+        r.onload = ev => { try {
+          const d = JSON.parse(ev.target.result);
+          loadPlayerDeck(d);
+          selectedPlayerKey = null;
+          document.querySelectorAll('.preset-card.selected').forEach(el => el.classList.remove('selected'));
+          updateStartBtn();
+          setSetupMessage('โหลดไฟล์เด็คผู้เล่นสำเร็จ','ok');
+        } catch { setSetupMessage('JSON ไม่ถูกต้อง','error'); } };
+        r.readAsText(f);
+      });
+    }
+  }catch(e){
+    console.error('Setup init failed', e);
+    setSetupMessage('หน้า Setup โหลดไม่สำเร็จ — กรุณารีเฟรชหน้าอีกครั้ง','error');
   }
 });
 
