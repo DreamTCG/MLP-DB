@@ -39,6 +39,16 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .deck-preview{display:none;margin-top:14px;background:var(--bg3);border:.5px solid var(--border2);border-radius:var(--r);padding:12px;}
 .deck-preview.show{display:block;}
 .dp-preview-row{display:flex;align-items:flex-start;gap:0;}
+.picked-decks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.pick-box{background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rsm);padding:8px;min-height:54px;}
+.pick-title{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+.pick-value{font-size:11px;color:var(--text2);line-height:1.35;}
+.pick-value.ready{color:var(--text);}
+.pick-box.bot .pick-title{color:rgba(248,113,113,.7);}
+.pick-box.bot .pick-value.ready{color:var(--red);}
+.setup-msg{margin-top:10px;font-size:11px;line-height:1.4;color:var(--text3);min-height:16px;}
+.setup-msg.error{color:var(--red);}
+.setup-msg.ok{color:var(--green);}
 .dp-name{font-family:'Cinzel',serif;font-size:13px;font-weight:600;color:var(--orange);margin-bottom:6px;}
 .deck-stats{display:flex;gap:5px;flex-wrap:wrap;}
 .stat-pill{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--panel2);color:var(--text2);border:.5px solid var(--border);}
@@ -79,7 +89,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .tbtn.primary:hover{opacity:.9;transform:translateY(-1px);}
 
 /* ── MAIN LAYOUT ── */
-.game-layout{display:grid;grid-template-columns:1fr 196px;flex:1;overflow:hidden;}
+.game-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,28vw);flex:1;overflow:hidden;}
 
 /* ── PLAYMAT ── */
 .playmat{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;padding:8px;gap:5px;background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(180,140,220,.06) 0%,transparent 70%),var(--bg);}
@@ -231,7 +241,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .psec{border-bottom:.5px solid var(--border);padding:8px 10px;}
 .psec:last-child{border-bottom:none;}
 .ptitle{font-size:9px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:7px;}
-.hand-list{display:flex;flex-direction:column;gap:3px;}
+.hand-list{display:flex;flex-direction:column;gap:3px;min-height:84px;max-height:34vh;overflow-y:auto;}
 .hitem{display:flex;align-items:center;gap:5px;padding:5px 6px;background:var(--panel);border:.5px solid var(--border);border-radius:var(--rsm);cursor:pointer;transition:all .15s;}
 .hitem:hover{border-color:var(--accent);background:var(--panel2);}
 .hitem.sel{border-color:var(--gold);background:rgba(251,191,36,.07);}
@@ -285,6 +295,17 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .egbox.win h2{color:var(--gold);}
 .egbox.lose h2{color:var(--red);}
 .egbox p{font-size:14px;color:var(--text2);margin-bottom:22px;}
+.mulligan-overlay{position:fixed;inset:0;z-index:650;display:none;align-items:flex-start;justify-content:center;padding-top:58px;background:transparent;pointer-events:none;}
+.mulligan-overlay.show{display:flex;}
+.mulligan-box{width:min(92vw,460px);background:rgba(30,26,58,.97);border:.5px solid var(--border2);border-radius:12px;padding:16px;box-shadow:0 12px 36px rgba(0,0,0,.45);pointer-events:auto;}
+.mulligan-title{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);margin-bottom:6px;}
+.mulligan-text{font-size:12px;color:var(--text2);line-height:1.45;margin-bottom:12px;}
+.mulligan-actions{display:flex;gap:8px;justify-content:flex-end;}
+
+@media (max-width: 1100px){
+  .game-layout{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) minmax(220px,42vh);}
+  .right-panel{border-left:none;border-top:.5px solid var(--border);}
+}
 
 ::-webkit-scrollbar{width:3px;height:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
@@ -317,6 +338,18 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     <!-- BOT DECK -->
     <div style="font-size:10px;letter-spacing:.1em;color:var(--red);text-transform:uppercase;margin:14px 0 8px">เด็ค Bot 🤖</div>
     <div class="preset-grid" id="preset-grid-bot"></div>
+
+    <div class="picked-decks">
+      <div class="pick-box">
+        <div class="pick-title">Player Deck Pickup</div>
+        <div class="pick-value" id="player-picked">ยังไม่ได้เลือกเด็ค</div>
+      </div>
+      <div class="pick-box bot">
+        <div class="pick-title">Bot Deck Pickup</div>
+        <div class="pick-value" id="bot-picked">ยังไม่ได้เลือกเด็ค</div>
+      </div>
+    </div>
+    <div class="setup-msg" id="setup-msg"></div>
 
     <!-- PREVIEW -->
     <div class="deck-preview" id="deck-preview">
@@ -563,6 +596,17 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
+<div class="mulligan-overlay" id="mulligan-overlay">
+  <div class="mulligan-box">
+    <div class="mulligan-title" id="mulligan-title">Mulligan</div>
+    <div class="mulligan-text" id="mulligan-text">—</div>
+    <div class="mulligan-actions">
+      <button class="tbtn" id="mulligan-keep-btn">เก็บมือนี้</button>
+      <button class="tbtn primary" id="mulligan-redraw-btn">Mulligan</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ═══════════════════════════════════
    PRESET DECKS (SD01 A-F)
@@ -575,21 +619,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
    Cards images: /cards/*.jpg  (shared with deck builder)
 ═══════════════════════════════════ */
 
-// Base URL for raw GitHub assets (works both on GitHub Pages and locally via Live Server)
-const BASE = (() => {
-  const loc = window.location.pathname;
-  // Decks folder lives at /battlesim/decks/ relative to repo root
-  // On GitHub Pages: /battlesim/decks/  |  Locally: ./decks/ (same dir)
-  if (loc.includes('/battlesim')) return loc.replace(/\/battlesim\/.*$/, '/battlesim/decks/');
-  return './decks/';
-})();
- 
-// Card images are at /cards/ relative to repo root
-const CARDS_BASE = (() => {
-  const loc = window.location.pathname;
-  if (loc.includes('/battlesim')) return loc.replace(/\/battlesim\/.*$/, '/cards/');
-  return '../cards/';
-})();
+const DECKS_BASE = './decks/';
+// Card images are at ../cards/ relative to /battlesim/index.html
+const CARDS_BASE = '../cards/';
 
 /* ═══════════════════════════════════
    GLOBAL GAME STATE & UTILITIES
@@ -614,39 +646,78 @@ function shuffle(arr) {
   return a;
 }
  
-// Known preset decks (key → filename, label, emoji, color)
-const DECK_META = {
-  SD01A_TS: { emoji:'🦄', label:'Twilight Sparkle', color:'#a78bfa', file:'SD01A_TS.json' },
-  SD01B_FS: { emoji:'🦋', label:'Fluttershy',       color:'#fde68a', file:'SD01B_FS.json' },
-  SD01C_PP: { emoji:'🎉', label:'Pinkie Pie',        color:'#f9a8d4', file:'SD01C_PP.json' },
-  SD01D_AJ: { emoji:'🍎', label:'Applejack',         color:'#fb923c', file:'SD01D_AJ.json' },
-  SD01E_RD: { emoji:'⚡', label:'Rainbow Dash',      color:'#60a5fa', file:'SD01E_RD.json' },
-  SD01F_RR: { emoji:'💎', label:'Rarity',            color:'#c4b5fd', file:'SD01F_RR.json' },
+// Preloaded deck files from /battlesim/decks
+const PRESET_DECK_FILES = [
+  'SD01A_TS.json',
+  'SD01B_FS.json',
+  'SD01C_PP.json',
+  'SD01D_AJ.json',
+  'SD01E_RD.json',
+  'SD01F_RR.json',
+];
+const PRESET_DECKS = [];
+const DECK_THEME = {
+  SD01A: { emoji:'🦄', color:'#a78bfa' },
+  SD01B: { emoji:'🦋', color:'#fde68a' },
+  SD01C: { emoji:'🎉', color:'#f9a8d4' },
+  SD01D: { emoji:'🍎', color:'#fb923c' },
+  SD01E: { emoji:'⚡', color:'#60a5fa' },
+  SD01F: { emoji:'💎', color:'#c4b5fd' },
 };
 
 // Cache so each deck is fetched only once per session
 const DECK_CACHE = {};
 
-async function fetchDeck(key) {
-  if (DECK_CACHE[key]) return DECK_CACHE[key];
-  const meta = DECK_META[key];
-  if (!meta) return null;
-  try {
-    const res = await fetch(BASE + meta.file);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    // Rewrite imageUrl to absolute path using CARDS_BASE
-    const fixUrl = c => ({ ...c, imageUrl: c.imageUrl ? CARDS_BASE + c.imageUrl.split('/').pop() : null });
-    data.main  = (data.main  || []).map(fixUrl);
-    data.scene = (data.scene || []).map(fixUrl);
-    data.story = (data.story || []).map(fixUrl);
-    if (data.mc) data.mc = fixUrl(data.mc);
-    DECK_CACHE[key] = data;
-    return data;
-  } catch(e) {
-    console.error('Failed to fetch deck', key, e);
-    return null;
-  }
+function withCardAssetUrls(raw){
+  const fixUrl = c => ({ ...c, imageUrl: c?.imageUrl ? CARDS_BASE + c.imageUrl.split('/').pop() : null });
+  const d = normalizeDeck(raw);
+  if(!d) return null;
+  d.main  = (d.main  || []).map(fixUrl);
+  d.scene = (d.scene || []).map(fixUrl);
+  d.story = (d.story || []).map(fixUrl);
+  if (d.mc) d.mc = fixUrl(d.mc);
+  return d;
+}
+
+function getDeckTheme(deckKey){
+  const prefix = String(deckKey || '').slice(0,5);
+  return DECK_THEME[prefix] || { emoji:'🃏', color:'#a78bfa' };
+}
+
+async function preloadPresetDecks() {
+  PRESET_DECKS.length = 0;
+  Object.keys(DECK_CACHE).forEach(k => delete DECK_CACHE[k]);
+  const results = await Promise.all(PRESET_DECK_FILES.map(async file => {
+    try {
+      const res = await fetch(`${DECKS_BASE}${file}`);
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const raw = await res.json();
+      const data = withCardAssetUrls(raw);
+      if(!data) throw new Error('Invalid deck schema');
+      const key = data.deckName || file.replace(/\.json$/,'');
+      const theme = getDeckTheme(key);
+      DECK_CACHE[key] = data;
+      return {
+        key,
+        file,
+        label: data.mc?.name || key,
+        emoji: theme.emoji,
+        color: theme.color,
+        ok: true
+      };
+    } catch (e) {
+      console.error('Failed to preload deck', file, e);
+      return {
+        key: file.replace(/\.json$/,''),
+        file,
+        label: file.replace(/\.json$/,''),
+        emoji: '⚠️',
+        color: '#f87171',
+        ok: false
+      };
+    }
+  }));
+  PRESET_DECKS.push(...results);
 }
 
 /* ═══════════════════════════════════
@@ -655,31 +726,44 @@ async function fetchDeck(key) {
 let selectedPlayerKey=null, selectedBotKey=null;
 
 function initPresetGrids(){
-  const keys = Object.keys(DECK_META);
+  const keys = PRESET_DECKS.map(d => d.key);
   ['player','bot'].forEach(side => {
     const el = document.getElementById('preset-grid-'+side);
     if(!el) return;
     el.innerHTML = keys.map(k => {
-      const m = DECK_META[k];
-      return `<div class="preset-card" id="pc-${side}-${k}" onclick="selectDeck('${k}','${side}')">
+      const m = PRESET_DECKS.find(d => d.key === k);
+      if(!m) return '';
+      const disabledAttr = m.ok ? '' : 'style="opacity:.45;cursor:not-allowed"';
+      const onclick = m.ok ? `onclick="selectDeck('${k}','${side}')"` : '';
+      return `<div class="preset-card" id="pc-${side}-${k}" ${onclick} ${disabledAttr}>
         <div class="pc-mc">${m.emoji}</div>
         <div class="pc-name">${m.label}</div>
+        <div class="pc-color">${m.ok ? 'พร้อมเล่น' : 'โหลดไม่สำเร็จ'}</div>
       </div>`;
     }).join('');
   });
 }
 
+function setSetupMessage(msg='', type=''){
+  const el = document.getElementById('setup-msg');
+  if(!el) return;
+  el.textContent = msg;
+  el.classList.remove('error','ok');
+  if(type) el.classList.add(type);
+}
+
 async function selectDeck(key, side){
-  const meta = DECK_META[key]; if(!meta) return;
+  const meta = PRESET_DECKS.find(d => d.key === key);
+  if(!meta || !meta.ok) return;
 
   // Show loading state on the card
   const cardEl = document.getElementById(`pc-${side}-${key}`);
   if(cardEl) cardEl.style.opacity = '0.5';
 
-  const d = await fetchDeck(key);
+  const d = DECK_CACHE[key];
 
   if(cardEl) cardEl.style.opacity = '';
-  if(!d){ alert(`โหลดเด็ค ${meta.label} ไม่ได้ — ตรวจสอบ /decks/${meta.file}`); return; }
+  if(!d){ setSetupMessage(`โหลดเด็ค ${meta.label} ไม่ได้ — ตรวจสอบ /decks/${meta.file}`,'error'); return; }
 
   if(side === 'player'){
     document.querySelectorAll('.preset-card.selected').forEach(el => el.classList.remove('selected'));
@@ -692,17 +776,24 @@ async function selectDeck(key, side){
     cardEl?.classList.add('selected-bot');
     loadBotDeck(d);
   }
+  setSetupMessage(`เลือกเด็ค ${meta.label} สำเร็จ`,'ok');
   updateStartBtn();
 }
 
 function loadPlayerDeck(raw){
-  if(!raw.main||!raw.scene||!raw.story||!raw.mc){alert('ต้องมี: main, scene, story, mc');return;}
-  G.raw=raw;
-  const m=expand(raw.main),s=expand(raw.scene);
-  document.getElementById('prev-name').textContent=raw.mc.name;
-  const chars=raw.main.filter(c=>c.type==='Character').reduce((s,c)=>s+(c.qty||1),0);
-  const evts=raw.main.filter(c=>c.type==='Event').reduce((s,c)=>s+(c.qty||1),0);
-  const items=raw.main.filter(c=>c.type==='Item').reduce((s,c)=>s+(c.qty||1),0);
+  const normalized = normalizeDeck(raw);
+  if(!normalized){setSetupMessage('ไฟล์เด็คต้องมี: main, scene, story, mc','error');return;}
+  G.raw=normalized;
+  const playerPicked = document.getElementById('player-picked');
+  if(playerPicked){
+    playerPicked.textContent = `${normalized.mc.name}${normalized.deckName ? ` (${normalized.deckName})` : ''}`;
+    playerPicked.classList.add('ready');
+  }
+  const m=expand(normalized.main),s=expand(normalized.scene);
+  document.getElementById('prev-name').textContent=normalized.mc.name;
+  const chars=normalized.main.filter(c=>c.type==='Character').reduce((s,c)=>s+(c.qty||1),0);
+  const evts=normalized.main.filter(c=>c.type==='Event').reduce((s,c)=>s+(c.qty||1),0);
+  const items=normalized.main.filter(c=>c.type==='Item').reduce((s,c)=>s+(c.qty||1),0);
   document.getElementById('prev-stats').innerHTML=
     `<span class="stat-pill"><b>${m.length}</b> Main</span>`+
     `<span class="stat-pill"><b>${s.length}</b> Scene</span>`+
@@ -713,11 +804,17 @@ function loadPlayerDeck(raw){
 }
 
 function loadBotDeck(raw){
-  if(!raw.main||!raw.scene||!raw.story||!raw.mc){return;}
-  G.botRaw=raw;
-  const m=expand(raw.main),s=expand(raw.scene);
-  document.getElementById('prev-bot-name').textContent=raw.mc.name;
-  const chars=raw.main.filter(c=>c.type==='Character').reduce((s,c)=>s+(c.qty||1),0);
+  const normalized = normalizeDeck(raw);
+  if(!normalized){setSetupMessage('เด็ค Bot ไม่ถูกต้อง (ต้องมี: main, scene, story, mc)','error');return;}
+  G.botRaw=normalized;
+  const botPicked = document.getElementById('bot-picked');
+  if(botPicked){
+    botPicked.textContent = `${normalized.mc.name}${normalized.deckName ? ` (${normalized.deckName})` : ''}`;
+    botPicked.classList.add('ready');
+  }
+  const m=expand(normalized.main),s=expand(normalized.scene);
+  document.getElementById('prev-bot-name').textContent=normalized.mc.name;
+  const chars=normalized.main.filter(c=>c.type==='Character').reduce((s,c)=>s+(c.qty||1),0);
   document.getElementById('prev-bot-stats').innerHTML=
     `<span class="stat-pill" style="border-color:rgba(248,113,113,.3)"><b>${m.length}</b> Main</span>`+
     `<span class="stat-pill" style="border-color:rgba(248,113,113,.3)"><b>${s.length}</b> Scene</span>`+
@@ -731,9 +828,33 @@ function updateStartBtn(){
   else{btn.classList.remove('ready');}
 }
 
+function normalizeDeck(raw){
+  if(!raw || typeof raw !== 'object') return null;
+  const main = raw.main || raw.mainDeck || raw.cards || [];
+  const scene = raw.scene || raw.sceneDeck || [];
+  const story = raw.story || raw.storyDeck || [];
+  const mc = raw.mc || raw.mainCharacter || null;
+  if(!Array.isArray(main) || !Array.isArray(scene) || !Array.isArray(story) || !mc) return null;
+  return { ...raw, main, scene, story, mc };
+}
+
 // Initialize everything once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  initPresetGrids();
+  ['player','bot'].forEach(side => {
+    const el = document.getElementById('preset-grid-'+side);
+    if(el) el.innerHTML = '<div style="grid-column:1/-1;text-align:center;font-size:11px;color:var(--text3);padding:8px 0">กำลังโหลดเด็คจากโฟลเดอร์ decks...</div>';
+  });
+  preloadPresetDecks()
+    .then(() => {
+      initPresetGrids();
+      const readyCount = PRESET_DECKS.filter(d => d.ok).length;
+      if(readyCount===0) setSetupMessage('ไม่พบเด็คที่โหลดได้จากโฟลเดอร์ decks','error');
+      else setSetupMessage(`โหลดเด็คสำเร็จ ${readyCount}/${PRESET_DECKS.length} เด็ค`,'ok');
+    })
+    .catch((e) => {
+      console.error('Preset preload failed', e);
+      setSetupMessage('โหลดเด็คจากโฟลเดอร์ decks ไม่สำเร็จ','error');
+    });
 
   // File upload handler for player deck
   const fi = document.getElementById('file-input');
@@ -746,7 +867,8 @@ document.addEventListener('DOMContentLoaded', () => {
       selectedPlayerKey = null;
       document.querySelectorAll('.preset-card.selected').forEach(el => el.classList.remove('selected'));
       updateStartBtn();
-    } catch { alert('JSON ไม่ถูกต้อง'); } };
+      setSetupMessage('โหลดไฟล์เด็คผู้เล่นสำเร็จ','ok');
+    } catch { setSetupMessage('JSON ไม่ถูกต้อง','error'); } };
     r.readAsText(f);
   });
 
@@ -764,51 +886,128 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedPlayerKey = null;
         document.querySelectorAll('.preset-card.selected').forEach(el => el.classList.remove('selected'));
         updateStartBtn();
-      } catch { alert('JSON ไม่ถูกต้อง'); } };
+        setSetupMessage('โหลดไฟล์เด็คผู้เล่นสำเร็จ','ok');
+      } catch { setSetupMessage('JSON ไม่ถูกต้อง','error'); } };
       r.readAsText(f);
     });
   }
 });
 
-function startGame(){
-  if(!G.raw||!G.botRaw){alert('เลือกเด็คทั้งสองฝั่งก่อนเริ่มเกม');return;}
+async function startGame(){
+  if(!G.raw||!G.botRaw){setSetupMessage('เลือกเด็คทั้งสองฝั่งก่อนเริ่มเกม','error');return;}
+  setSetupMessage('');
   // Player deck
   const m=shuffle(expand(G.raw.main)),s=shuffle(expand(G.raw.scene));
+  log('Setup 1/7: เตรียมเด็ค (Main/Scene/Story/MC)','imp');
+  log('Setup 2/7: สับ Main + Scene deck แยกกัน','imp');
   G.mainDeck=m;G.sceneDeck=s;G.hand=[];G.pAdv=[null,null,null];
   G.pStage=0;G.pPlans=[null,null,null,null];G.sceneArea=[];G.retireArea=[];
   G.harmony=0;
   G.turnCount=1;
-  G.isPlayerTurn=true;
+  G.isPlayerTurn=Math.random()<0.5; // random starting side
   G.selIdx=-1;G.itemTargetMode=false;G.pendingItem=null;
   G.oppTargetMode=false;G.oppTargetCallback=null;G.contactQueue=[];G.contactStep=0;
   G.storyCards=[...G.raw.story].sort((a,b)=>SL.indexOf(a.story_stage)-SL.indexOf(b.story_stage));
+  log('Setup 3/7: วาง Story Zone ตามลำดับ I → II → III → IV','imp');
   // Bot uses its OWN separate deck (G.botRaw)
-  G.oMainDeck=shuffle(expand(G.botRaw.main));G.oHand=5;G.oAdv=[null,null,null];
+  G.oMainDeck=shuffle(expand(G.botRaw.main));G.oHand=0;G.oAdv=[null,null,null];
   G.oStage=0;G.oPlans=[null,null,null,null];G.oRetireArea=[];
   G.oStory=[...G.botRaw.story].sort((a,b)=>SL.indexOf(a.story_stage)-SL.indexOf(b.story_stage));
   G.oSceneDeckCount=expand(G.botRaw.scene).length;G.oSceneCount=0;
 
-  // Draw 5 cards for player
-  for(let i=0;i<5;i++)_draw(true);
-  // Draw 5 for bot
-  for(let i=0;i<5;i++){if(G.oMainDeck.length>0)G.oMainDeck.pop();}
+  // Step 3/4: story zone order already prepared in story arrays, then random first player
+  log('Setup 4/7: สุ่มผู้เล่นเริ่มก่อน','imp');
+  log(`ผู้เริ่มก่อน: ${G.isPlayerTurn?'เรา (Player)':'Bot'}`,'act');
 
-  // Place 4 plan cards each
-  for(let i=0;i<4;i++){if(G.mainDeck.length>0)G.pPlans[i]=G.mainDeck.pop();}
-  for(let i=0;i<4;i++){if(G.oMainDeck.length>0)G.oPlans[i]=G.oMainDeck.pop();}
-
-  // Setup first scene for EACH player — both face-up (untapped), per rule 103.4 + 402.3
-  // First player's first scene is added during their Start Phase (step 3)
-  // We pre-add 1 scene per side: player gets tapped (turn 1 rule), bot gets untapped
-  _addScene(true);   // player's first scene — _flipped=true (first player rule: ใช้ inspo ไม่ได้)
-  _addOppScene();    // bot also gets 1 scene at setup — untapped
+  // Opening hand for both sides (mulligan handled via overlay next step)
+  log('Setup 5/7: จั่วมือเริ่มต้นคนละ 5 ใบ','imp');
+  drawOpeningHands();
 
   switchScreen('game-screen');
   G.phase='start';renderAll();updatePhaseUI();
   log(`✨ เกมเริ่ม! เรา: ${G.raw.mc.name} vs Bot: ${G.botRaw.mc.name}`,'imp');
-  log('Turn 1 — ฝั่งเรา (Player)','act');
+  log(`Turn 1 — ${G.isPlayerTurn?'ฝั่งเรา (Player)':'ฝั่ง Bot'}`,'act');
+
+  // Show floating mulligan flow (player can inspect hand before choosing)
+  await runOpeningMulliganFlow();
+
+  // Step 6: Place 4 plan cards each after mulligan choices are done
+  log('Setup 6/7: วาง Plan คว่ำ 4 ใบต่อฝ่าย','imp');
+  for(let i=0;i<4;i++){if(G.mainDeck.length>0)G.pPlans[i]=G.mainDeck.pop();}
+  for(let i=0;i<4;i++){if(G.oMainDeck.length>0)G.oPlans[i]=G.oMainDeck.pop();}
+
+  // Step 7: Place opening scene
+  log('Setup 7/7: วางฉากเริ่มต้น 1 ใบ','imp');
+  _addScene(G.isPlayerTurn===true); // if player starts first, player's first scene is flipped
+  _addOppScene();
+  renderAll();
 }
 function switchScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+function drawManyFromDeck(deck, count){
+  const out=[];
+  for(let i=0;i<count;i++){
+    if(deck.length===0) break;
+    out.push(deck.pop());
+  }
+  return out;
+}
+
+function drawOpeningHands(){
+  // Player opening 5
+  G.hand = drawManyFromDeck(G.mainDeck, 5).map(c => ({...c, _tapped:false, _boosted:0, _item:null}));
+  // Bot opening 5 (hidden list)
+  G.oOpeningHand = drawManyFromDeck(G.oMainDeck, 5);
+  G.oHand = G.oOpeningHand.length;
+}
+
+function askMulligan(title, text){
+  const ov=document.getElementById('mulligan-overlay');
+  const t=document.getElementById('mulligan-title');
+  const d=document.getElementById('mulligan-text');
+  const keep=document.getElementById('mulligan-keep-btn');
+  const redraw=document.getElementById('mulligan-redraw-btn');
+  return new Promise(resolve => {
+    t.textContent=title;
+    d.textContent=text;
+    ov.classList.add('show');
+    const done = (wantMulligan) => {
+      ov.classList.remove('show');
+      keep.onclick=null;
+      redraw.onclick=null;
+      resolve(wantMulligan);
+    };
+    keep.onclick=()=>done(false);
+    redraw.onclick=()=>done(true);
+  });
+}
+
+async function runOpeningMulliganFlow(){
+  renderAll();
+  const pMulligan = await askMulligan(
+    'Player Mulligan',
+    `คุณมีการ์ดเริ่มต้น ${G.hand.length} ใบ — ต้องการเปลี่ยนมือหรือไม่?`
+  );
+  if(pMulligan){
+    // put returned hand to bottom of deck, then draw 5
+    G.mainDeck = [...G.hand, ...G.mainDeck];
+    G.hand = drawManyFromDeck(G.mainDeck, 5).map(c => ({...c, _tapped:false, _boosted:0, _item:null}));
+    log('Player ทำ Mulligan มือเริ่มต้น','warn');
+    renderAll();
+  }
+
+  const bMulligan = await askMulligan(
+    'Bot Mulligan',
+    `Bot มีการ์ดเริ่มต้น ${G.oOpeningHand.length} ใบ — ต้องการให้ Bot mulligan หรือไม่?`
+  );
+  if(bMulligan){
+    // return bot opening hand to bottom, then redraw
+    G.oMainDeck = [...G.oOpeningHand, ...G.oMainDeck];
+    G.oOpeningHand = drawManyFromDeck(G.oMainDeck, 5);
+    log('Bot ทำ Mulligan มือเริ่มต้น','warn');
+  }
+  G.oHand = G.oOpeningHand.length;
+}
 
 /* ═══════════════════════════════════
    CORE ACTIONS
@@ -987,9 +1186,8 @@ function nextPhase(){
 }
 
 function doStart(){
-  // Turn 1 = player, Turn 2 = bot, Turn 3 = player, ...
-  // Skip draw on the very first turn (turnCount===1, player side)
-  const isFirstEver = G.turnCount===1 && G.isPlayerTurn;
+  // Skip draw on the very first turn of the game (whoever starts first)
+  const isFirstEver = G.turnCount===1;
 
   if(!isFirstEver){
     if(G.isPlayerTurn){
@@ -1618,6 +1816,7 @@ function sceneInspo(i){
   log(`Inspo Boost: ${s.name}`,'act');
   renderScene();renderAdv();
 }
+function sceneTap(i){
   const s=G.sceneArea[i];if(!s)return;
   if(G.phase!=='main'){log('Tap Scene ได้ใน Main Phase','warn');return;}
   if(s._tapped){log(`"${s.name}" tapped ไปแล้ว`,'warn');return;}
