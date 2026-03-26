@@ -46,6 +46,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .pick-value.ready{color:var(--text);}
 .pick-box.bot .pick-title{color:rgba(248,113,113,.7);}
 .pick-box.bot .pick-value.ready{color:var(--red);}
+.setup-msg{margin-top:10px;font-size:11px;line-height:1.4;color:var(--text3);min-height:16px;}
+.setup-msg.error{color:var(--red);}
+.setup-msg.ok{color:var(--green);}
 .dp-name{font-family:'Cinzel',serif;font-size:13px;font-weight:600;color:var(--orange);margin-bottom:6px;}
 .deck-stats{display:flex;gap:5px;flex-wrap:wrap;}
 .stat-pill{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--panel2);color:var(--text2);border:.5px solid var(--border);}
@@ -335,6 +338,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
         <div class="pick-value" id="bot-picked">ยังไม่ได้เลือกเด็ค</div>
       </div>
     </div>
+    <div class="setup-msg" id="setup-msg"></div>
 
     <!-- PREVIEW -->
     <div class="deck-preview" id="deck-preview">
@@ -692,28 +696,6 @@ async function preloadPresetDecks() {
     }
   }));
   PRESET_DECKS.push(...results);
-//=======
-async function fetchDeck(key) {
-  if (DECK_CACHE[key]) return DECK_CACHE[key];
-  const meta = DECK_META[key];
-  if (!meta) return null;
-  try {
-    const res = await fetch(new URL(`decks/${meta.file}`, BASE_URL));
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    // Rewrite imageUrl to absolute path using CARDS_BASE
-    const fixUrl = c => ({ ...c, imageUrl: c.imageUrl ? CARDS_BASE + c.imageUrl.split('/').pop() : null });
-    data.main  = (data.main  || []).map(fixUrl);
-    data.scene = (data.scene || []).map(fixUrl);
-    data.story = (data.story || []).map(fixUrl);
-    if (data.mc) data.mc = fixUrl(data.mc);
-    DECK_CACHE[key] = data;
-    return data;
-  } catch(e) {
-    console.error('Failed to fetch deck', key, e);
-    return null;
-  }
-
 }
 
 /* ═══════════════════════════════════
@@ -740,6 +722,14 @@ function initPresetGrids(){
   });
 }
 
+function setSetupMessage(msg='', type=''){
+  const el = document.getElementById('setup-msg');
+  if(!el) return;
+  el.textContent = msg;
+  el.classList.remove('error','ok');
+  if(type) el.classList.add(type);
+}
+
 async function selectDeck(key, side){
   const meta = PRESET_DECKS.find(d => d.key === key);
   if(!meta || !meta.ok) return;
@@ -751,7 +741,7 @@ async function selectDeck(key, side){
   const d = DECK_CACHE[key];
 
   if(cardEl) cardEl.style.opacity = '';
-  if(!d){ alert(`โหลดเด็ค ${meta.label} ไม่ได้ — ตรวจสอบ /decks/${meta.file}`); return; }
+  if(!d){ setSetupMessage(`โหลดเด็ค ${meta.label} ไม่ได้ — ตรวจสอบ /decks/${meta.file}`,'error'); return; }
 
   if(side === 'player'){
     document.querySelectorAll('.preset-card.selected').forEach(el => el.classList.remove('selected'));
@@ -764,12 +754,13 @@ async function selectDeck(key, side){
     cardEl?.classList.add('selected-bot');
     loadBotDeck(d);
   }
+  setSetupMessage(`เลือกเด็ค ${meta.label} สำเร็จ`,'ok');
   updateStartBtn();
 }
 
 function loadPlayerDeck(raw){
   const normalized = normalizeDeck(raw);
-  if(!normalized){alert('ต้องมี: main, scene, story, mc');return;}
+  if(!normalized){setSetupMessage('ไฟล์เด็คต้องมี: main, scene, story, mc','error');return;}
   G.raw=normalized;
   const playerPicked = document.getElementById('player-picked');
   if(playerPicked){
@@ -792,7 +783,7 @@ function loadPlayerDeck(raw){
 
 function loadBotDeck(raw){
   const normalized = normalizeDeck(raw);
-  if(!normalized){return;}
+  if(!normalized){setSetupMessage('เด็ค Bot ไม่ถูกต้อง (ต้องมี: main, scene, story, mc)','error');return;}
   G.botRaw=normalized;
   const botPicked = document.getElementById('bot-picked');
   if(botPicked){
@@ -831,7 +822,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const el = document.getElementById('preset-grid-'+side);
     if(el) el.innerHTML = '<div style="grid-column:1/-1;text-align:center;font-size:11px;color:var(--text3);padding:8px 0">กำลังโหลดเด็คจากโฟลเดอร์ decks...</div>';
   });
-  preloadPresetDecks().then(initPresetGrids);
+  preloadPresetDecks().then(() => {
+    initPresetGrids();
+    const readyCount = PRESET_DECKS.filter(d => d.ok).length;
+    if(readyCount===0) setSetupMessage('ไม่พบเด็คที่โหลดได้จากโฟลเดอร์ decks','error');
+    else setSetupMessage(`โหลดเด็คสำเร็จ ${readyCount}/${PRESET_DECKS.length} เด็ค`,'ok');
+  });
 
   // File upload handler for player deck
   const fi = document.getElementById('file-input');
@@ -844,7 +840,8 @@ document.addEventListener('DOMContentLoaded', () => {
       selectedPlayerKey = null;
       document.querySelectorAll('.preset-card.selected').forEach(el => el.classList.remove('selected'));
       updateStartBtn();
-    } catch { alert('JSON ไม่ถูกต้อง'); } };
+      setSetupMessage('โหลดไฟล์เด็คผู้เล่นสำเร็จ','ok');
+    } catch { setSetupMessage('JSON ไม่ถูกต้อง','error'); } };
     r.readAsText(f);
   });
 
@@ -862,14 +859,15 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedPlayerKey = null;
         document.querySelectorAll('.preset-card.selected').forEach(el => el.classList.remove('selected'));
         updateStartBtn();
-      } catch { alert('JSON ไม่ถูกต้อง'); } };
+        setSetupMessage('โหลดไฟล์เด็คผู้เล่นสำเร็จ','ok');
+      } catch { setSetupMessage('JSON ไม่ถูกต้อง','error'); } };
       r.readAsText(f);
     });
   }
 });
 
 function startGame(){
-  if(!G.raw||!G.botRaw){alert('เลือกเด็คทั้งสองฝั่งก่อนเริ่มเกม');return;}
+  if(!G.raw||!G.botRaw){setSetupMessage('เลือกเด็คทั้งสองฝั่งก่อนเริ่มเกม','error');return;}
   // Player deck
   const m=shuffle(expand(G.raw.main)),s=shuffle(expand(G.raw.scene));
   G.mainDeck=m;G.sceneDeck=s;G.hand=[];G.pAdv=[null,null,null];
