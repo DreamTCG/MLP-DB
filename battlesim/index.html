@@ -599,9 +599,10 @@ const G = {};  // Global game state object
 // Story stage ordering used for sorting story cards
 const SL = ['I', 'II', 'III', 'IV'];
 
-// Expand cards with qty > 1 into individual copies
+// Expand cards with qty > 1 into individual copies, each with a unique runtime ID
+let _uidSeq = 0;
 function expand(cards) {
-  return cards.flatMap(c => Array(c.qty || 1).fill(null).map(() => ({ ...c })));
+  return cards.flatMap(c => Array(c.qty || 1).fill(null).map(() => ({ ...c, _uid: `u${++_uidSeq}` })));
 }
 
 // Fisher-Yates shuffle (returns a new array)
@@ -613,6 +614,24 @@ function shuffle(arr) {
   }
   return a;
 }
+
+// Card type → icon mapping
+const TICON = {
+  'Character': '🐴',
+  'Event':     '⚡',
+  'Item':      '📦',
+  'Scene':     '🌄',
+};
+
+// Card subtype → icon mapping
+const SICON = {
+  'Twilight Sparkle': '🦄',
+  'Fluttershy':       '🦋',
+  'Pinkie Pie':       '🎉',
+  'Applejack':        '🍎',
+  'Rainbow Dash':     '⚡',
+  'Rarity':           '💎',
+};
 
 // Known preset decks (key → filename, label, emoji, color)
 const DECK_META = {
@@ -1617,13 +1636,6 @@ function sceneInspo(i){
   s._flipped=true;
   log(`Inspo Boost: ${s.name}`,'act');
   renderScene();renderAdv();
-}
-  const s=G.sceneArea[i];if(!s)return;
-  if(G.phase!=='main'){log('Tap Scene ได้ใน Main Phase','warn');return;}
-  if(s._tapped){log(`"${s.name}" tapped ไปแล้ว`,'warn');return;}
-  s._tapped=true;G.harmony++;
-  log(`Tap "${s.name}" → +1✦ (รวม:${G.harmony})`,'act');
-  updateHarmony();renderScene();
 }
 
 function renderStory(){
