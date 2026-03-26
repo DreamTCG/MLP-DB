@@ -296,6 +296,17 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .egbox.lose h2{color:var(--red);}
 .egbox p{font-size:14px;color:var(--text2);margin-bottom:22px;}
 .mulligan-title{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);margin-bottom:6px;}
+.mulligan-overlay{position:fixed;inset:0;z-index:650;display:none;align-items:flex-start;justify-content:center;padding-top:58px;background:transparent;pointer-events:none;}
+.mulligan-overlay.show{display:flex;}
+.mulligan-box{width:min(92vw,460px);background:rgba(30,26,58,.97);border:.5px solid var(--border2);border-radius:12px;padding:16px;box-shadow:0 12px 36px rgba(0,0,0,.45);pointer-events:auto;}
+.mulligan-title{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);margin-bottom:6px;}
+.mulligan-text{font-size:12px;color:var(--text2);line-height:1.45;margin-bottom:12px;}
+.mulligan-actions{display:flex;gap:8px;justify-content:flex-end;}
+
+@media (max-width: 1100px){
+  .game-layout{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) minmax(220px,42vh);}
+  .right-panel{border-left:none;border-top:.5px solid var(--border);}
+}
 
 ::-webkit-scrollbar{width:3px;height:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
@@ -583,6 +594,17 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     <h2 id="eg-title">—</h2>
     <p id="eg-msg">—</p>
     <button class="start-btn ready" style="max-width:170px;margin:0 auto" onclick="backToSetup()">เล่นใหม่</button>
+  </div>
+</div>
+
+<div class="mulligan-overlay" id="mulligan-overlay">
+  <div class="mulligan-box">
+    <div class="mulligan-title" id="mulligan-title">Mulligan</div>
+    <div class="mulligan-text" id="mulligan-text">—</div>
+    <div class="mulligan-actions">
+      <button class="tbtn" id="mulligan-keep-btn">เก็บมือนี้</button>
+      <button class="tbtn primary" id="mulligan-redraw-btn">Mulligan</button>
+    </div>
   </div>
 </div>
 
@@ -905,6 +927,7 @@ async function startGame(){
   switchScreen('game-screen');
   G.phase='start';renderAll();updatePhaseUI();
   log(`✨ เกมเริ่ม! เรา: ${G.raw.mc.name} vs Bot: ${G.botRaw.mc.name}`,'imp');
+  log(`สุ่มผู้เริ่มก่อน: ${G.isPlayerTurn?'เรา (Player)':'Bot'}`,'act');
   log(`Turn 1 — ${G.isPlayerTurn?'ฝั่งเรา (Player)':'ฝั่ง Bot'}`,'act');
 
   // Show floating mulligan flow (player can inspect hand before choosing)
@@ -950,6 +973,23 @@ function askMulligan(title, text){
         { label:'Mulligan', primary:true, fn:()=>resolve(true) }
       ]
     );
+  const ov=document.getElementById('mulligan-overlay');
+  const t=document.getElementById('mulligan-title');
+  const d=document.getElementById('mulligan-text');
+  const keep=document.getElementById('mulligan-keep-btn');
+  const redraw=document.getElementById('mulligan-redraw-btn');
+  return new Promise(resolve => {
+    t.textContent=title;
+    d.textContent=text;
+    ov.classList.add('show');
+    const done = (wantMulligan) => {
+      ov.classList.remove('show');
+      keep.onclick=null;
+      redraw.onclick=null;
+      resolve(wantMulligan);
+    };
+    keep.onclick=()=>done(false);
+    redraw.onclick=()=>done(true);
   });
 }
 
