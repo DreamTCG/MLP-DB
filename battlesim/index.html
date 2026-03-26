@@ -89,7 +89,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .tbtn.primary:hover{opacity:.9;transform:translateY(-1px);}
 
 /* ── MAIN LAYOUT ── */
-.game-layout{display:grid;grid-template-columns:1fr 196px;flex:1;overflow:hidden;}
+.game-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,28vw);flex:1;overflow:hidden;}
 
 /* ── PLAYMAT ── */
 .playmat{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;padding:8px;gap:5px;background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(180,140,220,.06) 0%,transparent 70%),var(--bg);}
@@ -301,6 +301,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .mulligan-title{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);margin-bottom:6px;}
 .mulligan-text{font-size:12px;color:var(--text2);line-height:1.45;margin-bottom:12px;}
 .mulligan-actions{display:flex;gap:8px;justify-content:flex-end;}
+
+@media (max-width: 1100px){
+  .game-layout{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) minmax(220px,42vh);}
+  .right-panel{border-left:none;border-top:.5px solid var(--border);}
+}
 
 ::-webkit-scrollbar{width:3px;height:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
@@ -893,6 +898,8 @@ async function startGame(){
   setSetupMessage('');
   // Player deck
   const m=shuffle(expand(G.raw.main)),s=shuffle(expand(G.raw.scene));
+  log('Setup 1/7: เตรียมเด็ค (Main/Scene/Story/MC)','imp');
+  log('Setup 2/7: สับ Main + Scene deck แยกกัน','imp');
   G.mainDeck=m;G.sceneDeck=s;G.hand=[];G.pAdv=[null,null,null];
   G.pStage=0;G.pPlans=[null,null,null,null];G.sceneArea=[];G.retireArea=[];
   G.harmony=0;
@@ -901,6 +908,7 @@ async function startGame(){
   G.selIdx=-1;G.itemTargetMode=false;G.pendingItem=null;
   G.oppTargetMode=false;G.oppTargetCallback=null;G.contactQueue=[];G.contactStep=0;
   G.storyCards=[...G.raw.story].sort((a,b)=>SL.indexOf(a.story_stage)-SL.indexOf(b.story_stage));
+  log('Setup 3/7: วาง Story Zone ตามลำดับ I → II → III → IV','imp');
   // Bot uses its OWN separate deck (G.botRaw)
   G.oMainDeck=shuffle(expand(G.botRaw.main));G.oHand=0;G.oAdv=[null,null,null];
   G.oStage=0;G.oPlans=[null,null,null,null];G.oRetireArea=[];
