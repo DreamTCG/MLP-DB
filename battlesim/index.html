@@ -1,0 +1,1896 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MLP TCG — Solitaire Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0d0a1a;--bg2:#13102a;--bg3:#1a1635;--panel:#1e1a3a;--panel2:#252050;
+  --border:rgba(180,150,255,0.15);--border2:rgba(180,150,255,0.3);
+  --accent:#c084fc;--accent2:#a855f7;--gold:#fbbf24;--teal:#2dd4bf;
+  --pink:#f472b6;--red:#f87171;--green:#4ade80;--orange:#fb923c;
+  --text:#e2d9f3;--text2:#a89bc2;--text3:#6b5d8a;
+  --cw:76px;--ch:106px;--r:8px;--rsm:5px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.screen{display:none;min-height:100vh;}
+.screen.active{display:flex;}
+
+/* ── SETUP ── */
+#setup-screen{flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;position:relative;overflow:hidden;}
+#setup-screen::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% -10%,rgba(192,132,252,.18) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 10% 80%,rgba(251,146,60,.1) 0%,transparent 60%);pointer-events:none;}
+.setup-logo{text-align:center;margin-bottom:36px;}
+.setup-logo h1{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.35em;color:var(--text3);margin-bottom:8px;}
+.setup-logo h2{font-family:'Cinzel',serif;font-size:34px;font-weight:700;background:linear-gradient(135deg,#c084fc 0%,#fb923c 60%,#fbbf24 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;}
+.setup-logo .sub{font-size:12px;color:var(--text3);margin-top:6px;letter-spacing:.1em;}
+.setup-box{background:var(--panel);border:.5px solid var(--border2);border-radius:16px;padding:30px 34px;width:100%;max-width:440px;}
+.setup-box h3{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.15em;color:var(--text2);margin-bottom:18px;text-align:center;}
+.upload-area{border:1.5px dashed var(--border2);border-radius:var(--r);padding:26px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+.upload-area:hover,.upload-area.dragover{border-color:var(--accent);background:rgba(192,132,252,.06);}
+.upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-icon{width:36px;height:36px;margin:0 auto 10px;border:1.5px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.upload-area p{font-size:13px;color:var(--text2);}
+.upload-area span{font-size:11px;color:var(--text3);display:block;margin-top:3px;}
+.divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--text3);font-size:11px;}
+.divider::before,.divider::after{content:'';flex:1;height:.5px;background:var(--border);}
+.deck-preview{display:none;margin-top:14px;background:var(--bg3);border:.5px solid var(--border2);border-radius:var(--r);padding:12px;}
+.deck-preview.show{display:block;}
+.dp-preview-row{display:flex;align-items:flex-start;gap:0;}
+.dp-name{font-family:'Cinzel',serif;font-size:13px;font-weight:600;color:var(--orange);margin-bottom:6px;}
+.deck-stats{display:flex;gap:5px;flex-wrap:wrap;}
+.stat-pill{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--panel2);color:var(--text2);border:.5px solid var(--border);}
+.stat-pill b{color:var(--text);font-weight:600;}
+/* Preset deck grid */
+.preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:2px;}
+.preset-card{
+  padding:7px 6px;border-radius:var(--rsm);border:.5px solid var(--border2);
+  background:var(--bg3);cursor:pointer;transition:all .15s;text-align:center;
+}
+.preset-card:hover{border-color:var(--accent);background:var(--panel);}
+.preset-card.selected{border-color:var(--gold);background:rgba(251,191,36,.08);}
+.preset-card.selected-bot{border-color:var(--red);background:rgba(248,113,113,.08);}
+.preset-card .pc-mc{font-size:16px;margin-bottom:2px;}
+.preset-card .pc-name{font-size:10px;font-weight:600;color:var(--text);line-height:1.2;}
+.preset-card .pc-color{font-size:9px;color:var(--text3);}
+.start-btn{width:100%;margin-top:18px;padding:12px;background:linear-gradient(135deg,var(--accent2),#7c3aed);border:none;border-radius:var(--r);color:#fff;font-family:'Cinzel',serif;font-size:14px;font-weight:600;letter-spacing:.08em;cursor:pointer;transition:all .2s;opacity:.4;pointer-events:none;}
+.start-btn.ready{opacity:1;pointer-events:all;}
+.start-btn.ready:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(168,85,247,.35);}
+
+/* ── GAME ── */
+#game-screen{flex-direction:column;height:100vh;overflow:hidden;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:5px 12px;background:var(--bg2);border-bottom:.5px solid var(--border);flex-shrink:0;gap:8px;min-height:40px;}
+.topbar-left{display:flex;align-items:center;gap:10px;}
+.logo-sm{font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.05em;white-space:nowrap;}
+.phase-badge{font-size:10px;padding:3px 9px;border-radius:20px;border:.5px solid var(--border2);background:var(--panel);color:var(--text2);letter-spacing:.05em;white-space:nowrap;}
+.phase-badge.start{border-color:var(--teal);color:var(--teal);}
+.phase-badge.main{border-color:var(--accent);color:var(--accent);}
+.phase-badge.contact{border-color:var(--pink);color:var(--pink);}
+.phase-badge.end{border-color:var(--gold);color:var(--gold);}
+.turn-info{font-size:10px;color:var(--text3);white-space:nowrap;}
+.harmony-disp{display:flex;align-items:center;gap:4px;background:var(--panel);border:.5px solid rgba(251,191,36,.3);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--gold);white-space:nowrap;}
+.harmony-disp .hv{font-family:'Cinzel',serif;font-size:13px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:5px;}
+.tbtn{padding:4px 11px;border-radius:var(--rsm);border:.5px solid var(--border2);background:var(--panel);color:var(--text2);font-family:'Sarabun',sans-serif;font-size:10px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.tbtn.primary{background:linear-gradient(135deg,var(--accent2),#7c3aed);border-color:transparent;color:#fff;font-weight:500;}
+.tbtn:hover{border-color:var(--accent);color:var(--text);}
+.tbtn.primary:hover{opacity:.9;transform:translateY(-1px);}
+
+/* ── MAIN LAYOUT ── */
+.game-layout{display:grid;grid-template-columns:1fr 196px;flex:1;overflow:hidden;}
+
+/* ── PLAYMAT ── */
+.playmat{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;padding:8px;gap:5px;background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(180,140,220,.06) 0%,transparent 70%),var(--bg);}
+.zone-lbl{font-size:9px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;padding:0 1px;flex-shrink:0;}
+/* Middle/bottom rows need visible overflow so hovered cards don't get clipped */
+.middle-row{display:flex;gap:5px;align-items:stretch;overflow:visible;}
+.bottom-row{display:flex;gap:5px;align-items:stretch;}
+
+/* Adventure Area — shared center zone */
+.adventure-area{
+  background:var(--bg2);border:.5px solid var(--border2);border-radius:var(--r);
+  padding:7px 9px;display:flex;flex-direction:column;gap:4px;
+  box-shadow:0 0 0 1px rgba(192,132,252,.08) inset;
+  overflow:visible;  /* allow hovered cards to overflow above/below */
+}
+.area-title{font-family:'Cinzel',serif;font-size:11px;text-align:center;color:var(--text2);letter-spacing:.1em;margin-bottom:2px;}
+.adv-side{display:flex;align-items:center;gap:7px;justify-content:center;}
+.side-lbl{font-size:8px;width:24px;flex-shrink:0;text-align:center;letter-spacing:.05em;}
+.adv-slots{display:flex;gap:5px;overflow:visible;justify-content:center;flex:1;}
+.adv-divider{height:.5px;background:var(--border);margin:1px 0;}
+
+/* Slots */
+.adv-slot{width:var(--cw);height:var(--ch);border:1px dashed var(--border2);border-radius:var(--rsm);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;transition:border-color .2s,background .2s;
+  cursor:pointer;flex-shrink:0;overflow:visible;}
+.adv-slot.player-slot:hover{border-color:var(--accent);background:rgba(192,132,252,.04);}
+.adv-slot.opp-adv-slot{cursor:default;}
+.adv-slot.occupied{border-style:solid;border-color:transparent;padding:0;cursor:default;background:transparent;}
+.adv-slot.item-target{border-color:var(--orange)!important;border-style:solid!important;background:rgba(251,146,60,.08)!important;animation:ipulse .9s ease-in-out infinite;}
+@keyframes ipulse{0%,100%{box-shadow:0 0 0 0 rgba(251,146,60,.4);}50%{box-shadow:0 0 0 5px rgba(251,146,60,.15);}}
+.slot-icon{font-size:17px;opacity:.2;}
+
+/* OPP cards in adventure zone are rotated 180° */
+.opp-adv-slot .gcard { transform:rotate(180deg); }
+.opp-adv-slot .gcard:hover { transform:rotate(180deg) translateY(-3px) scale(1.03); }
+.opp-adv-slot .gcard.tapped { transform:rotate(270deg); margin:13px 3px; }
+.opp-adv-slot .gcard.tapped:hover { transform:rotate(270deg) translateY(-2px); }
+.opp-adv-slot.occupied { overflow:visible; }
+
+/* Middle row (defined earlier with overflow:visible) */
+.mc-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;}
+.mc-slot{width:62px;height:87px;background:linear-gradient(135deg,#2d1b69,#1a1040);border:1.5px solid var(--accent);border-radius:var(--rsm);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:5px;box-shadow:0 0 10px rgba(192,132,252,.2);}
+.mc-emoji{font-size:20px;margin-bottom:2px;}
+.mc-name-lbl{font-size:7px;font-weight:600;color:var(--accent);line-height:1.2;}
+.mc-stage{font-size:9px;color:var(--text3);text-align:center;}
+
+.story-area{flex:1;min-width:0;background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:7px 9px;display:flex;flex-direction:column;gap:4px;min-height:105px;}
+.story-slots-row{display:flex;gap:4px;flex:1;}
+.s-slot{flex:1;min-width:0;position:relative;}
+.s-card{width:100%;height:100%;min-height:68px;background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rsm);padding:4px;position:relative;display:flex;flex-direction:column;transition:all .2s;}
+.s-card.current{border-color:var(--gold);box-shadow:0 0 6px rgba(251,191,36,.2);}
+.s-card.done{border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.04);}
+.s-phase{position:absolute;top:3px;right:4px;font-family:'Cinzel',serif;font-size:9px;color:var(--text3);}
+.s-name{font-size:8px;color:var(--text3);line-height:1.3;}
+.s-effect{font-size:7.5px;color:var(--text3);margin-top:2px;line-height:1.4;flex:1;}
+.plan-over{position:absolute;inset:2px;border-radius:3px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;}
+.plan-over:hover .plan-facedown{border-color:rgba(251,191,36,.7);}
+.plan-facedown{
+  width:100%;height:100%;
+  background:linear-gradient(135deg,#1a1440 0%,#0d0a22 100%);
+  border:.5px solid rgba(251,191,36,.35);border-radius:3px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:border-color .15s;
+}
+.plan-facedown.opp-plan{
+  background:linear-gradient(135deg,#2a0d0d 0%,#1a0808 100%);
+  border-color:rgba(248,113,113,.3);
+}
+.plan-facedown.opp-plan:hover{border-color:rgba(248,113,113,.3)!important;}
+.plan-fd-pattern{
+  width:28px;height:20px;opacity:.25;
+  background:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(255,255,255,.15) 2px,rgba(255,255,255,.15) 3px);
+  border-radius:2px;
+}
+
+.retire-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;}
+.retire-slot{width:62px;height:87px;background:var(--bg3);border:.5px solid var(--border2);border-radius:var(--rsm);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;transition:all .15s;}
+.retire-slot:hover{border-color:var(--red);}
+.retire-num{font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:var(--text3);}
+.retire-lbl{font-size:7px;color:var(--text3);}
+
+/* Bottom row (defined earlier) */
+.deck-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;}
+.deck-slot-card{width:62px;height:87px;background:var(--bg3);border:.5px solid var(--border2);border-radius:var(--rsm);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:all .15s;}
+.deck-slot-card:hover{border-color:var(--accent);}
+.deck-slot-card.scene:hover{border-color:var(--teal);}
+.deck-num{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:var(--text);}
+.deck-lbl{font-size:7.5px;color:var(--text3);text-align:center;line-height:1.3;}
+
+.scene-area{flex:1;background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:7px 9px;display:flex;flex-direction:column;gap:4px;min-height:72px;}
+.scene-cards{display:flex;gap:3px;flex-wrap:wrap;align-items:flex-start;flex:1;align-content:flex-start;}
+
+/* Scene card */
+.sc-card{
+  width:50px;height:34px;
+  background:linear-gradient(135deg,#1a2230,#0d1520);
+  border:1px solid var(--teal);border-radius:4px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;padding:2px;flex-shrink:0;transition:transform .15s,opacity .15s,border-color .15s;
+  position:relative;  /* needed for absolute overlay */
+}
+.sc-card:hover{transform:translateY(-2px);box-shadow:0 3px 8px rgba(45,212,191,.2);}
+/* tapped = rotated 90° (used for harmony) */
+.sc-card.tapped{transform:rotate(90deg);border-color:var(--text3);opacity:.65;margin:7px 3px;}
+.sc-card.tapped:hover{transform:rotate(90deg) translateY(-1px);}
+/* flipped = inspo used permanently — dim border, ✕ overlay, but NOT rotated */
+.sc-card.flipped{border-color:rgba(45,212,191,.2);opacity:.6;}
+.sc-card.flipped:hover{transform:none;box-shadow:none;cursor:default;}
+/* tapped AND flipped — keep rotation, just more dim */
+.sc-card.tapped.flipped{opacity:.45;}
+.sc-card.tapped.flipped:hover{transform:rotate(90deg);}
+/* flipped overlay (✕) */
+.sc-flip-overlay{
+  position:absolute;inset:0;border-radius:3px;
+  background:rgba(0,0,0,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:rgba(255,255,255,.25);
+  pointer-events:none;
+}
+.sc-n{font-size:6.5px;font-weight:600;color:var(--text2);line-height:1.2;text-align:center;}
+.sc-e{font-size:6px;color:var(--teal);}
+.sc-i{font-size:6.5px;color:var(--accent);}
+
+/* Game card */
+.gcard{width:var(--cw);height:var(--ch);border-radius:var(--rsm);position:relative;cursor:pointer;transition:transform .15s;flex-shrink:0;user-select:none;}
+.gcard:hover{transform:translateY(-3px) scale(1.03);z-index:10;}
+.gcard.tapped{transform:rotate(90deg);margin:13px 3px;}
+.gcard.tapped:hover{transform:rotate(90deg) translateY(-2px);z-index:10;}
+.gface{position:absolute;inset:0;border-radius:var(--rsm);border:1px solid;overflow:hidden;display:flex;flex-direction:column;padding:4px;}
+.gcard.char .gface{background:linear-gradient(160deg,#1e1a3a,#0d0a1a);border-color:var(--accent2);}
+.gcard.char.orange .gface{background:linear-gradient(160deg,#2a1a0d,#1a0d0a);border-color:var(--orange);}
+.gcard.event .gface{background:linear-gradient(160deg,#1a2a1a,#0a1a0d);border-color:#22c55e;}
+.gcard.item .gface{background:linear-gradient(160deg,#2a1a1a,#1a0d0a);border-color:#f97316;}
+.gcard.tapped .gface{border-color:var(--text3)!important;}
+.gcost{position:absolute;top:2px;left:3px;width:14px;height:14px;background:rgba(251,191,36,.2);border:.5px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--gold);z-index:1;}
+.gtype{position:absolute;top:2px;right:3px;font-size:9px;opacity:.7;}
+.gart{flex:1;display:flex;align-items:center;justify-content:center;font-size:21px;margin-top:12px;}
+.gbottom{padding:2px 1px 0;}
+.gname{font-size:7px;font-weight:600;color:var(--text);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gsub{font-size:6.5px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ginsp{position:absolute;bottom:2px;right:2px;width:15px;height:15px;background:rgba(192,132,252,.2);border:.5px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--accent);}
+.ginsp.orange{background:rgba(251,146,60,.2);border-color:var(--orange);color:var(--orange);}
+.ginsp.boosted{background:rgba(251,191,36,.2);border-color:var(--gold);color:var(--gold);}
+.item-pip{position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);font-size:7.5px;background:#f97316;color:#fff;padding:1px 4px;border-radius:8px;white-space:nowrap;z-index:3;}
+
+/* Right panel */
+.right-panel{display:flex;flex-direction:column;background:var(--bg2);border-left:.5px solid var(--border);overflow-y:auto;}
+.psec{border-bottom:.5px solid var(--border);padding:8px 10px;}
+.psec:last-child{border-bottom:none;}
+.ptitle{font-size:9px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:7px;}
+.hand-list{display:flex;flex-direction:column;gap:3px;}
+.hitem{display:flex;align-items:center;gap:5px;padding:5px 6px;background:var(--panel);border:.5px solid var(--border);border-radius:var(--rsm);cursor:pointer;transition:all .15s;}
+.hitem:hover{border-color:var(--accent);background:var(--panel2);}
+.hitem.sel{border-color:var(--gold);background:rgba(251,191,36,.07);}
+.hico{width:17px;height:17px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+.hico.char{background:rgba(192,132,252,.15);}
+.hico.char.orange{background:rgba(251,146,60,.15);}
+.hico.event{background:rgba(74,222,128,.15);}
+.hico.item{background:rgba(249,115,22,.15);}
+.hinfo{flex:1;min-width:0;}
+.hname{font-size:10px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hsub{font-size:9px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hcost{font-size:10px;font-weight:700;color:var(--gold);flex-shrink:0;}
+.ai-stats{display:flex;flex-direction:column;gap:3px;}
+.astat{display:flex;justify-content:space-between;font-size:10px;}
+.astat .al{color:var(--text2);}
+.astat .av{font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:var(--red);}
+.log-box{max-height:130px;overflow-y:auto;}
+.lentry{font-size:10px;color:var(--text3);padding:2px 0;line-height:1.4;border-bottom:.5px solid rgba(255,255,255,.03);}
+.lentry.imp{color:var(--accent);}
+.lentry.act{color:var(--gold);}
+.lentry.warn{color:var(--red);}
+.lentry.good{color:var(--green);}
+.tap-btn{width:100%;padding:6px;background:var(--bg3);border:.5px solid rgba(251,191,36,.4);border-radius:var(--rsm);color:var(--gold);font-family:'Sarabun',sans-serif;font-size:10px;cursor:pointer;transition:all .15s;text-align:center;}
+.tap-btn:hover{background:rgba(251,191,36,.1);}
+
+/* Tooltip */
+.tt{position:fixed;z-index:1000;pointer-events:none;background:var(--bg2);border:.5px solid var(--border2);border-radius:var(--r);padding:9px 11px;max-width:210px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.6);}
+.tt.show{display:block;}
+.ttn{font-family:'Cinzel',serif;font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.tts{font-size:9px;color:var(--teal);margin-bottom:4px;}
+.ttr{font-size:10px;color:var(--text2);line-height:1.5;margin-bottom:2px;}
+.ttr b{color:var(--gold);}
+.ttd{height:.5px;background:var(--border);margin:4px 0;}
+
+/* Modal */
+.mo{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.mo.show{display:flex;}
+.mbox{background:var(--panel);border:.5px solid var(--border2);border-radius:14px;padding:22px 26px;max-width:360px;width:90%;text-align:center;}
+.mbox h3{font-family:'Cinzel',serif;font-size:15px;color:var(--accent);margin-bottom:8px;}
+.mbox p{font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:16px;white-space:pre-line;}
+.mbtns{display:flex;gap:7px;justify-content:center;}
+.mbtn{padding:6px 16px;border-radius:var(--rsm);border:.5px solid var(--border2);background:var(--bg3);color:var(--text2);font-family:'Sarabun',sans-serif;font-size:11px;cursor:pointer;transition:all .15s;}
+.mbtn.primary{background:linear-gradient(135deg,var(--accent2),#7c3aed);border-color:transparent;color:#fff;}
+.mbtn:hover{border-color:var(--accent);color:var(--text);}
+
+/* Endgame */
+.eg{position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);}
+.eg.show{display:flex;}
+.egbox{text-align:center;padding:40px;}
+.egbox h2{font-family:'Cinzel',serif;font-size:42px;font-weight:700;margin-bottom:10px;}
+.egbox.win h2{color:var(--gold);}
+.egbox.lose h2{color:var(--red);}
+.egbox p{font-size:14px;color:var(--text2);margin-bottom:22px;}
+
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div id="setup-screen" class="screen active">
+  <div class="setup-logo">
+    <h1>My Little Pony</h1>
+    <h2>TCG Simulator</h2>
+    <p class="sub">Solitaire Deck Tester</p>
+  </div>
+  <div class="setup-box">
+    <h3>LOAD YOUR DECK</h3>
+
+    <!-- PLAYER DECK -->
+    <div style="font-size:10px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:8px">เด็คของคุณ</div>
+    <div class="preset-grid" id="preset-grid-player"></div>
+    <div class="divider">หรืออัปโหลด JSON</div>
+    <div class="upload-area" id="upload-area">
+      <input type="file" id="file-input" accept=".json">
+      <div class="upload-icon">📂</div>
+      <p>วางไฟล์ JSON หรือคลิกเพื่อเลือก</p>
+      <span>format: main / scene / story / mc</span>
+    </div>
+
+    <!-- BOT DECK -->
+    <div style="font-size:10px;letter-spacing:.1em;color:var(--red);text-transform:uppercase;margin:14px 0 8px">เด็ค Bot 🤖</div>
+    <div class="preset-grid" id="preset-grid-bot"></div>
+
+    <!-- PREVIEW -->
+    <div class="deck-preview" id="deck-preview">
+      <div class="dp-preview-row">
+        <div>
+          <div style="font-size:9px;color:var(--text3);margin-bottom:3px">เด็คเรา</div>
+          <div class="dp-name" id="prev-name">—</div>
+          <div class="deck-stats" id="prev-stats"></div>
+        </div>
+        <div style="width:.5px;background:var(--border);margin:0 10px"></div>
+        <div>
+          <div style="font-size:9px;color:var(--red);margin-bottom:3px">เด็ค Bot</div>
+          <div class="dp-name" id="prev-bot-name" style="color:var(--red)">—</div>
+          <div class="deck-stats" id="prev-bot-stats"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="start-btn" id="start-btn" onclick="startGame()">เริ่มเกม</button>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="game-screen" class="screen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="logo-sm">MLP TCG</span>
+      <span class="phase-badge" id="phase-badge">START PHASE</span>
+      <span class="turn-info">Turn <span id="turn-num">1 (You)</span></span>
+    </div>
+    <div class="harmony-disp">✦ <span class="hv" id="harmony-val">0</span> Harmony</div>
+    <div class="topbar-right">
+      <button class="tbtn" onclick="tapSceneHarmony()">Tap Scene +1✦</button>
+      <button class="tbtn primary" id="next-phase-btn" onclick="nextPhase()">Draw →</button>
+      <button class="tbtn" onclick="backToSetup()">✕</button>
+    </div>
+  </div>
+
+  <div class="game-layout">
+    <div class="playmat">
+
+      <!-- ══ OPP SIDE (top, mirrored) ══ -->
+
+      <!-- OPP outermost: Scene Deck | OPP Scene Area | OPP Scene Deck (row-reverse = mirrored) -->
+      <div class="bottom-row" style="flex-direction:row-reverse">
+        <div class="deck-col">
+          <div class="zone-lbl" style="text-align:center;color:var(--red)">OPP Deck</div>
+          <div class="deck-slot-card" style="border-color:rgba(248,113,113,.3)">
+            <div class="deck-num" id="opp-md-cnt" style="color:var(--red)">50</div>
+            <div class="deck-lbl" style="color:rgba(248,113,113,.6)">OPP<br>Deck</div>
+          </div>
+        </div>
+        <div class="scene-area" style="border-color:rgba(248,113,113,.15)">
+          <div class="area-title" style="color:rgba(248,113,113,.7)">🤖 OPP Info</div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:2px 2px">
+            <span style="font-size:10px;color:var(--text3)">Hand: <b id="opp-hand-disp" style="color:var(--red)">5</b></span>
+            <span style="font-size:10px;color:var(--text3)">Plans: <b id="opp-plans-disp" style="color:var(--red)">4</b></span>
+            <span style="font-size:10px;color:var(--text3)">Retire: <b id="opp-retire-disp" style="color:var(--red)">0</b></span>
+          </div>
+        </div>
+        <div class="deck-col">
+          <div class="zone-lbl" style="text-align:center;color:var(--red)">OPP Scene</div>
+          <div class="deck-slot-card scene" style="border-color:rgba(248,113,113,.2)">
+            <div class="deck-num" id="opp-sd-cnt" style="color:rgba(248,113,113,.8)">15</div>
+            <div class="deck-lbl" style="color:rgba(248,113,113,.5)">OPP<br>Scene</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OPP inner (closer to adventure zone): Retire | Story | MC -->
+      <div class="middle-row">
+        <div class="retire-col">
+          <div class="zone-lbl" style="color:var(--red)">OPP Retire</div>
+          <div class="retire-slot" style="border-color:rgba(248,113,113,.25)" onclick="viewOppRetire()">
+            <div class="retire-num" id="opp-retire-num" style="color:var(--red)">0</div>
+            <div class="retire-lbl">cards</div>
+          </div>
+        </div>
+        <div class="story-area" style="border-color:rgba(248,113,113,.2)">
+          <div class="area-title" style="color:rgba(248,113,113,.8)">🤖 OPP Story Area</div>
+          <div class="story-slots-row" id="opp-story-slots-row"></div>
+        </div>
+        <div class="mc-col">
+          <div class="zone-lbl" style="color:var(--red)">OPP MC</div>
+          <div class="mc-slot" style="border-color:var(--red);box-shadow:0 0 8px rgba(248,113,113,.15)">
+            <div class="mc-emoji">🤖</div>
+            <div class="mc-name-lbl" style="color:var(--red)" id="opp-mc-name-lbl">AI</div>
+          </div>
+          <div class="mc-stage" style="color:var(--red)">Stage <span id="opp-stage-lbl">I</span></div>
+        </div>
+      </div>
+
+      <!-- ══ ADVENTURE ZONE (center, shared) ══ -->
+      <div class="adventure-area">
+        <div class="area-title">⚔️ Adventure Area</div>
+
+        <!-- OPP slots — cards face up, upside-down perspective -->
+        <div class="adv-side">
+          <div class="side-lbl" style="color:var(--red)">OPP</div>
+          <div class="adv-slots">
+            <div class="adv-slot opp-adv-slot" id="os0"><span class="slot-icon">○</span></div>
+            <div class="adv-slot opp-adv-slot" id="os1"><span class="slot-icon">○</span></div>
+            <div class="adv-slot opp-adv-slot" id="os2"><span class="slot-icon">○</span></div>
+          </div>
+          <div style="margin-left:auto;display:flex;flex-direction:column;gap:2px">
+            <div style="font-size:8px;color:var(--text3)">Deck: <span id="od-cnt" style="color:var(--red)">50</span></div>
+            <div style="font-size:8px;color:var(--text3)">Hand: <span id="oh-cnt" style="color:var(--red)">5</span></div>
+          </div>
+        </div>
+
+        <!-- slot column labels -->
+        <div style="display:flex;gap:5px;justify-content:center">
+          <div style="width:var(--cw);flex-shrink:0;text-align:center;font-size:8px;color:var(--text3)">1</div>
+          <div style="width:var(--cw);flex-shrink:0;text-align:center;font-size:8px;color:var(--text3)">2</div>
+          <div style="width:var(--cw);flex-shrink:0;text-align:center;font-size:8px;color:var(--text3)">3</div>
+        </div>
+
+        <!-- PLAYER slots -->
+        <div class="adv-side">
+          <div class="side-lbl" style="color:var(--green)">YOU</div>
+          <div class="adv-slots">
+            <div class="adv-slot player-slot" id="ps0" onclick="slotClick(0)"><span class="slot-icon">+</span></div>
+            <div class="adv-slot player-slot" id="ps1" onclick="slotClick(1)"><span class="slot-icon">+</span></div>
+            <div class="adv-slot player-slot" id="ps2" onclick="slotClick(2)"><span class="slot-icon">+</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PLAYER SIDE (bottom) ══ -->
+
+      <!-- PLAYER inner (closer to adventure zone): MC | Story | Retire -->
+      <div class="middle-row">
+        <div class="mc-col">
+          <div class="zone-lbl">Main Char</div>
+          <div class="mc-slot">
+            <div class="mc-emoji">🍎</div>
+            <div class="mc-name-lbl" id="mc-name-lbl">—</div>
+          </div>
+          <div class="mc-stage">Stage <span id="player-stage-lbl">I</span></div>
+        </div>
+        <div class="story-area">
+          <div class="area-title">Story Area</div>
+          <div class="story-slots-row" id="story-slots-row"></div>
+        </div>
+        <div class="retire-col">
+          <div class="zone-lbl">Retirement</div>
+          <div class="retire-slot" onclick="viewRetire()">
+            <div class="retire-num" id="retire-num">0</div>
+            <div class="retire-lbl">cards</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLAYER outermost: Scene Deck | Scene Area | Main Deck -->
+      <div class="bottom-row">
+        <div class="deck-col">
+          <div class="zone-lbl" style="text-align:center">Scene Deck</div>
+          <div class="deck-slot-card scene">
+            <div class="deck-num" id="sd-cnt">15</div>
+            <div class="deck-lbl">Scene<br>Deck</div>
+          </div>
+        </div>
+        <div class="scene-area">
+          <div class="area-title">Scene Area</div>
+          <div class="scene-cards" id="scene-cards">
+            <span style="font-size:10px;color:var(--text3)">ยังไม่มีฉาก</span>
+          </div>
+        </div>
+        <div class="deck-col">
+          <div class="zone-lbl" style="text-align:center">Main Deck</div>
+          <div class="deck-slot-card" onclick="manualDraw()">
+            <div class="deck-num" id="md-cnt">50</div>
+            <div class="deck-lbl">Main<br>Deck</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /playmat -->
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <div class="psec">
+        <div class="ptitle">AI Opponent</div>
+        <div class="ai-stats">
+          <div class="astat"><span class="al">Stage</span><span class="av" id="opp-stage-v">I</span></div>
+          <div class="astat"><span class="al">Deck</span><span class="av" id="opp-deck-v">50</span></div>
+          <div class="astat"><span class="al">Hand</span><span class="av" id="opp-hand-v">5</span></div>
+          <div class="astat"><span class="al">Plans</span><span class="av" id="opp-plan-v">4</span></div>
+        </div>
+      </div>
+      <div class="psec">
+        <div class="ptitle">Hand (<span id="hand-cnt-lbl">0</span>)</div>
+        <div class="hand-list" id="hand-list"></div>
+      </div>
+      <div class="psec">
+        <div class="ptitle">Actions</div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <!-- Harmony -->
+          <button class="tap-btn" onclick="tapSceneHarmony()" title="Tap scene for +1 Harmony">✦ Tap Scene +1H</button>
+          <!-- Draw -->
+          <button class="tap-btn" style="border-color:rgba(96,165,250,.4);color:#60a5fa" onclick="manualDraw()" title="Draw 1 card from deck">📥 Draw 1 Card</button>
+          <!-- Discard -->
+          <button class="tap-btn" id="discard-btn" style="border-color:rgba(248,113,113,.4);color:var(--red)" onclick="toggleDiscardMode()" title="Toggle discard mode — click hand card to discard">🗑 Discard Card</button>
+          <!-- Retire OPP -->
+          <button class="tap-btn" style="border-color:rgba(248,113,113,.35);color:var(--red)" onclick="manualRetireOpp()" title="Retire an OPP character manually">☠ Retire OPP Char</button>
+          <!-- Retire self -->
+          <button class="tap-btn" style="border-color:rgba(251,191,36,.35);color:var(--gold)" onclick="manualRetireSelf()" title="Retire your own character manually">↩ Retire Own Char</button>
+          <!-- +Insp to char -->
+          <button class="tap-btn" style="border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(1)" title="Give +1 Inspiration to a character this turn">+1 Insp (your char)</button>
+          <button class="tap-btn" style="border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(2)" title="Give +2 Inspiration to a character this turn">+2 Insp (your char)</button>
+          <!-- Add card from retire to hand -->
+          <button class="tap-btn" style="border-color:rgba(192,132,252,.35);color:var(--accent)" onclick="manualRetireToHand()" title="Take any card from Retirement to Hand">Retire → Hand</button>
+          <!-- Add plan to story -->
+          <button class="tap-btn" style="border-color:rgba(251,191,36,.3);color:var(--gold)" onclick="manualAddPlan()" title="Put a hand card face-down as a Plan on a Story slot">+ Add Plan</button>
+        </div>
+      </div>
+      <div class="psec" style="flex:1">
+        <div class="ptitle">Game Log</div>
+        <div class="log-box" id="log-box"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOOLTIP -->
+<div class="tt" id="tt"></div>
+
+<!-- MODAL -->
+<div class="mo" id="mo">
+  <div class="mbox">
+    <h3 id="mo-title">—</h3>
+    <div id="mo-body" style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:18px"></div>
+    <div class="mbtns" id="mo-btns"></div>
+  </div>
+</div>
+
+<!-- ENDGAME -->
+<div class="eg" id="eg">
+  <div class="egbox" id="egbox">
+    <h2 id="eg-title">—</h2>
+    <p id="eg-msg">—</p>
+    <button class="start-btn ready" style="max-width:170px;margin:0 auto" onclick="backToSetup()">เล่นใหม่</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════
+   PRESET DECKS (SD01 A-F)
+   imageUrl path: relative to repo root, same as deck builder
+   e.g. ./cards/SD01A-SR01.jpg
+═══════════════════════════════════ */
+/* ═══════════════════════════════════
+   DECK REGISTRY — fetched from /decks/*.json at runtime
+   Repo: DreamTCG/MLP-DB  |  This file: /battlesim/index.html
+   Cards images: /cards/*.jpg  (shared with deck builder)
+═══════════════════════════════════ */
+
+// Base URL for raw GitHub assets (works both on GitHub Pages and locally via Live Server)
+const BASE = (() => {
+  const loc = window.location.pathname;
+  // If served under /battlesim/ on GitHub Pages → assets at root /decks/
+  // If served locally from file:// or localhost → use relative ../decks/
+  if (loc.includes('/battlesim')) return '/decks/';
+  return '../decks/';
+})();
+
+// Card images: same logic
+const CARDS_BASE = (() => {
+  const loc = window.location.pathname;
+  if (loc.includes('/battlesim')) return '/cards/';
+  return '../cards/';
+})();
+
+// Known preset decks (key → filename, label, emoji, color)
+const DECK_META = {
+  SD01A_TS: { emoji:'🦄', label:'Twilight Sparkle', color:'#a78bfa', file:'SD01A_TS.json' },
+  SD01B_FS: { emoji:'🦋', label:'Fluttershy',       color:'#fde68a', file:'SD01B_FS.json' },
+  SD01C_PP: { emoji:'🎉', label:'Pinkie Pie',        color:'#f9a8d4', file:'SD01C_PP.json' },
+  SD01D_AJ: { emoji:'🍎', label:'Applejack',         color:'#fb923c', file:'SD01D_AJ.json' },
+  SD01E_RD: { emoji:'⚡', label:'Rainbow Dash',      color:'#60a5fa', file:'SD01E_RD.json' },
+  SD01F_RR: { emoji:'💎', label:'Rarity',            color:'#c4b5fd', file:'SD01F_RR.json' },
+};
+
+// Cache so each deck is fetched only once per session
+const DECK_CACHE = {};
+
+async function fetchDeck(key) {
+  if (DECK_CACHE[key]) return DECK_CACHE[key];
+  const meta = DECK_META[key];
+  if (!meta) return null;
+  try {
+    const res = await fetch(BASE + meta.file);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    // Rewrite imageUrl to absolute path using CARDS_BASE
+    const fixUrl = c => ({ ...c, imageUrl: c.imageUrl ? CARDS_BASE + c.imageUrl.split('/').pop() : null });
+    data.main  = (data.main  || []).map(fixUrl);
+    data.scene = (data.scene || []).map(fixUrl);
+    data.story = (data.story || []).map(fixUrl);
+    if (data.mc) data.mc = fixUrl(data.mc);
+    DECK_CACHE[key] = data;
+    return data;
+  } catch(e) {
+    console.error('Failed to fetch deck', key, e);
+    return null;
+  }
+}
+const DECK_META={
+  SD01A_TS:{emoji:'🦄',label:'Twilight Sparkle',color:'#a78bfa'},
+  SD01B_FS:{emoji:'🦋',label:'Fluttershy',      color:'#fde68a'},
+  SD01C_PP:{emoji:'🎉',label:'Pinkie Pie',       color:'#f9a8d4'},
+  SD01D_AJ:{emoji:'🍎',label:'Applejack',        color:'#fb923c'},
+  SD01E_RD:{emoji:'⚡',label:'Rainbow Dash',     color:'#60a5fa'},
+  SD01F_RR:{emoji:'💎',label:'Rarity',           color:'#c4b5fd'},
+};
+
+/* ═══════════════════════════════════
+   DECK SELECTION STATE
+═══════════════════════════════════ */
+let selectedPlayerKey=null, selectedBotKey=null;
+
+function initPresetGrids(){
+  const keys = Object.keys(DECK_META);
+  ['player','bot'].forEach(side => {
+    const el = document.getElementById('preset-grid-'+side);
+    if(!el) return;
+    el.innerHTML = keys.map(k => {
+      const m = DECK_META[k];
+      return `<div class="preset-card" id="pc-${side}-${k}" onclick="selectDeck('${k}','${side}')">
+        <div class="pc-mc">${m.emoji}</div>
+        <div class="pc-name">${m.label}</div>
+      </div>`;
+    }).join('');
+  });
+}
+
+async function selectDeck(key, side){
+  const meta = DECK_META[key]; if(!meta) return;
+
+  // Show loading state on the card
+  const cardEl = document.getElementById(`pc-${side}-${key}`);
+  if(cardEl) cardEl.style.opacity = '0.5';
+
+  const d = await fetchDeck(key);
+
+  if(cardEl) cardEl.style.opacity = '';
+  if(!d){ alert(`โหลดเด็ค ${meta.label} ไม่ได้ — ตรวจสอบ /decks/${meta.file}`); return; }
+
+  if(side === 'player'){
+    document.querySelectorAll('.preset-card.selected').forEach(el => el.classList.remove('selected'));
+    selectedPlayerKey = key;
+    cardEl?.classList.add('selected');
+    loadPlayerDeck(d);
+  } else {
+    document.querySelectorAll('.preset-card.selected-bot').forEach(el => el.classList.remove('selected-bot'));
+    selectedBotKey = key;
+    cardEl?.classList.add('selected-bot');
+    loadBotDeck(d);
+  }
+  updateStartBtn();
+}
+
+function loadPlayerDeck(raw){
+  if(!raw.main||!raw.scene||!raw.story||!raw.mc){alert('ต้องมี: main, scene, story, mc');return;}
+  G.raw=raw;
+  const m=expand(raw.main),s=expand(raw.scene);
+  document.getElementById('prev-name').textContent=raw.mc.name;
+  const chars=raw.main.filter(c=>c.type==='Character').reduce((s,c)=>s+(c.qty||1),0);
+  const evts=raw.main.filter(c=>c.type==='Event').reduce((s,c)=>s+(c.qty||1),0);
+  const items=raw.main.filter(c=>c.type==='Item').reduce((s,c)=>s+(c.qty||1),0);
+  document.getElementById('prev-stats').innerHTML=
+    `<span class="stat-pill"><b>${m.length}</b> Main</span>`+
+    `<span class="stat-pill"><b>${s.length}</b> Scene</span>`+
+    `<span class="stat-pill"><b>${chars}</b> Char</span>`+
+    `<span class="stat-pill"><b>${evts}</b> Event</span>`+
+    `<span class="stat-pill"><b>${items}</b> Item</span>`;
+  document.getElementById('deck-preview').classList.add('show');
+}
+
+function loadBotDeck(raw){
+  if(!raw.main||!raw.scene||!raw.story||!raw.mc){return;}
+  G.botRaw=raw;
+  const m=expand(raw.main),s=expand(raw.scene);
+  document.getElementById('prev-bot-name').textContent=raw.mc.name;
+  const chars=raw.main.filter(c=>c.type==='Character').reduce((s,c)=>s+(c.qty||1),0);
+  document.getElementById('prev-bot-stats').innerHTML=
+    `<span class="stat-pill" style="border-color:rgba(248,113,113,.3)"><b>${m.length}</b> Main</span>`+
+    `<span class="stat-pill" style="border-color:rgba(248,113,113,.3)"><b>${s.length}</b> Scene</span>`+
+    `<span class="stat-pill" style="border-color:rgba(248,113,113,.3)"><b>${chars}</b> Char</span>`;
+  document.getElementById('deck-preview').classList.add('show');
+}
+
+function updateStartBtn(){
+  const btn=document.getElementById('start-btn');
+  if(G.raw&&G.botRaw){btn.classList.add('ready');}
+  else{btn.classList.remove('ready');}
+}
+
+// Initialize everything once DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  initPresetGrids();
+
+  // File upload handler for player deck
+  const fi = document.getElementById('file-input');
+  if(fi) fi.addEventListener('change', e => {
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = ev => { try {
+      const d = JSON.parse(ev.target.result);
+      loadPlayerDeck(d);
+      selectedPlayerKey = null;
+      document.querySelectorAll('.preset-card.selected').forEach(el => el.classList.remove('selected'));
+      updateStartBtn();
+    } catch { alert('JSON ไม่ถูกต้อง'); } };
+    r.readAsText(f);
+  });
+
+  const ua = document.getElementById('upload-area');
+  if(ua) {
+    ua.addEventListener('dragover', e => { e.preventDefault(); ua.classList.add('dragover'); });
+    ua.addEventListener('dragleave', () => ua.classList.remove('dragover'));
+    ua.addEventListener('drop', e => {
+      e.preventDefault(); ua.classList.remove('dragover');
+      const f = e.dataTransfer.files[0]; if(!f) return;
+      const r = new FileReader();
+      r.onload = ev => { try {
+        const d = JSON.parse(ev.target.result);
+        loadPlayerDeck(d);
+        selectedPlayerKey = null;
+        document.querySelectorAll('.preset-card.selected').forEach(el => el.classList.remove('selected'));
+        updateStartBtn();
+      } catch { alert('JSON ไม่ถูกต้อง'); } };
+      r.readAsText(f);
+    });
+  }
+});
+
+function startGame(){
+  if(!G.raw||!G.botRaw){alert('เลือกเด็คทั้งสองฝั่งก่อนเริ่มเกม');return;}
+  // Player deck
+  const m=shuffle(expand(G.raw.main)),s=shuffle(expand(G.raw.scene));
+  G.mainDeck=m;G.sceneDeck=s;G.hand=[];G.pAdv=[null,null,null];
+  G.pStage=0;G.pPlans=[null,null,null,null];G.sceneArea=[];G.retireArea=[];
+  G.harmony=0;
+  G.turnCount=1;
+  G.isPlayerTurn=true;
+  G.selIdx=-1;G.itemTargetMode=false;G.pendingItem=null;
+  G.oppTargetMode=false;G.oppTargetCallback=null;G.contactQueue=[];G.contactStep=0;
+  G.storyCards=[...G.raw.story].sort((a,b)=>SL.indexOf(a.story_stage)-SL.indexOf(b.story_stage));
+  // Bot uses its OWN separate deck (G.botRaw)
+  G.oMainDeck=shuffle(expand(G.botRaw.main));G.oHand=5;G.oAdv=[null,null,null];
+  G.oStage=0;G.oPlans=[null,null,null,null];G.oRetireArea=[];
+  G.oStory=[...G.botRaw.story].sort((a,b)=>SL.indexOf(a.story_stage)-SL.indexOf(b.story_stage));
+  G.oSceneDeckCount=expand(G.botRaw.scene).length;G.oSceneCount=0;
+
+  // Draw 5 cards for player
+  for(let i=0;i<5;i++)_draw(true);
+  // Draw 5 for bot
+  for(let i=0;i<5;i++){if(G.oMainDeck.length>0)G.oMainDeck.pop();}
+
+  // Place 4 plan cards each
+  for(let i=0;i<4;i++){if(G.mainDeck.length>0)G.pPlans[i]=G.mainDeck.pop();}
+  for(let i=0;i<4;i++){if(G.oMainDeck.length>0)G.oPlans[i]=G.oMainDeck.pop();}
+
+  // Setup first scene for EACH player — both face-up (untapped), per rule 103.4 + 402.3
+  // First player's first scene is added during their Start Phase (step 3)
+  // We pre-add 1 scene per side: player gets tapped (turn 1 rule), bot gets untapped
+  _addScene(true);   // player's first scene — _flipped=true (first player rule: ใช้ inspo ไม่ได้)
+  _addOppScene();    // bot also gets 1 scene at setup — untapped
+
+  switchScreen('game-screen');
+  G.phase='start';renderAll();updatePhaseUI();
+  log(`✨ เกมเริ่ม! เรา: ${G.raw.mc.name} vs Bot: ${G.botRaw.mc.name}`,'imp');
+  log('Turn 1 — ฝั่งเรา (Player)','act');
+}
+function switchScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+/* ═══════════════════════════════════
+   CORE ACTIONS
+═══════════════════════════════════ */
+function _draw(silent=false){
+  if(G.mainDeck.length===0){endGame(false,'เด็คหมด!');return;}
+  const c=G.mainDeck.pop();
+  c._tapped=false;c._boosted=0;c._item=null;
+  G.hand.push(c);
+  if(!silent)log(`จั่ว: ${c.name} [${c.rarity}]`);
+}
+function manualDraw(){
+  if(G.phase!=='main'){log('คลิก Main Deck ใน Main Phase','warn');return;}
+  _draw();renderCounts();renderHand();
+}
+function _addScene(flipped=false){
+  if(G.sceneDeck.length===0)return;
+  const s=G.sceneDeck.pop();
+  s._tapped=false;          // always starts untapped (upright)
+  s._flipped=flipped;       // flipped=true means face-down, inspo already "used" — cannot inspo again
+  G.sceneArea.push(s);
+}
+function _addOppScene(){
+  // Bot gets 1 scene at setup — untapped (face-up, usable)
+  // We track bot scenes separately with a simple count since we don't display them
+  G.oSceneCount=(G.oSceneCount||0)+1;
+  G.oSceneDeckCount=Math.max(0,(G.oSceneDeckCount||15)-1);
+}
+function tapSceneHarmony(){
+  if(G.phase!=='main'){log('Tap Scene ได้ใน Main Phase','warn');return;}
+  // Can tap: scene that is NOT yet tapped (not used for harmony) and NOT flipped (not used for inspo)
+  // Tapped = sideways = used for harmony already
+  // Flipped = face-down = used for inspo boost — BUT still can be tapped for harmony per rule 204
+  const s=G.sceneArea.find(x=>!x._tapped);
+  if(!s){log('ไม่มีฉากที่ tap ได้ (ทุกใบ tap ไปแล้ว)','warn');return;}
+  s._tapped=true;G.harmony++;
+  log(`Tap "${s.name}" → +1✦ (รวม:${G.harmony})`,'act');
+  updateHarmony();renderScene();
+}
+
+function playCard(idx){
+  const c=G.hand[idx];if(!c)return;
+  if(G.phase!=='main'){log('เล่นการ์ดได้ใน Main Phase','warn');return;}
+  if(c.cost>G.harmony){log(`ต้องการ ${c.cost}✦ — มีแค่ ${G.harmony}✦`,'warn');return;}
+  if(c.type==='Character'){
+    const slot=G.pAdv.findIndex(s=>s===null);
+    if(slot===-1){log('Adventure Zone เต็ม','warn');return;}
+    G.harmony-=c.cost;G.hand.splice(idx,1);
+    c._tapped=false;c._boosted=0;c._item=null;G.pAdv[slot]=c;
+    log(`เล่น ${c.name}[${c.rarity}] → Slot${slot+1} | เหลือ ${G.harmony}✦`,'act');
+    doAppear(c);
+  }else if(c.type==='Event'){
+    if(!checkEventCond(c))return;
+    G.harmony-=c.cost;G.hand.splice(idx,1);G.retireArea.push(c);
+    log(`Event: ${c.name}`,'act');doEvent(c);
+  }else if(c.type==='Item'){
+    const validTargets=G.pAdv.map((x,i)=>({c:x,i})).filter(({c:x})=>x!==null&&x._item===null);
+    if(validTargets.length===0){log('ไม่มีตัวละครรับ Item ได้','warn');return;}
+    // check restriction
+    const ab=c.ability||'';
+    const restricted=ab.includes('Only adorn 「Applejack」');
+    const actualTargets=restricted?validTargets.filter(({c:x})=>x.subtype?.includes('Applejack')):validTargets;
+    if(actualTargets.length===0){log('Item นี้ติดได้เฉพาะ 「Applejack」 แต่ไม่มีในสนาม','warn');return;}
+    if(actualTargets.length===1){
+      // only one valid target, equip directly
+      G.harmony-=c.cost;G.hand.splice(idx,1);actualTargets[0].c._item=c;
+      log(`ติดตั้ง ${c.name} → ${actualTargets[0].c.name}`,'act');
+    }else{
+      // multiple targets: enter item-target-selection mode
+      G.harmony-=c.cost;G.hand.splice(idx,1);
+      G.itemTargetMode=true;G.pendingItem=c;
+      log(`เลือกตัวละครใน Adventure Zone เพื่อติดตั้ง ${c.name}`,'act');
+      renderAdv();renderHand();updateHarmony();return;
+    }
+  }
+  G.selIdx=-1;updateHarmony();renderAll();
+}
+function checkEventCond(c){
+  const ab=c.ability||'';
+  if(ab.includes('5 or more Scenes')&&G.sceneArea.length<5){log(`ต้องการฉาก 5 ใบ (มี${G.sceneArea.length})`,  'warn');return false;}
+  return true;
+}
+function doAppear(c){
+  const ab=c.ability||'';
+  if(!ab.includes('[Appear]')&&!ab.toLowerCase().includes('appear'))return;
+  const th=c.ability_th||ab;
+  log(`[Appear] ${c.name}: ${th.replace('[Appear]','').trim()}`,'act');
+  log('  → ใช้ปุ่มด้านล่างเพื่อจัดการ effect ด้วยตัวเอง','warn');
+}
+function doEvent(c){
+  // Manual: log effect text only, player resolves manually
+  const th=c.ability_th||c.ability||'';
+  log(`[Event] ${c.name}: ${th}`,'act');
+  log('  → ใช้ปุ่มด้านล่างจัดการ effect ด้วยตัวเอง','warn');
+  renderAll();
+}
+
+
+function pickPlayerTarget(title,targets,callback){
+  const btns=targets.map(t=>`<button class="mbtn primary" style="font-size:11px" onclick="pickPlayerCb('${t._uid}')">${t.name} (Insp:${effInsp(t,true)})</button>`).join('');
+  document.getElementById('mo-title').textContent=title;
+  document.getElementById('mo-body').innerHTML='<div style="font-size:11px;color:var(--text3);margin-bottom:8px">เลือก 1 ตัว:</div>';
+  document.getElementById('mo-btns').innerHTML=btns;
+  document.getElementById('mo').classList.add('show');
+  window._ppTargets=targets;window._ppCb=callback;
+}
+function pickPlayerCb(uid){closeModal();const t=window._ppTargets?.find(x=>x._uid===uid);if(t&&window._ppCb)window._ppCb(t);}
+
+function pickOppTarget(title,targets,callback){
+  const btns=targets.map(t=>`<button class="mbtn" style="font-size:11px;border-color:var(--red);color:var(--red)" onclick="pickOppCb('${t._uid}')">${t.name} (Power:${t.power||0})</button>`).join('');
+  document.getElementById('mo-title').textContent=title;
+  document.getElementById('mo-body').innerHTML='<div style="font-size:11px;color:var(--text3);margin-bottom:8px">เลือก 1 ตัว:</div>';
+  document.getElementById('mo-btns').innerHTML=btns+`<button class="mbtn" onclick="closeModal()">ยกเลิก</button>`;
+  document.getElementById('mo').classList.add('show');
+  window._poTargets=targets;window._poCb=callback;
+}
+function pickOppCb(uid){closeModal();const t=window._poTargets?.find(x=>x._uid===uid);if(t&&window._poCb)window._poCb(t);}
+
+function slotClick(idx){
+  if(G.phase!=='main')return;
+  // Item target selection mode
+  if(G.itemTargetMode){
+    const tgt=G.pAdv[idx];
+    if(!tgt){log('Slot ว่าง — เลือกตัวละครที่มีอยู่','warn');return;}
+    if(tgt._item!==null){log(`${tgt.name} มี Item แล้ว — เลือก Slot อื่น`,'warn');return;}
+    const ab=G.pendingItem.ability||'';
+    if(ab.includes('Only adorn 「Applejack」')&&!tgt.subtype?.includes('Applejack')){
+      log('ติดได้เฉพาะ 「Applejack」','warn');return;
+    }
+    tgt._item=G.pendingItem;
+    log(`ติดตั้ง ${G.pendingItem.name} → ${tgt.name} ✅`,'good');
+    G.itemTargetMode=false;G.pendingItem=null;
+    renderAll();return;
+  }
+  if(G.pAdv[idx]!==null){tapChar(idx);return;}
+  if(G.selIdx===-1){log('เลือกการ์ดจากมือก่อน','warn');return;}
+  const c=G.hand[G.selIdx];
+  if(!c||c.type!=='Character'){log('เลือก Character เพื่อวาง','warn');return;}
+  if(c.cost>G.harmony){log(`ต้องการ ${c.cost}✦`,'warn');return;}
+  G.harmony-=c.cost;G.hand.splice(G.selIdx,1);
+  c._tapped=false;c._boosted=0;c._item=null;G.pAdv[idx]=c;
+  log(`เล่น ${c.name} → Slot${idx+1} | เหลือ ${G.harmony}✦`,'act');
+  doAppear(c);G.selIdx=-1;updateHarmony();renderAll();
+}
+function tapChar(idx){
+  const c=G.pAdv[idx];if(!c)return;
+  if(G.phase!=='main')return;
+  if(c._tapped){log(`${c.name} tapped แล้ว`,'warn');return;}
+  const ab=c.ability||'';
+  if(ab.includes('[Adventure]')&&ab.includes('[Tap]')){
+    c._tapped=true;log(`Tap ${c.name}`,'act');
+    const s=G.sceneArea.find(x=>x._tapped&&!x._flipped);
+    if(s&&ab.includes('untap it')){s._tapped=false;log(`⚡ Untap "${s.name}"`,'good');}
+    renderScene();renderAdv();
+  }
+}
+
+/* ═══════════════════════════════════
+   PHASE MANAGEMENT
+═══════════════════════════════════ */
+function nextPhase(){
+  if(G.phase==='start'){doStart();G.phase='main';}
+  else if(G.phase==='main'){G.phase='contact';doContact();}
+  else if(G.phase==='contact'){G.phase='end';doEnd();}
+  else if(G.phase==='end'){
+    // Advance to next turn (alternating sides)
+    G.turnCount++;
+    G.isPlayerTurn=!G.isPlayerTurn;
+    G.harmony=0;
+    G.phase='start';
+    const side=G.isPlayerTurn?'ฝั่งเรา (Player)':'ฝั่ง Bot';
+    log(`── Turn ${G.turnCount} — ${side} ──`,'imp');
+    updateHarmony();
+  }
+  updatePhaseUI();renderAll();
+}
+
+function doStart(){
+  // Turn 1 = player, Turn 2 = bot, Turn 3 = player, ...
+  // Skip draw on the very first turn (turnCount===1, player side)
+  const isFirstEver = G.turnCount===1 && G.isPlayerTurn;
+
+  if(!isFirstEver){
+    if(G.isPlayerTurn){
+      // Reset player cards
+      G.pAdv.forEach(c=>{if(c)c._tapped=false;});
+      // Reset scenes: untap only — _flipped is permanent per scene (inspo used = stays flipped forever)
+      G.sceneArea.forEach(s=>{s._tapped=false;});
+      _draw();
+      log('Reset + จั่ว 1 ใบ');
+    }else{
+      // Bot start phase — reset bot chars, bot "draws"
+      G.oAdv.forEach(c=>{if(c)c._tapped=false;});
+      G.oHand=Math.min(G.oHand+1,7);
+      log('🤖 Bot Reset + จั่ว 1 ใบ');
+    }
+  }
+
+  // Add scene each start phase (both sides add from their own deck)
+  if(G.isPlayerTurn){
+    if(G.sceneDeck.length>0){
+      // All scenes from Start Phase are face-up (untapped) per rule
+      _addScene(false);
+      log(`เพิ่มฉาก: ${G.sceneArea[G.sceneArea.length-1].name}`);
+    }
+    log('Main Phase — เล่น/ใช้การ์ดได้','act');
+  }else{
+    // Bot adds scene
+    if(G.oSceneDeckCount>0){
+      G.oSceneCount++;
+      G.oSceneDeckCount--;
+      log(`🤖 Bot เพิ่มฉาก (รวม ${G.oSceneCount} ใบ)`);
+    }
+    // Bot main phase simulation — plays cheapest char
+    aiSim();
+    log('🤖 Bot Main Phase เสร็จ — กด Contact Phase','act');
+  }
+}
+
+function doEnd(){
+  if(G.isPlayerTurn){
+    log('End Phase','act');
+    while(G.hand.length>10){const d=G.hand.shift();G.retireArea.push(d);log(`ทิ้ง ${d.name}`,'warn');}
+    log(`กด "Turn ${G.turnCount+1} →" เพื่อไปฝั่ง Bot`,'act');
+  }else{
+    log('🤖 Bot End Phase','act');
+    // Bot discards excess (tracked as count)
+    log(`กด "Turn ${G.turnCount+1} →" เพื่อกลับฝั่งเรา`,'act');
+  }
+}
+function doContact(){
+  // Per rulebook 404.1: Contact ถูกข้ามใน "สองเทิร์นแรกของเกม"
+  if(G.turnCount<=2){
+    log(`Contact ถูกข้าม (Turn ${G.turnCount} — ยังอยู่ใน 2 เทิร์นแรก)`,'warn');
+    return;
+  }
+  log(`⚔️ Contact Phase — Turn ${G.turnCount} (${G.isPlayerTurn?'Player':'Bot'}) ไล่ทีละคู่`,'act');
+
+  // Rulebook 404.2: เริ่มจากแถวซ้ายมือของผู้เล่นเจ้าของเทิร์น
+  // Player turn  → slot 0,1,2 (ซ้ายไปขวาจากฝั่งเรา)
+  // Bot turn     → slot 2,1,0 (ซ้ายไปขวาจากฝั่ง Bot = ขวาไปซ้ายจากฝั่งเรา)
+  G.contactQueue=[];
+  const order = G.isPlayerTurn ? [0,1,2] : [2,1,0];
+  for(const i of order){
+    const p=G.pAdv[i],o=G.oAdv[i];
+    if(p||o) G.contactQueue.push(i);
+  }
+  G.contactStep=0;
+  processNextContact();
+}
+
+function processNextContact(){
+  if(G.contactStep>=G.contactQueue.length){
+    // All slots done
+    G.pAdv.forEach(c=>{if(c)c._boosted=0;});
+    log('⚔️ Contact Phase เสร็จสิ้น','act');
+    renderAll();
+    return;
+  }
+  const slotIdx=G.contactQueue[G.contactStep];
+  const p=G.pAdv[slotIdx],o=G.oAdv[slotIdx];
+
+  // Contact happens only if turn-owner has a character in this slot
+  const ownerHasChar = G.isPlayerTurn ? !!p : !!o;
+  if(!ownerHasChar){
+    G.contactStep++;
+    setTimeout(processNextContact, 80);
+    return;
+  }
+  if(p&&o){
+    showContactModal(slotIdx,p,o);
+  }else if(p&&!o){
+    showActionModal(slotIdx,p);
+  }else if(!p&&o){
+    showOppActionModal(slotIdx, o);
+  }
+}
+
+function showContactModal(slotIdx,p,o){
+  const pInsp=effInsp(p,true);
+  const oInsp=o.power||0;
+  // Available inspo boost scenes: has inspo ability AND not yet flipped (tapped is OK)
+  const inspoScenes=G.sceneArea.filter(s=>!s._flipped&&s.ability?.toLowerCase().includes('inspo'));
+
+  const sceneOpts=inspoScenes.length>0
+    ? inspoScenes.map((s,i)=>`<button class="mbtn" style="font-size:10px;border-color:var(--accent)" onclick="useInspoInContact(${G.sceneArea.indexOf(s)},${slotIdx})">`+
+        `↩ ${s.name}</button>`).join('')
+    : '';
+
+  document.getElementById('mo-title').textContent=`⚔️ Slot ${slotIdx+1} — Contact`;
+  document.getElementById('mo-body').innerHTML=
+    `<div style="display:flex;gap:16px;justify-content:center;margin-bottom:12px">
+      <div style="text-align:center">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">ฝั่งเรา</div>
+        <div style="font-size:18px;font-weight:700;color:var(--green)" id="contact-p-insp">${pInsp}</div>
+        <div style="font-size:10px;color:var(--text2)">${p.name}</div>
+        ${p._item?`<div style="font-size:9px;color:var(--orange)">📦 ${p._item.name}</div>`:''}
+      </div>
+      <div style="font-size:22px;align-self:center;color:var(--text3)">vs</div>
+      <div style="text-align:center">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">ฝั่ง OPP</div>
+        <div style="font-size:18px;font-weight:700;color:var(--red)">${oInsp}</div>
+        <div style="font-size:10px;color:var(--text2)">${o.name}</div>
+      </div>
+    </div>
+    ${inspoScenes.length>0?`<div style="font-size:10px;color:var(--text3);margin-bottom:6px;text-align:center">ใช้ Inspo Boost ก่อน Resolve?</div>`:''}`;
+
+  document.getElementById('mo-btns').innerHTML=
+    sceneOpts+
+    `<button class="mbtn primary" onclick="resolveContact(${slotIdx})">Resolve ⚔️</button>`;
+  document.getElementById('mo').classList.add('show');
+}
+
+function useInspoInContact(sceneIdx,slotIdx){
+  const scene=G.sceneArea[sceneIdx];
+  if(!scene){log('ไม่พบฉาก','warn');return;}
+  if(scene._flipped){log(`"${scene.name}" ใช้ Inspo ไปแล้ว (ถาวร)`,'warn');return;}
+  scene._flipped=true; // permanent — inspo exhausted for this scene
+  const p=G.pAdv[slotIdx];
+  if(p){
+    p._boosted=(p._boosted||0)+1;
+    log(`Inspo Boost: ${scene.name} → ${p.name} +1 Insp`,'act');
+  }
+  renderScene();
+  // Refresh modal with updated values
+  if(G.pAdv[slotIdx]&&G.oAdv[slotIdx])
+    showContactModal(slotIdx,G.pAdv[slotIdx],G.oAdv[slotIdx]);
+}
+
+function resolveContact(slotIdx){
+  closeModal();
+  const p=G.pAdv[slotIdx],o=G.oAdv[slotIdx];
+  if(!p||!o){G.contactStep++;setTimeout(processNextContact,100);return;}
+  const pi=effInsp(p,true),oi=o.power||0;
+  log(`Slot${slotIdx+1}: ${p.name}(${pi}) vs ${o.name}(${oi})`);
+  if(pi>oi){log('  → ชนะ ✅ — OPP Retire','good');retireO(slotIdx);}
+  else if(pi<oi){log(`  → แพ้ — ${p.name} Retire`,'warn');retireP(slotIdx);}
+  else{log('  → เสมอ — ทั้งคู่ Retire','warn');retireP(slotIdx);retireO(slotIdx);}
+  G.contactStep++;
+  renderAll();
+  setTimeout(processNextContact,300);
+}
+
+function showActionModal(slotIdx,p){
+  const canA=canAdv();
+  const hasPlans=G.oPlans.some(x=>x!==null);
+  document.getElementById('mo-title').textContent=`Slot ${slotIdx+1} — Action`;
+  document.getElementById('mo-body').innerHTML=
+    `<div style="font-size:12px;color:var(--text2);margin-bottom:8px">
+      <b style="color:var(--green)">${p.name}</b> ฝั่ง OPP ว่าง — เลือกการกระทำ:
+    </div>
+    ${canA?'':`<div style="font-size:10px;color:var(--red);margin-bottom:6px">⚠️ OPP มีแผนการปิดกั้น Stage นี้</div>`}`;
+  document.getElementById('mo-btns').innerHTML=
+    `<button class="mbtn primary" onclick="actionAdvance(${slotIdx})" ${canA?'':'disabled style="opacity:.4"'}>
+      ดำเนินเนื้อเรื่อง 📖
+    </button>
+    <button class="mbtn" onclick="actionDisrupt(${slotIdx})" ${hasPlans?'':'disabled style="opacity:.4"'}>
+      ขัดขวางแผนการ 💥
+    </button>
+    <button class="mbtn" onclick="actionSkip(${slotIdx})">ข้าม</button>`;
+  document.getElementById('mo').classList.add('show');
+}
+
+function actionAdvance(slotIdx){
+  closeModal();
+  doAdv();
+  G.contactStep++;
+  renderAll();
+  setTimeout(processNextContact,300);
+}
+function actionDisrupt(slotIdx){
+  closeModal();
+  doDisrupt();
+  G.contactStep++;
+  renderAll();
+  setTimeout(processNextContact,300);
+}
+function actionSkip(slotIdx){
+  closeModal();
+  log(`Slot${slotIdx+1}: ข้าม`);
+  G.contactStep++;
+  renderAll();
+  setTimeout(processNextContact,300);
+}
+
+// OPP forced contact — OPP มีตัวละคร ฝั่งเราว่าง
+function showOppActionModal(slotIdx, o){
+  const canOppAdv = G.oStage < 4 && G.pPlans[G.oStage] === null;
+  const hasOurPlans = G.pPlans.some(x => x !== null);
+
+  log(`Slot${slotIdx+1}: 🤖 ${o.name} — ฝั่งเราว่าง (OPP บังคับ action)`,'warn');
+
+  document.getElementById('mo-title').textContent = `🤖 Slot ${slotIdx+1} — OPP Action`;
+  document.getElementById('mo-body').innerHTML =
+    `<div style="font-size:12px;color:var(--text2);margin-bottom:10px">
+      <b style="color:var(--red)">${o.name}</b> [${o.rarity}] Power: <b style="color:var(--red)">${o.power||0}</b><br>
+      <span style="font-size:10px;color:var(--text3)">OPP ต้องทำ action — เลือก 1 อย่าง:</span>
+    </div>
+    ${canOppAdv ? '' : `<div style="font-size:10px;color:var(--text3);margin-bottom:6px">⚠️ เราปิดกั้น Stage ${SL[G.oStage]} ด้วยแผนการ</div>`}
+    ${!hasOurPlans ? `<div style="font-size:10px;color:var(--text3);margin-bottom:6px">⚠️ เราไม่มีแผนการให้ขัดขวาง</div>` : ''}`;
+
+  document.getElementById('mo-btns').innerHTML =
+    `<button class="mbtn" style="border-color:var(--red);color:var(--red)"
+       onclick="oppActionAdvance(${slotIdx})" ${canOppAdv ? '' : 'disabled style="opacity:.4"'}>
+       🤖 OPP ดำเนินเนื้อเรื่อง
+     </button>
+     <button class="mbtn" style="border-color:var(--orange);color:var(--orange)"
+       onclick="oppActionDisrupt(${slotIdx})" ${hasOurPlans ? '' : 'disabled style="opacity:.4"'}>
+       🤖 OPP ขัดขวางแผนการเรา
+     </button>
+     ${(!canOppAdv && !hasOurPlans) ? `<button class="mbtn" onclick="oppActionNone(${slotIdx})">ไม่มี action เป็นไปได้ — ข้าม</button>` : ''}`;
+
+  document.getElementById('mo').classList.add('show');
+}
+
+function oppActionAdvance(slotIdx){
+  closeModal();
+  if(G.oStage >= 4) return;
+  if(G.pPlans[G.oStage] !== null){ log('🤖 OPP ถูกปิดกั้น!','warn'); }
+  else {
+    G.oStage++;
+    log(`🤖 OPP ดำเนินเนื้อเรื่อง Stage ${SL[G.oStage-1]}!`,'warn');
+    const st = G.oStory[G.oStage-1];
+    if(st) log(`  ⚡ OPP: ${st.ability_th||st.ability}`);
+    if(G.oStage >= 4) endGame(false, 'AI ถึง Stage IV!');
+  }
+  G.contactStep++;
+  renderAll();
+  setTimeout(processNextContact, 300);
+}
+
+function oppActionDisrupt(slotIdx){
+  closeModal();
+  // OPP disrupts the LOWEST plan we have
+  const idx = G.pPlans.findIndex(p => p !== null);
+  if(idx === -1){ log('🤖 OPP ไม่พบแผนการของเรา'); }
+  else {
+    const plan = G.pPlans[idx];
+    G.pPlans[idx] = null;
+    log(`🤖 OPP ขัดขวางแผนการเรา Stage ${SL[idx]}: ${plan.name}`,'warn');
+    const ab = plan.ability || '';
+    if(ab.includes('[Pre-plan]') || ab.includes('Pre-plan')){
+      log(`  ⚡ Pre-Plan: ${plan.ability_th||ab}`);
+      G.retireArea.push(plan);
+      if(ab.toLowerCase().includes('draw 1')){ _draw(); log('  → Draw 1 (Pre-Plan)','good'); }
+    } else {
+      // return to our hand
+      G.hand.push(plan);
+      log(`  → คืนขึ้นมือเรา: ${plan.name}`,'good');
+    }
+  }
+  G.contactStep++;
+  renderAll();
+  setTimeout(processNextContact, 300);
+}
+
+function oppActionNone(slotIdx){
+  closeModal();
+  log(`Slot${slotIdx+1}: 🤖 OPP ไม่มี action เป็นไปได้`);
+  G.contactStep++;
+  renderAll();
+  setTimeout(processNextContact, 300);
+}
+function retireP(idx){
+  const c=G.pAdv[idx];if(!c)return;
+  if(c._item)G.retireArea.push(c._item);
+  G.retireArea.push(c);G.pAdv[idx]=null;
+  doFarewell(c);
+}
+function retireO(idx){
+  const c=G.oAdv[idx];if(!c)return;
+  G.oRetireArea.push(c);G.oAdv[idx]=null;
+  log(`  OPP ${c.name} → OPP Retirement`);
+}
+function doFarewell(c){
+  const ab=c.ability||'';
+  if(!ab.includes('[Farewell]')&&!ab.toLowerCase().includes('farewell'))return;
+  // ✋ Manual: log the effect, player resolves it manually via buttons
+  const th=c.ability_th||ab;
+  log(`[Farewell] ${c.name}: ${th.replace('[Farewell]','').trim()}`,'act');
+  log('  → ใช้ปุ่มด้านล่างเพื่อจัดการ effect ด้วยตัวเอง','warn');
+}
+function canAdv(){return G.pStage<4&&G.oPlans[G.pStage]===null;}
+function doAdv(){
+  if(!canAdv()){log('  → OPP มีแผนการ — ดำเนินไม่ได้','warn');return;}
+  G.pStage++;
+  log(`  → Stage ${SL[G.pStage-1]}! 🎉`,'imp');
+  const st=G.storyCards[G.pStage-1];
+  if(st){log(`  ⚡ ${st.ability_th||st.ability}`);applyStory(st);}
+  if(G.pStage>=4)endGame(true,'ถึง Stage IV — ชนะ!');
+  renderStory();
+}
+function applyStory(s){
+  // Manual: log effect text only, player resolves via action buttons
+  const th=s.ability_th||s.ability||'';
+  log(`  → Story effect: ${th}`,'act');
+  log('  → ใช้ปุ่มด้านล่างจัดการ effect ด้วยตัวเอง','warn');
+}
+function doDisrupt(){
+  const idx=G.oPlans.findIndex(p=>p!==null);
+  if(idx===-1){log('  → ไม่มีแผนการ OPP');return;}
+  const p=G.oPlans[idx];G.oPlans[idx]=null;
+  log(`  → ขัดขวางแผน OPP Stage ${SL[idx]}: ${p.name}`,'act');
+  const ab=p.ability||'';
+  if(ab.includes('[Pre-plan]')||ab.includes('Pre-plan')){
+    const th=p.ability_th||ab;
+    log(`  [Pre-plan] ${th.replace('[Pre-plan]','').trim()}`,'act');
+    log('  → ใช้ปุ่มด้านล่างจัดการ effect ด้วยตัวเอง','warn');
+    G.retireArea.push(p);
+  }else{
+    G.oHand=Math.min(G.oHand+1,10);
+    log('  → คืนมือ OPP');
+  }
+  renderAll();
+}
+function aiAct(i){
+  if(G.pPlans[G.oStage]===null&&G.oStage<4){
+    G.oStage++;log(`  🤖 AI Stage ${SL[G.oStage-1]}!`,'warn');
+    if(G.oStage>=4)endGame(false,'AI ถึง Stage IV!');
+  }
+}
+function aiSim(){
+  const botHarmony=G.oSceneCount;
+  const playable=[...G.oMainDeck].filter(x=>x.type==='Character'&&(x.cost||0)<=botHarmony);
+  if(!playable.length)return;
+  playable.sort((a,b)=>(b.cost||0)-(a.cost||0)||(b.power||0)-(a.power||0));
+  const card=playable[0];
+  // Bot fills slots right-to-left (mirrors bot contact order 2->1->0)
+  const slotOrder=[2,1,0];
+  const slot=slotOrder.find(i=>G.oAdv[i]===null);
+  if(slot!==undefined){
+    G.oAdv[slot]={...card,_tapped:false,_boosted:0,_item:null};
+    G.oMainDeck.splice(G.oMainDeck.indexOf(card),1);
+    log(`Bot plays ${card.name}[${card.rarity}] cost:${card.cost} pwr:${card.power} -> Slot${slot+1}`);
+  }
+}
+function effInsp(c,isMyTurn){
+  let v=c.power||0;
+  v+=c._boosted||0;
+  const ab=c.ability||'';
+  if(ab.includes('[Adventure]')&&ab.includes('+2 Inspiration')&&ab.includes('untapped Scene')){
+    if(G.sceneArea.some(s=>!s._tapped&&!s._flipped))v+=2;
+  }
+  if(c._item&&isMyTurn){
+    const iab=c._item.ability||'';
+    if(iab.includes('+3 Inspiration'))v+=3;
+  }
+  return Math.max(0,v);
+}
+function updatePhaseUI(){
+  const badge=document.getElementById('phase-badge'),btn=document.getElementById('next-phase-btn');
+  const side=G.isPlayerTurn?'':'🤖 ';
+  const nextTurnLabel=`Turn ${G.turnCount+1} (${G.isPlayerTurn?'Bot':'Player'}) →`;
+  const map={
+    start:  ['START PHASE','start','Main Phase →'],
+    main:   ['MAIN PHASE','main','Contact Phase →'],
+    contact:['CONTACT PHASE','contact','End Phase →'],
+    end:    ['END PHASE','end', nextTurnLabel],
+  };
+  const[t,c,b]=map[G.phase]||['—','','—'];
+  badge.textContent=side+t;badge.className=`phase-badge ${c}`;btn.textContent=b;
+  document.getElementById('turn-num').textContent=
+    `${G.turnCount} (${G.isPlayerTurn?'You':'Bot'})`;
+}
+
+/* ═══════════════════════════════════
+   RENDER
+═══════════════════════════════════ */
+function renderAll(){renderAdv();renderHand();renderScene();renderStory();renderCounts();}
+
+function renderAdv(){
+  for(let i=0;i<3;i++){
+    const ps=document.getElementById(`ps${i}`),os=document.getElementById(`os${i}`);
+    const pc=G.pAdv[i],oc=G.oAdv[i];
+    // player slot
+    if(pc){
+      ps.classList.add('occupied');ps.classList.remove('item-target');
+      ps.innerHTML=mkCard(pc,true);
+    }else{
+      ps.classList.remove('occupied');
+      // item-target highlight: valid if no item, and passes restriction
+      if(G.itemTargetMode){
+        const ab=G.pendingItem?.ability||'';
+        const ok=!ab.includes('Only adorn 「Applejack」'); // no char here anyway
+        ps.classList.remove('item-target'); // empty slot can't receive item
+      }else ps.classList.remove('item-target');
+      ps.innerHTML='<span class="slot-icon">+</span>';
+    }
+    // item-target glow on occupied slots with valid char
+    if(G.itemTargetMode&&pc){
+      const ab=G.pendingItem?.ability||'';
+      const valid=pc._item===null&&(!ab.includes('Only adorn 「Applejack」')||pc.subtype?.includes('Applejack'));
+      if(valid)ps.classList.add('item-target'); else ps.classList.remove('item-target');
+    }else if(!G.itemTargetMode){ps.classList.remove('item-target');}
+    // opp slot
+    if(oc){os.classList.add('occupied');os.innerHTML=mkCard(oc,false);}
+    else{os.classList.remove('occupied');os.innerHTML='<span class="slot-icon">○</span>';}
+  }
+}
+function mkCard(c,isP){
+  const isOrange=c.color==='Orange';
+  const tc=(c.type||'').toLowerCase();
+  const tapped=c._tapped?' tapped':'';
+  const insp=isP?effInsp(c,G.phase==='main'):(c.power||0);
+  const boosted=(c._boosted||0)>0||(c._item&&isP&&G.phase==='main');
+  const st=(c.subtype||[]).map(s=>SICON[s]||'').filter(Boolean)[0]||TICON[c.type]||'?';
+  const ic=isOrange?'orange':(boosted?'boosted':'');
+  const safe=JSON.stringify({...c,_item:c._item||null}).replace(/'/g,"&#39;").replace(/"/g,'&quot;');
+  return`<div class="gcard ${tc}${isOrange?' orange':''}${tapped}"
+    onmouseenter="showTT(event,this)" onmouseleave="hideTT()"
+    data-card="${safe}">
+    <div class="gface">
+      <div class="gcost">${c.cost??'—'}</div>
+      <div class="gtype">${TICON[c.type]||'?'}</div>
+      <div class="gart">${st}</div>
+      <div class="gbottom">
+        <div class="gname">${c.name}</div>
+        <div class="gsub">${(c.subtype||[]).slice(0,2).join('·')||c.rarity}</div>
+      </div>
+      <div class="ginsp ${ic}">${insp}</div>
+    </div>
+    ${c._item?'<div class="item-pip">📦</div>':''}
+  </div>`;
+}
+
+function renderHand(){
+  const el=document.getElementById('hand-list');
+  document.getElementById('hand-cnt-lbl').textContent=G.hand.length;
+  // discard mode banner
+  if(G.discardMode){
+    const banner=`<div style="background:rgba(248,113,113,.12);border:.5px solid rgba(248,113,113,.5);border-radius:5px;padding:8px;font-size:10px;color:var(--red);text-align:center;line-height:1.5;margin-bottom:4px;">
+      Discard mode: click card to discard<br>
+      <span style="font-size:9px;color:var(--text3);cursor:pointer" onclick="toggleDiscardMode()">cancel</span>
+    </div>`;
+    el.innerHTML=banner+G.hand.map((card,i)=>{
+      const isOrange=card.color==='Orange';
+      return `<div class="hitem" style="border-color:rgba(248,113,113,.6);cursor:pointer" onclick="selCard(${i})"
+        onmouseenter="showTTIdx(event,${i})" onmouseleave="hideTT()">
+        <div class="hico ${(card.type||'').toLowerCase()}${isOrange?' orange':''}">${TICON[card.type]||'?'}</div>
+        <div class="hinfo"><div class="hname">${card.name}</div><div class="hsub">${card.rarity}</div></div>
+        <div style="font-size:11px;color:var(--red)">x</div>
+      </div>`;
+    }).join('');
+    return;
+  }
+  // item-target mode banner
+  if(G.itemTargetMode){
+    el.innerHTML=`<div style="background:rgba(251,146,60,.12);border:.5px solid rgba(251,146,60,.5);border-radius:5px;padding:8px;font-size:10px;color:var(--orange);text-align:center;line-height:1.5;margin-bottom:4px;">
+      🎒 เลือก Slot ในสนามเพื่อติดตั้ง<br><b>${G.pendingItem.name}</b><br>
+      <span style="font-size:9px;color:var(--text3);cursor:pointer" onclick="cancelItemMode()">✕ ยกเลิก</span>
+    </div>`+G.hand.map((c,i)=>{
+      const sel=i===G.selIdx?' sel':'';
+      const isOrange=c.color==='Orange';
+      const cc=c.cost<=G.harmony?'var(--gold)':'var(--red)';
+      return`<div class="hitem${sel}" onclick="selCard(${i})"
+        onmouseenter="showTTIdx(event,${i})" onmouseleave="hideTT()">
+        <div class="hico ${(c.type||'').toLowerCase()}${isOrange?' orange':''}">${TICON[c.type]||'?'}</div>
+        <div class="hinfo">
+          <div class="hname">${c.name}</div>
+          <div class="hsub">[${c.rarity}] ${(c.subtype||[]).join('·')||c.type}</div>
+        </div>
+        <div class="hcost" style="color:${cc}">${c.cost}✦</div>
+      </div>`;
+    }).join('');
+    return;
+  }
+  el.innerHTML=G.hand.map((c,i)=>{
+    const sel=i===G.selIdx?' sel':'';
+    const isOrange=c.color==='Orange';
+    const cc=c.cost<=G.harmony?'var(--gold)':'var(--red)';
+    return`<div class="hitem${sel}" onclick="selCard(${i})"
+      onmouseenter="showTTIdx(event,${i})" onmouseleave="hideTT()">
+      <div class="hico ${(c.type||'').toLowerCase()}${isOrange?' orange':''}">${TICON[c.type]||'?'}</div>
+      <div class="hinfo">
+        <div class="hname">${c.name}</div>
+        <div class="hsub">[${c.rarity}] ${(c.subtype||[]).join('·')||c.type}</div>
+      </div>
+      <div class="hcost" style="color:${cc}">${c.cost}✦</div>
+    </div>`;
+  }).join('')||'<div style="font-size:10px;color:var(--text3);padding:8px;text-align:center">ไม่มีการ์ดในมือ</div>';
+}
+
+function cancelItemMode(){
+  if(G.pendingItem){
+    G.harmony+=G.pendingItem.cost;
+    G.hand.push(G.pendingItem);
+    log(`ยกเลิกติดตั้ง ${G.pendingItem.name} — คืน ${G.pendingItem.cost}✦`,'warn');
+  }
+  G.itemTargetMode=false;G.pendingItem=null;
+  updateHarmony();renderAll();
+}
+function toggleDiscardMode(){
+  G.discardMode=!G.discardMode;
+  if(G.discardMode) log('Discard mode ON — คลิกการ์ดบนมือเพื่อทิ้ง','warn');
+  else log('Discard mode OFF');
+  G.itemTargetMode=false;
+  _updateDiscardBtn();
+  renderHand();
+}
+function discardCard(i){
+  const card=G.hand[i];if(!card)return;
+  G.hand.splice(i,1);
+  G.retireArea.push(card);
+  log(`Discard: ${card.name}`,'warn');
+  G.discardMode=false;
+  G.selIdx=-1;
+  _updateDiscardBtn();
+  renderAll();
+}
+
+function selCard(i){
+  if(G.discardMode){ discardCard(i); return; }
+  if(G.itemTargetMode){cancelItemMode();return;}
+  if(G.selIdx===i){if(G.phase==='main')playCard(i);return;}
+  G.selIdx=i;const c=G.hand[i];
+  log(`เลือก ${c.name}[${c.rarity}] cost:${c.cost}✦ — คลิก Slot/ดับเบิ้ลคลิกเพื่อเล่น`);
+  renderHand();
+}
+
+function renderScene(){
+  const el=document.getElementById('scene-cards');
+  document.getElementById('sd-cnt').textContent=G.sceneDeck.length;
+  if(!G.sceneArea.length){el.innerHTML='<span style="font-size:10px;color:var(--text3)">ยังไม่มีฉาก</span>';return;}
+  el.innerHTML=G.sceneArea.map((s,i)=>{
+    const tappedCls=s._tapped?' tapped':'';
+    // flipped = inspo used permanently. Show as dim with overlay, but NOT rotated (still upright)
+    const flippedCls=s._flipped?' flipped':'';
+    const isEv=(s.subtype||[]).includes('Everyday');
+    // Inspo available: has inspo ability, NOT yet flipped (one-time per scene per game)
+    const hasInspo=s.ability?.toLowerCase().includes('inspo')&&!s._flipped;
+    const canTap=!s._tapped;
+    let title='';
+    if(s._flipped&&s._tapped) title='Tapped + ใช้ Inspo ไปแล้ว';
+    else if(s._flipped)       title='ใช้ Inspo ไปแล้ว (คว่ำถาวร) — ยัง tap สร้าง Harmony ได้';
+    else if(s._tapped)        title='Tapped — ใช้ Harmony ไปแล้วเทิร์นนี้';
+    else if(hasInspo)         title='คลิก Tap +1✦ | Contact Phase: ↩ Inspo Boost';
+    else                      title='คลิก Tap +1✦';
+    return`<div class="sc-card${tappedCls}${flippedCls}"
+      onclick="sceneClick(event,${i})"
+      oncontextmenu="sceneCtx(event,${i})"
+      onmouseenter="showTTScene(event,${i})" onmouseleave="hideTT()"
+      title="${title}">
+      <div class="sc-n">${s.name.split(' ').slice(-2).join(' ')}</div>
+      ${isEv?'<div class="sc-e">&#9733;</div>':''}
+      ${hasInspo&&!s._tapped?'<div class="sc-i">&#8617;</div>':''}
+      ${s._flipped?'<div class="sc-flip-overlay">&#x2715;</div>':''}
+    </div>`;
+  }).join('');
+}
+function tapSpecificScene(i){
+  const s=G.sceneArea[i];if(!s)return;
+  if(G.phase!=='main'){log('Tap Scene ได้ใน Main Phase เท่านั้น','warn');return;}
+  if(s._tapped){log(`"${s.name}" tapped ไปแล้ว`,'warn');return;}
+  s._tapped=true;G.harmony++;
+  log(`Tap "${s.name}" → +1✦ (รวม:${G.harmony})`,'act');
+  updateHarmony();renderScene();
+}
+// Left-click: tap for harmony (main) or inspo boost (contact)
+function sceneClick(evt, i){
+  if(G.phase==='main') tapSpecificScene(i);
+  else if(G.phase==='contact') sceneInspo(i);
+}
+// Right-click: open manual action menu (untap, unflip, tap, inspo)
+function sceneCtx(evt, i){
+  evt.preventDefault();
+  showSceneMenu(i);
+}
+function showSceneMenu(i){
+  const s=G.sceneArea[i];if(!s)return;
+  const btns=[];
+  if(s._tapped)   btns.push(`<button class="mbtn" onclick="closeModal();sceneUntap(${i})">&#8593; Untap (ตั้งตรง)</button>`);
+  if(!s._tapped)  btns.push(`<button class="mbtn" onclick="closeModal();tapSpecificScene(${i})">&#8595; Tap +1✦ (นอน)</button>`);
+  if(s._flipped)  btns.push(`<button class="mbtn" onclick="closeModal();sceneUnflip(${i})">&#9651; Unflip (หงาย)</button>`);
+  if(!s._flipped&&s.ability?.toLowerCase().includes('inspo'))
+    btns.push(`<button class="mbtn" onclick="closeModal();sceneInspo(${i})">&#8617; Inspo Boost</button>`);
+  btns.push(`<button class="mbtn" onclick="closeModal()">ปิด</button>`);
+  showModal(`Scene: ${s.name}`,
+    `<div style="font-size:10px;color:var(--text3);margin-bottom:8px">
+      ${s._tapped?'[TAPPED]':''} ${s._flipped?'[FLIPPED]':''}
+     </div>`, btns.map(b=>`<span>${b}</span>`).join(''));
+  // rewrite btns properly
+  document.getElementById('mo-btns').innerHTML=btns.join('');
+  document.getElementById('mo-body').innerHTML=`<div style="font-size:11px;color:var(--text2)">
+    ${s._tapped?'<span style="color:var(--text3)">Tapped ✓</span> ':''} 
+    ${s._flipped?'<span style="color:var(--red)">Flipped (inspo used) ✓</span>':''} 
+    ${!s._tapped&&!s._flipped?'<span style="color:var(--green)">Ready</span>':''}
+  </div>`;
+}
+function sceneUntap(i){
+  const s=G.sceneArea[i];if(!s||!s._tapped)return;
+  s._tapped=false;
+  log(`Untap: "${s.name}"`,'good');
+  renderScene();
+}
+function sceneUnflip(i){
+  const s=G.sceneArea[i];if(!s||!s._flipped)return;
+  s._flipped=false;
+  log(`Unflip: "${s.name}" (inspo reset)`,'good');
+  renderScene();
+}
+function sceneInspo(i){
+  const s=G.sceneArea[i];if(!s)return;
+  if(G.phase!=='contact'){log('Inspo Boost ใช้ได้ใน Contact Phase เท่านั้น','warn');return;}
+  if(s._flipped){log(`"${s.name}" ใช้ Inspo ไปแล้ว (ถาวร)`,'warn');return;}
+  if(!s.ability?.toLowerCase().includes('inspo')){log('ฉากนี้ไม่มี Inspo Boost','warn');return;}
+  s._flipped=true;
+  log(`Inspo Boost: ${s.name}`,'act');
+  renderScene();renderAdv();
+}
+  const s=G.sceneArea[i];if(!s)return;
+  if(G.phase!=='main'){log('Tap Scene ได้ใน Main Phase','warn');return;}
+  if(s._tapped){log(`"${s.name}" tapped ไปแล้ว`,'warn');return;}
+  s._tapped=true;G.harmony++;
+  log(`Tap "${s.name}" → +1✦ (รวม:${G.harmony})`,'act');
+  updateHarmony();renderScene();
+}
+
+function renderStory(){
+  const el=document.getElementById('story-slots-row');
+  document.getElementById('player-stage-lbl').textContent=SL[Math.min(G.pStage,3)];
+  el.innerHTML=G.storyCards.map((s,i)=>{
+    const done=i<G.pStage, cur=i===G.pStage;
+    const plan=G.pPlans[i];
+    // Plan is a HIDDEN zone — show face-down card, no name/effect visible
+    const planHtml=plan
+      ? `<div class="plan-over" onclick="peekPlan(${i},'player')" title="แผนการ (คว่ำ) — คลิกดูเฉพาะเรา">
+           <div class="plan-facedown">
+             <div class="plan-fd-pattern"></div>
+             <div style="font-size:9px;color:rgba(251,191,36,.5);margin-top:2px">📋</div>
+           </div>
+         </div>`
+      : '';
+    return`<div class="s-slot"><div class="s-card ${done?'done':''} ${cur?'current':''}">
+      <div class="s-phase">${s.story_stage}</div>
+      <div class="s-name">${s.name}</div>
+      <div class="s-effect">${s.ability_th||s.ability||''}</div>
+      ${planHtml}
+    </div></div>`;
+  }).join('');
+
+  // OPP story — plans fully hidden (we can't see OPP plans)
+  const oel=document.getElementById('opp-story-slots-row');
+  if(oel){
+    oel.innerHTML=G.oStory.map((s,i)=>{
+      const done=i<G.oStage, cur=i===G.oStage;
+      const plan=G.oPlans[i];
+      const planHtml=plan
+        ? `<div class="plan-over" style="cursor:default" title="แผนการ OPP (ซ่อน)">
+             <div class="plan-facedown opp-plan">
+               <div class="plan-fd-pattern"></div>
+               <div style="font-size:9px;color:rgba(248,113,113,.4);margin-top:2px">📋</div>
+             </div>
+           </div>`
+        : '';
+      return`<div class="s-slot"><div class="s-card ${done?'done':''} ${cur?'current':''}"
+        style="${cur?'border-color:rgba(248,113,113,.6);box-shadow:0 0 5px rgba(248,113,113,.2)':''}">
+        <div class="s-phase" style="color:var(--red)">${s.story_stage}</div>
+        <div class="s-name">${s.name}</div>
+        <div class="s-effect">${s.ability_th||s.ability||''}</div>
+        ${planHtml}
+      </div></div>`;
+    }).join('');
+  }
+
+  const osl=document.getElementById('opp-stage-lbl');if(osl)osl.textContent=SL[Math.min(G.oStage,3)];
+  document.getElementById('opp-stage-v').textContent=SL[Math.min(G.oStage,3)];
+  document.getElementById('opp-plan-v').textContent=G.oPlans.filter(p=>p!==null).length;
+}
+
+function renderCounts(){
+  document.getElementById('md-cnt').textContent=G.mainDeck.length;
+  document.getElementById('sd-cnt').textContent=G.sceneDeck.length;
+  document.getElementById('retire-num').textContent=G.retireArea.length;
+  const or=document.getElementById('opp-retire-num');if(or)or.textContent=G.oRetireArea.length;
+  const ord=document.getElementById('opp-retire-disp');if(ord)ord.textContent=G.oRetireArea.length;
+  document.getElementById('od-cnt').textContent=G.oMainDeck.length;
+  document.getElementById('oh-cnt').textContent=G.oHand;
+  const omd=document.getElementById('opp-md-cnt');if(omd)omd.textContent=G.oMainDeck.length;
+  const osd=document.getElementById('opp-sd-cnt');if(osd)osd.textContent=G.oSceneDeckCount??'—';
+  const ohd=document.getElementById('opp-hand-disp');if(ohd)ohd.textContent=G.oHand;
+  const opd=document.getElementById('opp-plans-disp');if(opd)opd.textContent=G.oPlans.filter(p=>p!==null).length;
+  const omcn=document.getElementById('opp-mc-name-lbl');if(omcn)omcn.textContent=G.botRaw?.mc?.name?.split(' ')[0]||'AI';
+  document.getElementById('opp-deck-v').textContent=G.oMainDeck.length;
+  document.getElementById('opp-hand-v').textContent=G.oHand;
+  if(G.raw)document.getElementById('mc-name-lbl').textContent=G.raw.mc.name.split(' ')[0];
+}
+function updateHarmony(){document.getElementById('harmony-val').textContent=G.harmony;}
+
+/* ═══════════════════════════════════
+   MANUAL ACTION BUTTONS
+═══════════════════════════════════ */
+function manualRetireOpp(){
+  const targets=G.oAdv.map((c,i)=>({c,i})).filter(x=>x.c);
+  if(!targets.length){log('ไม่มีตัวละคร OPP ในสนาม','warn');return;}
+  showModal('☠ Retire OPP Character',
+    '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">เลือกตัวละคร OPP ที่จะ Retire:</div>',
+    targets.map(({c,i})=>
+      `<button class="mbtn" style="border-color:var(--red);color:var(--red)"
+        onclick="closeModal();retireO(${i});renderAll()">
+        ${c.name} (Power:${c.power||0})
+      </button>`
+    ).join('')+'<button class="mbtn" onclick="closeModal()">ยกเลิก</button>'
+  );
+}
+function manualRetireSelf(){
+  const targets=G.pAdv.map((c,i)=>({c,i})).filter(x=>x.c);
+  if(!targets.length){log('ไม่มีตัวละครของเราในสนาม','warn');return;}
+  showModal('↩ Retire Own Character',
+    '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">เลือกตัวละครที่จะ Retire:</div>',
+    targets.map(({c,i})=>
+      `<button class="mbtn"
+        onclick="closeModal();retireP(${i});renderAll()">
+        ${c.name} (Insp:${effInsp(c,true)})
+      </button>`
+    ).join('')+'<button class="mbtn" onclick="closeModal()">ยกเลิก</button>'
+  );
+}
+function manualBoostInsp(amount){
+  const targets=G.pAdv.filter(c=>c);
+  if(!targets.length){log('ไม่มีตัวละครในสนาม','warn');return;}
+  showModal(`+${amount} Inspiration`,
+    `<div style="font-size:11px;color:var(--text3);margin-bottom:8px">เลือกตัวละครที่จะได้รับ +${amount} Inspiration เทิร์นนี้:</div>`,
+    targets.map(c=>
+      `<button class="mbtn" style="border-color:var(--green);color:var(--green)"
+        onclick="closeModal();boostChar('${c._uid}',${amount})">
+        ${c.name} (${effInsp(c,true)})
+      </button>`
+    ).join('')+'<button class="mbtn" onclick="closeModal()">ยกเลิก</button>'
+  );
+}
+function boostChar(uid,amount){
+  const c=G.pAdv.find(x=>x&&x._uid===uid);
+  if(!c)return;
+  c._boosted=(c._boosted||0)+amount;
+  log(`+${amount} Insp → ${c.name} (now ${effInsp(c,true)})`,'good');
+  renderAdv();
+}
+function manualRetireToHand(){
+  if(!G.retireArea.length){log('Retirement ว่าง','warn');return;}
+  showModal('Retire → Hand',
+    '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">เลือกการ์ดที่จะเอาขึ้นมือ:</div>',
+    G.retireArea.slice().reverse().map((c,ri)=>{
+      const realIdx=G.retireArea.length-1-ri;
+      return`<button class="mbtn" style="border-color:var(--accent);font-size:10px"
+        onclick="closeModal();retireAreaToHand(${realIdx})">
+        ${c.name} [${c.type}]
+      </button>`;
+    }).join('')+'<button class="mbtn" onclick="closeModal()">ยกเลิก</button>'
+  );
+}
+function retireAreaToHand(idx){
+  const c=G.retireArea[idx];if(!c)return;
+  G.retireArea.splice(idx,1);
+  G.hand.push(c);
+  log(`${c.name} → Hand`,'good');
+  renderAll();
+}
+function manualAddPlan(){
+  if(!G.hand.length){log('ไม่มีการ์ดบนมือ','warn');return;}
+  // Find story slots without a plan
+  const freeSlots=G.pPlans.map((p,i)=>({i,hasplan:p!==null})).filter(x=>!x.hasplan);
+  if(!freeSlots.length){log('ทุก Story Slot มีแผนการแล้ว','warn');return;}
+  showModal('+ Add Plan to Story',
+    '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">เลือกการ์ดจากมือที่จะวางเป็นแผนการ:</div>',
+    G.hand.map((c,i)=>
+      `<button class="mbtn" style="border-color:var(--gold);font-size:10px"
+        onclick="selectCardForPlan(${i})">
+        ${c.name} [${c.rarity}]
+      </button>`
+    ).join('')+'<button class="mbtn" onclick="closeModal()">ยกเลิก</button>'
+  );
+}
+function selectCardForPlan(handIdx){
+  const c=G.hand[handIdx];if(!c)return;
+  const freeSlots=G.pPlans.map((p,i)=>({i,hasplan:p!==null})).filter(x=>!x.hasplan);
+  showModal('+ Add Plan — เลือก Stage',
+    `<div style="font-size:11px;color:var(--text3);margin-bottom:8px">วาง <b>${c.name}</b> เป็นแผนการที่ Stage:</div>`,
+    freeSlots.map(({i})=>
+      `<button class="mbtn" style="border-color:var(--gold)"
+        onclick="closeModal();placePlan(${handIdx},${i})">
+        Stage ${SL[i]}
+      </button>`
+    ).join('')+'<button class="mbtn" onclick="closeModal()">ยกเลิก</button>'
+  );
+}
+function placePlan(handIdx,stageIdx){
+  const c=G.hand[handIdx];if(!c||G.pPlans[stageIdx]!==null)return;
+  G.hand.splice(handIdx,1);
+  G.pPlans[stageIdx]=c;
+  log(`Plan: ${c.name} → Stage ${SL[stageIdx]}`,'act');
+  G.selIdx=-1;
+  renderAll();
+}
+// Helper: update discard btn style
+function _updateDiscardBtn(){
+  const btn=document.getElementById('discard-btn');
+  if(!btn)return;
+  btn.style.background=G.discardMode?'rgba(248,113,113,.15)':'';
+  btn.textContent=G.discardMode?'🗑 Discard Mode ON (คลิกยกเลิก)':'🗑 Discard Card';
+}
+
+// peekPlan: เจ้าของดูการ์ดแผนการของตัวเองได้ (โซนปิด — เห็นเฉพาะตัวเอง)
+function peekPlan(i, side){
+  const p = side==='player' ? G.pPlans[i] : null;
+  if(!p) return;
+  showModal(
+    `📋 แผนการ Stage ${SL[i]}`,
+    `<div style="font-size:10px;color:var(--text3);margin-bottom:8px">โซนปิด — คู่ต่อสู้ไม่เห็น</div>
+     <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">${p.name} <span style="font-size:10px;color:var(--text3)">[${p.rarity||''}]</span></div>
+     ${p.ability_th||p.ability?`<div style="font-size:11px;color:var(--text2);line-height:1.5">${p.ability_th||p.ability}</div>`:''}`,
+    [{label:'ปิด', fn:closeModal}]
+  );
+}
+function viewRetire(){
+  const last=G.retireArea.slice(-6).map(c=>`${c.name}[${c.rarity}]`).join(', ');
+  log(`Retirement(${G.retireArea.length}): ${last||'ว่าง'}`);
+}
+function viewOppRetire(){
+  const last=G.oRetireArea.slice(-6).map(c=>`${c.name}[${c.rarity}]`).join(', ');
+  log(`OPP Retirement(${G.oRetireArea.length}): ${last||'ว่าง'}`);
+}
+
+/* ═══════════════════════════════════
+   TOOLTIP
+═══════════════════════════════════ */
+function showTT(event,el){
+  try{showTTData(event,JSON.parse(el.getAttribute('data-card').replace(/&quot;/g,'"')));}catch(e){}
+}
+function showTTIdx(event,i){if(i>=0&&i<G.hand.length)showTTData(event,G.hand[i]);}
+function showTTScene(event,i){if(i>=0&&i<G.sceneArea.length)showTTData(event,G.sceneArea[i]);}
+function showTTData(event,c){
+  const tt=document.getElementById('tt');
+  const insp=G.phase!=='setup'?effInsp(c,G.phase==='main'):(c.power??'—');
+  tt.innerHTML=`
+    <div class="ttn">${c.name} <span style="font-size:9px;color:var(--text3)">[${c.rarity||''}] ${c.id||''}</span></div>
+    ${c.subtype?.length?`<div class="tts">${c.subtype.join(' · ')}</div>`:''}
+    <div class="ttd"></div>
+    ${c.cost!=null?`<div class="ttr"><b>Cost:</b> ${c.cost}✦</div>`:''}
+    ${c.power!=null?`<div class="ttr"><b>Power:</b> ${c.power}${insp!==c.power?` → <b style="color:var(--gold)">${insp}</b>`:''}</div>`:''}
+    ${(c.ability_th||c.ability)?`<div class="ttr" style="margin-top:4px">${c.ability_th||c.ability}</div>`:''}
+    ${c._item?`<div class="ttd"></div><div class="ttr"><b>Item:</b> ${c._item.name}</div>`:''}
+  `;
+  tt.classList.add('show');posTT(event);
+}
+function hideTT(){document.getElementById('tt').classList.remove('show');}
+document.addEventListener('mousemove',e=>{if(document.getElementById('tt').classList.contains('show'))posTT(e);});
+function posTT(e){
+  const tt=document.getElementById('tt');
+  let x=e.clientX+14,y=e.clientY+14;
+  if(x+tt.offsetWidth>window.innerWidth-6)x=e.clientX-tt.offsetWidth-14;
+  if(y+tt.offsetHeight>window.innerHeight-6)y=e.clientY-tt.offsetHeight-14;
+  tt.style.left=x+'px';tt.style.top=y+'px';
+}
+
+/* ═══════════════════════════════════
+   MODAL / LOG / ENDGAME
+═══════════════════════════════════ */
+function showModal(title,body,btns){
+  document.getElementById('mo-title').textContent=title;
+  document.getElementById('mo-body').innerHTML=typeof body==='string'&&body.includes('<')?body:`<div style="white-space:pre-line">${body}</div>`;
+  // btns can be: array of {label,fn} objects (old style) OR raw HTML string (new style)
+  if(typeof btns==='string'){
+    document.getElementById('mo-btns').innerHTML=btns;
+  }else if(Array.isArray(btns)){
+    // check if first element is string (HTML) or object
+    if(btns.length>0 && typeof btns[0]==='string'){
+      document.getElementById('mo-btns').innerHTML=btns.join('');
+    }else{
+      document.getElementById('mo-btns').innerHTML=btns.map((b,i)=>
+        `<button class="mbtn ${b.primary?'primary':''}" onclick="mAct(${i})">${b.label}</button>`).join('');
+      window._mActs=btns.map(b=>b.fn);
+    }
+  }
+  document.getElementById('mo').classList.add('show');
+}
+function mAct(i){closeModal();window._mActs?.[i]?.();}
+function closeModal(){document.getElementById('mo').classList.remove('show');}
+function log(msg,type=''){
+  const el=document.getElementById('log-box');
+  const d=document.createElement('div');d.className=`lentry ${type}`;d.textContent=msg;
+  el.prepend(d);while(el.children.length>80)el.removeChild(el.lastChild);
+}
+function endGame(win,msg){
+  document.getElementById('eg-title').textContent=win?'🏆 ชนะ!':'💀 แพ้';
+  document.getElementById('eg-msg').textContent=msg;
+  document.getElementById('egbox').className=`egbox ${win?'win':'lose'}`;
+  document.getElementById('eg').classList.add('show');
+}
+function backToSetup(){document.getElementById('eg').classList.remove('show');switchScreen('setup-screen');}
+
+// Keyboard shortcuts
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(G.itemTargetMode){cancelItemMode();}
+    else{G.selIdx=-1;renderHand();}
+  }
+});
+</script>
+</body>
+</html>
