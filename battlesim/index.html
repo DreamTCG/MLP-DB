@@ -665,6 +665,7 @@ function getDeckTheme(deckKey){
 
 async function preloadPresetDecks() {
   PRESET_DECKS.length = 0;
+  Object.keys(DECK_CACHE).forEach(k => delete DECK_CACHE[k]);
   const results = await Promise.all(PRESET_DECK_FILES.map(async file => {
     try {
       const res = await fetch(new URL(`decks/${file}`, BASE_URL));
@@ -822,12 +823,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const el = document.getElementById('preset-grid-'+side);
     if(el) el.innerHTML = '<div style="grid-column:1/-1;text-align:center;font-size:11px;color:var(--text3);padding:8px 0">กำลังโหลดเด็คจากโฟลเดอร์ decks...</div>';
   });
-  preloadPresetDecks().then(() => {
-    initPresetGrids();
-    const readyCount = PRESET_DECKS.filter(d => d.ok).length;
-    if(readyCount===0) setSetupMessage('ไม่พบเด็คที่โหลดได้จากโฟลเดอร์ decks','error');
-    else setSetupMessage(`โหลดเด็คสำเร็จ ${readyCount}/${PRESET_DECKS.length} เด็ค`,'ok');
-  });
+  preloadPresetDecks()
+    .then(() => {
+      initPresetGrids();
+      const readyCount = PRESET_DECKS.filter(d => d.ok).length;
+      if(readyCount===0) setSetupMessage('ไม่พบเด็คที่โหลดได้จากโฟลเดอร์ decks','error');
+      else setSetupMessage(`โหลดเด็คสำเร็จ ${readyCount}/${PRESET_DECKS.length} เด็ค`,'ok');
+    })
+    .catch((e) => {
+      console.error('Preset preload failed', e);
+      setSetupMessage('โหลดเด็คจากโฟลเดอร์ decks ไม่สำเร็จ','error');
+    });
 
   // File upload handler for player deck
   const fi = document.getElementById('file-input');
@@ -874,20 +880,18 @@ function startGame(){
   G.pStage=0;G.pPlans=[null,null,null,null];G.sceneArea=[];G.retireArea=[];
   G.harmony=0;
   G.turnCount=1;
-  G.isPlayerTurn=true;
+  G.isPlayerTurn=Math.random()<0.5; // random starting side
   G.selIdx=-1;G.itemTargetMode=false;G.pendingItem=null;
   G.oppTargetMode=false;G.oppTargetCallback=null;G.contactQueue=[];G.contactStep=0;
   G.storyCards=[...G.raw.story].sort((a,b)=>SL.indexOf(a.story_stage)-SL.indexOf(b.story_stage));
   // Bot uses its OWN separate deck (G.botRaw)
-  G.oMainDeck=shuffle(expand(G.botRaw.main));G.oHand=5;G.oAdv=[null,null,null];
+  G.oMainDeck=shuffle(expand(G.botRaw.main));G.oHand=0;G.oAdv=[null,null,null];
   G.oStage=0;G.oPlans=[null,null,null,null];G.oRetireArea=[];
   G.oStory=[...G.botRaw.story].sort((a,b)=>SL.indexOf(a.story_stage)-SL.indexOf(b.story_stage));
   G.oSceneDeckCount=expand(G.botRaw.scene).length;G.oSceneCount=0;
 
-  // Draw 5 cards for player
-  for(let i=0;i<5;i++)_draw(true);
-  // Draw 5 for bot
-  for(let i=0;i<5;i++){if(G.oMainDeck.length>0)G.oMainDeck.pop();}
+  // Opening hand + mulligan confirm for both sides
+  drawOpeningHandsWithMulligan();
 
   // Place 4 plan cards each
   for(let i=0;i<4;i++){if(G.mainDeck.length>0)G.pPlans[i]=G.mainDeck.pop();}
@@ -902,9 +906,38 @@ function startGame(){
   switchScreen('game-screen');
   G.phase='start';renderAll();updatePhaseUI();
   log(`✨ เกมเริ่ม! เรา: ${G.raw.mc.name} vs Bot: ${G.botRaw.mc.name}`,'imp');
-  log('Turn 1 — ฝั่งเรา (Player)','act');
+  log(`สุ่มผู้เริ่มก่อน: ${G.isPlayerTurn?'เรา (Player)':'Bot'}`,'act');
+  log(`Turn 1 — ${G.isPlayerTurn?'ฝั่งเรา (Player)':'ฝั่ง Bot'}`,'act');
 }
 function switchScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+function drawManyFromDeck(deck, count){
+  const out=[];
+  for(let i=0;i<count;i++){
+    if(deck.length===0) break;
+    out.push(deck.pop());
+  }
+  return out;
+}
+
+function drawOpeningHandsWithMulligan(){
+  // Player opening 5
+  G.hand = drawManyFromDeck(G.mainDeck, 5).map(c => ({...c, _tapped:false, _boosted:0, _item:null}));
+  if(window.confirm('Player: ต้องการ Mulligan มือเริ่มต้น 5 ใบหรือไม่?')){
+    G.mainDeck = shuffle([...G.mainDeck, ...G.hand]);
+    G.hand = drawManyFromDeck(G.mainDeck, 5).map(c => ({...c, _tapped:false, _boosted:0, _item:null}));
+    log('Player ทำ Mulligan มือเริ่มต้น','warn');
+  }
+
+  // Bot opening 5 (hidden, count only)
+  let botOpening = drawManyFromDeck(G.oMainDeck, 5);
+  if(window.confirm('Bot: ต้องการ Mulligan มือเริ่มต้น 5 ใบหรือไม่?')){
+    G.oMainDeck = shuffle([...G.oMainDeck, ...botOpening]);
+    botOpening = drawManyFromDeck(G.oMainDeck, 5);
+    log('Bot ทำ Mulligan มือเริ่มต้น','warn');
+  }
+  G.oHand = botOpening.length;
+}
 
 /* ═══════════════════════════════════
    CORE ACTIONS
@@ -1083,9 +1116,8 @@ function nextPhase(){
 }
 
 function doStart(){
-  // Turn 1 = player, Turn 2 = bot, Turn 3 = player, ...
-  // Skip draw on the very first turn (turnCount===1, player side)
-  const isFirstEver = G.turnCount===1 && G.isPlayerTurn;
+  // Skip draw on the very first turn of the game (whoever starts first)
+  const isFirstEver = G.turnCount===1;
 
   if(!isFirstEver){
     if(G.isPlayerTurn){
