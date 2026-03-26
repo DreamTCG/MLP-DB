@@ -1,0 +1,381 @@
+{
+  "deckName": "SD01D_AJ",
+  "mc": {
+    "id": "SD01-RR04",
+    "name": "Applejack",
+    "type": "Main Character",
+    "subtype": [
+      "Earth Pony",
+      "Applejack"
+    ],
+    "color": "Orange",
+    "cost": null,
+    "power": null,
+    "rarity": "RR",
+    "deck": "SD01D",
+    "ability": "(Ruby Rare art card)",
+    "ability_th": "(Ruby Rare art card)",
+    "story_stage": null,
+    "imageUrl": "./cards/SD01-RR04.jpg"
+  },
+  "main": [
+    {
+      "id": "SD01D-SR01",
+      "name": "Applejack",
+      "type": "Character",
+      "subtype": [
+        "Earth Pony",
+        "Applejack"
+      ],
+      "color": "Orange",
+      "cost": 1,
+      "power": 1,
+      "rarity": "SR",
+      "deck": "SD01D",
+      "ability": "[Farewell] Reveal the top 2 cards of the Deck, choose 1 「Applejack」 or 「Apple Bloom」 from them, add it to Hand, move the rest to Retirement Area.",
+      "ability_th": "[Farewell] แสดงการ์ด 2 ใบบนสุดของเด็ค เลือก 「Applejack」 หรือ 「Apple Bloom」 1 ใบจากนั้น นำการ์ดนั้นขึ้นมือ แล้วนำที่เหลือไปยังโซนพักผ่อน",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01D-SR01.jpg",
+      "qty": 2
+    },
+    {
+      "id": "SD01D-SR02",
+      "name": "Winona",
+      "type": "Character",
+      "subtype": [
+        "Dog",
+        "Winona",
+        "Pet"
+      ],
+      "color": "Orange",
+      "cost": 1,
+      "power": 1,
+      "rarity": "SR",
+      "deck": "SD01D",
+      "ability": "[Appear] Choose 1 「Applejack」 in your Adventure Area, it gets +1 Inspiration until the end of turn.",
+      "ability_th": "[Appear] เลือก 「Applejack」 1 ตัวในโซนผจญภัยของคุณ ตัวละครนั้นได้รับค่าพลังจินตนาการ +1 จนจบเทิร์น",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01D-SR02.jpg",
+      "qty": 2
+    },
+    {
+      "id": "SD01D-U01",
+      "name": "Applejack",
+      "type": "Character",
+      "subtype": [
+        "Earth Pony",
+        "Applejack"
+      ],
+      "color": "Orange",
+      "cost": 3,
+      "power": 4,
+      "rarity": "U",
+      "deck": "SD01D",
+      "ability": "[Adventure] While there is any untapped Scene in your Scene Area, this Character gets +2 Inspiration.",
+      "ability_th": "[Adventure] ขณะที่มีการ์ดฉากสถานะตั้งอยู่ในโซนฉากของคุณ ตัวละครนี้ได้รับค่าพลังจินตนาการ +2",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01D-U01.jpg",
+      "qty": 3
+    },
+    {
+      "id": "SD01D-U02",
+      "name": "Applejack",
+      "type": "Character",
+      "subtype": [
+        "Earth Pony",
+        "Applejack"
+      ],
+      "color": "Orange",
+      "cost": 4,
+      "power": 6,
+      "rarity": "U",
+      "deck": "SD01D",
+      "ability": "",
+      "ability_th": "",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01D-U02.jpg",
+      "qty": 3
+    },
+    {
+      "id": "SD01D-U04",
+      "name": "Winona",
+      "type": "Character",
+      "subtype": [
+        "Dog",
+        "Winona",
+        "Pet"
+      ],
+      "color": "Orange",
+      "cost": 3,
+      "power": 4,
+      "rarity": "U",
+      "deck": "SD01D",
+      "ability": "[Adventure] [Tap] Choose 1 Scene in your Scene Area, untap it.",
+      "ability_th": "[Adventure] [Tap] เลือกการ์ดฉาก 1 ใบในโซนฉากของคุณ ตั้งการ์ดนั้น",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01D-U04.jpg",
+      "qty": 3
+    },
+    {
+      "id": "SD01D-U03",
+      "name": "Apple Bloom",
+      "type": "Character",
+      "subtype": [
+        "Earth Pony",
+        "Apple Bloom"
+      ],
+      "color": "Orange",
+      "cost": 2,
+      "power": 3,
+      "rarity": "U",
+      "deck": "SD01D",
+      "ability": "[Appear] Choose 1 「Winona」 in your Adventure Area, it gets +2 Inspiration until the end of turn.",
+      "ability_th": "[Appear] เลือก 「Winona」 1 ตัวในโซนผจญภัยของคุณ ตัวละครนั้นได้รับค่าพลังจินตนาการ +2 จนจบเทิร์น",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01D-U03.jpg",
+      "qty": 3
+    },
+    {
+      "id": "SD01D-C01",
+      "name": "Applejack",
+      "type": "Character",
+      "subtype": [
+        "Earth Pony",
+        "Applejack"
+      ],
+      "color": "Orange",
+      "cost": 2,
+      "power": 2,
+      "rarity": "C",
+      "deck": "SD01D",
+      "ability": "[Farewell] If there is any untapped Scene in your Scene Area, draw 2 cards.",
+      "ability_th": "[Farewell] ถ้ามีการ์ดฉากสถานะตั้งอยู่ในโซนฉากของคุณ ให้จั่วการ์ด 2 ใบ",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01D-C01.jpg",
+      "qty": 4
+    },
+    {
+      "id": "SD01D-C02",
+      "name": "Applejack",
+      "type": "Character",
+      "subtype": [
+        "Earth Pony",
+        "Applejack"
+      ],
+      "color": "Orange",
+      "cost": 5,
+      "power": 7,
+      "rarity": "C",
+      "deck": "SD01D",
+      "ability": "",
+      "ability_th": "",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01D-C02.jpg",
+      "qty": 4
+    },
+    {
+      "id": "SD01D-C05",
+      "name": "Winona",
+      "type": "Character",
+      "subtype": [
+        "Dog",
+        "Winona",
+        "Pet"
+      ],
+      "color": "Orange",
+      "cost": 1,
+      "power": 2,
+      "rarity": "C",
+      "deck": "SD01D",
+      "ability": "",
+      "ability_th": "",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01D-C05.jpg",
+      "qty": 4
+    },
+    {
+      "id": "SD01D-C04",
+      "name": "Big McIntosh",
+      "type": "Character",
+      "subtype": [
+        "Earth Pony",
+        "Big McIntosh"
+      ],
+      "color": "Orange",
+      "cost": 4,
+      "power": 6,
+      "rarity": "C",
+      "deck": "SD01D",
+      "ability": "",
+      "ability_th": "",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01D-C04.jpg",
+      "qty": 4
+    },
+    {
+      "id": "SD01D-C03",
+      "name": "Apple Bloom",
+      "type": "Character",
+      "subtype": [
+        "Earth Pony",
+        "Apple Bloom"
+      ],
+      "color": "Orange",
+      "cost": 3,
+      "power": 5,
+      "rarity": "C",
+      "deck": "SD01D",
+      "ability": "",
+      "ability_th": "",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01D-C03.jpg",
+      "qty": 4
+    },
+    {
+      "id": "SD01D-SPR04",
+      "name": "Apple Bucket",
+      "type": "Item",
+      "subtype": [],
+      "color": "White",
+      "cost": 3,
+      "power": null,
+      "rarity": "SPR",
+      "deck": "SD01D",
+      "ability": "Only adorn 「Applejack」. While in your turn, adorned Character gets +3 Inspiration.",
+      "ability_th": "ติดตั้งได้เฉพาะ 「Applejack」 ขณะที่อยู่ในเทิร์นของคุณ ตัวละครที่ติดตั้งไอเทมได้รับค่าพลังจินตนาการ +3",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01D-SPR04.jpg",
+      "qty": 4
+    },
+    {
+      "id": "SD01D-SPR01",
+      "name": "Dye Advertisement",
+      "type": "Event",
+      "subtype": [],
+      "color": "White",
+      "cost": 2,
+      "power": null,
+      "rarity": "SPR",
+      "deck": "SD01D",
+      "ability": "Choose 1 「Applejack」 in your Adventure Area, it gets +2 Inspiration until the end of turn.",
+      "ability_th": "เลือก 「Applejack」 1 ตัวในโซนผจญภัยของคุณ ตัวละครนั้นได้รับค่าพลังจินตนาการ +2 จนจบเทิร์น",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01D-SPR01.jpg",
+      "qty": 4
+    },
+    {
+      "id": "SD01D-SPR02",
+      "name": "Rope Trick",
+      "type": "Event",
+      "subtype": [],
+      "color": "White",
+      "cost": 3,
+      "power": null,
+      "rarity": "SPR",
+      "deck": "SD01D",
+      "ability": "Choose 1 「Applejack」 and 1 「Apple Bloom」 in your Adventure Area, they get +2 Inspiration until the end of turn.",
+      "ability_th": "เลือก 「Applejack」 1 ตัวและ 「Apple Bloom」 1 ตัวในโซนผจญภัยของคุณ ตัวละครเหล่านั้นได้รับค่าพลังจินตนาการ +2 จนจบเทิร์น",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01D-SPR02.jpg",
+      "qty": 3
+    },
+    {
+      "id": "SD01D-SPR03",
+      "name": "Lullaby for Apple Tree",
+      "type": "Event",
+      "subtype": [],
+      "color": "White",
+      "cost": 2,
+      "power": null,
+      "rarity": "SPR",
+      "deck": "SD01D",
+      "ability": "Only use when there are 5 or more Scenes in your Scene Area. Draw 2 cards.",
+      "ability_th": "ใช้ได้เฉพาะเมื่อมีการ์ดฉาก 5 ใบขึ้นไปในโซนฉากของคุณ จั่วการ์ด 2 ใบ",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01D-SPR03.jpg",
+      "qty": 3
+    }
+  ],
+  "scene": [
+    {
+      "id": "SD01-ER04",
+      "name": "Sweet Apple Acres",
+      "type": "Scene",
+      "subtype": [
+        "Everyday"
+      ],
+      "color": "Orange",
+      "cost": null,
+      "power": null,
+      "rarity": "ER",
+      "deck": "SD01",
+      "ability": "[Inspo Boost] Your 「Applejack」 gets +1 Inspiration until the end of this Contact.",
+      "ability_th": "[Inspo Boost] 「Applejack」 ของคุณได้รับค่าพลังจินตนาการ +1 จนจบการแลกเปลี่ยนจินตนาการนี้",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01-ER04.jpg",
+      "qty": 15
+    }
+  ],
+  "story": [
+    {
+      "id": "SD01D-C06",
+      "name": "Applebuck Season",
+      "type": "Story",
+      "subtype": [],
+      "color": "Orange",
+      "cost": null,
+      "power": null,
+      "rarity": "C",
+      "deck": "SD01D",
+      "ability": "When promoted to this stage, draw 1 card.",
+      "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ จั่วการ์ด 1 ใบ",
+      "story_stage": "I",
+      "imageUrl": "./cards/SD01D-C06.jpg"
+    },
+    {
+      "id": "SD01D-C07",
+      "name": "Applebuck Season",
+      "type": "Story",
+      "subtype": [],
+      "color": "Orange",
+      "cost": null,
+      "power": null,
+      "rarity": "C",
+      "deck": "SD01D",
+      "ability": "When promoted to this stage, choose 1 Scene in your Scene Area, untap it.",
+      "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ เลือกการ์ดฉาก 1 ใบในโซนฉากของคุณ ตั้งการ์ดนั้น",
+      "story_stage": "II",
+      "imageUrl": "./cards/SD01D-C07.jpg"
+    },
+    {
+      "id": "SD01D-C08",
+      "name": "Applebuck Season",
+      "type": "Story",
+      "subtype": [],
+      "color": "Orange",
+      "cost": null,
+      "power": null,
+      "rarity": "C",
+      "deck": "SD01D",
+      "ability": "When promoted to this stage, choose 1 「Applejack」 in your Retirement Area, add it to Hand.",
+      "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ เลือก 「Applejack」 1 ใบในโซนพักผ่อนของคุณ นำการ์ดนั้นขึ้นมือ",
+      "story_stage": "III",
+      "imageUrl": "./cards/SD01D-C08.jpg"
+    },
+    {
+      "id": "SD01D-C09",
+      "name": "Applebuck Season",
+      "type": "Story",
+      "subtype": [],
+      "color": "Orange",
+      "cost": null,
+      "power": null,
+      "rarity": "C",
+      "deck": "SD01D",
+      "ability": "When promoted to this stage, you win the game.",
+      "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ คุณชนะเกม",
+      "story_stage": "IV",
+      "imageUrl": "./cards/SD01D-C09.jpg"
+    }
+  ]
+}

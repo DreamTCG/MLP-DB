@@ -1,0 +1,382 @@
+{
+  "deckName": "SD01B_FS",
+  "mc": {
+    "id": "SD01-RR02",
+    "name": "Fluttershy",
+    "type": "Main Character",
+    "subtype": [
+      "Pegasus",
+      "Fluttershy"
+    ],
+    "color": "Yellow",
+    "cost": null,
+    "power": null,
+    "rarity": "RR",
+    "deck": "SD01B",
+    "ability": "(Ruby Rare art card)",
+    "ability_th": "(Ruby Rare art card)",
+    "story_stage": null,
+    "imageUrl": "./cards/SD01-RR02.jpg"
+  },
+  "main": [
+    {
+      "id": "SD01B-SR01",
+      "name": "Fluttershy",
+      "type": "Character",
+      "subtype": [
+        "Pegasus",
+        "Fluttershy"
+      ],
+      "color": "Yellow",
+      "cost": 3,
+      "power": 4,
+      "rarity": "SR",
+      "deck": "SD01B",
+      "ability": "[Appear] If there is any 「Angel」 in your Adventure Area, draw 1 card.",
+      "ability_th": "[Appear] ถ้ามี 「Angel」 อยู่ในโซนผจญภัยของคุณ ให้จั่วการ์ด 1 ใบ",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01B-SR01.jpg",
+      "qty": 2
+    },
+    {
+      "id": "SD01B-SR02",
+      "name": "Angel",
+      "type": "Character",
+      "subtype": [
+        "Rabbit",
+        "Angel",
+        "Pet"
+      ],
+      "color": "Yellow",
+      "cost": 1,
+      "power": 1,
+      "rarity": "SR",
+      "deck": "SD01B",
+      "ability": "[Adventure] While there is any 「Fluttershy」 in your Adventure Area, this Character gets +2 Inspiration in your turn.",
+      "ability_th": "[Adventure] ขณะที่มี 「Fluttershy」 อยู่ในโซนผจญภัยของคุณ ตัวละครนี้ได้รับค่าพลังจินตนาการ +2 ในเทิร์นของคุณ",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01B-SR02.jpg",
+      "qty": 2
+    },
+    {
+      "id": "SD01B-U01",
+      "name": "Fluttershy",
+      "type": "Character",
+      "subtype": [
+        "Pegasus",
+        "Fluttershy"
+      ],
+      "color": "Yellow",
+      "cost": 4,
+      "power": 5,
+      "rarity": "U",
+      "deck": "SD01B",
+      "ability": "[Appear] Choose 1 Character with Inspiration 2 or less in Rival's Adventure Area to Retire.",
+      "ability_th": "[Appear] เลือกตัวละคร 1 ตัวที่มีค่าพลังจินตนาการ 2 หรือน้อยกว่าในโซนผจญภัยของฝ่ายตรงข้าม นำออกจากสนาม",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01B-U01.jpg",
+      "qty": 3
+    },
+    {
+      "id": "SD01B-U02",
+      "name": "Fluttershy",
+      "type": "Character",
+      "subtype": [
+        "Pegasus",
+        "Fluttershy"
+      ],
+      "color": "Yellow",
+      "cost": 3,
+      "power": 5,
+      "rarity": "U",
+      "deck": "SD01B",
+      "ability": "",
+      "ability_th": "",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01B-U02.jpg",
+      "qty": 3
+    },
+    {
+      "id": "SD01B-U03",
+      "name": "Philomena",
+      "type": "Character",
+      "subtype": [
+        "Phoenix",
+        "Philomena",
+        "Pet"
+      ],
+      "color": "Yellow",
+      "cost": 4,
+      "power": 6,
+      "rarity": "U",
+      "deck": "SD01B",
+      "ability": "",
+      "ability_th": "",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01B-U03.jpg",
+      "qty": 3
+    },
+    {
+      "id": "SD01B-U04",
+      "name": "Angel",
+      "type": "Character",
+      "subtype": [
+        "Rabbit",
+        "Angel",
+        "Pet"
+      ],
+      "color": "Yellow",
+      "cost": 2,
+      "power": 3,
+      "rarity": "U",
+      "deck": "SD01B",
+      "ability": "[Adventure] While there is any 「Fluttershy」 in your Adventure Area, this Character gets +2 Inspiration in Rival's turn.",
+      "ability_th": "[Adventure] ขณะที่มี 「Fluttershy」 อยู่ในโซนผจญภัยของคุณ ตัวละครนี้ได้รับค่าพลังจินตนาการ +2 ในเทิร์นของฝ่ายตรงข้าม",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01B-U04.jpg",
+      "qty": 3
+    },
+    {
+      "id": "SD01B-C01",
+      "name": "Fluttershy",
+      "type": "Character",
+      "subtype": [
+        "Pegasus",
+        "Fluttershy"
+      ],
+      "color": "Yellow",
+      "cost": 3,
+      "power": 4,
+      "rarity": "C",
+      "deck": "SD01B",
+      "ability": "[Adventure] While in Rival's turn, this Character gets +2 Inspiration.",
+      "ability_th": "[Adventure] ขณะที่อยู่ในเทิร์นของฝ่ายตรงข้าม ตัวละครนี้ได้รับค่าพลังจินตนาการ +2",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01B-C01.jpg",
+      "qty": 4
+    },
+    {
+      "id": "SD01B-C02",
+      "name": "Fluttershy",
+      "type": "Character",
+      "subtype": [
+        "Pegasus",
+        "Fluttershy"
+      ],
+      "color": "Yellow",
+      "cost": 1,
+      "power": 1,
+      "rarity": "C",
+      "deck": "SD01B",
+      "ability": "[Appear] Choose 1 「Pet」 in your Adventure Area, it gets +2 Inspiration until the end of turn.",
+      "ability_th": "[Appear] เลือก 「Pet」 1 ตัวในโซนผจญภัยของคุณ ตัวละครนั้นได้รับค่าพลังจินตนาการ +2 จนจบเทิร์น",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01B-C02.jpg",
+      "qty": 4
+    },
+    {
+      "id": "SD01B-C05",
+      "name": "Angel",
+      "type": "Character",
+      "subtype": [
+        "Rabbit",
+        "Angel",
+        "Pet"
+      ],
+      "color": "Yellow",
+      "cost": 1,
+      "power": 2,
+      "rarity": "C",
+      "deck": "SD01B",
+      "ability": "",
+      "ability_th": "",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01B-C05.jpg",
+      "qty": 4
+    },
+    {
+      "id": "SD01B-C04",
+      "name": "Turtle",
+      "type": "Character",
+      "subtype": [
+        "Turtle",
+        "Pet"
+      ],
+      "color": "Yellow",
+      "cost": 2,
+      "power": 4,
+      "rarity": "C",
+      "deck": "SD01B",
+      "ability": "",
+      "ability_th": "",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01B-C04.jpg",
+      "qty": 4
+    },
+    {
+      "id": "SD01B-C03",
+      "name": "Fluttershy",
+      "type": "Character",
+      "subtype": [
+        "Pegasus",
+        "Fluttershy"
+      ],
+      "color": "Yellow",
+      "cost": 2,
+      "power": 4,
+      "rarity": "C",
+      "deck": "SD01B",
+      "ability": "",
+      "ability_th": "",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01B-C03.jpg",
+      "qty": 4
+    },
+    {
+      "id": "SD01B-SPR04",
+      "name": "Rabbit Pocket Watch",
+      "type": "Item",
+      "subtype": [],
+      "color": "White",
+      "cost": 3,
+      "power": null,
+      "rarity": "SPR",
+      "deck": "SD01B",
+      "ability": "Only adorn 「Fluttershy」. Adorned Character gets +1 Inspiration for each Character in your Adventure Area.",
+      "ability_th": "ติดตั้งได้เฉพาะ 「Fluttershy」 ตัวละครที่ติดตั้งไอเทมได้รับค่าพลังจินตนาการ +1 ต่อตัวละคร 1 ตัวในโซนผจญภัยของคุณ",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01B-SPR04.jpg",
+      "qty": 4
+    },
+    {
+      "id": "SD01B-SPR03",
+      "name": "Healthy Salad",
+      "type": "Event",
+      "subtype": [],
+      "color": "White",
+      "cost": 4,
+      "power": null,
+      "rarity": "SPR",
+      "deck": "SD01B",
+      "ability": "All 「Pet」 in your Adventure Area get +2 Inspiration until the end of turn.",
+      "ability_th": "「Pet」 ทั้งหมดในโซนผจญภัยของคุณได้รับค่าพลังจินตนาการ +2 จนจบเทิร์น",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01B-SPR03.jpg",
+      "qty": 3
+    },
+    {
+      "id": "SD01B-SPR02",
+      "name": "Flower Picking Day",
+      "type": "Event",
+      "subtype": [],
+      "color": "White",
+      "cost": 1,
+      "power": null,
+      "rarity": "SPR",
+      "deck": "SD01B",
+      "ability": "Choose 1 Character with Inspiration 2 or less in Rival's Adventure Area to Retire.",
+      "ability_th": "เลือกตัวละคร 1 ตัวที่มีค่าพลังจินตนาการ 2 หรือน้อยกว่าในโซนผจญภัยของฝ่ายตรงข้าม นำออกจากสนาม",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01B-SPR02.jpg",
+      "qty": 3
+    },
+    {
+      "id": "SD01B-SPR01",
+      "name": "Aid for Moving Frogs Out",
+      "type": "Event",
+      "subtype": [],
+      "color": "White",
+      "cost": 2,
+      "power": null,
+      "rarity": "SPR",
+      "deck": "SD01B",
+      "ability": "Choose 1 「Fluttershy」 in your Adventure Area, it gets +2 Inspiration until the end of turn.",
+      "ability_th": "เลือก 「Fluttershy」 1 ตัวในโซนผจญภัยของคุณ ตัวละครนั้นได้รับค่าพลังจินตนาการ +2 จนจบเทิร์น",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01B-SPR01.jpg",
+      "qty": 4
+    }
+  ],
+  "scene": [
+    {
+      "id": "SD01-ER02",
+      "name": "Fluttershy's Cottage",
+      "type": "Scene",
+      "subtype": [
+        "Everyday"
+      ],
+      "color": "Yellow",
+      "cost": null,
+      "power": null,
+      "rarity": "ER",
+      "deck": "SD01",
+      "ability": "[Inspo Boost] Your 「Fluttershy」 gets +1 Inspiration until the end of this Contact.",
+      "ability_th": "[Inspo Boost] 「Fluttershy」 ของคุณได้รับค่าพลังจินตนาการ +1 จนจบการแลกเปลี่ยนจินตนาการนี้",
+      "story_stage": null,
+      "imageUrl": "./cards/SD01-ER02.jpg",
+      "qty": 15
+    }
+  ],
+  "story": [
+    {
+      "id": "SD01B-C06",
+      "name": "Dragonshy",
+      "type": "Story",
+      "subtype": [],
+      "color": "Yellow",
+      "cost": null,
+      "power": null,
+      "rarity": "C",
+      "deck": "SD01B",
+      "ability": "When promoted to this stage, draw 1 card.",
+      "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ จั่วการ์ด 1 ใบ",
+      "story_stage": "I",
+      "imageUrl": "./cards/SD01B-C06.jpg"
+    },
+    {
+      "id": "SD01B-C07",
+      "name": "Dragonshy",
+      "type": "Story",
+      "subtype": [],
+      "color": "Yellow",
+      "cost": null,
+      "power": null,
+      "rarity": "C",
+      "deck": "SD01B",
+      "ability": "When promoted to this stage, choose 1 Character in your Adventure Area, it gets +2 Inspiration until the end of turn.",
+      "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ เลือกตัวละคร 1 ตัวในโซนผจญภัยของคุณ ตัวละครนั้นได้รับค่าพลังจินตนาการ +2 จนจบเทิร์น",
+      "story_stage": "II",
+      "imageUrl": "./cards/SD01B-C07.jpg"
+    },
+    {
+      "id": "SD01B-C08",
+      "name": "Dragonshy",
+      "type": "Story",
+      "subtype": [],
+      "color": "Yellow",
+      "cost": null,
+      "power": null,
+      "rarity": "C",
+      "deck": "SD01B",
+      "ability": "When promoted to this stage, choose 1 「Pet」 in your Retirement Area, add it to Hand.",
+      "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ เลือก 「Pet」 1 ใบในโซนพักผ่อนของคุณ นำการ์ดนั้นขึ้นมือ",
+      "story_stage": "III",
+      "imageUrl": "./cards/SD01B-C08.jpg"
+    },
+    {
+      "id": "SD01B-C09",
+      "name": "Dragonshy",
+      "type": "Story",
+      "subtype": [],
+      "color": "Yellow",
+      "cost": null,
+      "power": null,
+      "rarity": "C",
+      "deck": "SD01B",
+      "ability": "When promoted to this stage, you win the game.",
+      "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ คุณชนะเกม",
+      "story_stage": "IV",
+      "imageUrl": "./cards/SD01B-C09.jpg"
+    }
+  ]
+}
