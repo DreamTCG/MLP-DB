@@ -918,6 +918,7 @@ async function startGame(){
   switchScreen('game-screen');
   G.phase='start';renderAll();updatePhaseUI();
   log(`✨ เกมเริ่ม! เรา: ${G.raw.mc.name} vs Bot: ${G.botRaw.mc.name}`,'imp');
+  log(`สุ่มผู้เริ่มก่อน: ${G.isPlayerTurn?'เรา (Player)':'Bot'}`,'act');
   log(`Turn 1 — ${G.isPlayerTurn?'ฝั่งเรา (Player)':'ฝั่ง Bot'}`,'act');
 
   // Show floating mulligan flow (player can inspect hand before choosing)
