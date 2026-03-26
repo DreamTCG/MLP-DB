@@ -621,19 +621,79 @@ function shuffle(arr) {
   return a;
 }
  
-// Known preset decks (key → filename, label, emoji, color)
-const DECK_META = {
-  SD01A_TS: { emoji:'🦄', label:'Twilight Sparkle', color:'#a78bfa', file:'SD01A_TS.json' },
-  SD01B_FS: { emoji:'🦋', label:'Fluttershy',       color:'#fde68a', file:'SD01B_FS.json' },
-  SD01C_PP: { emoji:'🎉', label:'Pinkie Pie',        color:'#f9a8d4', file:'SD01C_PP.json' },
-  SD01D_AJ: { emoji:'🍎', label:'Applejack',         color:'#fb923c', file:'SD01D_AJ.json' },
-  SD01E_RD: { emoji:'⚡', label:'Rainbow Dash',      color:'#60a5fa', file:'SD01E_RD.json' },
-  SD01F_RR: { emoji:'💎', label:'Rarity',            color:'#c4b5fd', file:'SD01F_RR.json' },
+// Preloaded deck files from /battlesim/decks
+const PRESET_DECK_FILES = [
+  'SD01A_TS.json',
+  'SD01B_FS.json',
+  'SD01C_PP.json',
+  'SD01D_AJ.json',
+  'SD01E_RD.json',
+  'SD01F_RR.json',
+];
+const PRESET_DECKS = [];
+const DECK_THEME = {
+  SD01A: { emoji:'🦄', color:'#a78bfa' },
+  SD01B: { emoji:'🦋', color:'#fde68a' },
+  SD01C: { emoji:'🎉', color:'#f9a8d4' },
+  SD01D: { emoji:'🍎', color:'#fb923c' },
+  SD01E: { emoji:'⚡', color:'#60a5fa' },
+  SD01F: { emoji:'💎', color:'#c4b5fd' },
 };
 
 // Cache so each deck is fetched only once per session
 const DECK_CACHE = {};
 
+//<<<<<<< codex/fix-json-loading-on-battlesim-landing-page-0cytmr
+function withCardAssetUrls(raw){
+  const fixUrl = c => ({ ...c, imageUrl: c?.imageUrl ? CARDS_BASE + c.imageUrl.split('/').pop() : null });
+  const d = normalizeDeck(raw);
+  if(!d) return null;
+  d.main  = (d.main  || []).map(fixUrl);
+  d.scene = (d.scene || []).map(fixUrl);
+  d.story = (d.story || []).map(fixUrl);
+  if (d.mc) d.mc = fixUrl(d.mc);
+  return d;
+}
+
+function getDeckTheme(deckKey){
+  const prefix = String(deckKey || '').slice(0,5);
+  return DECK_THEME[prefix] || { emoji:'🃏', color:'#a78bfa' };
+}
+
+async function preloadPresetDecks() {
+  PRESET_DECKS.length = 0;
+  const results = await Promise.all(PRESET_DECK_FILES.map(async file => {
+    try {
+      const res = await fetch(new URL(`decks/${file}`, BASE_URL));
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const raw = await res.json();
+      const data = withCardAssetUrls(raw);
+      if(!data) throw new Error('Invalid deck schema');
+      const key = data.deckName || file.replace(/\.json$/,'');
+      const theme = getDeckTheme(key);
+      DECK_CACHE[key] = data;
+      return {
+        key,
+        file,
+        label: data.mc?.name || key,
+        emoji: theme.emoji,
+        color: theme.color,
+        ok: true
+      };
+    } catch (e) {
+      console.error('Failed to preload deck', file, e);
+      return {
+        key: file.replace(/\.json$/,''),
+        file,
+        label: file.replace(/\.json$/,''),
+        emoji: '⚠️',
+        color: '#f87171',
+        ok: false
+      };
+    }
+  }));
+  PRESET_DECKS.push(...results);
+//=======
 async function fetchDeck(key) {
   if (DECK_CACHE[key]) return DECK_CACHE[key];
   const meta = DECK_META[key];
@@ -654,6 +714,7 @@ async function fetchDeck(key) {
     console.error('Failed to fetch deck', key, e);
     return null;
   }
+//>>>>>>> main
 }
 
 /* ═══════════════════════════════════
@@ -662,28 +723,33 @@ async function fetchDeck(key) {
 let selectedPlayerKey=null, selectedBotKey=null;
 
 function initPresetGrids(){
-  const keys = Object.keys(DECK_META);
+  const keys = PRESET_DECKS.map(d => d.key);
   ['player','bot'].forEach(side => {
     const el = document.getElementById('preset-grid-'+side);
     if(!el) return;
     el.innerHTML = keys.map(k => {
-      const m = DECK_META[k];
-      return `<div class="preset-card" id="pc-${side}-${k}" onclick="selectDeck('${k}','${side}')">
+      const m = PRESET_DECKS.find(d => d.key === k);
+      if(!m) return '';
+      const disabledAttr = m.ok ? '' : 'style="opacity:.45;cursor:not-allowed"';
+      const onclick = m.ok ? `onclick="selectDeck('${k}','${side}')"` : '';
+      return `<div class="preset-card" id="pc-${side}-${k}" ${onclick} ${disabledAttr}>
         <div class="pc-mc">${m.emoji}</div>
         <div class="pc-name">${m.label}</div>
+        <div class="pc-color">${m.ok ? 'พร้อมเล่น' : 'โหลดไม่สำเร็จ'}</div>
       </div>`;
     }).join('');
   });
 }
 
 async function selectDeck(key, side){
-  const meta = DECK_META[key]; if(!meta) return;
+  const meta = PRESET_DECKS.find(d => d.key === key);
+  if(!meta || !meta.ok) return;
 
   // Show loading state on the card
   const cardEl = document.getElementById(`pc-${side}-${key}`);
   if(cardEl) cardEl.style.opacity = '0.5';
 
-  const d = await fetchDeck(key);
+  const d = DECK_CACHE[key];
 
   if(cardEl) cardEl.style.opacity = '';
   if(!d){ alert(`โหลดเด็ค ${meta.label} ไม่ได้ — ตรวจสอบ /decks/${meta.file}`); return; }
@@ -762,7 +828,11 @@ function normalizeDeck(raw){
 
 // Initialize everything once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  initPresetGrids();
+  ['player','bot'].forEach(side => {
+    const el = document.getElementById('preset-grid-'+side);
+    if(el) el.innerHTML = '<div style="grid-column:1/-1;text-align:center;font-size:11px;color:var(--text3);padding:8px 0">กำลังโหลดเด็คจากโฟลเดอร์ decks...</div>';
+  });
+  preloadPresetDecks().then(initPresetGrids);
 
   // File upload handler for player deck
   const fi = document.getElementById('file-input');
