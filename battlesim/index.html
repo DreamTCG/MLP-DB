@@ -241,7 +241,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .psec{border-bottom:.5px solid var(--border);padding:8px 10px;}
 .psec:last-child{border-bottom:none;}
 .ptitle{font-size:9px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:7px;}
-.hand-list{display:flex;flex-direction:column;gap:3px;}
+.hand-list{display:flex;flex-direction:column;gap:3px;min-height:84px;max-height:34vh;overflow-y:auto;}
 .hitem{display:flex;align-items:center;gap:5px;padding:5px 6px;background:var(--panel);border:.5px solid var(--border);border-radius:var(--rsm);cursor:pointer;transition:all .15s;}
 .hitem:hover{border-color:var(--accent);background:var(--panel2);}
 .hitem.sel{border-color:var(--gold);background:rgba(251,191,36,.07);}
@@ -295,6 +295,12 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .egbox.win h2{color:var(--gold);}
 .egbox.lose h2{color:var(--red);}
 .egbox p{font-size:14px;color:var(--text2);margin-bottom:22px;}
+.mulligan-overlay{position:fixed;inset:0;z-index:650;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);}
+.mulligan-overlay.show{display:flex;}
+.mulligan-box{width:min(92vw,460px);background:var(--panel);border:.5px solid var(--border2);border-radius:12px;padding:16px;}
+.mulligan-title{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);margin-bottom:6px;}
+.mulligan-text{font-size:12px;color:var(--text2);line-height:1.45;margin-bottom:12px;}
+.mulligan-actions{display:flex;gap:8px;justify-content:flex-end;}
 
 ::-webkit-scrollbar{width:3px;height:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
@@ -585,6 +591,17 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
+<div class="mulligan-overlay" id="mulligan-overlay">
+  <div class="mulligan-box">
+    <div class="mulligan-title" id="mulligan-title">Mulligan</div>
+    <div class="mulligan-text" id="mulligan-text">—</div>
+    <div class="mulligan-actions">
+      <button class="tbtn" id="mulligan-keep-btn">เก็บมือนี้</button>
+      <button class="tbtn primary" id="mulligan-redraw-btn">Mulligan</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ═══════════════════════════════════
    PRESET DECKS (SD01 A-F)
@@ -872,6 +889,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+async function startGame(){
 function startGame(){
   if(!G.raw||!G.botRaw){setSetupMessage('เลือกเด็คทั้งสองฝั่งก่อนเริ่มเกม','error');return;}
   // Player deck
@@ -890,6 +908,8 @@ function startGame(){
   G.oStory=[...G.botRaw.story].sort((a,b)=>SL.indexOf(a.story_stage)-SL.indexOf(b.story_stage));
   G.oSceneDeckCount=expand(G.botRaw.scene).length;G.oSceneCount=0;
 
+  // Opening hand for both sides (mulligan handled via overlay next step)
+  drawOpeningHands();
   // Opening hand + mulligan confirm for both sides
   drawOpeningHandsWithMulligan();
 
@@ -908,6 +928,14 @@ function startGame(){
   log(`✨ เกมเริ่ม! เรา: ${G.raw.mc.name} vs Bot: ${G.botRaw.mc.name}`,'imp');
   log(`สุ่มผู้เริ่มก่อน: ${G.isPlayerTurn?'เรา (Player)':'Bot'}`,'act');
   log(`Turn 1 — ${G.isPlayerTurn?'ฝั่งเรา (Player)':'ฝั่ง Bot'}`,'act');
+
+  // Show floating mulligan flow (player can inspect hand before choosing)
+  await runOpeningMulliganFlow();
+
+  // Place 4 plan cards each after mulligan choices are done
+  for(let i=0;i<4;i++){if(G.mainDeck.length>0)G.pPlans[i]=G.mainDeck.pop();}
+  for(let i=0;i<4;i++){if(G.oMainDeck.length>0)G.oPlans[i]=G.oMainDeck.pop();}
+  renderAll();
 }
 function switchScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
@@ -920,6 +948,58 @@ function drawManyFromDeck(deck, count){
   return out;
 }
 
+function drawOpeningHands(){
+  // Player opening 5
+  G.hand = drawManyFromDeck(G.mainDeck, 5).map(c => ({...c, _tapped:false, _boosted:0, _item:null}));
+  // Bot opening 5 (hidden list)
+  G.oOpeningHand = drawManyFromDeck(G.oMainDeck, 5);
+  G.oHand = G.oOpeningHand.length;
+}
+
+function askMulligan(title, text){
+  const ov=document.getElementById('mulligan-overlay');
+  const t=document.getElementById('mulligan-title');
+  const d=document.getElementById('mulligan-text');
+  const keep=document.getElementById('mulligan-keep-btn');
+  const redraw=document.getElementById('mulligan-redraw-btn');
+  return new Promise(resolve => {
+    t.textContent=title;
+    d.textContent=text;
+    ov.classList.add('show');
+    const done = (wantMulligan) => {
+      ov.classList.remove('show');
+      keep.onclick=null;
+      redraw.onclick=null;
+      resolve(wantMulligan);
+    };
+    keep.onclick=()=>done(false);
+    redraw.onclick=()=>done(true);
+  });
+}
+
+async function runOpeningMulliganFlow(){
+  renderAll();
+  const pMulligan = await askMulligan(
+    'Player Mulligan',
+    `คุณมีการ์ดเริ่มต้น ${G.hand.length} ใบ — ต้องการเปลี่ยนมือหรือไม่?`
+  );
+  if(pMulligan){
+    G.mainDeck = shuffle([...G.mainDeck, ...G.hand]);
+    G.hand = drawManyFromDeck(G.mainDeck, 5).map(c => ({...c, _tapped:false, _boosted:0, _item:null}));
+    log('Player ทำ Mulligan มือเริ่มต้น','warn');
+    renderAll();
+  }
+
+  const bMulligan = await askMulligan(
+    'Bot Mulligan',
+    `Bot มีการ์ดเริ่มต้น ${G.oOpeningHand.length} ใบ — ต้องการให้ Bot mulligan หรือไม่?`
+  );
+  if(bMulligan){
+    G.oMainDeck = shuffle([...G.oMainDeck, ...G.oOpeningHand]);
+    G.oOpeningHand = drawManyFromDeck(G.oMainDeck, 5);
+    log('Bot ทำ Mulligan มือเริ่มต้น','warn');
+  }
+  G.oHand = G.oOpeningHand.length;
 function drawOpeningHandsWithMulligan(){
   // Player opening 5
   G.hand = drawManyFromDeck(G.mainDeck, 5).map(c => ({...c, _tapped:false, _boosted:0, _item:null}));
