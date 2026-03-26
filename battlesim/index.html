@@ -578,18 +578,41 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 // Base URL for raw GitHub assets (works both on GitHub Pages and locally via Live Server)
 const BASE = (() => {
   const loc = window.location.pathname;
-  // If served under /battlesim/ on GitHub Pages → assets at root /decks/
-  // If served locally from file:// or localhost → use relative ../decks/
-  if (loc.includes('/battlesim')) return '/decks/';
-  return '../decks/';
+  // Decks folder lives at /battlesim/decks/ relative to repo root
+  // On GitHub Pages: /battlesim/decks/  |  Locally: ./decks/ (same dir)
+  if (loc.includes('/battlesim')) return loc.replace(/\/battlesim\/.*$/, '/battlesim/decks/');
+  return './decks/';
 })();
 
-// Card images: same logic
+// Card images are at /cards/ relative to repo root
 const CARDS_BASE = (() => {
   const loc = window.location.pathname;
-  if (loc.includes('/battlesim')) return '/cards/';
+  if (loc.includes('/battlesim')) return loc.replace(/\/battlesim\/.*$/, '/cards/');
   return '../cards/';
 })();
+
+/* ═══════════════════════════════════
+   GLOBAL GAME STATE & UTILITIES
+═══════════════════════════════════ */
+const G = {};  // Global game state object
+
+// Story stage ordering used for sorting story cards
+const SL = ['I', 'II', 'III', 'IV'];
+
+// Expand cards with qty > 1 into individual copies
+function expand(cards) {
+  return cards.flatMap(c => Array(c.qty || 1).fill(null).map(() => ({ ...c })));
+}
+
+// Fisher-Yates shuffle (returns a new array)
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 // Known preset decks (key → filename, label, emoji, color)
 const DECK_META = {
@@ -625,14 +648,6 @@ async function fetchDeck(key) {
     return null;
   }
 }
-const DECK_META={
-  SD01A_TS:{emoji:'🦄',label:'Twilight Sparkle',color:'#a78bfa'},
-  SD01B_FS:{emoji:'🦋',label:'Fluttershy',      color:'#fde68a'},
-  SD01C_PP:{emoji:'🎉',label:'Pinkie Pie',       color:'#f9a8d4'},
-  SD01D_AJ:{emoji:'🍎',label:'Applejack',        color:'#fb923c'},
-  SD01E_RD:{emoji:'⚡',label:'Rainbow Dash',     color:'#60a5fa'},
-  SD01F_RR:{emoji:'💎',label:'Rarity',           color:'#c4b5fd'},
-};
 
 /* ═══════════════════════════════════
    DECK SELECTION STATE
