@@ -890,6 +890,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function startGame(){
+function startGame(){
   if(!G.raw||!G.botRaw){setSetupMessage('เลือกเด็คทั้งสองฝั่งก่อนเริ่มเกม','error');return;}
   // Player deck
   const m=shuffle(expand(G.raw.main)),s=shuffle(expand(G.raw.scene));
@@ -909,6 +910,12 @@ async function startGame(){
 
   // Opening hand for both sides (mulligan handled via overlay next step)
   drawOpeningHands();
+  // Opening hand + mulligan confirm for both sides
+  drawOpeningHandsWithMulligan();
+
+  // Place 4 plan cards each
+  for(let i=0;i<4;i++){if(G.mainDeck.length>0)G.pPlans[i]=G.mainDeck.pop();}
+  for(let i=0;i<4;i++){if(G.oMainDeck.length>0)G.oPlans[i]=G.oMainDeck.pop();}
 
   // Setup first scene for EACH player — both face-up (untapped), per rule 103.4 + 402.3
   // First player's first scene is added during their Start Phase (step 3)
@@ -993,6 +1000,23 @@ async function runOpeningMulliganFlow(){
     log('Bot ทำ Mulligan มือเริ่มต้น','warn');
   }
   G.oHand = G.oOpeningHand.length;
+function drawOpeningHandsWithMulligan(){
+  // Player opening 5
+  G.hand = drawManyFromDeck(G.mainDeck, 5).map(c => ({...c, _tapped:false, _boosted:0, _item:null}));
+  if(window.confirm('Player: ต้องการ Mulligan มือเริ่มต้น 5 ใบหรือไม่?')){
+    G.mainDeck = shuffle([...G.mainDeck, ...G.hand]);
+    G.hand = drawManyFromDeck(G.mainDeck, 5).map(c => ({...c, _tapped:false, _boosted:0, _item:null}));
+    log('Player ทำ Mulligan มือเริ่มต้น','warn');
+  }
+
+  // Bot opening 5 (hidden, count only)
+  let botOpening = drawManyFromDeck(G.oMainDeck, 5);
+  if(window.confirm('Bot: ต้องการ Mulligan มือเริ่มต้น 5 ใบหรือไม่?')){
+    G.oMainDeck = shuffle([...G.oMainDeck, ...botOpening]);
+    botOpening = drawManyFromDeck(G.oMainDeck, 5);
+    log('Bot ทำ Mulligan มือเริ่มต้น','warn');
+  }
+  G.oHand = botOpening.length;
 }
 
 /* ═══════════════════════════════════
