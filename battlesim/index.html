@@ -295,9 +295,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .egbox.win h2{color:var(--gold);}
 .egbox.lose h2{color:var(--red);}
 .egbox p{font-size:14px;color:var(--text2);margin-bottom:22px;}
-.mulligan-overlay{position:fixed;inset:0;z-index:650;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);}
+.mulligan-overlay{position:fixed;inset:0;z-index:650;display:none;align-items:flex-start;justify-content:center;padding-top:58px;background:transparent;pointer-events:none;}
 .mulligan-overlay.show{display:flex;}
-.mulligan-box{width:min(92vw,460px);background:var(--panel);border:.5px solid var(--border2);border-radius:12px;padding:16px;}
+.mulligan-box{width:min(92vw,460px);background:rgba(30,26,58,.97);border:.5px solid var(--border2);border-radius:12px;padding:16px;box-shadow:0 12px 36px rgba(0,0,0,.45);pointer-events:auto;}
 .mulligan-title{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);margin-bottom:6px;}
 .mulligan-text{font-size:12px;color:var(--text2);line-height:1.45;margin-bottom:12px;}
 .mulligan-actions{display:flex;gap:8px;justify-content:flex-end;}
@@ -890,6 +890,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function startGame(){
   if(!G.raw||!G.botRaw){setSetupMessage('เลือกเด็คทั้งสองฝั่งก่อนเริ่มเกม','error');return;}
+  setSetupMessage('');
   // Player deck
   const m=shuffle(expand(G.raw.main)),s=shuffle(expand(G.raw.scene));
   G.mainDeck=m;G.sceneDeck=s;G.hand=[];G.pAdv=[null,null,null];
@@ -906,14 +907,13 @@ async function startGame(){
   G.oStory=[...G.botRaw.story].sort((a,b)=>SL.indexOf(a.story_stage)-SL.indexOf(b.story_stage));
   G.oSceneDeckCount=expand(G.botRaw.scene).length;G.oSceneCount=0;
 
-  // Opening hand for both sides (mulligan handled via overlay next step)
-  drawOpeningHands();
+  // Step 3/4: story zone order already prepared in story arrays, then random first player
+  log('Setup 4/7: สุ่มผู้เล่นเริ่มก่อน','imp');
+  log(`ผู้เริ่มก่อน: ${G.isPlayerTurn?'เรา (Player)':'Bot'}`,'act');
 
-  // Setup first scene for EACH player — both face-up (untapped), per rule 103.4 + 402.3
-  // First player's first scene is added during their Start Phase (step 3)
-  // We pre-add 1 scene per side: player gets tapped (turn 1 rule), bot gets untapped
-  _addScene(true);   // player's first scene — _flipped=true (first player rule: ใช้ inspo ไม่ได้)
-  _addOppScene();    // bot also gets 1 scene at setup — untapped
+  // Opening hand for both sides (mulligan handled via overlay next step)
+  log('Setup 5/7: จั่วมือเริ่มต้นคนละ 5 ใบ','imp');
+  drawOpeningHands();
 
   switchScreen('game-screen');
   G.phase='start';renderAll();updatePhaseUI();
@@ -924,9 +924,15 @@ async function startGame(){
   // Show floating mulligan flow (player can inspect hand before choosing)
   await runOpeningMulliganFlow();
 
-  // Place 4 plan cards each after mulligan choices are done
+  // Step 6: Place 4 plan cards each after mulligan choices are done
+  log('Setup 6/7: วาง Plan คว่ำ 4 ใบต่อฝ่าย','imp');
   for(let i=0;i<4;i++){if(G.mainDeck.length>0)G.pPlans[i]=G.mainDeck.pop();}
   for(let i=0;i<4;i++){if(G.oMainDeck.length>0)G.oPlans[i]=G.oMainDeck.pop();}
+
+  // Step 7: Place opening scene
+  log('Setup 7/7: วางฉากเริ่มต้น 1 ใบ','imp');
+  _addScene(G.isPlayerTurn===true); // if player starts first, player's first scene is flipped
+  _addOppScene();
   renderAll();
 }
 function switchScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
@@ -976,7 +982,8 @@ async function runOpeningMulliganFlow(){
     `คุณมีการ์ดเริ่มต้น ${G.hand.length} ใบ — ต้องการเปลี่ยนมือหรือไม่?`
   );
   if(pMulligan){
-    G.mainDeck = shuffle([...G.mainDeck, ...G.hand]);
+    // put returned hand to bottom of deck, then draw 5
+    G.mainDeck = [...G.hand, ...G.mainDeck];
     G.hand = drawManyFromDeck(G.mainDeck, 5).map(c => ({...c, _tapped:false, _boosted:0, _item:null}));
     log('Player ทำ Mulligan มือเริ่มต้น','warn');
     renderAll();
@@ -987,7 +994,8 @@ async function runOpeningMulliganFlow(){
     `Bot มีการ์ดเริ่มต้น ${G.oOpeningHand.length} ใบ — ต้องการให้ Bot mulligan หรือไม่?`
   );
   if(bMulligan){
-    G.oMainDeck = shuffle([...G.oMainDeck, ...G.oOpeningHand]);
+    // return bot opening hand to bottom, then redraw
+    G.oMainDeck = [...G.oOpeningHand, ...G.oMainDeck];
     G.oOpeningHand = drawManyFromDeck(G.oMainDeck, 5);
     log('Bot ทำ Mulligan มือเริ่มต้น','warn');
   }
