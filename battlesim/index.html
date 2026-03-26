@@ -39,6 +39,13 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .deck-preview{display:none;margin-top:14px;background:var(--bg3);border:.5px solid var(--border2);border-radius:var(--r);padding:12px;}
 .deck-preview.show{display:block;}
 .dp-preview-row{display:flex;align-items:flex-start;gap:0;}
+.picked-decks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.pick-box{background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rsm);padding:8px;min-height:54px;}
+.pick-title{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+.pick-value{font-size:11px;color:var(--text2);line-height:1.35;}
+.pick-value.ready{color:var(--text);}
+.pick-box.bot .pick-title{color:rgba(248,113,113,.7);}
+.pick-box.bot .pick-value.ready{color:var(--red);}
 .dp-name{font-family:'Cinzel',serif;font-size:13px;font-weight:600;color:var(--orange);margin-bottom:6px;}
 .deck-stats{display:flex;gap:5px;flex-wrap:wrap;}
 .stat-pill{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--panel2);color:var(--text2);border:.5px solid var(--border);}
@@ -318,6 +325,17 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     <div style="font-size:10px;letter-spacing:.1em;color:var(--red);text-transform:uppercase;margin:14px 0 8px">เด็ค Bot 🤖</div>
     <div class="preset-grid" id="preset-grid-bot"></div>
 
+    <div class="picked-decks">
+      <div class="pick-box">
+        <div class="pick-title">Player Deck Pickup</div>
+        <div class="pick-value" id="player-picked">ยังไม่ได้เลือกเด็ค</div>
+      </div>
+      <div class="pick-box bot">
+        <div class="pick-title">Bot Deck Pickup</div>
+        <div class="pick-value" id="bot-picked">ยังไม่ได้เลือกเด็ค</div>
+      </div>
+    </div>
+
     <!-- PREVIEW -->
     <div class="deck-preview" id="deck-preview">
       <div class="dp-preview-row">
@@ -575,21 +593,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
    Cards images: /cards/*.jpg  (shared with deck builder)
 ═══════════════════════════════════ */
 
-// Base URL for raw GitHub assets (works both on GitHub Pages and locally via Live Server)
-const BASE = (() => {
-  const loc = window.location.pathname;
-  // Decks folder lives at /battlesim/decks/ relative to repo root
-  // On GitHub Pages: /battlesim/decks/  |  Locally: ./decks/ (same dir)
-  if (loc.includes('/battlesim')) return loc.replace(/\/battlesim\/.*$/, '/battlesim/decks/');
-  return './decks/';
-})();
+const BASE_URL = new URL('.', window.location.href);
  
-// Card images are at /cards/ relative to repo root
-const CARDS_BASE = (() => {
-  const loc = window.location.pathname;
-  if (loc.includes('/battlesim')) return loc.replace(/\/battlesim\/.*$/, '/cards/');
-  return '../cards/';
-})();
+// Card images are at ../cards/ relative to /battlesim/index.html
+const CARDS_BASE = new URL('../cards/', BASE_URL).toString();
 
 /* ═══════════════════════════════════
    GLOBAL GAME STATE & UTILITIES
@@ -614,39 +621,77 @@ function shuffle(arr) {
   return a;
 }
  
-// Known preset decks (key → filename, label, emoji, color)
-const DECK_META = {
-  SD01A_TS: { emoji:'🦄', label:'Twilight Sparkle', color:'#a78bfa', file:'SD01A_TS.json' },
-  SD01B_FS: { emoji:'🦋', label:'Fluttershy',       color:'#fde68a', file:'SD01B_FS.json' },
-  SD01C_PP: { emoji:'🎉', label:'Pinkie Pie',        color:'#f9a8d4', file:'SD01C_PP.json' },
-  SD01D_AJ: { emoji:'🍎', label:'Applejack',         color:'#fb923c', file:'SD01D_AJ.json' },
-  SD01E_RD: { emoji:'⚡', label:'Rainbow Dash',      color:'#60a5fa', file:'SD01E_RD.json' },
-  SD01F_RR: { emoji:'💎', label:'Rarity',            color:'#c4b5fd', file:'SD01F_RR.json' },
+// Preloaded deck files from /battlesim/decks
+const PRESET_DECK_FILES = [
+  'SD01A_TS.json',
+  'SD01B_FS.json',
+  'SD01C_PP.json',
+  'SD01D_AJ.json',
+  'SD01E_RD.json',
+  'SD01F_RR.json',
+];
+const PRESET_DECKS = [];
+const DECK_THEME = {
+  SD01A: { emoji:'🦄', color:'#a78bfa' },
+  SD01B: { emoji:'🦋', color:'#fde68a' },
+  SD01C: { emoji:'🎉', color:'#f9a8d4' },
+  SD01D: { emoji:'🍎', color:'#fb923c' },
+  SD01E: { emoji:'⚡', color:'#60a5fa' },
+  SD01F: { emoji:'💎', color:'#c4b5fd' },
 };
 
 // Cache so each deck is fetched only once per session
 const DECK_CACHE = {};
 
-async function fetchDeck(key) {
-  if (DECK_CACHE[key]) return DECK_CACHE[key];
-  const meta = DECK_META[key];
-  if (!meta) return null;
-  try {
-    const res = await fetch(BASE + meta.file);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    // Rewrite imageUrl to absolute path using CARDS_BASE
-    const fixUrl = c => ({ ...c, imageUrl: c.imageUrl ? CARDS_BASE + c.imageUrl.split('/').pop() : null });
-    data.main  = (data.main  || []).map(fixUrl);
-    data.scene = (data.scene || []).map(fixUrl);
-    data.story = (data.story || []).map(fixUrl);
-    if (data.mc) data.mc = fixUrl(data.mc);
-    DECK_CACHE[key] = data;
-    return data;
-  } catch(e) {
-    console.error('Failed to fetch deck', key, e);
-    return null;
-  }
+function withCardAssetUrls(raw){
+  const fixUrl = c => ({ ...c, imageUrl: c?.imageUrl ? CARDS_BASE + c.imageUrl.split('/').pop() : null });
+  const d = normalizeDeck(raw);
+  if(!d) return null;
+  d.main  = (d.main  || []).map(fixUrl);
+  d.scene = (d.scene || []).map(fixUrl);
+  d.story = (d.story || []).map(fixUrl);
+  if (d.mc) d.mc = fixUrl(d.mc);
+  return d;
+}
+
+function getDeckTheme(deckKey){
+  const prefix = String(deckKey || '').slice(0,5);
+  return DECK_THEME[prefix] || { emoji:'🃏', color:'#a78bfa' };
+}
+
+async function preloadPresetDecks() {
+  PRESET_DECKS.length = 0;
+  const results = await Promise.all(PRESET_DECK_FILES.map(async file => {
+    try {
+      const res = await fetch(new URL(`decks/${file}`, BASE_URL));
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const raw = await res.json();
+      const data = withCardAssetUrls(raw);
+      if(!data) throw new Error('Invalid deck schema');
+      const key = data.deckName || file.replace(/\.json$/,'');
+      const theme = getDeckTheme(key);
+      DECK_CACHE[key] = data;
+      return {
+        key,
+        file,
+        label: data.mc?.name || key,
+        emoji: theme.emoji,
+        color: theme.color,
+        ok: true
+      };
+    } catch (e) {
+      console.error('Failed to preload deck', file, e);
+      return {
+        key: file.replace(/\.json$/,''),
+        file,
+        label: file.replace(/\.json$/,''),
+        emoji: '⚠️',
+        color: '#f87171',
+        ok: false
+      };
+    }
+  }));
+  PRESET_DECKS.push(...results);
 }
 
 /* ═══════════════════════════════════
@@ -655,28 +700,33 @@ async function fetchDeck(key) {
 let selectedPlayerKey=null, selectedBotKey=null;
 
 function initPresetGrids(){
-  const keys = Object.keys(DECK_META);
+  const keys = PRESET_DECKS.map(d => d.key);
   ['player','bot'].forEach(side => {
     const el = document.getElementById('preset-grid-'+side);
     if(!el) return;
     el.innerHTML = keys.map(k => {
-      const m = DECK_META[k];
-      return `<div class="preset-card" id="pc-${side}-${k}" onclick="selectDeck('${k}','${side}')">
+      const m = PRESET_DECKS.find(d => d.key === k);
+      if(!m) return '';
+      const disabledAttr = m.ok ? '' : 'style="opacity:.45;cursor:not-allowed"';
+      const onclick = m.ok ? `onclick="selectDeck('${k}','${side}')"` : '';
+      return `<div class="preset-card" id="pc-${side}-${k}" ${onclick} ${disabledAttr}>
         <div class="pc-mc">${m.emoji}</div>
         <div class="pc-name">${m.label}</div>
+        <div class="pc-color">${m.ok ? 'พร้อมเล่น' : 'โหลดไม่สำเร็จ'}</div>
       </div>`;
     }).join('');
   });
 }
 
 async function selectDeck(key, side){
-  const meta = DECK_META[key]; if(!meta) return;
+  const meta = PRESET_DECKS.find(d => d.key === key);
+  if(!meta || !meta.ok) return;
 
   // Show loading state on the card
   const cardEl = document.getElementById(`pc-${side}-${key}`);
   if(cardEl) cardEl.style.opacity = '0.5';
 
-  const d = await fetchDeck(key);
+  const d = DECK_CACHE[key];
 
   if(cardEl) cardEl.style.opacity = '';
   if(!d){ alert(`โหลดเด็ค ${meta.label} ไม่ได้ — ตรวจสอบ /decks/${meta.file}`); return; }
@@ -696,13 +746,19 @@ async function selectDeck(key, side){
 }
 
 function loadPlayerDeck(raw){
-  if(!raw.main||!raw.scene||!raw.story||!raw.mc){alert('ต้องมี: main, scene, story, mc');return;}
-  G.raw=raw;
-  const m=expand(raw.main),s=expand(raw.scene);
-  document.getElementById('prev-name').textContent=raw.mc.name;
-  const chars=raw.main.filter(c=>c.type==='Character').reduce((s,c)=>s+(c.qty||1),0);
-  const evts=raw.main.filter(c=>c.type==='Event').reduce((s,c)=>s+(c.qty||1),0);
-  const items=raw.main.filter(c=>c.type==='Item').reduce((s,c)=>s+(c.qty||1),0);
+  const normalized = normalizeDeck(raw);
+  if(!normalized){alert('ต้องมี: main, scene, story, mc');return;}
+  G.raw=normalized;
+  const playerPicked = document.getElementById('player-picked');
+  if(playerPicked){
+    playerPicked.textContent = `${normalized.mc.name}${normalized.deckName ? ` (${normalized.deckName})` : ''}`;
+    playerPicked.classList.add('ready');
+  }
+  const m=expand(normalized.main),s=expand(normalized.scene);
+  document.getElementById('prev-name').textContent=normalized.mc.name;
+  const chars=normalized.main.filter(c=>c.type==='Character').reduce((s,c)=>s+(c.qty||1),0);
+  const evts=normalized.main.filter(c=>c.type==='Event').reduce((s,c)=>s+(c.qty||1),0);
+  const items=normalized.main.filter(c=>c.type==='Item').reduce((s,c)=>s+(c.qty||1),0);
   document.getElementById('prev-stats').innerHTML=
     `<span class="stat-pill"><b>${m.length}</b> Main</span>`+
     `<span class="stat-pill"><b>${s.length}</b> Scene</span>`+
@@ -713,11 +769,17 @@ function loadPlayerDeck(raw){
 }
 
 function loadBotDeck(raw){
-  if(!raw.main||!raw.scene||!raw.story||!raw.mc){return;}
-  G.botRaw=raw;
-  const m=expand(raw.main),s=expand(raw.scene);
-  document.getElementById('prev-bot-name').textContent=raw.mc.name;
-  const chars=raw.main.filter(c=>c.type==='Character').reduce((s,c)=>s+(c.qty||1),0);
+  const normalized = normalizeDeck(raw);
+  if(!normalized){return;}
+  G.botRaw=normalized;
+  const botPicked = document.getElementById('bot-picked');
+  if(botPicked){
+    botPicked.textContent = `${normalized.mc.name}${normalized.deckName ? ` (${normalized.deckName})` : ''}`;
+    botPicked.classList.add('ready');
+  }
+  const m=expand(normalized.main),s=expand(normalized.scene);
+  document.getElementById('prev-bot-name').textContent=normalized.mc.name;
+  const chars=normalized.main.filter(c=>c.type==='Character').reduce((s,c)=>s+(c.qty||1),0);
   document.getElementById('prev-bot-stats').innerHTML=
     `<span class="stat-pill" style="border-color:rgba(248,113,113,.3)"><b>${m.length}</b> Main</span>`+
     `<span class="stat-pill" style="border-color:rgba(248,113,113,.3)"><b>${s.length}</b> Scene</span>`+
@@ -731,9 +793,23 @@ function updateStartBtn(){
   else{btn.classList.remove('ready');}
 }
 
+function normalizeDeck(raw){
+  if(!raw || typeof raw !== 'object') return null;
+  const main = raw.main || raw.mainDeck || raw.cards || [];
+  const scene = raw.scene || raw.sceneDeck || [];
+  const story = raw.story || raw.storyDeck || [];
+  const mc = raw.mc || raw.mainCharacter || null;
+  if(!Array.isArray(main) || !Array.isArray(scene) || !Array.isArray(story) || !mc) return null;
+  return { ...raw, main, scene, story, mc };
+}
+
 // Initialize everything once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  initPresetGrids();
+  ['player','bot'].forEach(side => {
+    const el = document.getElementById('preset-grid-'+side);
+    if(el) el.innerHTML = '<div style="grid-column:1/-1;text-align:center;font-size:11px;color:var(--text3);padding:8px 0">กำลังโหลดเด็คจากโฟลเดอร์ decks...</div>';
+  });
+  preloadPresetDecks().then(initPresetGrids);
 
   // File upload handler for player deck
   const fi = document.getElementById('file-input');
@@ -1618,6 +1694,7 @@ function sceneInspo(i){
   log(`Inspo Boost: ${s.name}`,'act');
   renderScene();renderAdv();
 }
+function sceneTap(i){
   const s=G.sceneArea[i];if(!s)return;
   if(G.phase!=='main'){log('Tap Scene ได้ใน Main Phase','warn');return;}
   if(s._tapped){log(`"${s.name}" tapped ไปแล้ว`,'warn');return;}
