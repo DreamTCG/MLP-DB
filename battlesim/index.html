@@ -492,9 +492,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
         <div class="adv-side">
           <div class="side-lbl" style="color:var(--green)">YOU</div>
           <div class="adv-slots">
-            <div class="adv-slot player-slot" id="ps0" onclick="slotClick(0)"><span class="slot-icon">+</span></div>
-            <div class="adv-slot player-slot" id="ps1" onclick="slotClick(1)"><span class="slot-icon">+</span></div>
-            <div class="adv-slot player-slot" id="ps2" onclick="slotClick(2)"><span class="slot-icon">+</span></div>
+            <div class="adv-slot player-slot" id="ps0" onclick="slotClick(0)" oncontextmenu="event.preventDefault();showAdvCtxMenu(0)"><span class="slot-icon">+</span></div>
+            <div class="adv-slot player-slot" id="ps1" onclick="slotClick(1)" oncontextmenu="event.preventDefault();showAdvCtxMenu(1)"><span class="slot-icon">+</span></div>
+            <div class="adv-slot player-slot" id="ps2" onclick="slotClick(2)" oncontextmenu="event.preventDefault();showAdvCtxMenu(2)"><span class="slot-icon">+</span></div>
           </div>
         </div>
       </div>
@@ -1247,12 +1247,39 @@ function tapChar(idx){
   if(G.phase!=='main')return;
   if(c._tapped){log(`${c.name} tapped แล้ว`,'warn');return;}
   const ab=c.ability||'';
-  if(ab.includes('[Adventure]')&&ab.includes('[Tap]')){
-    c._tapped=true;log(`Tap ${c.name}`,'act');
-    const s=G.sceneArea.find(x=>x._tapped&&!x._flipped);
-    if(s&&ab.includes('untap it')){s._tapped=false;log(`⚡ Untap "${s.name}"`,'good');}
-    renderScene();renderAdv();
+  if(!ab.includes('[Tap]')){
+    // no tap effect — show context menu for this char
+    showAdvCtxMenu(idx);
+    return;
   }
+  c._tapped=true;
+  const th=c.ability_th||ab;
+  log(`[Tap] ${c.name}`,'act');
+  log(`  ⚡ ${th.replace(/\[Tap\]/g,'').trim()}`,'act');
+  log('  → ใช้ปุ่มด้านล่างจัดการ effect ด้วยตัวเอง','warn');
+  // Special built-in: untap a scene
+  if(ab.includes('untap it')){
+    const s=G.sceneArea.find(x=>x._tapped&&!x._flipped);
+    if(s){s._tapped=false;log(`⚡ Untap "${s.name}"`,'good');}
+  }
+  renderScene();renderAdv();
+}
+function showAdvCtxMenu(idx){
+  const c=G.pAdv[idx];if(!c)return;
+  const ab=c.ability||'';
+  const hasTap=ab.includes('[Tap]');
+  const imgSrc=c.imageUrl||(c.id?CARDS_BASE+c.id+'.jpg':null);
+  showModal(c.name,
+    `<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:4px">
+      ${imgSrc?`<img src="${imgSrc}" style="width:56px;height:78px;object-fit:cover;object-position:top;border-radius:3px;flex-shrink:0" onerror="this.style.display='none'">`:''}
+      <div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">${c.rarity||''} · Cost ${c.cost??'—'} · Power ${c.power??'—'}</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.5">${c.ability_th||ab||'—'}</div>
+      </div>
+    </div>`,
+    `${hasTap&&!c._tapped?`<button class="mbtn" style="border-color:var(--accent);color:var(--accent)" onclick="closeModal();tapChar(${idx})">⚡ ใช้ [Tap] Effect</button>`:''}
+     <button class="mbtn" onclick="closeModal()">ปิด</button>`
+  );
 }
 
 /* ═══════════════════════════════════
@@ -1537,25 +1564,21 @@ function oppActionDisrupt(slotIdx){
   closeModal();
   // OPP disrupts the LOWEST plan we have
   const idx = G.pPlans.findIndex(p => p !== null);
-  if(idx === -1){ log('🤖 OPP ไม่พบแผนการของเรา'); }
-  else {
-    const plan = G.pPlans[idx];
-    G.pPlans[idx] = null;
-    log(`🤖 OPP ขัดขวางแผนการเรา Stage ${SL[idx]}: ${plan.name}`,'warn');
-    const ab = plan.ability || '';
-    if(ab.includes('[Pre-plan]') || ab.includes('Pre-plan')){
-      log(`  ⚡ Pre-Plan: ${plan.ability_th||ab}`);
-      G.retireArea.push(plan);
-      if(ab.toLowerCase().includes('draw 1')){ _draw(); log('  → Draw 1 (Pre-Plan)','good'); }
-    } else {
-      // return to our hand
-      G.hand.push(plan);
-      log(`  → คืนขึ้นมือเรา: ${plan.name}`,'good');
-    }
+  if(idx === -1){
+    log('🤖 OPP ไม่พบแผนการของเรา');
+    G.contactStep++;
+    renderAll();
+    setTimeout(processNextContact, 300);
+    return;
   }
-  G.contactStep++;
+  const plan = G.pPlans[idx];
+  G.pPlans[idx] = null;
+  log(`🤖 OPP ขัดขวางแผนการเรา Stage ${SL[idx]}: ${plan.name}`,'warn');
+  const ab = plan.ability || '';
+  if(ab.toLowerCase().includes('draw 1')){ _draw(); log('  → Pre-Plan Draw 1','good'); }
   renderAll();
-  setTimeout(processNextContact, 300);
+  showPlanRevealModal(plan, slotIdx);
+  // resolvePlan() will advance contactStep
 }
 
 function oppActionNone(slotIdx){
