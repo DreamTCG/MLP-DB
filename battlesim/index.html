@@ -320,9 +320,85 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .mulligan-text{font-size:12px;color:var(--text2);line-height:1.45;margin-bottom:12px;}
 .mulligan-actions{display:flex;gap:8px;justify-content:flex-end;}
 
+/* Contact active slot highlight */
+@keyframes cpulse{0%,100%{box-shadow:0 0 0 0 rgba(244,114,182,.5);}50%{box-shadow:0 0 0 6px rgba(244,114,182,.15);}}
+.adv-slot.contact-active{border-color:var(--pink)!important;border-style:solid!important;animation:cpulse .8s ease-in-out infinite;}
+/* Contact order indicator */
+.contact-order-row{display:flex;gap:5px;justify-content:center;pointer-events:none;}
+.contact-pip{width:var(--cw);height:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.contact-pip span{font-size:8px;color:var(--text3);font-family:'Cinzel',serif;}
+.contact-pip.active span{color:var(--pink);}
+
 @media (max-width: 1100px){
-  .game-layout{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) minmax(220px,42vh);}
-  .right-panel{border-left:none;border-top:.5px solid var(--border);}
+  .game-layout{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;}
+  .right-panel{border-left:none;border-top:.5px solid var(--border);max-height:45vh;overflow-y:auto;}
+}
+
+/* ── TABLET (≤768px) ── */
+@media (max-width:768px){
+  :root{--cw:64px;--ch:90px;}
+  .game-layout{grid-template-columns:1fr;grid-template-rows:1fr;}
+  .right-panel{border-left:none;border-top:.5px solid var(--border);max-height:40vh;overflow-y:auto;}
+  .logo-sm{display:none;}
+  .topbar{padding:4px 8px;gap:5px;}
+  .topbar-left{gap:6px;}
+  .topbar-right .tbtn:not(.primary):not(#topbar-menu-btn){display:none;}
+  .topbar-menu-btn{display:flex!important;}
+  .harmony-disp{padding:2px 7px;font-size:10px;}
+  .harmony-disp .hv{font-size:11px;}
+  .mc-slot{width:54px;height:76px;}
+  .deck-slot-card{width:54px;height:76px;}
+  .retire-slot{width:54px;height:76px;}
+  .retire-num{font-size:18px;}
+  .deck-num{font-size:15px;}
+  .s-card{min-height:56px;}
+  .sc-card{width:44px;height:62px;}
+  .playmat{padding:5px;gap:4px;}
+  .psec{padding:6px 8px;}
+}
+
+/* ── PHONE (≤480px) ── */
+@media (max-width:480px){
+  :root{--cw:54px;--ch:76px;}
+  body{font-size:13px;}
+  .topbar{flex-wrap:nowrap;padding:3px 6px;gap:4px;min-height:36px;}
+  .phase-badge{font-size:9px;padding:2px 6px;}
+  .turn-info{display:none;}
+  .harmony-disp{padding:2px 6px;font-size:9px;}
+  .harmony-disp .hv{font-size:10px;}
+  .tbtn{font-size:9px;padding:3px 7px;}
+  .mc-slot{width:46px;height:65px;}
+  .deck-slot-card{width:46px;height:65px;}
+  .retire-slot{width:46px;height:65px;}
+  .retire-num{font-size:15px;}
+  .deck-num{font-size:13px;}
+  .zone-lbl{font-size:8px;}
+  .mc-emoji{font-size:16px;}
+  .mc-name-lbl{font-size:6px;}
+  .mc-stage{font-size:8px;}
+  .s-card{min-height:48px;}
+  .sc-card{width:38px;height:54px;}
+  .sc-n{font-size:5.5px;}
+  .story-area{min-height:72px;}
+  .playmat{padding:4px;gap:3px;}
+  .area-title{font-size:9px;}
+  .middle-row{gap:3px;}
+  .bottom-row{gap:3px;}
+  .right-panel{max-height:38vh;}
+  .psec{padding:5px 7px;}
+  .action-grid{grid-template-columns:1fr 1fr;gap:3px;}
+  .tap-btn{font-size:9px;padding:4px 3px;}
+  .pow-btn{width:14px;height:14px;font-size:9px;}
+  /* Mobile panel toggle */
+  .mobile-panel-tab{display:flex!important;}
+}
+/* Mobile panel tab — hidden by default, shown at ≤480px */
+.mobile-panel-tab{display:none;align-items:center;justify-content:center;padding:4px;background:var(--bg2);border-top:.5px solid var(--border);gap:8px;flex-shrink:0;}
+.mob-tab-btn{padding:4px 10px;font-size:9px;border-radius:var(--rsm);border:.5px solid var(--border2);background:var(--panel);color:var(--text2);cursor:pointer;transition:all .15s;}
+.mob-tab-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(192,132,252,.08);}
+/* Mobile hidden sections */
+@media (max-width:480px){
+  .psec.mob-hidden{display:none;}
 }
 
 ::-webkit-scrollbar{width:3px;height:3px;}
@@ -403,7 +479,15 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
       <button class="tbtn" onclick="tapSceneHarmony()">Tap Scene +1✦</button>
       <button class="tbtn primary" id="next-phase-btn" onclick="nextPhase()">Draw →</button>
       <button class="tbtn" onclick="backToSetup()">✕</button>
+      <button class="tbtn" id="topbar-menu-btn" style="display:none" onclick="toggleMobilePanel()" title="Panel">☰</button>
     </div>
+  </div>
+  <!-- Mobile tab strip (shown only at ≤480px) -->
+  <div class="mobile-panel-tab" id="mobile-panel-tab">
+    <button class="mob-tab-btn active" id="mobt-hand" onclick="setMobTab('hand')">Hand</button>
+    <button class="mob-tab-btn" id="mobt-actions" onclick="setMobTab('actions')">Actions</button>
+    <button class="mob-tab-btn" id="mobt-log" onclick="setMobTab('log')">Log</button>
+    <button class="mob-tab-btn" id="mobt-opp" onclick="setMobTab('opp')">OPP</button>
   </div>
 
   <div class="game-layout">
@@ -574,7 +658,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
           </div>
         </div>
       </div>
-      <div class="psec">
+      <div class="psec" id="psec-hand">
         <div class="ptitle"><span class="ptitle-label">Hand (<span id="hand-cnt-lbl">0</span>)</span></div>
         <div class="hand-list" id="hand-list"></div>
       </div>
@@ -1024,6 +1108,8 @@ async function startGame(){
 
   switchScreen('game-screen');
   G.phase='start';renderAll();updatePhaseUI();
+  // Init mobile tab (show Hand by default on small screens)
+  if(window.innerWidth<=480)setMobTab('hand');
   log(`✨ เกมเริ่ม! เรา: ${G.raw.mc.name} vs Bot: ${G.botRaw.mc.name}`,'imp');
   log(`สุ่มผู้เริ่มก่อน: ${G.isPlayerTurn?'เรา (Player)':'Bot'}`,'act');
   log(`Turn 1 — ${G.isPlayerTurn?'ฝั่งเรา (Player)':'ฝั่ง Bot'}`,'act');
@@ -1304,7 +1390,7 @@ function showAdvCtxMenu(idx){
 function nextPhase(){
   if(G.phase==='start'){doStart();G.phase='main';}
   else if(G.phase==='main'){G.phase='contact';doContact();}
-  else if(G.phase==='contact'){G.phase='end';doEnd();}
+  else if(G.phase==='contact'){G.phase='end';_clearContactHighlight();doEnd();}
   else if(G.phase==='end'){
     // Advance to next turn (alternating sides)
     G.turnCount++;
@@ -1367,30 +1453,48 @@ function doEnd(){
     log(`กด "Turn ${G.turnCount+1} →" เพื่อกลับฝั่งเรา`,'act');
   }
 }
+function _clearContactHighlight(){
+  for(let i=0;i<3;i++){
+    document.getElementById(`ps${i}`)?.classList.remove('contact-active');
+    document.getElementById(`os${i}`)?.classList.remove('contact-active');
+  }
+}
+function _highlightContactSlot(idx){
+  _clearContactHighlight();
+  document.getElementById(`ps${idx}`)?.classList.add('contact-active');
+  document.getElementById(`os${idx}`)?.classList.add('contact-active');
+}
+
 function doContact(){
   // Per rulebook 404.1: Contact ถูกข้ามใน "สองเทิร์นแรกของเกม"
   if(G.turnCount<=2){
     log(`Contact ถูกข้าม (Turn ${G.turnCount} — ยังอยู่ใน 2 เทิร์นแรก)`,'warn');
     return;
   }
-  log(`⚔️ Contact Phase — Turn ${G.turnCount} (${G.isPlayerTurn?'Player':'Bot'}) ไล่ทีละคู่`,'act');
-
   // Rulebook 404.2: เริ่มจากแถวซ้ายมือของผู้เล่นเจ้าของเทิร์น
-  // Player turn  → slot 0,1,2 (ซ้ายไปขวาจากฝั่งเรา)
-  // Bot turn     → slot 2,1,0 (ซ้ายไปขวาจากฝั่ง Bot = ขวาไปซ้ายจากฝั่งเรา)
-  G.contactQueue=[];
+  // Player turn  → slot 1→2→3 (index 0,1,2) from player's left
+  // Bot turn     → slot 3→2→1 (index 2,1,0) from bot's left = right-to-left on screen
   const order = G.isPlayerTurn ? [0,1,2] : [2,1,0];
+  const orderLabel = G.isPlayerTurn ? '1→2→3' : '3→2→1';
+  log(`⚔️ Contact Phase — Turn ${G.turnCount} (${G.isPlayerTurn?'Player':'Bot'}) ลำดับ Slot ${orderLabel}`,'act');
+  G.contactQueue=[];
   for(const i of order){
-    const p=G.pAdv[i],o=G.oAdv[i];
-    if(p||o) G.contactQueue.push(i);
+    // Include slot if the turn-owner has a character there (rulebook: only turn-owner initiates contact)
+    const ownerChar = G.isPlayerTurn ? G.pAdv[i] : G.oAdv[i];
+    if(ownerChar) G.contactQueue.push(i);
+  }
+  if(!G.contactQueue.length){
+    log('⚔️ ไม่มีตัวละครเริ่ม Contact','warn');
+    return;
   }
   G.contactStep=0;
   processNextContact();
 }
 
 function processNextContact(){
+  _clearContactHighlight();
   if(G.contactStep>=G.contactQueue.length){
-    // All slots done
+    // All slots done — clear boosts
     G.pAdv.forEach(c=>{if(c)c._boosted=0;});
     log('⚔️ Contact Phase เสร็จสิ้น','act');
     renderAll();
@@ -1398,14 +1502,7 @@ function processNextContact(){
   }
   const slotIdx=G.contactQueue[G.contactStep];
   const p=G.pAdv[slotIdx],o=G.oAdv[slotIdx];
-
-  // Contact happens only if turn-owner has a character in this slot
-  const ownerHasChar = G.isPlayerTurn ? !!p : !!o;
-  if(!ownerHasChar){
-    G.contactStep++;
-    setTimeout(processNextContact, 80);
-    return;
-  }
+  _highlightContactSlot(slotIdx);
   if(p&&o){
     showContactModal(slotIdx,p,o);
   }else if(p&&!o){
@@ -2304,6 +2401,20 @@ function togglePSec(id){
   const el=document.getElementById(id);if(!el)return;
   el.classList.toggle('collapsed');
   const btn=el.querySelector('.psec-toggle');if(btn)btn.textContent=el.classList.contains('collapsed')?'▼':'▲';
+}
+/* Mobile panel tab switching (≤480px) */
+function setMobTab(tab){
+  const ids={hand:'psec-hand',actions:'psec-actions',log:'psec-log',opp:'psec-opp'};
+  Object.entries(ids).forEach(([k,v])=>{
+    const el=document.getElementById(v);if(!el)return;
+    el.classList.toggle('mob-hidden',k!==tab);
+  });
+  document.querySelectorAll('.mob-tab-btn').forEach(b=>b.classList.remove('active'));
+  const active=document.getElementById('mobt-'+tab);if(active)active.classList.add('active');
+}
+function toggleMobilePanel(){
+  const rp=document.getElementById('right-panel-wrap');
+  if(rp)rp.classList.toggle('expanded');
 }
 function log(msg,type=''){
   const el=document.getElementById('log-box');
