@@ -146,25 +146,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .s-phase{position:absolute;top:3px;right:4px;font-family:'Cinzel',serif;font-size:9px;color:var(--text3);}
 .s-name{font-size:8px;color:var(--text3);line-height:1.3;}
 .s-effect{font-size:7.5px;color:var(--text3);margin-top:2px;line-height:1.4;flex:1;}
-.plan-over{position:absolute;inset:2px;border-radius:3px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;}
-.plan-over:hover .plan-facedown{border-color:rgba(251,191,36,.7);}
-.plan-facedown{
-  width:100%;height:100%;
-  background:linear-gradient(135deg,#1a1440 0%,#0d0a22 100%);
-  border:.5px solid rgba(251,191,36,.35);border-radius:3px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  transition:border-color .15s;
-}
-.plan-facedown.opp-plan{
-  background:linear-gradient(135deg,#2a0d0d 0%,#1a0808 100%);
-  border-color:rgba(248,113,113,.3);
-}
-.plan-facedown.opp-plan:hover{border-color:rgba(248,113,113,.3)!important;}
-.plan-fd-pattern{
-  width:28px;height:20px;opacity:.25;
-  background:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(255,255,255,.15) 2px,rgba(255,255,255,.15) 3px);
-  border-radius:2px;
-}
+.plan-over{position:absolute;bottom:0;left:0;right:0;height:18px;border-radius:0 0 calc(var(--rsm) - 1px) calc(var(--rsm) - 1px);background:linear-gradient(135deg,rgba(26,20,64,.92),rgba(13,10,34,.92));border-top:.5px solid rgba(251,191,36,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;font-size:9px;color:rgba(251,191,36,.85);}
+.plan-over:hover{border-top-color:rgba(251,191,36,.8);background:rgba(251,191,36,.12);}
+.plan-over.opp-plan-bar{border-top-color:rgba(248,113,113,.4);color:rgba(248,113,113,.8);cursor:default;}
+.plan-over.opp-plan-bar:hover{border-top-color:rgba(248,113,113,.7);background:rgba(248,113,113,.08);}
 
 .retire-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;}
 .retire-slot{width:62px;height:87px;background:var(--bg3);border:.5px solid var(--border2);border-radius:var(--rsm);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;transition:all .15s;}
@@ -239,8 +224,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .gart img{width:100%;height:100%;object-fit:cover;object-position:top;border-radius:2px;display:block;}
 /* Tooltip card art */
 .tt-art{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:4px;margin-bottom:6px;display:block;}
-/* 2-column action grid */
-.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+/* 3-column action grid */
+.action-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;}
 /* Deck slot back images */
 .deck-slot-card{position:relative;overflow:hidden;}
 .deck-back{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;z-index:0;display:none;}
@@ -423,11 +408,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
           </div>
         </div>
         <div class="scene-area" style="border-color:rgba(248,113,113,.15)">
-          <div class="area-title" style="color:rgba(248,113,113,.7)">🤖 OPP Info</div>
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:2px 2px">
-            <span style="font-size:10px;color:var(--text3)">Hand: <b id="opp-hand-disp" style="color:var(--red)">5</b></span>
-            <span style="font-size:10px;color:var(--text3)">Plans: <b id="opp-plans-disp" style="color:var(--red)">4</b></span>
-            <span style="font-size:10px;color:var(--text3)">Retire: <b id="opp-retire-disp" style="color:var(--red)">0</b></span>
+          <div class="area-title" style="color:rgba(248,113,113,.7)">OPP Scene Area</div>
+          <div class="scene-cards" id="opp-scene-cards">
+            <span style="font-size:10px;color:rgba(248,113,113,.5)">ยังไม่มีฉาก</span>
           </div>
         </div>
         <div class="deck-col">
@@ -456,9 +439,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
           <div class="zone-lbl" style="color:var(--red)">OPP MC</div>
           <div class="mc-slot" style="border-color:var(--red);box-shadow:0 0 8px rgba(248,113,113,.15)">
             <img class="mc-img" id="opp-mc-img" src="" alt="" style="display:none" onerror="this.style.display='none'">
+          </div>
+          <div style="display:flex;align-items:center;gap:3px;justify-content:center;flex-wrap:wrap">
+            <div class="mc-emoji">🤖</div>
             <div class="mc-name-lbl" style="color:var(--red)" id="opp-mc-name-lbl">AI</div>
           </div>
-          <div class="mc-emoji" style="text-align:center">🤖</div>
           <div class="mc-stage" style="color:var(--red)">Stage <span id="opp-stage-lbl">I</span></div>
         </div>
       </div>
@@ -507,9 +492,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
           <div class="zone-lbl">Main Char</div>
           <div class="mc-slot">
             <img class="mc-img" id="mc-img" src="" alt="" style="display:none" onerror="this.style.display='none'">
+          </div>
+          <div style="display:flex;align-items:center;gap:3px;justify-content:center;flex-wrap:wrap">
+            <div class="mc-emoji">🍎</div>
             <div class="mc-name-lbl" id="mc-name-lbl">—</div>
           </div>
-          <div class="mc-emoji" style="text-align:center">🍎</div>
           <div class="mc-stage">Stage <span id="player-stage-lbl">I</span></div>
         </div>
         <div class="story-area">
@@ -571,16 +558,17 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
       <div class="psec">
         <div class="ptitle">Actions</div>
         <div class="action-grid">
-          <button class="tap-btn" onclick="tapSceneHarmony()" title="Tap scene for +1 Harmony">✦ Tap Scene +1H</button>
+          <button class="tap-btn" onclick="tapSceneHarmony()" title="Tap scene for +1 Harmony">✦ Tap +1H</button>
+          <button class="tap-btn" style="border-color:rgba(45,212,191,.4);color:var(--teal)" onclick="manualUntapScene()" title="Untap a tapped scene card">↺ Untap Scene</button>
           <button class="tap-btn" style="border-color:rgba(96,165,250,.4);color:#60a5fa" onclick="manualDraw()" title="Draw 1 card from deck">📥 Draw 1</button>
-          <button class="tap-btn" id="discard-btn" style="border-color:rgba(248,113,113,.4);color:var(--red)" onclick="toggleDiscardMode()" title="Toggle discard mode — click hand card to discard">🗑 Discard</button>
-          <button class="tap-btn" style="border-color:rgba(248,113,113,.3);color:var(--red)" onclick="manualMill()" title="Mill top card of your Main Deck to Retirement">💀 Mill 1</button>
-          <button class="tap-btn" style="border-color:rgba(248,113,113,.35);color:var(--red)" onclick="manualRetireOpp()" title="Retire an OPP character manually">☠ Retire OPP</button>
-          <button class="tap-btn" style="border-color:rgba(251,191,36,.35);color:var(--gold)" onclick="manualRetireSelf()" title="Retire your own character manually">↩ Retire Own</button>
-          <button class="tap-btn" style="border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(1)" title="Give +1 Inspiration to a character this turn">+1 Insp</button>
-          <button class="tap-btn" style="border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(2)" title="Give +2 Inspiration to a character this turn">+2 Insp</button>
-          <button class="tap-btn" style="border-color:rgba(192,132,252,.35);color:var(--accent)" onclick="manualRetireToHand()" title="Take any card from Retirement to Hand">Retire→Hand</button>
-          <button class="tap-btn" style="border-color:rgba(251,191,36,.3);color:var(--gold)" onclick="manualAddPlan()" title="Put a hand card face-down as a Plan on a Story slot">+ Add Plan</button>
+          <button class="tap-btn" id="discard-btn" style="border-color:rgba(248,113,113,.4);color:var(--red)" onclick="toggleDiscardMode()" title="Toggle discard mode">🗑 Discard</button>
+          <button class="tap-btn" style="border-color:rgba(248,113,113,.3);color:var(--red)" onclick="manualMill()" title="Mill top card to Retirement">💀 Mill 1</button>
+          <button class="tap-btn" style="border-color:rgba(248,113,113,.35);color:var(--red)" onclick="manualRetireOpp()" title="Retire an OPP character">☠ Retire OPP</button>
+          <button class="tap-btn" style="border-color:rgba(251,191,36,.35);color:var(--gold)" onclick="manualRetireSelf()" title="Retire your own character">↩ Retire Own</button>
+          <button class="tap-btn" style="border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(1)" title="+1 Inspiration this turn">+1 Insp</button>
+          <button class="tap-btn" style="border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(2)" title="+2 Inspiration this turn">+2 Insp</button>
+          <button class="tap-btn" style="border-color:rgba(192,132,252,.35);color:var(--accent)" onclick="manualRetireToHand()" title="Take card from Retirement to Hand">Retire→Hand</button>
+          <button class="tap-btn" style="border-color:rgba(251,191,36,.3);color:var(--gold)" onclick="manualAddPlan()" title="Place hand card face-down as Plan">+ Add Plan</button>
         </div>
       </div>
       <div class="psec" style="flex:1">
@@ -996,7 +984,8 @@ async function startGame(){
   G.oMainDeck=shuffle(expand(G.botRaw.main));G.oHand=0;G.oAdv=[null,null,null];
   G.oStage=0;G.oPlans=[null,null,null,null];G.oRetireArea=[];
   G.oStory=[...G.botRaw.story].sort((a,b)=>SL.indexOf(a.story_stage)-SL.indexOf(b.story_stage));
-  G.oSceneDeckCount=expand(G.botRaw.scene).length;G.oSceneCount=0;
+  G.oSceneDeck=shuffle(expand(G.botRaw.scene));G.oSceneArea=[];
+  G.oSceneDeckCount=G.oSceneDeck.length;G.oSceneCount=0;
 
   // Step 3/4: story zone order already prepared in story arrays, then random first player
   log('Setup 4/7: สุ่มผู้เล่นเริ่มก่อน','imp');
@@ -1121,10 +1110,12 @@ function _addScene(flipped=false){
   G.sceneArea.push(s);
 }
 function _addOppScene(){
-  // Bot gets 1 scene at setup — untapped (face-up, usable)
-  // We track bot scenes separately with a simple count since we don't display them
-  G.oSceneCount=(G.oSceneCount||0)+1;
-  G.oSceneDeckCount=Math.max(0,(G.oSceneDeckCount||15)-1);
+  if(!G.oSceneDeck||G.oSceneDeck.length===0)return;
+  const s=G.oSceneDeck.pop();
+  s._tapped=false;s._flipped=false;
+  G.oSceneArea.push(s);
+  G.oSceneCount=G.oSceneArea.length;
+  G.oSceneDeckCount=G.oSceneDeck.length;
 }
 function tapSceneHarmony(){
   if(G.phase!=='main'){log('Tap Scene ได้ใน Main Phase','warn');return;}
@@ -1647,7 +1638,7 @@ function aiAct(i){
   }
 }
 function aiSim(){
-  const botHarmony=G.oSceneCount;
+  const botHarmony=G.oSceneArea?.length??G.oSceneCount??0;
   const playable=[...G.oMainDeck].filter(x=>x.type==='Character'&&(x.cost||0)<=botHarmony);
   if(!playable.length)return;
   playable.sort((a,b)=>(b.cost||0)-(a.cost||0)||(b.power||0)-(a.power||0));
@@ -1693,7 +1684,7 @@ function updatePhaseUI(){
 /* ═══════════════════════════════════
    RENDER
 ═══════════════════════════════════ */
-function renderAll(){renderAdv();renderHand();renderScene();renderStory();renderCounts();}
+function renderAll(){renderAdv();renderHand();renderScene();renderStory();renderCounts();renderOppScene();}
 
 function renderAdv(){
   for(let i=0;i<3;i++){
@@ -1938,26 +1929,60 @@ function sceneInspo(i){
   renderScene();renderAdv();
 }
 
+function renderOppScene(){
+  const el=document.getElementById('opp-scene-cards');
+  if(!el)return;
+  const osd=document.getElementById('opp-sd-cnt');
+  if(osd)osd.textContent=G.oSceneDeck?.length??G.oSceneDeckCount??'—';
+  if(!G.oSceneArea||!G.oSceneArea.length){
+    el.innerHTML='<span style="font-size:10px;color:rgba(248,113,113,.5)">ยังไม่มีฉาก</span>';
+    return;
+  }
+  el.innerHTML=G.oSceneArea.map((s,i)=>{
+    const scImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
+    return`<div class="sc-card" style="border-color:rgba(248,113,113,.5);cursor:default"
+      onmouseenter="showTTData(event,G.oSceneArea[${i}])" onmouseleave="hideTT()">
+      ${scImgSrc?`<img class="sc-img" src="${scImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
+      <div class="sc-n" style="color:rgba(248,113,113,.8)">${s.name.split(' ').slice(-2).join(' ')}</div>
+    </div>`;
+  }).join('');
+}
+function manualUntapScene(){
+  if(G.phase!=='main'){log('Untap Scene ได้ใน Main Phase','warn');return;}
+  const tapped=G.sceneArea.filter(s=>s._tapped);
+  if(!tapped.length){log('ไม่มีฉากที่ tap อยู่','warn');return;}
+  if(tapped.length===1){
+    tapped[0]._tapped=false;
+    log(`Untap: "${tapped[0].name}"`,'good');
+    renderScene();return;
+  }
+  showModal('↺ Untap Scene',
+    '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">เลือกฉากที่จะ untap:</div>',
+    G.sceneArea.map((s,i)=>s._tapped
+      ?`<button class="mbtn" onclick="closeModal();doUntapScene(${i})">${s.name}</button>`:''
+    ).filter(Boolean).join('')+
+    '<button class="mbtn" onclick="closeModal()">ยกเลิก</button>'
+  );
+}
+function doUntapScene(i){
+  const s=G.sceneArea[i];if(!s)return;
+  s._tapped=false;log(`Untap: "${s.name}"`,'good');renderScene();
+}
+
 function renderStory(){
   const el=document.getElementById('story-slots-row');
   document.getElementById('player-stage-lbl').textContent=SL[Math.min(G.pStage,3)];
   el.innerHTML=G.storyCards.map((s,i)=>{
     const done=i<G.pStage, cur=i===G.pStage;
     const plan=G.pPlans[i];
-    // Plan is a HIDDEN zone — show face-down card, no name/effect visible
     const planHtml=plan
-      ? `<div class="plan-over" onclick="peekPlan(${i},'player')" title="แผนการ (คว่ำ) — คลิกดูเฉพาะเรา">
-           <div class="plan-facedown">
-             <div class="plan-fd-pattern"></div>
-             <div style="font-size:9px;color:rgba(251,191,36,.5);margin-top:2px">📋</div>
-           </div>
-         </div>`
+      ? `<div class="plan-over" onclick="peekPlan(${i},'player')" title="แผนการ (คว่ำ) — คลิกดูเฉพาะเรา">📋 Plan</div>`
       : '';
     const sImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
     return`<div class="s-slot" onmouseenter="showTTData(event,G.storyCards[${i}])" onmouseleave="hideTT()"><div class="s-card ${done?'done':''} ${cur?'current':''}">
       <div class="s-phase">${s.story_stage}</div>
       ${sImgSrc?`<img class="s-card-img" src="${sImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
-      <div class="s-name">${s.name}</div>
+      ${planHtml}
     </div></div>`;
   }).join('');
 
@@ -1968,19 +1993,13 @@ function renderStory(){
       const done=i<G.oStage, cur=i===G.oStage;
       const plan=G.oPlans[i];
       const planHtml=plan
-        ? `<div class="plan-over" style="cursor:default" title="แผนการ OPP (ซ่อน)">
-             <div class="plan-facedown opp-plan">
-               <div class="plan-fd-pattern"></div>
-               <div style="font-size:9px;color:rgba(248,113,113,.4);margin-top:2px">📋</div>
-             </div>
-           </div>`
+        ? `<div class="plan-over opp-plan-bar" title="แผนการ OPP (ซ่อน)">📋 Plan</div>`
         : '';
       const osImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
       return`<div class="s-slot" onmouseenter="showTTData(event,G.oStory[${i}])" onmouseleave="hideTT()"><div class="s-card ${done?'done':''} ${cur?'current':''}"
         style="${cur?'border-color:rgba(248,113,113,.6);box-shadow:0 0 5px rgba(248,113,113,.2)':''}">
         <div class="s-phase" style="color:var(--red)">${s.story_stage}</div>
         ${osImgSrc?`<img class="s-card-img" src="${osImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
-        <div class="s-name">${s.name}</div>
         ${planHtml}
       </div></div>`;
     }).join('');
