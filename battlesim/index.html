@@ -110,6 +110,12 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .side-lbl{font-size:8px;width:24px;flex-shrink:0;text-align:center;letter-spacing:.05em;}
 .adv-slots{display:flex;gap:5px;overflow:visible;justify-content:center;flex:1;}
 .adv-divider{height:.5px;background:var(--border);margin:1px 0;}
+/* Power adjuster row */
+.pow-adj-row{display:flex;gap:5px;justify-content:center;}
+.pow-adj-cell{width:var(--cw);display:flex;align-items:center;justify-content:center;gap:3px;flex-shrink:0;min-height:16px;}
+.pow-btn{width:16px;height:16px;border-radius:3px;border:.5px solid var(--border2);background:var(--panel);color:var(--text2);font-size:10px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.pow-btn:hover{border-color:var(--accent);color:var(--accent);}
+.pow-val{font-size:9px;min-width:16px;text-align:center;color:var(--text3);font-family:'Cinzel',serif;}
 
 /* Slots */
 .adv-slot{width:var(--cw);height:var(--ch);border:1px dashed var(--border2);border-radius:var(--rsm);
@@ -140,10 +146,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .story-area{flex:1;min-width:0;background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:7px 9px;display:flex;flex-direction:column;gap:4px;min-height:105px;}
 .story-slots-row{display:flex;gap:4px;flex:1;}
 .s-slot{flex:1;min-width:0;position:relative;}
-.s-card{width:100%;height:100%;min-height:68px;background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rsm);padding:4px;position:relative;display:flex;flex-direction:column;transition:all .2s;}
+.s-card{width:100%;height:100%;min-height:68px;background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rsm);padding:0;overflow:hidden;position:relative;display:flex;flex-direction:column;transition:all .2s;}
 .s-card.current{border-color:var(--gold);box-shadow:0 0 6px rgba(251,191,36,.2);}
 .s-card.done{border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.04);}
-.s-phase{position:absolute;top:3px;right:4px;font-family:'Cinzel',serif;font-size:9px;color:var(--text3);}
+.s-phase{position:absolute;top:3px;right:4px;font-family:'Cinzel',serif;font-size:9px;color:var(--text3);z-index:1;}
 .s-name{font-size:8px;color:var(--text3);line-height:1.3;}
 .s-effect{font-size:7.5px;color:var(--text3);margin-top:2px;line-height:1.4;flex:1;}
 .plan-over{position:absolute;bottom:0;left:0;right:0;height:18px;border-radius:0 0 calc(var(--rsm) - 1px) calc(var(--rsm) - 1px);background:linear-gradient(135deg,rgba(26,20,64,.92),rgba(13,10,34,.92));border-top:.5px solid rgba(251,191,36,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;font-size:9px;color:rgba(251,191,36,.85);}
@@ -237,8 +243,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 /* Scene card image */
 .sc-card .sc-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:3px;z-index:0;}
 .sc-n,.sc-e,.sc-i{position:relative;z-index:1;}
-/* Story card thumbnail */
-.s-card-img{width:100%;height:36px;object-fit:cover;object-position:top;border-radius:2px;margin-bottom:2px;display:block;flex-shrink:0;}
+/* Story card thumbnail — full art cover */
+.s-card-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:calc(var(--rsm) - 1px);z-index:0;display:block;}
+.s-effect{z-index:1;position:relative;}
 
 /* Right panel */
 .right-panel{display:flex;flex-direction:column;background:var(--bg2);border-left:.5px solid var(--border);overflow-y:auto;}
@@ -453,6 +460,12 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
         <div class="area-title">⚔️ Adventure Area</div>
 
         <!-- OPP slots — cards face up, upside-down perspective -->
+        <!-- OPP power adjuster (above OPP chars) -->
+        <div class="pow-adj-row" id="opp-pow-adj">
+          <div class="pow-adj-cell" id="opa0"></div>
+          <div class="pow-adj-cell" id="opa1"></div>
+          <div class="pow-adj-cell" id="opa2"></div>
+        </div>
         <div class="adv-side">
           <div class="side-lbl" style="color:var(--red)">OPP</div>
           <div class="adv-slots">
@@ -481,6 +494,12 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
             <div class="adv-slot player-slot" id="ps1" onclick="slotClick(1)" oncontextmenu="event.preventDefault();showAdvCtxMenu(1)"><span class="slot-icon">+</span></div>
             <div class="adv-slot player-slot" id="ps2" onclick="slotClick(2)" oncontextmenu="event.preventDefault();showAdvCtxMenu(2)"><span class="slot-icon">+</span></div>
           </div>
+        </div>
+        <!-- Player power adjuster (below player chars) -->
+        <div class="pow-adj-row" id="plr-pow-adj">
+          <div class="pow-adj-cell" id="ppa0"></div>
+          <div class="pow-adj-cell" id="ppa1"></div>
+          <div class="pow-adj-cell" id="ppa2"></div>
         </div>
       </div>
 
@@ -1092,7 +1111,6 @@ function _draw(silent=false){
   if(!silent)log(`จั่ว: ${c.name} [${c.rarity}]`);
 }
 function manualDraw(){
-  if(G.phase!=='main'){log('คลิก Main Deck ใน Main Phase','warn');return;}
   _draw();renderCounts();renderHand();
 }
 function manualMill(){
@@ -1118,7 +1136,6 @@ function _addOppScene(){
   G.oSceneDeckCount=G.oSceneDeck.length;
 }
 function tapSceneHarmony(){
-  if(G.phase!=='main'){log('Tap Scene ได้ใน Main Phase','warn');return;}
   // Can tap: scene that is NOT yet tapped (not used for harmony) and NOT flipped (not used for inspo)
   // Tapped = sideways = used for harmony already
   // Flipped = face-down = used for inspo boost — BUT still can be tapped for harmony per rule 204
@@ -1306,11 +1323,11 @@ function doStart(){
       _draw();
       log('Reset + จั่ว 1 ใบ');
     }else{
-      // Bot start phase — reset bot chars, bot "draws"
-      G.oAdv.forEach(c=>{if(c)c._tapped=false;});
-      G.oHand=Math.min(G.oHand+1,7);
-      log('🤖 Bot Reset + จั่ว 1 ใบ');
-    }
+    // Bot start phase — reset bot chars, bot "draws"
+    G.oAdv.forEach(c=>{if(c)c._tapped=false;});
+    G.oHand=Math.min(G.oHand+1,7);
+    log('🤖 Bot Reset + จั่ว 1 ใบ');
+  }
   }
 
   // Add scene each start phase (both sides add from their own deck)
@@ -1322,12 +1339,9 @@ function doStart(){
     }
     log('Main Phase — เล่น/ใช้การ์ดได้','act');
   }else{
-    // Bot adds scene
-    if(G.oSceneDeckCount>0){
-      G.oSceneCount++;
-      G.oSceneDeckCount--;
-      log(`🤖 Bot เพิ่มฉาก (รวม ${G.oSceneCount} ใบ)`);
-    }
+    // Bot adds scene using proper oSceneDeck
+    _addOppScene();
+    if(G.oSceneArea?.length) log(`🤖 Bot เพิ่มฉาก (รวม ${G.oSceneArea.length} ใบ)`);
     // Bot main phase simulation — plays cheapest char
     aiSim();
     log('🤖 Bot Main Phase เสร็จ — กด Contact Phase','act');
@@ -1686,9 +1700,25 @@ function updatePhaseUI(){
 ═══════════════════════════════════ */
 function renderAll(){renderAdv();renderHand();renderScene();renderStory();renderCounts();renderOppScene();}
 
+function adjPow(idx,side,delta){
+  const arr=side==='p'?G.pAdv:G.oAdv;
+  const c=arr[idx];if(!c)return;
+  c._boosted=(c._boosted||0)+delta;
+  log(`${side==='p'?'YOU':'OPP'} slot ${idx+1}: ${c.name} power ${delta>0?'+':''}${delta} (total adj: ${c._boosted})`,'act');
+  renderAdv();
+}
+function _mkPowAdj(idx,side,c){
+  if(!c)return'';
+  const adj=c._boosted||0;
+  const col=side==='p'?'rgba(74,222,128,.7)':'rgba(248,113,113,.7)';
+  return`<button class="pow-btn" onclick="event.stopPropagation();adjPow(${idx},'${side}',-1)" title="-1 power">−</button>
+  <span class="pow-val" style="color:${adj!==0?'var(--gold)':'var(--text3)'}">${adj!==0?(adj>0?'+':'')+adj:'·'}</span>
+  <button class="pow-btn" onclick="event.stopPropagation();adjPow(${idx},'${side}',1)" title="+1 power">+</button>`;
+}
 function renderAdv(){
   for(let i=0;i<3;i++){
     const ps=document.getElementById(`ps${i}`),os=document.getElementById(`os${i}`);
+    const ppa=document.getElementById(`ppa${i}`),opa=document.getElementById(`opa${i}`);
     const pc=G.pAdv[i],oc=G.oAdv[i];
     // player slot
     if(pc){
@@ -1713,6 +1743,9 @@ function renderAdv(){
     // opp slot
     if(oc){os.classList.add('occupied');os.innerHTML=mkCard(oc,false);}
     else{os.classList.remove('occupied');os.innerHTML='<span class="slot-icon">○</span>';}
+    // power adjuster cells
+    if(ppa)ppa.innerHTML=_mkPowAdj(i,'p',pc);
+    if(opa)opa.innerHTML=_mkPowAdj(i,'o',oc);
   }
 }
 function mkCard(c,isP){
@@ -1870,7 +1903,6 @@ function renderScene(){
 }
 function tapSpecificScene(i){
   const s=G.sceneArea[i];if(!s)return;
-  if(G.phase!=='main'){log('Tap Scene ได้ใน Main Phase เท่านั้น','warn');return;}
   if(s._tapped){log(`"${s.name}" tapped ไปแล้ว`,'warn');return;}
   s._tapped=true;G.harmony++;
   log(`Tap "${s.name}" → +1✦ (รวม:${G.harmony})`,'act');
@@ -1948,7 +1980,6 @@ function renderOppScene(){
   }).join('');
 }
 function manualUntapScene(){
-  if(G.phase!=='main'){log('Untap Scene ได้ใน Main Phase','warn');return;}
   const tapped=G.sceneArea.filter(s=>s._tapped);
   if(!tapped.length){log('ไม่มีฉากที่ tap อยู่','warn');return;}
   if(tapped.length===1){
