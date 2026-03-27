@@ -235,6 +235,12 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .ginsp.orange{background:rgba(251,146,60,.2);border-color:var(--orange);color:var(--orange);}
 .ginsp.boosted{background:rgba(251,191,36,.2);border-color:var(--gold);color:var(--gold);}
 .item-pip{position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);font-size:7.5px;background:#f97316;color:#fff;padding:1px 4px;border-radius:8px;white-space:nowrap;z-index:3;}
+/* Card art image */
+.gart img{width:100%;height:100%;object-fit:cover;object-position:top;border-radius:2px;display:block;}
+/* Tooltip card art */
+.tt-art{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:4px;margin-bottom:6px;display:block;}
+/* 2-column action grid */
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
 
 /* Right panel */
 .right-panel{display:flex;flex-direction:column;background:var(--bg2);border-left:.5px solid var(--border);overflow-y:auto;}
@@ -547,23 +553,16 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
       </div>
       <div class="psec">
         <div class="ptitle">Actions</div>
-        <div style="display:flex;flex-direction:column;gap:4px;">
-          <!-- Harmony -->
+        <div class="action-grid">
           <button class="tap-btn" onclick="tapSceneHarmony()" title="Tap scene for +1 Harmony">✦ Tap Scene +1H</button>
-          <!-- Draw -->
-          <button class="tap-btn" style="border-color:rgba(96,165,250,.4);color:#60a5fa" onclick="manualDraw()" title="Draw 1 card from deck">📥 Draw 1 Card</button>
-          <!-- Discard -->
-          <button class="tap-btn" id="discard-btn" style="border-color:rgba(248,113,113,.4);color:var(--red)" onclick="toggleDiscardMode()" title="Toggle discard mode — click hand card to discard">🗑 Discard Card</button>
-          <!-- Retire OPP -->
-          <button class="tap-btn" style="border-color:rgba(248,113,113,.35);color:var(--red)" onclick="manualRetireOpp()" title="Retire an OPP character manually">☠ Retire OPP Char</button>
-          <!-- Retire self -->
-          <button class="tap-btn" style="border-color:rgba(251,191,36,.35);color:var(--gold)" onclick="manualRetireSelf()" title="Retire your own character manually">↩ Retire Own Char</button>
-          <!-- +Insp to char -->
-          <button class="tap-btn" style="border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(1)" title="Give +1 Inspiration to a character this turn">+1 Insp (your char)</button>
-          <button class="tap-btn" style="border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(2)" title="Give +2 Inspiration to a character this turn">+2 Insp (your char)</button>
-          <!-- Add card from retire to hand -->
-          <button class="tap-btn" style="border-color:rgba(192,132,252,.35);color:var(--accent)" onclick="manualRetireToHand()" title="Take any card from Retirement to Hand">Retire → Hand</button>
-          <!-- Add plan to story -->
+          <button class="tap-btn" style="border-color:rgba(96,165,250,.4);color:#60a5fa" onclick="manualDraw()" title="Draw 1 card from deck">📥 Draw 1</button>
+          <button class="tap-btn" id="discard-btn" style="border-color:rgba(248,113,113,.4);color:var(--red)" onclick="toggleDiscardMode()" title="Toggle discard mode — click hand card to discard">🗑 Discard</button>
+          <button class="tap-btn" style="border-color:rgba(248,113,113,.3);color:var(--red)" onclick="manualMill()" title="Mill top card of your Main Deck to Retirement">💀 Mill 1</button>
+          <button class="tap-btn" style="border-color:rgba(248,113,113,.35);color:var(--red)" onclick="manualRetireOpp()" title="Retire an OPP character manually">☠ Retire OPP</button>
+          <button class="tap-btn" style="border-color:rgba(251,191,36,.35);color:var(--gold)" onclick="manualRetireSelf()" title="Retire your own character manually">↩ Retire Own</button>
+          <button class="tap-btn" style="border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(1)" title="Give +1 Inspiration to a character this turn">+1 Insp</button>
+          <button class="tap-btn" style="border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(2)" title="Give +2 Inspiration to a character this turn">+2 Insp</button>
+          <button class="tap-btn" style="border-color:rgba(192,132,252,.35);color:var(--accent)" onclick="manualRetireToHand()" title="Take any card from Retirement to Hand">Retire→Hand</button>
           <button class="tap-btn" style="border-color:rgba(251,191,36,.3);color:var(--gold)" onclick="manualAddPlan()" title="Put a hand card face-down as a Plan on a Story slot">+ Add Plan</button>
         </div>
       </div>
@@ -635,6 +634,16 @@ const CARDS_BASE = (() => {
   if (loc.includes('/battlesim')) return loc.replace(/\/battlesim\/.*$/, '/cards/');
   return '../cards/';
 })();
+
+// MLP-DB.json URL for card detail enrichment
+const MLP_DB_URL = (() => {
+  const loc = window.location.pathname;
+  if (loc.includes('/battlesim')) return loc.replace(/\/battlesim\/.*$/, '/MLP-DB.json');
+  return '../MLP-DB.json';
+})();
+
+// Card database populated from MLP-DB.json, keyed by card id
+const CARD_DB = {};
 
 /* ═══════════════════════════════════
    GLOBAL GAME STATE & UTILITIES
@@ -870,6 +879,17 @@ function normalizeDeck(raw){
   return { ...raw, main, scene, story, mc };
 }
 
+async function loadCardDB(){
+  try{
+    const res=await fetch(MLP_DB_URL);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    const items=Array.isArray(data)?data:Object.values(data);
+    items.forEach(c=>{if(c?.id)CARD_DB[c.id]=c;});
+    console.log(`CARD_DB loaded: ${Object.keys(CARD_DB).length} cards`);
+  }catch(e){console.warn('Failed to load MLP-DB.json:',e);}
+}
+
 // Initialize everything once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   try {
@@ -888,6 +908,9 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Preset preload failed', e);
       setSetupMessage('โหลดเด็คจากโฟลเดอร์ decks ไม่สำเร็จ','error');
     });
+
+  // Load card database for art and detail enrichment (non-blocking)
+  loadCardDB();
 
   // File upload handler for player deck
   const fi = document.getElementById('file-input');
@@ -1034,15 +1057,14 @@ async function runOpeningMulliganFlow(){
     renderAll();
   }
 
-  const bMulligan = await askMulligan(
-    'Bot Mulligan',
-    `Bot มีการ์ดเริ่มต้น ${G.oOpeningHand.length} ใบ — ต้องการให้ Bot mulligan หรือไม่?`
-  );
-  if(bMulligan){
-    // return bot opening hand to bottom, then redraw
+  // Bot auto-mulligan: keep if hand has any Character with cost ≤ 2, otherwise mulligan
+  const hasEarlyChar = G.oOpeningHand.some(c => c.type === 'Character' && (c.cost ?? 99) <= 2);
+  if(!hasEarlyChar){
     G.oMainDeck = [...G.oOpeningHand, ...G.oMainDeck];
     G.oOpeningHand = drawManyFromDeck(G.oMainDeck, 5);
-    log('Bot ทำ Mulligan มือเริ่มต้น','warn');
+    log('Bot auto-mulligan (ไม่มี Character ราคา ≤ 2 ในมือ)', 'warn');
+  } else {
+    log('Bot auto-keep (มี Character ราคา ≤ 2 ในมือ)', 'act');
   }
   G.oHand = G.oOpeningHand.length;
 }
@@ -1060,6 +1082,13 @@ function _draw(silent=false){
 function manualDraw(){
   if(G.phase!=='main'){log('คลิก Main Deck ใน Main Phase','warn');return;}
   _draw();renderCounts();renderHand();
+}
+function manualMill(){
+  if(G.mainDeck.length===0){log('Main Deck ว่าง ไม่สามารถ Mill ได้','warn');return;}
+  const c=G.mainDeck.pop();
+  G.retireArea.push(c);
+  log(`Mill: ${c.name} [${c.rarity||'?'}] → Retirement`,'act');
+  renderCounts();
 }
 function _addScene(flipped=false){
   if(G.sceneDeck.length===0)return;
@@ -1651,6 +1680,7 @@ function mkCard(c,isP){
   const insp=isP?effInsp(c,G.phase==='main'):(c.power||0);
   const boosted=(c._boosted||0)>0||(c._item&&isP&&G.phase==='main');
   const st=(c.subtype||[]).map(s=>SICON[s]||'').filter(Boolean)[0]||TICON[c.type]||'?';
+  const artSrc=c.imageUrl||(c.id?CARDS_BASE+c.id+'.jpg':null);
   const ic=isOrange?'orange':(boosted?'boosted':'');
   const safe=JSON.stringify({...c,_item:c._item||null}).replace(/'/g,"&#39;").replace(/"/g,'&quot;');
   return`<div class="gcard ${tc}${isOrange?' orange':''}${tapped}"
@@ -1659,7 +1689,7 @@ function mkCard(c,isP){
     <div class="gface">
       <div class="gcost">${c.cost??'—'}</div>
       <div class="gtype">${TICON[c.type]||'?'}</div>
-      <div class="gart">${st}</div>
+      <div class="gart">${artSrc?`<img src="${artSrc}" alt="${c.name}" onerror="this.style.display='none'">`:`${st}`}</div>
       <div class="gbottom">
         <div class="gname">${c.name}</div>
         <div class="gsub">${(c.subtype||[]).slice(0,2).join('·')||c.rarity}</div>
@@ -2071,13 +2101,17 @@ function showTTScene(event,i){if(i>=0&&i<G.sceneArea.length)showTTData(event,G.s
 function showTTData(event,c){
   const tt=document.getElementById('tt');
   const insp=G.phase!=='setup'?effInsp(c,G.phase==='main'):(c.power??'—');
+  const db=CARD_DB[c.id]||{};
+  const ability=c.ability_th||c.ability||db.ability_th||db.ability||'';
+  const artSrc=c.imageUrl||(c.id?CARDS_BASE+c.id+'.jpg':null);
   tt.innerHTML=`
+    ${artSrc?`<img class="tt-art" src="${artSrc}" alt="${c.name}" onerror="this.style.display='none'">`:''}
     <div class="ttn">${c.name} <span style="font-size:9px;color:var(--text3)">[${c.rarity||''}] ${c.id||''}</span></div>
     ${c.subtype?.length?`<div class="tts">${c.subtype.join(' · ')}</div>`:''}
     <div class="ttd"></div>
     ${c.cost!=null?`<div class="ttr"><b>Cost:</b> ${c.cost}✦</div>`:''}
     ${c.power!=null?`<div class="ttr"><b>Power:</b> ${c.power}${insp!==c.power?` → <b style="color:var(--gold)">${insp}</b>`:''}</div>`:''}
-    ${(c.ability_th||c.ability)?`<div class="ttr" style="margin-top:4px">${c.ability_th||c.ability}</div>`:''}
+    ${ability?`<div class="ttr" style="margin-top:4px">${ability}</div>`:''}
     ${c._item?`<div class="ttd"></div><div class="ttr"><b>Item:</b> ${c._item.name}</div>`:''}
   `;
   tt.classList.add('show');posTT(event);
