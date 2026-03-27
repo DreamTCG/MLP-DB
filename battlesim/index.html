@@ -248,7 +248,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 /* MC slot image */
 .mc-slot{position:relative;overflow:hidden;}
 .mc-slot .mc-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:inherit;z-index:0;}
-.mc-slot .mc-emoji{position:relative;z-index:1;}
 .mc-slot .mc-name-lbl{position:relative;z-index:1;background:rgba(0,0,0,.55);border-radius:2px;padding:1px 3px;}
 /* Scene card image */
 .sc-card .sc-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:3px;z-index:0;}
@@ -457,9 +456,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
           <div class="zone-lbl" style="color:var(--red)">OPP MC</div>
           <div class="mc-slot" style="border-color:var(--red);box-shadow:0 0 8px rgba(248,113,113,.15)">
             <img class="mc-img" id="opp-mc-img" src="" alt="" style="display:none" onerror="this.style.display='none'">
-            <div class="mc-emoji">🤖</div>
             <div class="mc-name-lbl" style="color:var(--red)" id="opp-mc-name-lbl">AI</div>
           </div>
+          <div class="mc-emoji" style="text-align:center">🤖</div>
           <div class="mc-stage" style="color:var(--red)">Stage <span id="opp-stage-lbl">I</span></div>
         </div>
       </div>
@@ -493,9 +492,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
         <div class="adv-side">
           <div class="side-lbl" style="color:var(--green)">YOU</div>
           <div class="adv-slots">
-            <div class="adv-slot player-slot" id="ps0" onclick="slotClick(0)"><span class="slot-icon">+</span></div>
-            <div class="adv-slot player-slot" id="ps1" onclick="slotClick(1)"><span class="slot-icon">+</span></div>
-            <div class="adv-slot player-slot" id="ps2" onclick="slotClick(2)"><span class="slot-icon">+</span></div>
+            <div class="adv-slot player-slot" id="ps0" onclick="slotClick(0)" oncontextmenu="event.preventDefault();showAdvCtxMenu(0)"><span class="slot-icon">+</span></div>
+            <div class="adv-slot player-slot" id="ps1" onclick="slotClick(1)" oncontextmenu="event.preventDefault();showAdvCtxMenu(1)"><span class="slot-icon">+</span></div>
+            <div class="adv-slot player-slot" id="ps2" onclick="slotClick(2)" oncontextmenu="event.preventDefault();showAdvCtxMenu(2)"><span class="slot-icon">+</span></div>
           </div>
         </div>
       </div>
@@ -508,9 +507,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
           <div class="zone-lbl">Main Char</div>
           <div class="mc-slot">
             <img class="mc-img" id="mc-img" src="" alt="" style="display:none" onerror="this.style.display='none'">
-            <div class="mc-emoji">🍎</div>
             <div class="mc-name-lbl" id="mc-name-lbl">—</div>
           </div>
+          <div class="mc-emoji" style="text-align:center">🍎</div>
           <div class="mc-stage">Stage <span id="player-stage-lbl">I</span></div>
         </div>
         <div class="story-area">
@@ -1248,12 +1247,39 @@ function tapChar(idx){
   if(G.phase!=='main')return;
   if(c._tapped){log(`${c.name} tapped แล้ว`,'warn');return;}
   const ab=c.ability||'';
-  if(ab.includes('[Adventure]')&&ab.includes('[Tap]')){
-    c._tapped=true;log(`Tap ${c.name}`,'act');
-    const s=G.sceneArea.find(x=>x._tapped&&!x._flipped);
-    if(s&&ab.includes('untap it')){s._tapped=false;log(`⚡ Untap "${s.name}"`,'good');}
-    renderScene();renderAdv();
+  if(!ab.includes('[Tap]')){
+    // no tap effect — show context menu for this char
+    showAdvCtxMenu(idx);
+    return;
   }
+  c._tapped=true;
+  const th=c.ability_th||ab;
+  log(`[Tap] ${c.name}`,'act');
+  log(`  ⚡ ${th.replace(/\[Tap\]/g,'').trim()}`,'act');
+  log('  → ใช้ปุ่มด้านล่างจัดการ effect ด้วยตัวเอง','warn');
+  // Special built-in: untap a scene
+  if(ab.includes('untap it')){
+    const s=G.sceneArea.find(x=>x._tapped&&!x._flipped);
+    if(s){s._tapped=false;log(`⚡ Untap "${s.name}"`,'good');}
+  }
+  renderScene();renderAdv();
+}
+function showAdvCtxMenu(idx){
+  const c=G.pAdv[idx];if(!c)return;
+  const ab=c.ability||'';
+  const hasTap=ab.includes('[Tap]');
+  const imgSrc=c.imageUrl||(c.id?CARDS_BASE+c.id+'.jpg':null);
+  showModal(c.name,
+    `<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:4px">
+      ${imgSrc?`<img src="${imgSrc}" style="width:56px;height:78px;object-fit:cover;object-position:top;border-radius:3px;flex-shrink:0" onerror="this.style.display='none'">`:''}
+      <div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">${c.rarity||''} · Cost ${c.cost??'—'} · Power ${c.power??'—'}</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.5">${c.ability_th||ab||'—'}</div>
+      </div>
+    </div>`,
+    `${hasTap&&!c._tapped?`<button class="mbtn" style="border-color:var(--accent);color:var(--accent)" onclick="closeModal();tapChar(${idx})">⚡ ใช้ [Tap] Effect</button>`:''}
+     <button class="mbtn" onclick="closeModal()">ปิด</button>`
+  );
 }
 
 /* ═══════════════════════════════════
@@ -1516,14 +1542,19 @@ function showOppActionModal(slotIdx, o){
 function oppActionAdvance(slotIdx){
   closeModal();
   if(G.oStage >= 4) return;
-  if(G.pPlans[G.oStage] !== null){ log('🤖 OPP ถูกปิดกั้น!','warn'); }
-  else {
-    G.oStage++;
-    log(`🤖 OPP ดำเนินเนื้อเรื่อง Stage ${SL[G.oStage-1]}!`,'warn');
-    const st = G.oStory[G.oStage-1];
-    if(st) log(`  ⚡ OPP: ${st.ability_th||st.ability}`);
-    if(G.oStage >= 4) endGame(false, 'AI ถึง Stage IV!');
+  if(G.pPlans[G.oStage] !== null){
+    log('🤖 OPP ถูกปิดกั้น! แผนการถูกเปิดเผย','warn');
+    const plan=G.pPlans[G.oStage];
+    G.pPlans[G.oStage]=null;
+    renderAll();
+    showPlanRevealModal(plan, slotIdx);
+    return; // resolvePlan() will advance contactStep
   }
+  G.oStage++;
+  log(`🤖 OPP ดำเนินเนื้อเรื่อง Stage ${SL[G.oStage-1]}!`,'warn');
+  const st = G.oStory[G.oStage-1];
+  if(st) log(`  ⚡ OPP: ${st.ability_th||st.ability}`);
+  if(G.oStage >= 4) endGame(false, 'AI ถึง Stage IV!');
   G.contactStep++;
   renderAll();
   setTimeout(processNextContact, 300);
@@ -1533,25 +1564,21 @@ function oppActionDisrupt(slotIdx){
   closeModal();
   // OPP disrupts the LOWEST plan we have
   const idx = G.pPlans.findIndex(p => p !== null);
-  if(idx === -1){ log('🤖 OPP ไม่พบแผนการของเรา'); }
-  else {
-    const plan = G.pPlans[idx];
-    G.pPlans[idx] = null;
-    log(`🤖 OPP ขัดขวางแผนการเรา Stage ${SL[idx]}: ${plan.name}`,'warn');
-    const ab = plan.ability || '';
-    if(ab.includes('[Pre-plan]') || ab.includes('Pre-plan')){
-      log(`  ⚡ Pre-Plan: ${plan.ability_th||ab}`);
-      G.retireArea.push(plan);
-      if(ab.toLowerCase().includes('draw 1')){ _draw(); log('  → Draw 1 (Pre-Plan)','good'); }
-    } else {
-      // return to our hand
-      G.hand.push(plan);
-      log(`  → คืนขึ้นมือเรา: ${plan.name}`,'good');
-    }
+  if(idx === -1){
+    log('🤖 OPP ไม่พบแผนการของเรา');
+    G.contactStep++;
+    renderAll();
+    setTimeout(processNextContact, 300);
+    return;
   }
-  G.contactStep++;
+  const plan = G.pPlans[idx];
+  G.pPlans[idx] = null;
+  log(`🤖 OPP ขัดขวางแผนการเรา Stage ${SL[idx]}: ${plan.name}`,'warn');
+  const ab = plan.ability || '';
+  if(ab.toLowerCase().includes('draw 1')){ _draw(); log('  → Pre-Plan Draw 1','good'); }
   renderAll();
-  setTimeout(processNextContact, 300);
+  showPlanRevealModal(plan, slotIdx);
+  // resolvePlan() will advance contactStep
 }
 
 function oppActionNone(slotIdx){
@@ -1927,12 +1954,10 @@ function renderStory(){
          </div>`
       : '';
     const sImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
-    return`<div class="s-slot"><div class="s-card ${done?'done':''} ${cur?'current':''}">
+    return`<div class="s-slot" onmouseenter="showTTData(event,G.storyCards[${i}])" onmouseleave="hideTT()"><div class="s-card ${done?'done':''} ${cur?'current':''}">
       <div class="s-phase">${s.story_stage}</div>
       ${sImgSrc?`<img class="s-card-img" src="${sImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
       <div class="s-name">${s.name}</div>
-      <div class="s-effect">${s.ability_th||s.ability||''}</div>
-      ${planHtml}
     </div></div>`;
   }).join('');
 
@@ -1951,12 +1976,11 @@ function renderStory(){
            </div>`
         : '';
       const osImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
-      return`<div class="s-slot"><div class="s-card ${done?'done':''} ${cur?'current':''}"
+      return`<div class="s-slot" onmouseenter="showTTData(event,G.oStory[${i}])" onmouseleave="hideTT()"><div class="s-card ${done?'done':''} ${cur?'current':''}"
         style="${cur?'border-color:rgba(248,113,113,.6);box-shadow:0 0 5px rgba(248,113,113,.2)':''}">
         <div class="s-phase" style="color:var(--red)">${s.story_stage}</div>
         ${osImgSrc?`<img class="s-card-img" src="${osImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
         <div class="s-name">${s.name}</div>
-        <div class="s-effect">${s.ability_th||s.ability||''}</div>
         ${planHtml}
       </div></div>`;
     }).join('');
@@ -2108,6 +2132,37 @@ function _updateDiscardBtn(){
 }
 
 // peekPlan: เจ้าของดูการ์ดแผนการของตัวเองได้ (โซนปิด — เห็นเฉพาะตัวเอง)
+function showPlanRevealModal(plan, slotIdx){
+  window._revealedPlan=plan;
+  const imgSrc=plan.imageUrl||(plan.id?CARDS_BASE+plan.id+'.jpg':null);
+  const ability=plan.ability_th||plan.ability||'';
+  const hasPrePlan=ability.toLowerCase().includes('pre-plan');
+  showModal('📋 แผนการถูกเปิดเผย!',
+    `<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px">
+      ${imgSrc?`<img src="${imgSrc}" style="width:70px;height:98px;object-fit:cover;object-position:top;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'">`:''}
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--gold);margin-bottom:2px">${plan.name}</div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">[${plan.rarity||''}]${hasPrePlan?` · <span style="color:var(--accent)">[Pre-plan]</span>`:''}</div>
+        ${ability?`<div style="font-size:11px;color:var(--text2);line-height:1.5">${ability}</div>`:''}
+      </div>
+    </div>`,
+    `<button class="mbtn" style="border-color:var(--gold);color:var(--gold)" onclick="resolvePlan('hand',${slotIdx})">↩ คืนขึ้นมือ</button>
+     <button class="mbtn" style="border-color:var(--red);color:var(--red)" onclick="resolvePlan('retire',${slotIdx})">☠ ส่ง Retirement</button>`
+  );
+}
+function resolvePlan(dest, slotIdx){
+  closeModal();
+  const plan=window._revealedPlan;
+  window._revealedPlan=null;
+  if(plan){
+    if(dest==='hand'){G.hand.push(plan);log(`แผนการ ${plan.name} → คืนมือ`,'good');}
+    else{G.retireArea.push(plan);log(`แผนการ ${plan.name} → Retirement`,'warn');}
+  }
+  G.contactStep++;
+  renderAll();
+  setTimeout(processNextContact,300);
+}
+
 function peekPlan(i, side){
   const p = side==='player' ? G.pPlans[i] : null;
   if(!p) return;
