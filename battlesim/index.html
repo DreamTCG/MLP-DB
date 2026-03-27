@@ -185,7 +185,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 
 /* Scene card */
 .sc-card{
-  width:50px;height:34px;
+  width:50px;height:70px;
   background:linear-gradient(135deg,#1a2230,#0d1520);
   border:1px solid var(--teal);border-radius:4px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -194,7 +194,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 }
 .sc-card:hover{transform:translateY(-2px);box-shadow:0 3px 8px rgba(45,212,191,.2);}
 /* tapped = rotated 90° (used for harmony) */
-.sc-card.tapped{transform:rotate(90deg);border-color:var(--text3);opacity:.65;margin:7px 3px;}
+.sc-card.tapped{transform:rotate(90deg);border-color:var(--text3);opacity:.65;margin:3px 12px;}
 .sc-card.tapped:hover{transform:rotate(90deg) translateY(-1px);}
 /* flipped = inspo used permanently — dim border, ✕ overlay, but NOT rotated */
 .sc-card.flipped{border-color:rgba(45,212,191,.2);opacity:.6;}
@@ -241,6 +241,20 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .tt-art{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:4px;margin-bottom:6px;display:block;}
 /* 2-column action grid */
 .action-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+/* Deck slot back images */
+.deck-slot-card{position:relative;overflow:hidden;}
+.deck-back{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;z-index:0;display:none;}
+.deck-num,.deck-lbl{position:relative;z-index:1;text-shadow:0 1px 4px rgba(0,0,0,.9);}
+/* MC slot image */
+.mc-slot{position:relative;overflow:hidden;}
+.mc-slot .mc-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:inherit;z-index:0;}
+.mc-slot .mc-emoji{position:relative;z-index:1;}
+.mc-slot .mc-name-lbl{position:relative;z-index:1;background:rgba(0,0,0,.55);border-radius:2px;padding:1px 3px;}
+/* Scene card image */
+.sc-card .sc-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:3px;z-index:0;}
+.sc-n,.sc-e,.sc-i{position:relative;z-index:1;}
+/* Story card thumbnail */
+.s-card-img{width:100%;height:36px;object-fit:cover;object-position:top;border-radius:2px;margin-bottom:2px;display:block;flex-shrink:0;}
 
 /* Right panel */
 .right-panel{display:flex;flex-direction:column;background:var(--bg2);border-left:.5px solid var(--border);overflow-y:auto;}
@@ -442,6 +456,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
         <div class="mc-col">
           <div class="zone-lbl" style="color:var(--red)">OPP MC</div>
           <div class="mc-slot" style="border-color:var(--red);box-shadow:0 0 8px rgba(248,113,113,.15)">
+            <img class="mc-img" id="opp-mc-img" src="" alt="" style="display:none" onerror="this.style.display='none'">
             <div class="mc-emoji">🤖</div>
             <div class="mc-name-lbl" style="color:var(--red)" id="opp-mc-name-lbl">AI</div>
           </div>
@@ -492,6 +507,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
         <div class="mc-col">
           <div class="zone-lbl">Main Char</div>
           <div class="mc-slot">
+            <img class="mc-img" id="mc-img" src="" alt="" style="display:none" onerror="this.style.display='none'">
             <div class="mc-emoji">🍎</div>
             <div class="mc-name-lbl" id="mc-name-lbl">—</div>
           </div>
@@ -515,6 +531,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
         <div class="deck-col">
           <div class="zone-lbl" style="text-align:center">Scene Deck</div>
           <div class="deck-slot-card scene">
+            <img class="deck-back" id="scene-deck-back" src="" alt="" onerror="this.style.display='none'">
             <div class="deck-num" id="sd-cnt">15</div>
             <div class="deck-lbl">Scene<br>Deck</div>
           </div>
@@ -528,6 +545,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
         <div class="deck-col">
           <div class="zone-lbl" style="text-align:center">Main Deck</div>
           <div class="deck-slot-card" onclick="manualDraw()">
+            <img class="deck-back" id="main-deck-back" src="" alt="" onerror="this.style.display='none'">
             <div class="deck-num" id="md-cnt">50</div>
             <div class="deck-lbl">Main<br>Deck</div>
           </div>
@@ -822,7 +840,7 @@ async function selectDeck(key, side){
 }
 
 function loadPlayerDeck(raw){
-  const normalized = normalizeDeck(raw);
+  const normalized = withCardAssetUrls(raw);
   if(!normalized){setSetupMessage('ไฟล์เด็คต้องมี: main, scene, story, mc','error');return;}
   G.raw=normalized;
   const playerPicked = document.getElementById('player-picked');
@@ -845,7 +863,7 @@ function loadPlayerDeck(raw){
 }
 
 function loadBotDeck(raw){
-  const normalized = normalizeDeck(raw);
+  const normalized = withCardAssetUrls(raw);
   if(!normalized){setSetupMessage('เด็ค Bot ไม่ถูกต้อง (ต้องมี: main, scene, story, mc)','error');return;}
   G.botRaw=normalized;
   const botPicked = document.getElementById('bot-picked');
@@ -911,6 +929,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load card database for art and detail enrichment (non-blocking)
   loadCardDB();
+
+  // Set deck back images (CARDS_BASE is available immediately)
+  const mainBack=document.getElementById('main-deck-back');
+  if(mainBack){mainBack.src=CARDS_BASE+'back_main.jpg';mainBack.style.display='block';}
+  const sceneBack=document.getElementById('scene-deck-back');
+  if(sceneBack){sceneBack.src=CARDS_BASE+'back_scene.jpg';sceneBack.style.display='block';}
 
   // File upload handler for player deck
   const fi = document.getElementById('file-input');
@@ -1812,11 +1836,13 @@ function renderScene(){
     else if(s._tapped)        title='Tapped — ใช้ Harmony ไปแล้วเทิร์นนี้';
     else if(hasInspo)         title='คลิก Tap +1✦ | Contact Phase: ↩ Inspo Boost';
     else                      title='คลิก Tap +1✦';
+    const scImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
     return`<div class="sc-card${tappedCls}${flippedCls}"
       onclick="sceneClick(event,${i})"
       oncontextmenu="sceneCtx(event,${i})"
       onmouseenter="showTTScene(event,${i})" onmouseleave="hideTT()"
       title="${title}">
+      ${scImgSrc?`<img class="sc-img" src="${scImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
       <div class="sc-n">${s.name.split(' ').slice(-2).join(' ')}</div>
       ${isEv?'<div class="sc-e">&#9733;</div>':''}
       ${hasInspo&&!s._tapped?'<div class="sc-i">&#8617;</div>':''}
@@ -1900,8 +1926,10 @@ function renderStory(){
            </div>
          </div>`
       : '';
+    const sImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
     return`<div class="s-slot"><div class="s-card ${done?'done':''} ${cur?'current':''}">
       <div class="s-phase">${s.story_stage}</div>
+      ${sImgSrc?`<img class="s-card-img" src="${sImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
       <div class="s-name">${s.name}</div>
       <div class="s-effect">${s.ability_th||s.ability||''}</div>
       ${planHtml}
@@ -1922,9 +1950,11 @@ function renderStory(){
              </div>
            </div>`
         : '';
+      const osImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
       return`<div class="s-slot"><div class="s-card ${done?'done':''} ${cur?'current':''}"
         style="${cur?'border-color:rgba(248,113,113,.6);box-shadow:0 0 5px rgba(248,113,113,.2)':''}">
         <div class="s-phase" style="color:var(--red)">${s.story_stage}</div>
+        ${osImgSrc?`<img class="s-card-img" src="${osImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
         <div class="s-name">${s.name}</div>
         <div class="s-effect">${s.ability_th||s.ability||''}</div>
         ${planHtml}
@@ -1952,7 +1982,15 @@ function renderCounts(){
   const omcn=document.getElementById('opp-mc-name-lbl');if(omcn)omcn.textContent=G.botRaw?.mc?.name?.split(' ')[0]||'AI';
   document.getElementById('opp-deck-v').textContent=G.oMainDeck.length;
   document.getElementById('opp-hand-v').textContent=G.oHand;
-  if(G.raw)document.getElementById('mc-name-lbl').textContent=G.raw.mc.name.split(' ')[0];
+  if(G.raw){
+    document.getElementById('mc-name-lbl').textContent=G.raw.mc.name.split(' ')[0];
+    const mcImg=document.getElementById('mc-img');
+    if(mcImg){const s=G.raw.mc.imageUrl||(G.raw.mc.id?CARDS_BASE+G.raw.mc.id+'.jpg':'');if(s){mcImg.src=s;mcImg.style.display='block';}}
+  }
+  if(G.botRaw){
+    const oppMcImg=document.getElementById('opp-mc-img');
+    if(oppMcImg){const s=G.botRaw.mc.imageUrl||(G.botRaw.mc.id?CARDS_BASE+G.botRaw.mc.id+'.jpg':'');if(s){oppMcImg.src=s;oppMcImg.style.display='block';}}
+  }
 }
 function updateHarmony(){document.getElementById('harmony-val').textContent=G.harmony;}
 
