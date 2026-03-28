@@ -1133,7 +1133,7 @@ async function startGame(){
   G.harmony=0;
   G.turnCount=1;
   G.isPlayerTurn=Math.random()<0.5; // random starting side
-  G.firstPlayer=G.isPlayerTurn ? 'player' : 'bot'; //collect first player state​
+  //G.firstPlayer=G.isPlayerTurn? 'player' : 'bot'; //collect first player state​
   G.selIdx=-1;G.itemTargetMode=false;G.pendingItem=null;
   G.oppTargetMode=false;G.oppTargetCallback=null;G.contactQueue=[];G.contactStep=0;
   G.storyCards=[...G.raw.story].sort((a,b)=>SL.indexOf(a.story_stage)-SL.indexOf(b.story_stage));
@@ -1521,10 +1521,11 @@ function doContact(){
   // Rulebook 404.2: เริ่มจากแถวซ้ายมือของผู้เล่นเจ้าของเทิร์น
   // Player turn  → slot 1→2→3 (index 0,1,2) from player's left
   // Bot turn     → slot 3→2→1 (index 2,1,0) from bot's left = right-to-left on screen
-  const order = G.firstPlayer === 'player'? [0,1,2] : [2,1,0];
-  //const order = G.isPlayerTurn ? [0,1,2] : [2,1,0];
-  const orderLabel = G.firstPlayer === 'player' ? 'L→R' : 'R→L';​
+  //const order = G.isPlayerTurn ? [0,1,2] : [2,1,0];​
   //const orderLabel = G.isPlayerTurn ? '1→2→3' : '3→2→1';
+  const isPlayerFirst = G.firstPlayer === 'player';
+  const order = isPlayerFirst ? [0,1,2] : [2,1,0];
+  const orderLabel = isPlayerFirst ? 'L→R' : 'R→L';
   log(`⚔️ Contact Phase — Turn ${G.turnCount} (${G.isPlayerTurn?'Player':'Bot'}) ลำดับ Slot ${orderLabel}`,'act');
   G.contactQueue=[];
   for(const i of order){
