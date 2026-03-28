@@ -1133,7 +1133,7 @@ async function startGame(){
   G.harmony=0;
   G.turnCount=1;
   G.isPlayerTurn=Math.random()<0.5; // random starting side
-  //G.firstPlayer=G.isPlayerTurn? 'player' : 'bot'; //collect first player state​
+  G.firstPlayer=G.isPlayerTurn? 'player' : 'bot'; //collect first player state​
   G.selIdx=-1;G.itemTargetMode=false;G.pendingItem=null;
   G.oppTargetMode=false;G.oppTargetCallback=null;G.contactQueue=[];G.contactStep=0;
   G.storyCards=[...G.raw.story].sort((a,b)=>SL.indexOf(a.story_stage)-SL.indexOf(b.story_stage));
