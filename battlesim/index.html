@@ -331,9 +331,18 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .tap-btn:hover{background:rgba(251,191,36,.1);}
 
 /* Tooltip */
-.tt{position:fixed;z-index:1000;pointer-events:none;background:var(--bg2);border:.5px solid var(--border2);border-radius:var(--r);padding:9px 11px;max-width:210px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.6);}
+.tt{position:fixed;z-index:1000;pointer-events:none;background:var(--bg2);border:.5px solid var(--border2);border-radius:var(--r);padding:9px 11px;max-width:210px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.6);pointer-events: auto;}
+/* mobile layout */
 @media (max-width: 768px){
-  .tt {left: 50% !important;bottom: 10px;top: auto !important;transform: translateX(-50%);width: 90vw;max-width: 320px;pointer-events: auto; /* สำคัญ! */}
+  .tt {
+    left: 50% !important;
+    bottom: 10px;
+    top: auto !important;
+    transform: translateX(-50%);
+    width: 90vw;
+    max-width: 320px;
+    pointer-events: auto; /* ต้องมี */
+  }
 }
 .tt.show{display:block;}
 .ttn{font-family:'Cinzel',serif;font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;}
@@ -2515,8 +2524,8 @@ function posTT(e){
    TOOLTIP (MOBILE + DESKTOP)
 ═══════════════════════════════════ */
 
-const isMobile = 'ontouchstart' in window;
 let currentTT = null;
+const isMobile = 'ontouchstart' in window;
 
 /* ---------- ENTRY ---------- */
 function showTT(event, el){
@@ -2525,26 +2534,32 @@ function showTT(event, el){
     showTTData(event, data);
   }catch(e){}
 }
+
 function showTTIdx(event,i){
   if(i>=0 && i<G.hand.length) showTTData(event,G.hand[i]);
 }
+
 function showTTScene(event,i){
   if(i>=0 && i<G.sceneArea.length) showTTData(event,G.sceneArea[i]);
 }
-/* ---------- MAIN ---------- */
+
+/* ---------- MAIN (TOGGLE) ---------- */
 function showTTData(event, c){
   const tt = document.getElementById('tt');
-  // 👉 toggle
+
+  // 👉 TOGGLE (กดซ้ำ = ปิด)
   if(currentTT === c){
     hideTT();
-    currentTT = null;
     return;
   }
+
   currentTT = c;
+
   const insp = G.phase!=='setup'?effInsp(c,G.phase==='main'):(c.power??'—');
   const db = CARD_DB[c.id]||{};
   const ability = c.ability_th||c.ability||db.ability_th||db.ability||'';
   const artSrc = c.imageUrl||(c.id?CARDS_BASE+c.id+'.jpg':null);
+
   tt.innerHTML = `
     ${artSrc?`<img class="tt-art" src="${artSrc}" alt="${c.name}" onerror="this.style.display='none'">`:''}
     <div class="ttn">${c.name} <span style="font-size:9px;color:var(--text3)">[${c.rarity||''}] ${c.id||''}</span></div>
@@ -2554,16 +2569,20 @@ function showTTData(event, c){
     ${c.power!=null?`<div class="ttr"><b>Power:</b> ${c.power}${insp!==c.power?` → <b style="color:var(--gold)">${insp}</b>`:''}</div>`:''}
     ${ability?`<div class="ttr" style="margin-top:4px">${ability}</div>`:''}
     ${c._item?`<div class="ttd"></div><div class="ttr"><b>Item:</b> ${c._item.name}</div>`:''}
-  `;​
+  `;
+
   tt.classList.add('show');
-  // 👉 mobile fix position
-  if('ontouchstart' in window){
+
+  // 👉 MOBILE: แสดงล่างจอ
+  if(isMobile){
     tt.style.left = '50%';
     tt.style.top = 'auto';
     tt.style.bottom = '10px';
     tt.style.transform = 'translateX(-50%)';
-  } else {posTT(event);}
-     }
+  } else {
+    posTT(event);
+  }
+}
 
 /* ---------- CLOSE ---------- */
 function hideTT(){
@@ -2572,11 +2591,12 @@ function hideTT(){
   currentTT = null;
 }
 
+/* 👉 กด tooltip = ปิด */
 document.getElementById('tt').addEventListener('click', ()=>{
   hideTT();
 });
 
-/* ---------- FOLLOW MOUSE (DESKTOP ONLY) ---------- */
+/* ---------- DESKTOP ONLY ---------- */
 document.addEventListener('mousemove', e=>{
   if(!isMobile){
     const tt = document.getElementById('tt');
@@ -2586,6 +2606,8 @@ document.addEventListener('mousemove', e=>{
 
 /* ---------- POSITION ---------- */
 function posTT(e){
+  if(!e) return;
+
   const tt = document.getElementById('tt');
 
   let x = e.clientX + 14;
@@ -2601,7 +2623,26 @@ function posTT(e){
 
   tt.style.left = x + 'px';
   tt.style.top = y + 'px';
-    }
+  }
+
+/* ---------- POSITION ---------- */
+/*function posTT(e){
+  const tt = document.getElementById('tt');
+
+  let x = e.clientX + 14;
+  let y = e.clientY + 14;
+
+  if(x + tt.offsetWidth > window.innerWidth - 6){
+    x = e.clientX - tt.offsetWidth - 14;
+  }
+
+  if(y + tt.offsetHeight > window.innerHeight - 6){
+    y = e.clientY - tt.offsetHeight - 14;
+  }
+
+  tt.style.left = x + 'px';
+  tt.style.top = y + 'px';
+    }*/
 /* ═══════════════════════════════════
    MODAL / LOG / ENDGAME
 ═══════════════════════════════════ */
