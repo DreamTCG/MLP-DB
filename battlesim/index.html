@@ -333,15 +333,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 /* Tooltip */
 .tt{position:fixed;z-index:1000;pointer-events:none;background:var(--bg2);border:.5px solid var(--border2);border-radius:var(--r);padding:9px 11px;max-width:210px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.6);}
 @media (max-width: 768px){
-  .tt {
-    left: 50% !important;
-    bottom: 10px;
-    top: auto !important;
-    transform: translateX(-50%);
-    width: 90vw;
-    max-width: 320px;
-    pointer-events: auto; /* สำคัญ! */
-  }
+  .tt {left: 50% !important;bottom: 10px;top: auto !important;transform: translateX(-50%);width: 90vw;max-width: 320px;pointer-events: auto; /* สำคัญ! */}
 }
 .tt.show{display:block;}
 .ttn{font-family:'Cinzel',serif;font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;}
@@ -2533,34 +2525,26 @@ function showTT(event, el){
     showTTData(event, data);
   }catch(e){}
 }
-
 function showTTIdx(event,i){
   if(i>=0 && i<G.hand.length) showTTData(event,G.hand[i]);
 }
-
 function showTTScene(event,i){
   if(i>=0 && i<G.sceneArea.length) showTTData(event,G.sceneArea[i]);
 }
-
 /* ---------- MAIN ---------- */
 function showTTData(event, c){
   const tt = document.getElementById('tt');
-
-  // 👉 MOBILE: tap toggle
-  if(isMobile){
-    if(currentTT === c){
-      hideTT();
-      currentTT = null;
-      return;
-    }
-    currentTT = c;
+  // 👉 toggle
+  if(currentTT === c){
+    hideTT();
+    currentTT = null;
+    return;
   }
-
+  currentTT = c;
   const insp = G.phase!=='setup'?effInsp(c,G.phase==='main'):(c.power??'—');
   const db = CARD_DB[c.id]||{};
   const ability = c.ability_th||c.ability||db.ability_th||db.ability||'';
   const artSrc = c.imageUrl||(c.id?CARDS_BASE+c.id+'.jpg':null);
-
   tt.innerHTML = `
     ${artSrc?`<img class="tt-art" src="${artSrc}" alt="${c.name}" onerror="this.style.display='none'">`:''}
     <div class="ttn">${c.name} <span style="font-size:9px;color:var(--text3)">[${c.rarity||''}] ${c.id||''}</span></div>
@@ -2570,20 +2554,16 @@ function showTTData(event, c){
     ${c.power!=null?`<div class="ttr"><b>Power:</b> ${c.power}${insp!==c.power?` → <b style="color:var(--gold)">${insp}</b>`:''}</div>`:''}
     ${ability?`<div class="ttr" style="margin-top:4px">${ability}</div>`:''}
     ${c._item?`<div class="ttd"></div><div class="ttr"><b>Item:</b> ${c._item.name}</div>`:''}
-  `;
-
+  `;​
   tt.classList.add('show');
-
-  // 👉 MOBILE = fixed bottom
-  if(isMobile){
+  // 👉 mobile fix position
+  if('ontouchstart' in window){
     tt.style.left = '50%';
     tt.style.top = 'auto';
     tt.style.bottom = '10px';
     tt.style.transform = 'translateX(-50%)';
-  } else {
-    posTT(event);
-  }
-}
+  } else {posTT(event);}
+     }
 
 /* ---------- CLOSE ---------- */
 function hideTT(){
@@ -2592,11 +2572,8 @@ function hideTT(){
   currentTT = null;
 }
 
-/* 👉 click outside = close */
-document.addEventListener('click', (e)=>{
-  if(!e.target.closest('.gcard') && !e.target.closest('#tt')){
-    hideTT();
-  }
+document.getElementById('tt').addEventListener('click', ()=>{
+  hideTT();
 });
 
 /* ---------- FOLLOW MOUSE (DESKTOP ONLY) ---------- */
