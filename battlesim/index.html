@@ -155,11 +155,13 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .adv-slots{display:flex;gap:5px;overflow:visible;justify-content:center;flex:1;}
 .adv-divider{height:.5px;background:var(--border);margin:1px 0;}
 /* Power adjuster row */
-.pow-adj-row{display:flex;gap:5px;justify-content:center;min-height:0;}
+/*.pow-adj-row{display:flex;gap:5px;justify-content:center;min-height:0;}*/
 .pow-adj-cell{width:var(--cw);display:flex;align-items:center;justify-content:center;gap:3px;flex-shrink:0;}
 .pow-btn{width:16px;height:16px;border-radius:3px;border:.5px solid var(--border2);background:var(--panel);color:var(--text2);font-size:10px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
 .pow-btn:hover{border-color:var(--accent);color:var(--accent);}
 .pow-val{font-size:9px;min-width:16px;text-align:center;color:var(--text3);font-family:'Cinzel',serif;}
+  /* NEW: column wrapper */
+.adv-col {display: flex;flex-direction: column;align-items: center;gap: 3px;width: var(--cw);flex-shrink: 0;}
 
 /* Slots */
 .adv-slot{width:var(--cw);height:var(--ch);border:1px dashed var(--border2);border-radius:var(--rsm);
@@ -593,11 +595,93 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 
       <!-- ══ ADVENTURE ZONE (center, shared) ══ -->
       <div class="adventure-area">
-        <div class="area-title">⚔️ Adventure Area</div>
+  <div class="area-title">⚔️ Adventure Area</div>
+
+  <!-- OPP -->
+  <div class="adv-side">
+    <div class="side-lbl" style="color:var(--red)">OPP</div>
+
+    <div class="adv-slots">
+
+      <!-- SLOT 0 -->
+      <div class="adv-col">
+        <div class="pow-adj-cell" id="opa0"></div>
+        <div class="adv-slot opp-adv-slot" id="os0">
+          <span class="slot-icon">○</span>
+        </div>
+      </div>
+
+      <!-- SLOT 1 -->
+      <div class="adv-col">
+        <div class="pow-adj-cell" id="opa1"></div>
+        <div class="adv-slot opp-adv-slot" id="os1">
+          <span class="slot-icon">○</span>
+        </div>
+      </div>
+
+      <!-- SLOT 2 -->
+      <div class="adv-col">
+        <div class="pow-adj-cell" id="opa2"></div>
+        <div class="adv-slot opp-adv-slot" id="os2">
+          <span class="slot-icon">○</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- column labels -->
+  <div style="display:flex;gap:5px;justify-content:center">
+    <div style="width:var(--cw);text-align:center;font-size:8px;color:var(--text3)">1</div>
+    <div style="width:var(--cw);text-align:center;font-size:8px;color:var(--text3)">2</div>
+    <div style="width:var(--cw);text-align:center;font-size:8px;color:var(--text3)">3</div>
+  </div>
+
+  <!-- PLAYER -->
+  <div class="adv-side">
+    <div class="side-lbl" style="color:var(--green)">YOU</div>
+
+    <div class="adv-slots">
+
+      <!-- SLOT 0 -->
+      <div class="adv-col">
+        <div class="adv-slot player-slot" id="ps0"
+          onclick="slotClick(0)"
+          oncontextmenu="event.preventDefault();showAdvCtxMenu(0)">
+          <span class="slot-icon">+</span>
+        </div>
+        <div class="pow-adj-cell" id="ppa0"></div>
+      </div>
+
+      <!-- SLOT 1 -->
+      <div class="adv-col">
+        <div class="adv-slot player-slot" id="ps1"
+          onclick="slotClick(1)"
+          oncontextmenu="event.preventDefault();showAdvCtxMenu(1)">
+          <span class="slot-icon">+</span>
+        </div>
+        <div class="pow-adj-cell" id="ppa1"></div>
+      </div>
+
+      <!-- SLOT 2 -->
+      <div class="adv-col">
+        <div class="adv-slot player-slot" id="ps2"
+          onclick="slotClick(2)"
+          oncontextmenu="event.preventDefault();showAdvCtxMenu(2)">
+          <span class="slot-icon">+</span>
+        </div>
+        <div class="pow-adj-cell" id="ppa2"></div>
+      </div>
+
+    </div>
+  </div>
+            </div>
+      <!-- <div class="adventure-area">
+        <div class="area-title">⚔️ Adventure Area</div> -​->
 
         <!-- OPP slots — cards face up, upside-down perspective -->
         <!-- OPP power adjuster (above OPP chars) -->
-        <div class="pow-adj-row" id="opp-pow-adj">
+        <!--<div class="pow-adj-row" id="opp-pow-adj">
           <div class="pow-adj-cell" id="opa0"></div>
           <div class="pow-adj-cell" id="opa1"></div>
           <div class="pow-adj-cell" id="opa2"></div>
@@ -609,31 +693,31 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
             <div class="adv-slot opp-adv-slot" id="os1"><span class="slot-icon">○</span></div>
             <div class="adv-slot opp-adv-slot" id="os2"><span class="slot-icon">○</span></div>
           </div>
-        </div>
+        </div> -​->
 
         <!-- slot column labels -->
-        <div style="display:flex;gap:5px;justify-content:center">
+        <!--<div style="display:flex;gap:5px;justify-content:center">
           <div style="width:var(--cw);flex-shrink:0;text-align:center;font-size:8px;color:var(--text3)">1</div>
           <div style="width:var(--cw);flex-shrink:0;text-align:center;font-size:8px;color:var(--text3)">2</div>
           <div style="width:var(--cw);flex-shrink:0;text-align:center;font-size:8px;color:var(--text3)">3</div>
-        </div>
+        </div>-->
 
         <!-- PLAYER slots -->
-        <div class="adv-side">
+        <!--<div class="adv-side">
           <div class="side-lbl" style="color:var(--green)">YOU</div>
           <div class="adv-slots">
             <div class="adv-slot player-slot" id="ps0" onclick="slotClick(0)" oncontextmenu="event.preventDefault();showAdvCtxMenu(0)"><span class="slot-icon">+</span></div>
             <div class="adv-slot player-slot" id="ps1" onclick="slotClick(1)" oncontextmenu="event.preventDefault();showAdvCtxMenu(1)"><span class="slot-icon">+</span></div>
             <div class="adv-slot player-slot" id="ps2" onclick="slotClick(2)" oncontextmenu="event.preventDefault();showAdvCtxMenu(2)"><span class="slot-icon">+</span></div>
           </div>
-        </div>
+        </div>-->
         <!-- Player power adjuster (below player chars) -->
-        <div class="pow-adj-row" id="plr-pow-adj">
+        <!--<div class="pow-adj-row" id="plr-pow-adj">
           <div class="pow-adj-cell" id="ppa0"></div>
           <div class="pow-adj-cell" id="ppa1"></div>
           <div class="pow-adj-cell" id="ppa2"></div>
         </div>
-      </div>
+      </div>-->
 
       <!-- ══ PLAYER SIDE (bottom) ══ -->
 
