@@ -2500,7 +2500,6 @@ function showTTData(event,c){
 }
 function hideTT(){document.getElementById('tt').classList.remove('show');}
 document.addEventListener('mousemove',e=>{if(document.getElementById('tt').classList.contains('show'))posTT(e);});
-document.addEventListener('touchend',e=>{if(document.getElementById('tt').classList.contains('show'))posTT(e);});  
 function posTT(e){
   const tt=document.getElementById('tt');
   let x=e.clientX+14,y=e.clientY+14;
