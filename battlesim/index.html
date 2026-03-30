@@ -1566,6 +1566,7 @@ function doContact(){
 }
 
 function processNextContact(){
+  G._playerUsedInspo = false;
   _clearContactHighlight();
   if(G.contactStep>=G.contactQueue.length){
     // All slots done — clear boosts
@@ -1628,6 +1629,7 @@ function useInspoInContact(sceneIdx,slotIdx){
   scene._flipped=true; // permanent — inspo exhausted for this scene
   const p=G.pAdv[slotIdx];
   if(p){
+    G._playerUsedInspo = true;
     p._boosted=(p._boosted||0)+1;
     log(`Inspo Boost: ${scene.name} → ${p.name} +1 Insp`,'act');
   }
@@ -1637,10 +1639,61 @@ function useInspoInContact(sceneIdx,slotIdx){
     showContactModal(slotIdx,G.pAdv[slotIdx],G.oAdv[slotIdx]);
 }
 
-function resolveContact(slotIdx){
+function aiUseInspo(slotIdx){
+  const o = G.oAdv[slotIdx]; // bot
+  const p = G.pAdv[slotIdx]; // player
+  if(!o || !p) return;
+  const baseOi = o.power || 0;
+  const pi = effInsp(p,true);
+  // หา scene ที่ใช้ได้ (ของ bot)
+  const scenes = G.oSceneArea?.filter(s =>
+    !s._flipped && s.ability?.toLowerCase().includes('inspo')
+  ) || [];
+  if(!scenes.length) return;
+  // 👉 logic: ใช้ boost ถ้าช่วยให้ชนะ
+  const need = pi - baseOi;
+  if(need > 0 && need <= scenes.length){
+    for(let i=0;i<need;i++){
+      const s = scenes[i];
+      s._flipped = true;
+      o._boosted = (o._boosted || 0) + 1;
+      log(`🤖 Inspo Boost: ${s.name} → ${o.name} +1 Insp`,'act');
+    }
+  }
+  }
+  
+/*function resolveContact(slotIdx){
   closeModal();
   const p=G.pAdv[slotIdx],o=G.oAdv[slotIdx];
   if(!p||!o){G.contactStep++;setTimeout(processNextContact,100);return;}
+  const pi=effInsp(p,true),oi=o.power||0;
+  log(`Slot${slotIdx+1}: ${p.name}(${pi}) vs ${o.name}(${oi})`);
+  if(pi>oi){log('  → ชนะ ✅ — OPP Retire','good');retireO(slotIdx);}
+  else if(pi<oi){log(`  → แพ้ — ${p.name} Retire`,'warn');retireP(slotIdx);}
+  else{log('  → เสมอ — ทั้งคู่ Retire','warn');retireP(slotIdx);retireO(slotIdx);}
+  G.contactStep++;
+  renderAll();
+  setTimeout(processNextContact,300);
+}*/
+function resolveContact(slotIdx){
+  closeModal();
+  const p=G.pAdv[slotIdx],o=G.oAdv[slotIdx];
+  if(!p||!o){
+    G.contactStep++;
+    setTimeout(processNextContact,100);
+    return;
+  }
+  // 🎯 ลำดับการใช้ boost
+  if(G.isPlayerTurn){
+    // player เป็นคนเริ่ม 👉 ถ้า player ใช้แล้ว → bot ค่อยตอบ
+    if(G._playerUsedInspo){
+      aiUseInspo(slotIdx);
+    }
+  }else{
+    // bot เริ่มก่อน
+    aiUseInspo(slotIdx);
+    // 👉 player จะใช้ผ่าน UI ทีหลังอยู่แล้ว
+  }
   const pi=effInsp(p,true),oi=o.power||0;
   log(`Slot${slotIdx+1}: ${p.name}(${pi}) vs ${o.name}(${oi})`);
   if(pi>oi){log('  → ชนะ ✅ — OPP Retire','good');retireO(slotIdx);}
@@ -1830,7 +1883,7 @@ function aiAct(i){
     if(G.oStage>=4)endGame(false,'AI ถึง Stage IV!');
   }
 }
-function aiSim(){
+/*function aiSim(){
   const botHarmony=G.oSceneArea?.length??G.oSceneCount??0;
   const playable=[...G.oMainDeck].filter(x=>x.type==='Character'&&(x.cost||0)<=botHarmony);
   if(!playable.length)return;
@@ -1844,6 +1897,30 @@ function aiSim(){
     G.oMainDeck.splice(G.oMainDeck.indexOf(card),1);
     log(`Bot plays ${card.name}[${card.rarity}] cost:${card.cost} pwr:${card.power} -> Slot${slot+1}`);
   }
+}*/
+function aiSim(){
+  const botHarmony=G.oSceneArea?.length??G.oSceneCount??0;
+  const playable=[...G.oMainDeck]
+    .filter(x=>x.type==='Character'&&(x.cost||0)<=botHarmony);
+  if(!playable.length)return;
+  let bestMove = null;
+  playable.forEach(card=>{
+    [0,1,2].forEach(slot=>{
+      if(G.oAdv[slot]!==null) return;
+      const enemy = G.pAdv[slot];
+      const score = enemy
+        ? (card.power||0)-(enemy.power||0)
+        : (card.power||0);
+      if(!bestMove || score > bestMove.score){
+        bestMove = {card, slot, score};
+      }
+    });
+  });
+  if(!bestMove) return;
+  const {card, slot} = bestMove;
+  G.oAdv[slot]={...card,_tapped:false,_boosted:0,_item:null};
+  G.oMainDeck.splice(G.oMainDeck.indexOf(card),1);
+  log(`Bot plays ${card.name} -> Slot${slot+1}`);
 }
 function effInsp(c,isMyTurn){
   let v=c.power||0;
