@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MLP TCG — Solitaire Simulator</title>
+<title>MLP TCG — Battle Simulator</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -460,7 +460,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   <div class="setup-logo">
     <h1>My Little Pony</h1>
     <h2>TCG Simulator</h2>
-    <p class="sub">Solitaire Deck Tester</p>
+    <p class="sub">Deck Tester</p>
   </div>
   <div class="setup-box">
     <h3>LOAD YOUR DECK</h3>
@@ -1999,6 +1999,7 @@ function mkCard(c,isP){
   const safe=JSON.stringify({...c,_item:c._item||null}).replace(/'/g,"&#39;").replace(/"/g,'&quot;');
   return`<div class="gcard ${tc}${isOrange?' orange':''}${tapped}"
     onmouseenter="showTT(event,this)" onmouseleave="hideTT()"
+    ontouchstart="ttStart(()=>showTT(event,this))" ontouchend="ttEnd()" ontouchmove="ttCancel()"
     data-card="${safe}">
     <div class="gface">
       <div class="gcost">${c.cost??'—'}</div>
@@ -2026,7 +2027,8 @@ function renderHand(){
     el.innerHTML=banner+G.hand.map((card,i)=>{
       const isOrange=card.color==='Orange';
       return `<div class="hitem" style="border-color:rgba(248,113,113,.6);cursor:pointer" onclick="selCard(${i})"
-        onmouseenter="showTTIdx(event,${i})" onmouseleave="hideTT()">
+        onmouseenter="showTTIdx(event,${i})" onmouseleave="hideTT()"
+        ontouchstart="ttStart(()=>showTTIdx(event,${i}))" ontouchend="ttEnd()" ontouchmove="ttCancel()">
         <div class="hico ${(card.type||'').toLowerCase()}${isOrange?' orange':''}">${TICON[card.type]||'?'}</div>
         <div class="hinfo"><div class="hname">${card.name}</div><div class="hsub">${card.rarity}</div></div>
         <div style="font-size:11px;color:var(--red)">x</div>
@@ -2044,7 +2046,8 @@ function renderHand(){
       const isOrange=c.color==='Orange';
       const cc=c.cost<=G.harmony?'var(--gold)':'var(--red)';
       return`<div class="hitem${sel}" onclick="selCard(${i})"
-        onmouseenter="showTTIdx(event,${i})" onmouseleave="hideTT()">
+        onmouseenter="showTTIdx(event,${i})" onmouseleave="hideTT()"
+        ontouchstart="ttStart(()=>showTTIdx(event,${i}))" ontouchend="ttEnd()" ontouchmove="ttCancel()">
         <div class="hico ${(c.type||'').toLowerCase()}${isOrange?' orange':''}">${TICON[c.type]||'?'}</div>
         <div class="hinfo">
           <div class="hname">${c.name}</div>
@@ -2060,7 +2063,8 @@ function renderHand(){
     const isOrange=c.color==='Orange';
     const cc=c.cost<=G.harmony?'var(--gold)':'var(--red)';
     return`<div class="hitem${sel}" onclick="selCard(${i})"
-      onmouseenter="showTTIdx(event,${i})" onmouseleave="hideTT()">
+      onmouseenter="showTTIdx(event,${i})" onmouseleave="hideTT()"
+      ontouchstart="ttStart(()=>showTTIdx(event,${i}))" ontouchend="ttEnd()" ontouchmove="ttCancel()">
       <div class="hico ${(c.type||'').toLowerCase()}${isOrange?' orange':''}">${TICON[c.type]||'?'}</div>
       <div class="hinfo">
         <div class="hname">${c.name}</div>
@@ -2130,7 +2134,8 @@ function renderScene(){
     return`<div class="sc-card${tappedCls}${flippedCls}"
       onclick="sceneClick(event,${i})"
       oncontextmenu="sceneCtx(event,${i})"
-      onmouseenter="showTTScene(event,${i})" onmouseleave="hideTT()"
+      onmouseenter="showTTScene(event,${i})" onmouseleave="hideTT()" 
+      ontouchstart="ttStart(()=>showTTScene(event,${i}))" ontouchend="ttEnd()" ontouchmove="ttCancel()"
       title="${title}">
       ${scImgSrc?`<img class="sc-img" src="${scImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
       <div class="sc-n">${s.name.split(' ').slice(-2).join(' ')}</div>
@@ -2212,7 +2217,8 @@ function renderOppScene(){
   el.innerHTML=G.oSceneArea.map((s,i)=>{
     const scImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
     return`<div class="sc-card" style="border-color:rgba(248,113,113,.5);cursor:default"
-      onmouseenter="showTTData(event,G.oSceneArea[${i}])" onmouseleave="hideTT()">
+      onmouseenter="showTTData(event,G.oSceneArea[${i}])" onmouseleave="hideTT()" 
+      ontouchstart="ttStart(()=>showTTData(event,G.oSceneArea[${i}]))" ontouchend="ttEnd()" ontouchmove="ttCancel()">
       ${scImgSrc?`<img class="sc-img" src="${scImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
       <div class="sc-n" style="color:rgba(248,113,113,.8)">${s.name.split(' ').slice(-2).join(' ')}</div>
     </div>`;
@@ -2249,7 +2255,8 @@ function renderStory(){
       ? `<div class="plan-over" onclick="peekPlan(${i},'player')" title="แผนการ (คว่ำ) — คลิกดูเฉพาะเรา">📋 Plan</div>`
       : '';
     const sImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
-    return`<div class="s-slot" onmouseenter="showTTData(event,G.storyCards[${i}])" onmouseleave="hideTT()"><div class="s-card ${done?'done':''} ${cur?'current':''}">
+    return`<div class="s-slot" onmouseenter="showTTData(event,G.storyCards[${i}])" onmouseleave="hideTT()" 
+      ontouchstart="ttStart(()=>showTTData(event,G.storyCards[${i}]))" ontouchend="ttEnd()" ontouchmove="ttCancel()"><div class="s-card ${done?'done':''} ${cur?'current':''}">
       <div class="s-phase">${s.story_stage}</div>
       ${sImgSrc?`<img class="s-card-img" src="${sImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
       ${planHtml}
@@ -2266,7 +2273,8 @@ function renderStory(){
         ? `<div class="plan-over opp-plan-bar" title="แผนการ OPP (ซ่อน)">📋 Plan</div>`
         : '';
       const osImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
-      return`<div class="s-slot" onmouseenter="showTTData(event,G.oStory[${i}])" onmouseleave="hideTT()"><div class="s-card ${done?'done':''} ${cur?'current':''}"
+      return`<div class="s-slot" onmouseenter="showTTData(event,G.oStory[${i}])" onmouseleave="hideTT()" 
+        ontouchstart="ttStart(()=>showTTData(event,G.oStory[${i}])" ontouchend="ttEnd()" ontouchmove="ttCancel()"><div class="s-card ${done?'done':''} ${cur?'current':''}"
         style="${cur?'border-color:rgba(248,113,113,.6);box-shadow:0 0 5px rgba(248,113,113,.2)':''}">
         <div class="s-phase" style="color:var(--red)">${s.story_stage}</div>
         ${osImgSrc?`<img class="s-card-img" src="${osImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
@@ -2507,7 +2515,12 @@ function posTT(e){
   if(y+tt.offsetHeight>window.innerHeight-6)y=e.clientY-tt.offsetHeight-14;
   tt.style.left=x+'px';tt.style.top=y+'px';
 }
-  
+/*Tooltips for mobile*/
+let ttTimer = null;
+function ttStart(fn){ttTimer=setTimeout(()=>{fn();},300);}
+function ttEnd(){clearTimeout(ttTimer);hideTT();}
+function ttCancel(){clearTimeout(ttTimer);}  
+
 /* ═══════════════════════════════════
    MODAL / LOG / ENDGAME
 ═══════════════════════════════════ */
