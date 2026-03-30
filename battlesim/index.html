@@ -2483,11 +2483,13 @@ function viewOppRetire(){
 /* ═══════════════════════════════════
    TOOLTIP
 ═══════════════════════════════════ */
-function showTT(event,el){
+let lastTouchTime = 0;
+document.addEventListener('touchstart', ()=>{lastTouchTime = Date.now();}, {passive:true});
+function showTT(event,el){if(Date.now() - lastTouchTime < 200) return;
   try{showTTData(event,JSON.parse(el.getAttribute('data-card').replace(/&quot;/g,'"')));}catch(e){}
 }
-function showTTIdx(event,i){if(i>=0&&i<G.hand.length)showTTData(event,G.hand[i]);}
-function showTTScene(event,i){if(i>=0&&i<G.sceneArea.length)showTTData(event,G.sceneArea[i]);}
+function showTTIdx(event,i){if(Date.now() - lastTouchTime < 200) return;if(i>=0&&i<G.hand.length)showTTData(event,G.hand[i]);}
+function showTTScene(event,i){if(Date.now() - lastTouchTime < 200) return;if(i>=0&&i<G.sceneArea.length)showTTData(event,G.sceneArea[i]);}
 function showTTData(event,c){
   const tt=document.getElementById('tt');
   const insp=G.phase!=='setup'?effInsp(c,G.phase==='main'):(c.power??'—');
