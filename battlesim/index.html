@@ -595,129 +595,69 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 
       <!-- ══ ADVENTURE ZONE (center, shared) ══ -->
       <div class="adventure-area">
-  <div class="area-title">⚔️ Adventure Area</div>
+      <div class="area-title">⚔️ Adventure Area</div>
 
-  <!-- OPP -->
-  <div class="adv-side">
-    <div class="side-lbl" style="color:var(--red)">OPP</div>
-
-    <div class="adv-slots">
-
-      <!-- SLOT 0 -->
-      <div class="adv-col">
-        <div class="pow-adj-cell" id="opa0"></div>
-        <div class="adv-slot opp-adv-slot" id="os0">
-          <span class="slot-icon">○</span>
-        </div>
-      </div>
-
-      <!-- SLOT 1 -->
-      <div class="adv-col">
-        <div class="pow-adj-cell" id="opa1"></div>
-        <div class="adv-slot opp-adv-slot" id="os1">
-          <span class="slot-icon">○</span>
-        </div>
-      </div>
-
-      <!-- SLOT 2 -->
-      <div class="adv-col">
-        <div class="pow-adj-cell" id="opa2"></div>
-        <div class="adv-slot opp-adv-slot" id="os2">
-          <span class="slot-icon">○</span>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- column labels -->
-  <div style="display:flex;gap:5px;justify-content:center">
-    <div style="width:var(--cw);text-align:center;font-size:8px;color:var(--text3)">1</div>
-    <div style="width:var(--cw);text-align:center;font-size:8px;color:var(--text3)">2</div>
-    <div style="width:var(--cw);text-align:center;font-size:8px;color:var(--text3)">3</div>
-  </div>
-
-  <!-- PLAYER -->
-  <div class="adv-side">
-    <div class="side-lbl" style="color:var(--green)">YOU</div>
-
-    <div class="adv-slots">
-
-      <!-- SLOT 0 -->
-      <div class="adv-col">
-        <div class="adv-slot player-slot" id="ps0"
-          onclick="slotClick(0)"
-          oncontextmenu="event.preventDefault();showAdvCtxMenu(0)">
-          <span class="slot-icon">+</span>
-        </div>
-        <div class="pow-adj-cell" id="ppa0"></div>
-      </div>
-
-      <!-- SLOT 1 -->
-      <div class="adv-col">
-        <div class="adv-slot player-slot" id="ps1"
-          onclick="slotClick(1)"
-          oncontextmenu="event.preventDefault();showAdvCtxMenu(1)">
-          <span class="slot-icon">+</span>
-        </div>
-        <div class="pow-adj-cell" id="ppa1"></div>
-      </div>
-
-      <!-- SLOT 2 -->
-      <div class="adv-col">
-        <div class="adv-slot player-slot" id="ps2"
-          onclick="slotClick(2)"
-          oncontextmenu="event.preventDefault();showAdvCtxMenu(2)">
-          <span class="slot-icon">+</span>
-        </div>
-        <div class="pow-adj-cell" id="ppa2"></div>
-      </div>
-
-    </div>
-  </div>
+      <!-- OPP -->
+      <div class="adv-side">
+        <div class="side-lbl" style="color:var(--red)">OPP</div>
+          <div class="adv-slots">
+          <!-- SLOT 0 -->
+          <div class="adv-col">
+            <div class="pow-adj-cell" id="opa0"></div>
+            <div class="adv-slot opp-adv-slot" id="os0">
+              <span class="slot-icon">○</span>
             </div>
-      <!-- <div class="adventure-area">
-        <div class="area-title">⚔️ Adventure Area</div> -​->
-
-        <!-- OPP slots — cards face up, upside-down perspective -->
-        <!-- OPP power adjuster (above OPP chars) -->
-        <!--<div class="pow-adj-row" id="opp-pow-adj">
-          <div class="pow-adj-cell" id="opa0"></div>
-          <div class="pow-adj-cell" id="opa1"></div>
-          <div class="pow-adj-cell" id="opa2"></div>
-        </div>
-        <div class="adv-side">
-          <div class="side-lbl" style="color:var(--red)">OPP</div>
-          <div class="adv-slots">
-            <div class="adv-slot opp-adv-slot" id="os0"><span class="slot-icon">○</span></div>
-            <div class="adv-slot opp-adv-slot" id="os1"><span class="slot-icon">○</span></div>
-            <div class="adv-slot opp-adv-slot" id="os2"><span class="slot-icon">○</span></div>
           </div>
-        </div> -​->
-
-        <!-- slot column labels -->
-        <!--<div style="display:flex;gap:5px;justify-content:center">
-          <div style="width:var(--cw);flex-shrink:0;text-align:center;font-size:8px;color:var(--text3)">1</div>
-          <div style="width:var(--cw);flex-shrink:0;text-align:center;font-size:8px;color:var(--text3)">2</div>
-          <div style="width:var(--cw);flex-shrink:0;text-align:center;font-size:8px;color:var(--text3)">3</div>
-        </div>-->
-
-        <!-- PLAYER slots -->
-        <!--<div class="adv-side">
-          <div class="side-lbl" style="color:var(--green)">YOU</div>
-          <div class="adv-slots">
-            <div class="adv-slot player-slot" id="ps0" onclick="slotClick(0)" oncontextmenu="event.preventDefault();showAdvCtxMenu(0)"><span class="slot-icon">+</span></div>
-            <div class="adv-slot player-slot" id="ps1" onclick="slotClick(1)" oncontextmenu="event.preventDefault();showAdvCtxMenu(1)"><span class="slot-icon">+</span></div>
-            <div class="adv-slot player-slot" id="ps2" onclick="slotClick(2)" oncontextmenu="event.preventDefault();showAdvCtxMenu(2)"><span class="slot-icon">+</span></div>
+          <!-- SLOT 1 -->
+          <div class="adv-col">
+            <div class="pow-adj-cell" id="opa1"></div>
+            <div class="adv-slot opp-adv-slot" id="os1">
+              <span class="slot-icon">○</span>
+            </div>
           </div>
-        </div>-->
-        <!-- Player power adjuster (below player chars) -->
-        <!--<div class="pow-adj-row" id="plr-pow-adj">
+          <!-- SLOT 2 -->
+          <div class="adv-col">
+            <div class="pow-adj-cell" id="opa2"></div>
+            <div class="adv-slot opp-adv-slot" id="os2">
+              <span class="slot-icon">○</span>
+            </div>
+          </div>
+          </div>
+      </div>
+    <!-- column labels -->
+    <div style="display:flex;gap:5px;justify-content:center">
+      <div style="width:var(--cw);text-align:center;font-size:8px;color:var(--text3)">1</div>
+      <div style="width:var(--cw);text-align:center;font-size:8px;color:var(--text3)">2</div>
+      <div style="width:var(--cw);text-align:center;font-size:8px;color:var(--text3)">3</div>
+    </div>
+    <!-- PLAYER -->
+    <div class="adv-side">
+      <div class="side-lbl" style="color:var(--green)">YOU</div>
+      <div class="adv-slots">
+        <!-- SLOT 0 -->
+        <div class="adv-col">
+          <div class="adv-slot player-slot" id="ps0" onclick="slotClick(0)" oncontextmenu="event.preventDefault();showAdvCtxMenu(0)">
+            <span class="slot-icon">+</span>
+          </div>
           <div class="pow-adj-cell" id="ppa0"></div>
+        </div>
+        <!-- SLOT 1 -->
+        <div class="adv-col">
+          <div class="adv-slot player-slot" id="ps1" onclick="slotClick(1)" oncontextmenu="event.preventDefault();showAdvCtxMenu(1)">
+            <span class="slot-icon">+</span>
+          </div>
           <div class="pow-adj-cell" id="ppa1"></div>
+        </div>
+        <!-- SLOT 2 -->
+        <div class="adv-col">
+          <div class="adv-slot player-slot" id="ps2" onclick="slotClick(2)" oncontextmenu="event.preventDefault();showAdvCtxMenu(2)">
+            <span class="slot-icon">+</span>
+          </div>
           <div class="pow-adj-cell" id="ppa2"></div>
         </div>
-      </div>-->
+      </div>
+    </div>
+      </div>
 
       <!-- ══ PLAYER SIDE (bottom) ══ -->
 
