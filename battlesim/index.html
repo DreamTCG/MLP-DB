@@ -102,6 +102,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .preset-card{
   padding:6px 3px;border-radius:var(--rsm);border:.5px solid var(--border2);
   background:var(--bg3);cursor:pointer;transition:all .15s;text-align:center;
+  min-width:0;overflow:hidden;
 }
 .preset-card:hover{border-color:var(--accent);background:var(--panel);}
 .preset-card.selected{border-color:var(--gold);background:rgba(251,191,36,.08);}
@@ -459,7 +460,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 <!-- SETUP -->
 <div id="setup-screen" class="screen active">
   <div style="position:absolute;top:14px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 14px;z-index:10;">
-    <button onclick="goBackToDeckBuilder()" class="theme-btn" style="font-size:12px;padding:4px 12px;">← Deck Builder</button>
+    <button onclick="goBackToDeckBuilder()" class="theme-btn" style="font-size:12px;padding:4px 12px;">« Deck Builder</button>
     <button class="theme-btn" id="theme-btn-setup" onclick="toggleTheme()" title="Toggle light/dark mode">☀️</button>
   </div>
   <div class="setup-logo">
