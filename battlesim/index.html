@@ -2598,7 +2598,7 @@ function showTT(event,el){if(Date.now() - lastTouchTime < 200) return;
 function showTTIdx(event,i){if(Date.now() - lastTouchTime < 200) return;if(i>=0&&i<G.hand.length)showTTData(event,G.hand[i]);}
 function showTTScene(event,i){if(Date.now() - lastTouchTime < 200) return;if(i>=0&&i<G.sceneArea.length)showTTData(event,G.sceneArea[i]);}
 function showTTData(event,c){
-  if(_lastPointerWasTouch)return; // suppress hover on touch devices
+  if(_lastPointerWasTouch&&!_ttForceShow)return; // suppress accidental hover on touch
   const tt=document.getElementById('tt');
   const insp=G.phase!=='setup'?effInsp(c,G.phase==='main'):(c.power??'—');
   const db=CARD_DB[c.id]||{};
@@ -2617,13 +2617,57 @@ function showTTData(event,c){
   tt.classList.add('show');posTT(event);
 }
 function hideTT(){document.getElementById('tt').classList.remove('show');}
-// Touch-safe tooltip: suppress hover tooltips when last interaction was touch
+/* ── TOOLTIP TOUCH SUPPORT ──────────────────────────────────
+   Desktop : onmouseenter/onmouseleave work as normal hover.
+   Mobile  : long-press (500ms hold) shows tooltip; lift finger hides it.
+   _lastPointerWasTouch blocks accidental hover-tooltip on synthetic
+   mouseenter that browsers fire after a tap.
+   _ttForceShow bypasses that guard so long-press can still show.
+──────────────────────────────────────────────────────────── */
 let _lastPointerWasTouch=false;
+let _ttForceShow=false;
+let _ttLongTimer=null;
+let _ttLongStartX=0,_ttLongStartY=0;
+
 document.addEventListener('touchstart',()=>{_lastPointerWasTouch=true;},{passive:true});
 document.addEventListener('mousemove',e=>{
   _lastPointerWasTouch=false;
   if(document.getElementById('tt').classList.contains('show'))posTT(e);
 });
+
+// Long-press: find closest element with onmouseenter and execute its handler
+document.addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='touch')return;
+  clearTimeout(_ttLongTimer);_ttLongTimer=null;
+  _ttLongStartX=e.clientX;_ttLongStartY=e.clientY;
+  const el=e.target.closest('[onmouseenter]');
+  if(!el)return;
+  const x=e.clientX,y=e.clientY;
+  _ttLongTimer=setTimeout(()=>{
+    _ttLongTimer=null;
+    const handler=el.getAttribute('onmouseenter');
+    if(!handler)return;
+    try{
+      _ttForceShow=true;
+      new Function('event',handler).call(el,{clientX:x,clientY:y});
+    }finally{_ttForceShow=false;}
+  },500);
+},{passive:true});
+
+// Cancel on release — hide tooltip
+document.addEventListener('pointerup',e=>{
+  if(e.pointerType!=='touch')return;
+  clearTimeout(_ttLongTimer);_ttLongTimer=null;
+  hideTT();
+},{passive:true});
+
+// Cancel on significant movement (scrolling / swiping)
+document.addEventListener('pointermove',e=>{
+  if(e.pointerType!=='touch'||!_ttLongTimer)return;
+  if(Math.abs(e.clientX-_ttLongStartX)>8||Math.abs(e.clientY-_ttLongStartY)>8){
+    clearTimeout(_ttLongTimer);_ttLongTimer=null;
+  }
+},{passive:true});
 function posTT(e){
   const tt=document.getElementById('tt');
   let x=e.clientX+14,y=e.clientY+14;
