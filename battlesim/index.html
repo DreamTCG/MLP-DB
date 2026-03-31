@@ -58,6 +58,8 @@ body.light-mode #setup-screen::before{background:radial-gradient(ellipse 60% 50%
 /* theme toggle button */
 .theme-btn{background:transparent;border:.5px solid var(--border2);border-radius:var(--rsm);padding:3px 8px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;line-height:1;}
 .theme-btn:hover{border-color:var(--accent);}
+.back-btn{background:transparent;border:.5px solid var(--border2);border-radius:var(--rsm);padding:4px 12px;cursor:pointer;font-size:12px;color:var(--text2);transition:all .15s;line-height:1;font-family:'Sarabun',sans-serif;}
+.back-btn:hover{border-color:var(--accent);}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 .screen{display:none;min-height:100vh;}
@@ -461,7 +463,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 <!-- SETUP -->
 <div id="setup-screen" class="screen active">
   <div style="position:absolute;top:14px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 14px;z-index:10;">
-    <button onclick="goBackToDeckBuilder()" class="theme-btn" style="font-size:12px;padding:4px 12px;">« Deck Builder</button>
+    <button onclick="goBackToDeckBuilder()" class="back-btn">« Deck Builder</button>
     <button class="theme-btn" id="theme-btn-setup" onclick="toggleTheme()" title="Toggle light/dark mode">☀️</button>
   </div>
   <div class="setup-logo">
@@ -1831,9 +1833,9 @@ function actionAdvance(slotIdx){
     const pv=pc?effInsp(pc,true):'—';const ov=oc?(oc.power+(oc._boosted||0)):'—';
     return`<div style="display:flex;align-items:center;justify-content:center;gap:4px;margin:2px 0;font-size:9px">
       <span style="min-width:48px;text-align:right;color:var(--green)">${pc?pc.name.split(' ').slice(-1)[0]:'—'}</span>
-      ${pc?`<button class="pow-btn" onclick="adjPow(${i},'p',-1)">−</button><span class="pow-val">${pv}</span><button class="pow-btn" onclick="adjPow(${i},'p',1)">+</button>`:'<span style="display:inline-block;width:52px"></span>'}
+      ${pc?`<button class="pow-btn" onclick="adjPow(${i},'p',-1)">−</button><span class="pow-val" id="adv-pv-${i}">${pv}</span><button class="pow-btn" onclick="adjPow(${i},'p',1)">+</button>`:'<span style="display:inline-block;width:52px"></span>'}
       <span style="color:var(--text3);margin:0 2px">·</span>
-      ${oc?`<button class="pow-btn" onclick="adjPow(${i},'o',-1)">−</button><span class="pow-val" style="color:var(--red)">${ov}</span><button class="pow-btn" onclick="adjPow(${i},'o',1)">+</button>`:'<span style="display:inline-block;width:52px"></span>'}
+      ${oc?`<button class="pow-btn" onclick="adjPow(${i},'o',-1)">−</button><span class="pow-val" id="adv-ov-${i}" style="color:var(--red)">${ov}</span><button class="pow-btn" onclick="adjPow(${i},'o',1)">+</button>`:'<span style="display:inline-block;width:52px"></span>'}
       <span style="min-width:48px;color:var(--red)">${oc?oc.name.split(' ').slice(-1)[0]:'—'}</span>
     </div>`;
   }).join('');
@@ -2089,6 +2091,11 @@ function adjPow(idx,side,delta){
   c._boosted=(c._boosted||0)+delta;
   log(`${side==='p'?'YOU':'OPP'} slot ${idx+1}: ${c.name} power ${delta>0?'+':''}${delta} (total adj: ${c._boosted})`,'act');
   renderAdv();
+  // Update advance modal spans if open
+  const pvEl=document.getElementById(`adv-pv-${idx}`);
+  const ovEl=document.getElementById(`adv-ov-${idx}`);
+  if(pvEl&&side==='p'){const p=G.pAdv[idx];if(p)pvEl.textContent=effInsp(p,true);}
+  if(ovEl&&side==='o'){const o=G.oAdv[idx];if(o)ovEl.textContent=o.power+(o._boosted||0);}
 }
 function _mkPowAdj(idx,side,c){
   if(!c)return'';
