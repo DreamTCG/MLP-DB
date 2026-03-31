@@ -1044,7 +1044,8 @@ function syncFilters(changedId) {
   // find pairs d↔m
   const pairs = [
     ['dd-type-d','dd-type-m'],
-    ['dd-rarity-d','dd-rarity-m'],['dd-set-d','dd-set-m']
+    ['dd-rarity-d','dd-rarity-m'],['dd-set-d','dd-set-m'],
+    ['dd-race-d','dd-race-m']
   ];
   pairs.forEach(([d,m]) => {
     const other = changedId===d ? m : changedId===m ? d : null;

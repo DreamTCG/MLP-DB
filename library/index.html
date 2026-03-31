@@ -175,6 +175,8 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
               </div>
             </div>
           </div>
+          <button class="sort-btn" id="lib-sort-btn" onclick="toggleSortLib()" title="Toggle sort order">↓ Sort</button>
+          <button class="sort-btn" id="lib-alt-btn" onclick="toggleAltLib()" title="Toggle alt art">All ※</button>
           <button class="sort-btn" onclick="clearFilters()" title="Clear filters">✕</button>
         </div>
         <div class="lib-count" id="lib-count-lbl2"></div>
@@ -215,6 +217,8 @@ const BASE_URLS  = [
 let _library = [];
 let _selected = null;
 let _lang = 'en'; // 'en' | 'th'
+let _sortAsc = false;
+let _altMode = 'all'; // 'all' | 'no-alt' | 'alt-only'
 const COLOR_MAP = {Purple:'#a78bfa',Pink:'#f472b6',Yellow:'#fbbf24',Orange:'#fb923c',Blue:'#60a5fa',White:'#e2e8f0'};
 
 function getChecked(id){return Array.from(document.querySelectorAll(`#${id} input:checked`)).map(e=>e.value);}
@@ -234,6 +238,34 @@ function setRaceTab(tab){
 function clearFilters(){
   document.querySelectorAll('.dd-menu input[type=checkbox]').forEach(cb=>cb.checked=false);
   document.getElementById('lib-search').value='';
+  renderGrid();
+}
+
+const RARITY_RANK = {CR:0,GR:1,SR:2,RR:3,U:4,C:5,ER:6,SPR:7};
+function sortCards(cards){
+  const mult = _sortAsc ? 1 : -1;
+  return [...cards].sort((a,b)=>{
+    const da = a.deck||'', db = b.deck||'';
+    if(da!==db) return da.localeCompare(db)*mult;
+    const ra = RARITY_RANK[a.rarity]??99, rb = RARITY_RANK[b.rarity]??99;
+    if(ra!==rb) return (ra-rb)*mult;
+    return (a.name||'').localeCompare(b.name||'')*mult;
+  });
+}
+
+function toggleSortLib(){
+  _sortAsc = !_sortAsc;
+  const btn = document.getElementById('lib-sort-btn');
+  if(btn) btn.textContent = _sortAsc ? '↑ Sort' : '↓ Sort';
+  renderGrid();
+}
+
+function toggleAltLib(){
+  const cycle = {all:'no-alt','no-alt':'alt-only','alt-only':'all'};
+  _altMode = cycle[_altMode];
+  const labels = {all:'All ※','no-alt':'No ※','alt-only':'※ Only'};
+  const btn = document.getElementById('lib-alt-btn');
+  if(btn) btn.textContent = labels[_altMode];
   renderGrid();
 }
 
@@ -261,6 +293,11 @@ function renderGrid(){
     c.id.toLowerCase().includes(search)||
     (c.subtype||[]).some(s=>s.toLowerCase().includes(search))
   );
+  // Alt art filter (※ rarity)
+  if(_altMode==='no-alt')   cards = cards.filter(c=>c.rarity!=='※');
+  if(_altMode==='alt-only') cards = cards.filter(c=>c.rarity==='※');
+
+  cards = sortCards(cards);
 
   const lbl = `${cards.length} cards`;
   document.getElementById('lib-count-lbl').textContent = lbl;
