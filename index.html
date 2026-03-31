@@ -700,6 +700,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <button class="imp-btn" onclick="openExport()">📤 Export</button>
         <button class="imp-btn" onclick="importFromClipboard()">📋 Import Clipboard</button>
         <button class="imp-btn" onclick="testDraw()">🎴 Test Draw</button>
+        <button class="imp-btn" id="battlesim-btn-d" onclick="sendToBattleSim()" style="background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;font-weight:700;">⚔️ BattleSim</button>
       </div>
     </div>
     <!-- Deck content -->
@@ -832,6 +833,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <button class="imp-btn" onclick="importFromClipboard()">📋 Import Clipboard</button>
         <button class="imp-btn" id="theme-btn-m" onclick="toggleTheme()">🌙 Theme</button>
         <button class="imp-btn" onclick="testDraw()">🎴 Test Draw</button>
+        <button class="imp-btn" id="battlesim-btn-m" onclick="sendToBattleSim()" style="background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;font-weight:700;">⚔️ BattleSim</button>
       </div>
     </div>
     <div id="mob-deck-content" style="flex:1;overflow-y:auto;padding:10px 10px 72px;">
@@ -1523,6 +1525,17 @@ function saveDeck() {
   a.href='data:application/json,'+encodeURIComponent(JSON.stringify(data,null,2));
   a.download=name.replace(/\s+/g,'_')+'.json'; a.click();
   toast('💾 Deck saved','ok');
+}
+function sendToBattleSim() {
+  if(!state.mc){ toast('❌ กรุณาเลือก Main Character ก่อน','err'); return; }
+  const name=($('deck-name')||{}).value||'My Deck';
+  const data={deckName:name,mc:state.mc,main:state.main,scene:state.scene,story:state.story};
+  try {
+    localStorage.setItem('mlp_preload_deck', JSON.stringify(data));
+    window.location.href='battlesim/';
+  } catch(e) {
+    toast('❌ ไม่สามารถบันทึกได้','err');
+  }
 }
 function loadDeck(input) {
   const file=input.files[0]; if(!file) return;
