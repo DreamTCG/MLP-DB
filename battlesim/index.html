@@ -364,6 +364,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .mulligan-text{font-size:12px;color:var(--text2);line-height:1.45;margin-bottom:12px;}
 .mulligan-actions{display:flex;gap:8px;justify-content:flex-end;}
 
+/* Touch interaction — prevent tap delay and allow hover tooltips only on mouse */
+.gcard,.hitem,.sc-card,.adv-slot,.deck-slot-card,.retire-slot,.tap-btn,.tbtn,.mbtn{touch-action:manipulation;}
 /* Contact active slot highlight */
 @keyframes cpulse{0%,100%{box-shadow:0 0 0 0 rgba(244,114,182,.5);}50%{box-shadow:0 0 0 6px rgba(244,114,182,.15);}}
 .adv-slot.contact-active{border-color:var(--pink)!important;border-style:solid!important;animation:cpulse .8s ease-in-out infinite;}
@@ -814,6 +816,25 @@ const G = {};  // Global game state object
 
 // Story stage ordering used for sorting story cards
 const SL = ['I', 'II', 'III', 'IV'];
+
+/* ─── BRACKET RESTRICTION HELPERS ─────────────────────────
+   Extract 「Name」 from ability text for adorn / inspo checks.
+   e.g. "Only adorn 「Applejack」"  →  "Applejack"
+        "Inspo boost for 「Twilight」" →  "Twilight"
+───────────────────────────────────────────────────────── */
+function _adornRestrict(ab){
+  const m=(ab||'').match(/[Oo]nly adorn\s*「([^」]+)」/);
+  return m?m[1]:null;
+}
+function _inspoRestrict(ab){
+  if(!(ab||'').toLowerCase().includes('inspo'))return null;
+  const m=(ab||'').match(/「([^」]+)」/);
+  return m?m[1]:null;
+}
+function _charMatchesRestrict(c,name){
+  if(!c||!name)return true; // no char or no restriction → allow
+  return (c.name||'').includes(name)||((c.subtype||[]).some(s=>s.includes(name)));
+}
 
 // Expand cards with qty > 1 into individual copies, each with a unique runtime ID
 let _uidSeq = 0;
@@ -1304,11 +1325,11 @@ function playCard(idx){
   }else if(c.type==='Item'){
     const validTargets=G.pAdv.map((x,i)=>({c:x,i})).filter(({c:x})=>x!==null&&x._item===null);
     if(validTargets.length===0){log('ไม่มีตัวละครรับ Item ได้','warn');return;}
-    // check restriction
+    // check adorn restriction via bracket parse
     const ab=c.ability||'';
-    const restricted=ab.includes('Only adorn 「Applejack」');
-    const actualTargets=restricted?validTargets.filter(({c:x})=>x.subtype?.includes('Applejack')):validTargets;
-    if(actualTargets.length===0){log('Item นี้ติดได้เฉพาะ 「Applejack」 แต่ไม่มีในสนาม','warn');return;}
+    const adornName=_adornRestrict(ab);
+    const actualTargets=adornName?validTargets.filter(({c:x})=>_charMatchesRestrict(x,adornName)):validTargets;
+    if(actualTargets.length===0){log(`Item นี้ติดได้เฉพาะ 「${adornName||'?'}」 แต่ไม่มีในสนาม`,'warn');return;}
     if(actualTargets.length===1){
       // only one valid target, equip directly
       G.harmony-=c.cost;G.hand.splice(idx,1);actualTargets[0].c._item=c;
@@ -1372,8 +1393,9 @@ function slotClick(idx){
     if(!tgt){log('Slot ว่าง — เลือกตัวละครที่มีอยู่','warn');return;}
     if(tgt._item!==null){log(`${tgt.name} มี Item แล้ว — เลือก Slot อื่น`,'warn');return;}
     const ab=G.pendingItem.ability||'';
-    if(ab.includes('Only adorn 「Applejack」')&&!tgt.subtype?.includes('Applejack')){
-      log('ติดได้เฉพาะ 「Applejack」','warn');return;
+    const adornName=_adornRestrict(ab);
+    if(adornName&&!_charMatchesRestrict(tgt,adornName)){
+      log(`ติดได้เฉพาะ 「${adornName}」`,'warn');return;
     }
     tgt._item=G.pendingItem;
     log(`ติดตั้ง ${G.pendingItem.name} → ${tgt.name} ✅`,'good');
@@ -1561,8 +1583,12 @@ function processNextContact(){
 function showContactModal(slotIdx,p,o){
   const pInsp=effInsp(p,true);
   const oInsp=o.power||0;
-  // Available inspo boost scenes: has inspo ability AND not yet flipped (tapped is OK)
-  const inspoScenes=G.sceneArea.filter(s=>!s._flipped&&s.ability?.toLowerCase().includes('inspo'));
+  // Available inspo boost scenes: has inspo ability, not yet flipped, and restriction matches target char
+  const inspoScenes=G.sceneArea.filter(s=>{
+    if(s._flipped||!s.ability?.toLowerCase().includes('inspo'))return false;
+    const r=_inspoRestrict(s.ability);
+    return !r||_charMatchesRestrict(p,r); // only show if char matches restriction
+  });
 
   const sceneOpts=inspoScenes.length>0
     ? inspoScenes.map((s,i)=>`<button class="mbtn" style="font-size:10px;border-color:var(--accent)" onclick="useInspoInContact(${G.sceneArea.indexOf(s)},${slotIdx})">`+
@@ -1597,14 +1623,12 @@ function useInspoInContact(sceneIdx,slotIdx){
   const scene=G.sceneArea[sceneIdx];
   if(!scene){log('ไม่พบฉาก','warn');return;}
   if(scene._flipped){log(`"${scene.name}" ใช้ Inspo ไปแล้ว (ถาวร)`,'warn');return;}
-  scene._flipped=true; // permanent — inspo exhausted for this scene
   const p=G.pAdv[slotIdx];
-  if(p){
-    p._boosted=(p._boosted||0)+1;
-    log(`Inspo Boost: ${scene.name} → ${p.name} +1 Insp`,'act');
-  }
+  const r=_inspoRestrict(scene.ability);
+  if(r&&!_charMatchesRestrict(p,r)){log(`Inspo นี้ใช้ได้เฉพาะ 「${r}」`,'warn');return;}
+  scene._flipped=true;
+  if(p){p._boosted=(p._boosted||0)+1;log(`Inspo Boost: ${scene.name} → ${p.name} +1 Power`,'act');}
   renderScene();
-  // Refresh modal with updated values
   if(G.pAdv[slotIdx]&&G.oAdv[slotIdx])
     showContactModal(slotIdx,G.pAdv[slotIdx],G.oAdv[slotIdx]);
 }
@@ -1644,6 +1668,44 @@ function showActionModal(slotIdx,p){
 }
 
 function actionAdvance(slotIdx){
+  closeModal();
+  // Show intermediate state: player can apply manual effects before confirming advance
+  const nextStage=G.pStage;
+  const st=G.storyCards[nextStage];
+  const storyHtml=st
+    ?`<div style="background:var(--bg3);border:.5px solid rgba(251,191,36,.3);border-radius:var(--rsm);padding:8px;margin-bottom:10px;text-align:left">
+        <div style="font-size:10px;font-weight:600;color:var(--gold);margin-bottom:3px">📖 ${st.name} [Stage ${st.story_stage}]</div>
+        <div style="font-size:9px;color:var(--text2);line-height:1.5">${st.ability_th||st.ability||'(ไม่มี Effect)'}</div>
+      </div>`
+    :'';
+  // Power adjusters for all active slots
+  const adjRows=[0,1,2].map(i=>{
+    const pc=G.pAdv[i],oc=G.oAdv[i];
+    if(!pc&&!oc)return'';
+    const pv=pc?effInsp(pc,true):'—';const ov=oc?(oc.power+(oc._boosted||0)):'—';
+    return`<div style="display:flex;align-items:center;justify-content:center;gap:4px;margin:2px 0;font-size:9px">
+      <span style="min-width:48px;text-align:right;color:var(--green)">${pc?pc.name.split(' ').slice(-1)[0]:'—'}</span>
+      ${pc?`<button class="pow-btn" onclick="adjPow(${i},'p',-1)">−</button><span class="pow-val">${pv}</span><button class="pow-btn" onclick="adjPow(${i},'p',1)">+</button>`:'<span style="display:inline-block;width:52px"></span>'}
+      <span style="color:var(--text3);margin:0 2px">·</span>
+      ${oc?`<button class="pow-btn" onclick="adjPow(${i},'o',-1)">−</button><span class="pow-val" style="color:var(--red)">${ov}</span><button class="pow-btn" onclick="adjPow(${i},'o',1)">+</button>`:'<span style="display:inline-block;width:52px"></span>'}
+      <span style="min-width:48px;color:var(--red)">${oc?oc.name.split(' ').slice(-1)[0]:'—'}</span>
+    </div>`;
+  }).join('');
+  const actBtns=`<div style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin-top:6px">
+    <button class="tap-btn" style="width:auto;padding:3px 8px;font-size:9px" onclick="manualDraw()">📥 Draw</button>
+    <button class="tap-btn" style="width:auto;padding:3px 8px;font-size:9px;border-color:rgba(248,113,113,.4);color:var(--red)" onclick="toggleDiscardMode()">🗑 Discard</button>
+    <button class="tap-btn" style="width:auto;padding:3px 8px;font-size:9px;border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(1)">+1 Insp</button>
+  </div>`;
+  document.getElementById('mo-title').textContent=`📖 Advance → Stage ${SL[nextStage]||'—'}`;
+  document.getElementById('mo-body').innerHTML=storyHtml+
+    `<div style="font-size:9px;color:var(--text3);text-align:center;margin-bottom:4px">ปรับ Power ก่อน Confirm:</div>`+
+    adjRows+actBtns;
+  document.getElementById('mo-btns').innerHTML=
+    `<button class="mbtn primary" onclick="_confirmAdvance(${slotIdx})">✅ Confirm Advance</button>
+     <button class="mbtn" onclick="closeModal();showActionModal(${slotIdx},G.pAdv[${slotIdx}])">↩ Back</button>`;
+  document.getElementById('mo').classList.add('show');
+}
+function _confirmAdvance(slotIdx){
   closeModal();
   doAdv();
   G.contactStep++;
@@ -1877,18 +1939,15 @@ function renderAdv(){
       ps.innerHTML=mkCard(pc,true);
     }else{
       ps.classList.remove('occupied');
-      // item-target highlight: valid if no item, and passes restriction
       if(G.itemTargetMode){
-        const ab=G.pendingItem?.ability||'';
-        const ok=!ab.includes('Only adorn 「Applejack」'); // no char here anyway
         ps.classList.remove('item-target'); // empty slot can't receive item
       }else ps.classList.remove('item-target');
       ps.innerHTML='<span class="slot-icon">+</span>';
     }
-    // item-target glow on occupied slots with valid char
+    // item-target glow on occupied slots with valid char (bracket-based adorn restriction)
     if(G.itemTargetMode&&pc){
-      const ab=G.pendingItem?.ability||'';
-      const valid=pc._item===null&&(!ab.includes('Only adorn 「Applejack」')||pc.subtype?.includes('Applejack'));
+      const adornName=_adornRestrict(G.pendingItem?.ability||'');
+      const valid=pc._item===null&&(!adornName||_charMatchesRestrict(pc,adornName));
       if(valid)ps.classList.add('item-target'); else ps.classList.remove('item-target');
     }else if(!G.itemTargetMode){ps.classList.remove('item-target');}
     // opp slot
@@ -2105,10 +2164,37 @@ function sceneUnflip(i){
 function sceneInspo(i){
   const s=G.sceneArea[i];if(!s)return;
   if(G.phase!=='contact'){log('Inspo Boost ใช้ได้ใน Contact Phase เท่านั้น','warn');return;}
-  if(s._flipped){log(`"${s.name}" ใช้ Inspo ไปแล้ว (ถาวร)`,'warn');return;}
+  if(s._flipped){log(`"${s.name}" ใช้ Inspo ไปแล้ว`,'warn');return;}
   if(!s.ability?.toLowerCase().includes('inspo')){log('ฉากนี้ไม่มี Inspo Boost','warn');return;}
-  s._flipped=true;
-  log(`Inspo Boost: ${s.name}`,'act');
+  // Determine target: use active contact slot's player char, or ask if ambiguous
+  const slotIdx=G.contactQueue&&G.contactStep<G.contactQueue.length?G.contactQueue[G.contactStep]:-1;
+  const p=slotIdx>=0?G.pAdv[slotIdx]:null;
+  const r=_inspoRestrict(s.ability);
+  if(p){
+    if(r&&!_charMatchesRestrict(p,r)){log(`Inspo นี้ใช้ได้เฉพาะ 「${r}」 — ${p.name} ไม่ตรงเงื่อนไข`,'warn');return;}
+    s._flipped=true;
+    p._boosted=(p._boosted||0)+1;
+    log(`Inspo Boost: ${s.name} → ${p.name} +1 Power`,'act');
+    renderScene();renderAdv();
+    // refresh contact modal if it's open
+    if(G.oAdv[slotIdx])showContactModal(slotIdx,p,G.oAdv[slotIdx]);
+  }else{
+    // No active contact char — let player pick target manually via modal
+    const candidates=G.pAdv.map((c,idx)=>({c,idx})).filter(({c})=>c&&(!r||_charMatchesRestrict(c,r)));
+    if(!candidates.length){log(`Inspo: ไม่มีตัวละครที่ตรงเงื่อนไข${r?` 「${r}」`:''}`),'warn';return;}
+    showModal(`Inspo Boost: ${s.name}`,
+      `<div style="font-size:10px;color:var(--text2);margin-bottom:6px">เลือกตัวละครที่จะ Boost:</div>`,
+      candidates.map(({c,idx})=>
+        `<button class="mbtn" onclick="closeModal();_applyInspo(${i},${idx})">${c.name}</button>`
+      ).join('')+`<button class="mbtn" onclick="closeModal()">ยกเลิก</button>`
+    );
+  }
+}
+function _applyInspo(sceneIdx,charSlot){
+  const s=G.sceneArea[sceneIdx];const p=G.pAdv[charSlot];
+  if(!s||!p||s._flipped)return;
+  s._flipped=true;p._boosted=(p._boosted||0)+1;
+  log(`Inspo Boost: ${s.name} → ${p.name} +1 Power`,'act');
   renderScene();renderAdv();
 }
 
@@ -2393,6 +2479,7 @@ function showTT(event,el){
 function showTTIdx(event,i){if(i>=0&&i<G.hand.length)showTTData(event,G.hand[i]);}
 function showTTScene(event,i){if(i>=0&&i<G.sceneArea.length)showTTData(event,G.sceneArea[i]);}
 function showTTData(event,c){
+  if(_lastPointerWasTouch)return; // suppress hover on touch devices
   const tt=document.getElementById('tt');
   const insp=G.phase!=='setup'?effInsp(c,G.phase==='main'):(c.power??'—');
   const db=CARD_DB[c.id]||{};
@@ -2411,7 +2498,13 @@ function showTTData(event,c){
   tt.classList.add('show');posTT(event);
 }
 function hideTT(){document.getElementById('tt').classList.remove('show');}
-document.addEventListener('mousemove',e=>{if(document.getElementById('tt').classList.contains('show'))posTT(e);});
+// Touch-safe tooltip: suppress hover tooltips when last interaction was touch
+let _lastPointerWasTouch=false;
+document.addEventListener('touchstart',()=>{_lastPointerWasTouch=true;},{passive:true});
+document.addEventListener('mousemove',e=>{
+  _lastPointerWasTouch=false;
+  if(document.getElementById('tt').classList.contains('show'))posTT(e);
+});
 function posTT(e){
   const tt=document.getElementById('tt');
   let x=e.clientX+14,y=e.clientY+14;
