@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MLP TCG — Solitaire Simulator</title>
+<title>MLP TCG — Battle Simulator</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -13,7 +13,51 @@
   --pink:#f472b6;--red:#f87171;--green:#4ade80;--orange:#fb923c;
   --text:#e2d9f3;--text2:#a89bc2;--text3:#6b5d8a;
   --cw:76px;--ch:106px;--r:8px;--rsm:5px;
+  /* card face backgrounds */
+  --gface-char:linear-gradient(160deg,#1e1a3a,#0d0a1a);
+  --gface-char-o:linear-gradient(160deg,#2a1a0d,#1a0d0a);
+  --gface-event:linear-gradient(160deg,#1a2a1a,#0a1a0d);
+  --gface-item:linear-gradient(160deg,#2a1a1a,#1a0d0a);
+  --mc-grad:linear-gradient(135deg,#2d1b69,#1a1040);
+  --sc-grad:linear-gradient(135deg,#1a2230,#0d1520);
+  --theme-icon:'☀️';
 }
+/* ── LIGHT MODE ── */
+body.light-mode {
+  --bg:#f0ecff;--bg2:#e8e2f8;--bg3:#ddd7f0;--panel:#ffffff;--panel2:#f5f1ff;
+  --border:rgba(100,70,190,0.15);--border2:rgba(100,70,190,0.28);
+  --accent:#7c3aed;--accent2:#6d28d9;--gold:#b45309;--teal:#0d9488;
+  --pink:#be185d;--red:#b91c1c;--green:#15803d;--orange:#c2410c;
+  --text:#1a0f30;--text2:#4a3a70;--text3:#8b7db0;
+  /* card face backgrounds */
+  --gface-char:linear-gradient(160deg,#ede9ff,#f5f2ff);
+  --gface-char-o:linear-gradient(160deg,#fff4e0,#fff9f0);
+  --gface-event:linear-gradient(160deg,#ecfdf5,#f0faf4);
+  --gface-item:linear-gradient(160deg,#fff5ee,#fff8f4);
+  --mc-grad:linear-gradient(135deg,#e5deff,#d4c9f8);
+  --sc-grad:linear-gradient(135deg,#e0eef8,#d2e8f4);
+  --theme-icon:'🌙';
+}
+body.light-mode .gcard.char .gface{background:var(--gface-char);}
+body.light-mode .gcard.char.orange .gface{background:var(--gface-char-o);}
+body.light-mode .gcard.event .gface{background:var(--gface-event);border-color:#15803d;}
+body.light-mode .gcard.item .gface{background:var(--gface-item);}
+body.light-mode .mc-slot{background:var(--mc-grad);box-shadow:0 0 10px rgba(109,40,217,.15);}
+body.light-mode .sc-card{background:var(--sc-grad);}
+body.light-mode .tt{box-shadow:0 8px 24px rgba(0,0,0,.18);}
+body.light-mode .mo{background:rgba(0,0,0,.4);}
+body.light-mode .eg{background:rgba(240,236,255,.88);}
+body.light-mode .playmat{background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(140,100,220,.08) 0%,transparent 70%),var(--bg);}
+body.light-mode .lentry{border-bottom-color:rgba(0,0,0,.05);}
+body.light-mode .s-card{background:var(--bg3);}
+body.light-mode .s-card.done{background:rgba(21,128,61,.06);}
+body.light-mode .deck-slot-card{background:var(--bg3);}
+body.light-mode .retire-slot{background:var(--bg3);}
+body.light-mode .adventure-area{background:var(--bg2);box-shadow:0 0 0 1px rgba(109,40,217,.06) inset;}
+body.light-mode #setup-screen::before{background:radial-gradient(ellipse 60% 50% at 50% -10%,rgba(124,58,237,.12) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 10% 80%,rgba(194,65,12,.08) 0%,transparent 60%);}
+/* theme toggle button */
+.theme-btn{background:transparent;border:.5px solid var(--border2);border-radius:var(--rsm);padding:3px 8px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;line-height:1;}
+.theme-btn:hover{border-color:var(--accent);}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 .screen{display:none;min-height:100vh;}
@@ -39,6 +83,16 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .deck-preview{display:none;margin-top:14px;background:var(--bg3);border:.5px solid var(--border2);border-radius:var(--r);padding:12px;}
 .deck-preview.show{display:block;}
 .dp-preview-row{display:flex;align-items:flex-start;gap:0;}
+.picked-decks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.pick-box{background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rsm);padding:8px;min-height:54px;}
+.pick-title{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+.pick-value{font-size:11px;color:var(--text2);line-height:1.35;}
+.pick-value.ready{color:var(--text);}
+.pick-box.bot .pick-title{color:rgba(248,113,113,.7);}
+.pick-box.bot .pick-value.ready{color:var(--red);}
+.setup-msg{margin-top:10px;font-size:11px;line-height:1.4;color:var(--text3);min-height:16px;}
+.setup-msg.error{color:var(--red);}
+.setup-msg.ok{color:var(--green);}
 .dp-name{font-family:'Cinzel',serif;font-size:13px;font-weight:600;color:var(--orange);margin-bottom:6px;}
 .deck-stats{display:flex;gap:5px;flex-wrap:wrap;}
 .stat-pill{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--panel2);color:var(--text2);border:.5px solid var(--border);}
@@ -79,7 +133,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .tbtn.primary:hover{opacity:.9;transform:translateY(-1px);}
 
 /* ── MAIN LAYOUT ── */
-.game-layout{display:grid;grid-template-columns:1fr 196px;flex:1;overflow:hidden;}
+.game-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,28vw);flex:1;overflow:hidden;}
 
 /* ── PLAYMAT ── */
 .playmat{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;padding:8px;gap:5px;background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(180,140,220,.06) 0%,transparent 70%),var(--bg);}
@@ -100,6 +154,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .side-lbl{font-size:8px;width:24px;flex-shrink:0;text-align:center;letter-spacing:.05em;}
 .adv-slots{display:flex;gap:5px;overflow:visible;justify-content:center;flex:1;}
 .adv-divider{height:.5px;background:var(--border);margin:1px 0;}
+/* Power adjuster row */
+/*.pow-adj-row{display:flex;gap:5px;justify-content:center;min-height:0;}*/
+.pow-adj-cell{width:var(--cw);display:flex;align-items:center;justify-content:center;gap:3px;flex-shrink:0;}
+.pow-btn{width:16px;height:16px;border-radius:3px;border:.5px solid var(--border2);background:var(--panel);color:var(--text2);font-size:10px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.pow-btn:hover{border-color:var(--accent);color:var(--accent);}
+.pow-val{font-size:9px;min-width:16px;text-align:center;color:var(--text3);font-family:'Cinzel',serif;}
+  /* NEW: column wrapper */
+.adv-col {display: flex;flex-direction: column;align-items: center;gap: 3px;width: var(--cw);flex-shrink: 0;}
 
 /* Slots */
 .adv-slot{width:var(--cw);height:var(--ch);border:1px dashed var(--border2);border-radius:var(--rsm);
@@ -122,7 +184,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 
 /* Middle row (defined earlier with overflow:visible) */
 .mc-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;}
-.mc-slot{width:62px;height:87px;background:linear-gradient(135deg,#2d1b69,#1a1040);border:1.5px solid var(--accent);border-radius:var(--rsm);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:5px;box-shadow:0 0 10px rgba(192,132,252,.2);}
+.mc-slot{width:62px;height:87px;background:var(--mc-grad);border:1.5px solid var(--accent);border-radius:var(--rsm);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:5px;box-shadow:0 0 10px rgba(192,132,252,.2);}
 .mc-emoji{font-size:20px;margin-bottom:2px;}
 .mc-name-lbl{font-size:7px;font-weight:600;color:var(--accent);line-height:1.2;}
 .mc-stage{font-size:9px;color:var(--text3);text-align:center;}
@@ -130,31 +192,16 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .story-area{flex:1;min-width:0;background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:7px 9px;display:flex;flex-direction:column;gap:4px;min-height:105px;}
 .story-slots-row{display:flex;gap:4px;flex:1;}
 .s-slot{flex:1;min-width:0;position:relative;}
-.s-card{width:100%;height:100%;min-height:68px;background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rsm);padding:4px;position:relative;display:flex;flex-direction:column;transition:all .2s;}
+.s-card{width:100%;height:100%;min-height:68px;background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rsm);padding:0;overflow:hidden;position:relative;display:flex;flex-direction:column;transition:all .2s;}
 .s-card.current{border-color:var(--gold);box-shadow:0 0 6px rgba(251,191,36,.2);}
 .s-card.done{border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.04);}
-.s-phase{position:absolute;top:3px;right:4px;font-family:'Cinzel',serif;font-size:9px;color:var(--text3);}
+.s-phase{position:absolute;top:3px;right:4px;font-family:'Cinzel',serif;font-size:9px;color:var(--text3);z-index:1;}
 .s-name{font-size:8px;color:var(--text3);line-height:1.3;}
 .s-effect{font-size:7.5px;color:var(--text3);margin-top:2px;line-height:1.4;flex:1;}
-.plan-over{position:absolute;inset:2px;border-radius:3px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;}
-.plan-over:hover .plan-facedown{border-color:rgba(251,191,36,.7);}
-.plan-facedown{
-  width:100%;height:100%;
-  background:linear-gradient(135deg,#1a1440 0%,#0d0a22 100%);
-  border:.5px solid rgba(251,191,36,.35);border-radius:3px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  transition:border-color .15s;
-}
-.plan-facedown.opp-plan{
-  background:linear-gradient(135deg,#2a0d0d 0%,#1a0808 100%);
-  border-color:rgba(248,113,113,.3);
-}
-.plan-facedown.opp-plan:hover{border-color:rgba(248,113,113,.3)!important;}
-.plan-fd-pattern{
-  width:28px;height:20px;opacity:.25;
-  background:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(255,255,255,.15) 2px,rgba(255,255,255,.15) 3px);
-  border-radius:2px;
-}
+.plan-over{position:absolute;bottom:0;left:0;right:0;height:18px;border-radius:0 0 calc(var(--rsm) - 1px) calc(var(--rsm) - 1px);background:linear-gradient(135deg,rgba(26,20,64,.92),rgba(13,10,34,.92));border-top:.5px solid rgba(251,191,36,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;font-size:9px;color:rgba(251,191,36,.85);}
+.plan-over:hover{border-top-color:rgba(251,191,36,.8);background:rgba(251,191,36,.12);}
+.plan-over.opp-plan-bar{border-top-color:rgba(248,113,113,.4);color:rgba(248,113,113,.8);cursor:default;}
+.plan-over.opp-plan-bar:hover{border-top-color:rgba(248,113,113,.7);background:rgba(248,113,113,.08);}
 
 .retire-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;}
 .retire-slot{width:62px;height:87px;background:var(--bg3);border:.5px solid var(--border2);border-radius:var(--rsm);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;transition:all .15s;}
@@ -175,8 +222,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 
 /* Scene card */
 .sc-card{
-  width:50px;height:34px;
-  background:linear-gradient(135deg,#1a2230,#0d1520);
+  width:50px;height:70px;
+  background:var(--sc-grad);
   border:1px solid var(--teal);border-radius:4px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   cursor:pointer;padding:2px;flex-shrink:0;transition:transform .15s,opacity .15s,border-color .15s;
@@ -184,7 +231,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 }
 .sc-card:hover{transform:translateY(-2px);box-shadow:0 3px 8px rgba(45,212,191,.2);}
 /* tapped = rotated 90° (used for harmony) */
-.sc-card.tapped{transform:rotate(90deg);border-color:var(--text3);opacity:.65;margin:7px 3px;}
+.sc-card.tapped{transform:rotate(90deg);border-color:var(--text3);opacity:.65;margin:3px 12px;}
 .sc-card.tapped:hover{transform:rotate(90deg) translateY(-1px);}
 /* flipped = inspo used permanently — dim border, ✕ overlay, but NOT rotated */
 .sc-card.flipped{border-color:rgba(45,212,191,.2);opacity:.6;}
@@ -210,10 +257,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .gcard.tapped{transform:rotate(90deg);margin:13px 3px;}
 .gcard.tapped:hover{transform:rotate(90deg) translateY(-2px);z-index:10;}
 .gface{position:absolute;inset:0;border-radius:var(--rsm);border:1px solid;overflow:hidden;display:flex;flex-direction:column;padding:4px;}
-.gcard.char .gface{background:linear-gradient(160deg,#1e1a3a,#0d0a1a);border-color:var(--accent2);}
-.gcard.char.orange .gface{background:linear-gradient(160deg,#2a1a0d,#1a0d0a);border-color:var(--orange);}
-.gcard.event .gface{background:linear-gradient(160deg,#1a2a1a,#0a1a0d);border-color:#22c55e;}
-.gcard.item .gface{background:linear-gradient(160deg,#2a1a1a,#1a0d0a);border-color:#f97316;}
+.gcard.char .gface{background:var(--gface-char);border-color:var(--accent2);}
+.gcard.char.orange .gface{background:var(--gface-char-o);border-color:var(--orange);}
+.gcard.event .gface{background:var(--gface-event);border-color:#22c55e;}
+.gcard.item .gface{background:var(--gface-item);border-color:#f97316;}
 .gcard.tapped .gface{border-color:var(--text3)!important;}
 .gcost{position:absolute;top:2px;left:3px;width:14px;height:14px;background:rgba(251,191,36,.2);border:.5px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--gold);z-index:1;}
 .gtype{position:absolute;top:2px;right:3px;font-size:9px;opacity:.7;}
@@ -225,13 +272,39 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .ginsp.orange{background:rgba(251,146,60,.2);border-color:var(--orange);color:var(--orange);}
 .ginsp.boosted{background:rgba(251,191,36,.2);border-color:var(--gold);color:var(--gold);}
 .item-pip{position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);font-size:7.5px;background:#f97316;color:#fff;padding:1px 4px;border-radius:8px;white-space:nowrap;z-index:3;}
+/* Card art image */
+.gart img{width:100%;height:100%;object-fit:cover;object-position:top;border-radius:2px;display:block;}
+/* Tooltip card art */
+.tt-art{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:4px;margin-bottom:6px;display:block;}
+/* 3-column action grid */
+.action-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;}
+/* Deck slot back images */
+.deck-slot-card{position:relative;overflow:hidden;}
+.deck-back{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;z-index:0;display:none;}
+.deck-num,.deck-lbl{position:relative;z-index:1;text-shadow:0 1px 4px rgba(0,0,0,.9);}
+/* MC slot image */
+.mc-slot{position:relative;overflow:hidden;}
+.mc-slot .mc-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:inherit;z-index:0;}
+.mc-slot .mc-name-lbl{position:relative;z-index:1;background:rgba(0,0,0,.55);border-radius:2px;padding:1px 3px;}
+/* Scene card image */
+.sc-card .sc-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:3px;z-index:0;}
+.sc-n,.sc-e,.sc-i{position:relative;z-index:1;}
+/* Story card thumbnail — full art cover */
+.s-card-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:calc(var(--rsm) - 1px);z-index:0;display:block;}
+.s-effect{z-index:1;position:relative;}
 
 /* Right panel */
 .right-panel{display:flex;flex-direction:column;background:var(--bg2);border-left:.5px solid var(--border);overflow-y:auto;}
 .psec{border-bottom:.5px solid var(--border);padding:8px 10px;}
 .psec:last-child{border-bottom:none;}
-.ptitle{font-size:9px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:7px;}
-.hand-list{display:flex;flex-direction:column;gap:3px;}
+.ptitle{font-size:9px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;cursor:default;}
+.ptitle-label{flex:1;}
+.psec-body{margin-top:7px;}
+.psec-toggle{width:14px;height:14px;border-radius:3px;border:.5px solid var(--border2);background:transparent;color:var(--text3);font-size:9px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;padding:0;}
+.psec-toggle:hover{border-color:var(--accent);color:var(--accent);}
+.psec.collapsed .psec-body{display:none;}
+.psec.collapsed .psec-toggle{opacity:.5;}
+.hand-list{display:flex;flex-direction:column;gap:3px;min-height:84px;max-height:34vh;overflow-y:auto;margin-top:7px;}
 .hitem{display:flex;align-items:center;gap:5px;padding:5px 6px;background:var(--panel);border:.5px solid var(--border);border-radius:var(--rsm);cursor:pointer;transition:all .15s;}
 .hitem:hover{border-color:var(--accent);background:var(--panel2);}
 .hitem.sel{border-color:var(--gold);background:rgba(251,191,36,.07);}
@@ -285,6 +358,96 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .egbox.win h2{color:var(--gold);}
 .egbox.lose h2{color:var(--red);}
 .egbox p{font-size:14px;color:var(--text2);margin-bottom:22px;}
+.mulligan-title{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);margin-bottom:6px;}
+.mulligan-overlay{position:fixed;inset:0;z-index:650;display:none;align-items:flex-start;justify-content:center;padding-top:58px;background:transparent;pointer-events:none;}
+.mulligan-overlay.show{display:flex;}
+.mulligan-box{width:min(92vw,460px);background:rgba(30,26,58,.97);border:.5px solid var(--border2);border-radius:12px;padding:16px;box-shadow:0 12px 36px rgba(0,0,0,.45);pointer-events:auto;}
+.mulligan-title{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);margin-bottom:6px;}
+.mulligan-text{font-size:12px;color:var(--text2);line-height:1.45;margin-bottom:12px;}
+.mulligan-actions{display:flex;gap:8px;justify-content:flex-end;}
+
+/* Touch interaction — prevent tap delay and allow hover tooltips only on mouse */
+.gcard,.hitem,.sc-card,.adv-slot,.deck-slot-card,.retire-slot,.tap-btn,.tbtn,.mbtn{touch-action:manipulation;}
+/* Contact active slot highlight */
+@keyframes cpulse{0%,100%{box-shadow:0 0 0 0 rgba(244,114,182,.5);}50%{box-shadow:0 0 0 6px rgba(244,114,182,.15);}}
+.adv-slot.contact-active{border-color:var(--pink)!important;border-style:solid!important;animation:cpulse .8s ease-in-out infinite;}
+/* Contact order indicator */
+.contact-order-row{display:flex;gap:5px;justify-content:center;pointer-events:none;}
+.contact-pip{width:var(--cw);height:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.contact-pip span{font-size:8px;color:var(--text3);font-family:'Cinzel',serif;}
+.contact-pip.active span{color:var(--pink);}
+
+@media (max-width: 1100px){
+  .game-layout{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;}
+  .right-panel{border-left:none;border-top:.5px solid var(--border);max-height:45vh;overflow-y:auto;}
+}
+
+/* ── TABLET (≤768px) ── */
+@media (max-width:768px){
+  :root{--cw:64px;--ch:90px;}
+  .game-layout{grid-template-columns:1fr;grid-template-rows:1fr;}
+  .right-panel{border-left:none;border-top:.5px solid var(--border);max-height:40vh;overflow-y:auto;}
+  .logo-sm{display:none;}
+  .topbar{padding:4px 8px;gap:5px;}
+  .topbar-left{gap:6px;}
+  .topbar-right .tbtn:not(.primary):not(#topbar-menu-btn){display:none;}
+  .topbar-menu-btn{display:flex!important;}
+  .harmony-disp{padding:2px 7px;font-size:10px;}
+  .harmony-disp .hv{font-size:11px;}
+  .mc-slot{width:54px;height:76px;}
+  .deck-slot-card{width:54px;height:76px;}
+  .retire-slot{width:54px;height:76px;}
+  .retire-num{font-size:18px;}
+  .deck-num{font-size:15px;}
+  .s-card{min-height:56px;}
+  .sc-card{width:44px;height:62px;}
+  .playmat{padding:5px;gap:4px;}
+  .psec{padding:6px 8px;}
+}
+
+/* ── PHONE (≤480px) ── */
+@media (max-width:480px){
+  :root{--cw:54px;--ch:76px;}
+  body{font-size:13px;}
+  .topbar{flex-wrap:nowrap;padding:3px 6px;gap:4px;min-height:36px;}
+  .phase-badge{font-size:9px;padding:2px 6px;}
+  .turn-info{display:none;}
+  .harmony-disp{padding:2px 6px;font-size:9px;}
+  .harmony-disp .hv{font-size:10px;}
+  .tbtn{font-size:9px;padding:3px 7px;}
+  .mc-slot{width:46px;height:65px;}
+  .deck-slot-card{width:46px;height:65px;}
+  .retire-slot{width:46px;height:65px;}
+  .retire-num{font-size:15px;}
+  .deck-num{font-size:13px;}
+  .zone-lbl{font-size:8px;}
+  .mc-emoji{font-size:16px;}
+  .mc-name-lbl{font-size:6px;}
+  .mc-stage{font-size:8px;}
+  .s-card{min-height:48px;}
+  .sc-card{width:38px;height:54px;}
+  .sc-n{font-size:5.5px;}
+  .story-area{min-height:72px;}
+  .playmat{padding:4px;gap:3px;}
+  .area-title{font-size:9px;}
+  .middle-row{gap:3px;}
+  .bottom-row{gap:3px;}
+  .right-panel{max-height:38vh;}
+  .psec{padding:5px 7px;}
+  .action-grid{grid-template-columns:1fr 1fr;gap:3px;}
+  .tap-btn{font-size:9px;padding:4px 3px;}
+  .pow-btn{width:14px;height:14px;font-size:9px;}
+  /* Mobile panel toggle */
+  .mobile-panel-tab{display:flex!important;}
+}
+/* Mobile panel tab — hidden by default, shown at ≤480px */
+.mobile-panel-tab{display:none;align-items:center;justify-content:center;padding:4px;background:var(--bg2);border-top:.5px solid var(--border);gap:8px;flex-shrink:0;}
+.mob-tab-btn{padding:4px 10px;font-size:9px;border-radius:var(--rsm);border:.5px solid var(--border2);background:var(--panel);color:var(--text2);cursor:pointer;transition:all .15s;}
+.mob-tab-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(192,132,252,.08);}
+/* Mobile hidden sections */
+@media (max-width:480px){
+  .psec.mob-hidden{display:none;}
+}
 
 ::-webkit-scrollbar{width:3px;height:3px;}
 ::-webkit-scrollbar-track{background:transparent;}
@@ -295,10 +458,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 
 <!-- SETUP -->
 <div id="setup-screen" class="screen active">
+  <button class="theme-btn" id="theme-btn-setup" onclick="toggleTheme()" style="position:absolute;top:14px;right:14px;z-index:10" title="Toggle light/dark mode">☀️</button>
   <div class="setup-logo">
     <h1>My Little Pony</h1>
     <h2>TCG Simulator</h2>
-    <p class="sub">Solitaire Deck Tester</p>
+    <p class="sub">Deck Tester</p>
   </div>
   <div class="setup-box">
     <h3>LOAD YOUR DECK</h3>
@@ -329,6 +493,18 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     <!-- BOT DECK -->
     <div style="font-size:10px;letter-spacing:.1em;color:var(--red);text-transform:uppercase;margin:14px 0 8px">เด็ค Bot 🤖</div>
     <div class="preset-grid" id="preset-grid-bot"></div>
+
+    <div class="picked-decks">
+      <div class="pick-box">
+        <div class="pick-title">Player Deck Pickup</div>
+        <div class="pick-value" id="player-picked">ยังไม่ได้เลือกเด็ค</div>
+      </div>
+      <div class="pick-box bot">
+        <div class="pick-title">Bot Deck Pickup</div>
+        <div class="pick-value" id="bot-picked">ยังไม่ได้เลือกเด็ค</div>
+      </div>
+    </div>
+    <div class="setup-msg" id="setup-msg"></div>
 
     <!-- PREVIEW -->
     <div class="deck-preview" id="deck-preview">
@@ -361,10 +537,19 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     </div>
     <div class="harmony-disp">✦ <span class="hv" id="harmony-val">0</span> Harmony</div>
     <div class="topbar-right">
+      <button class="theme-btn" id="theme-btn-game" onclick="toggleTheme()" title="Toggle light/dark mode">☀️</button>
       <button class="tbtn" onclick="tapSceneHarmony()">Tap Scene +1✦</button>
       <button class="tbtn primary" id="next-phase-btn" onclick="nextPhase()">Draw →</button>
       <button class="tbtn" onclick="backToSetup()">✕</button>
+      <button class="tbtn" id="topbar-menu-btn" style="display:none" onclick="toggleMobilePanel()" title="Panel">☰</button>
     </div>
+  </div>
+  <!-- Mobile tab strip (shown only at ≤480px) -->
+  <div class="mobile-panel-tab" id="mobile-panel-tab">
+    <button class="mob-tab-btn active" id="mobt-hand" onclick="setMobTab('hand')">Hand</button>
+    <button class="mob-tab-btn" id="mobt-actions" onclick="setMobTab('actions')">Actions</button>
+    <button class="mob-tab-btn" id="mobt-log" onclick="setMobTab('log')">Log</button>
+    <button class="mob-tab-btn" id="mobt-opp" onclick="setMobTab('opp')">OPP</button>
   </div>
 
   <div class="game-layout">
@@ -382,11 +567,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
           </div>
         </div>
         <div class="scene-area" style="border-color:rgba(248,113,113,.15)">
-          <div class="area-title" style="color:rgba(248,113,113,.7)">🤖 OPP Info</div>
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:2px 2px">
-            <span style="font-size:10px;color:var(--text3)">Hand: <b id="opp-hand-disp" style="color:var(--red)">5</b></span>
-            <span style="font-size:10px;color:var(--text3)">Plans: <b id="opp-plans-disp" style="color:var(--red)">4</b></span>
-            <span style="font-size:10px;color:var(--text3)">Retire: <b id="opp-retire-disp" style="color:var(--red)">0</b></span>
+          <div class="area-title" style="color:rgba(248,113,113,.7)">OPP Scene Area</div>
+          <div class="scene-cards" id="opp-scene-cards">
+            <span style="font-size:10px;color:rgba(248,113,113,.5)">ยังไม่มีฉาก</span>
           </div>
         </div>
         <div class="deck-col">
@@ -414,6 +597,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
         <div class="mc-col">
           <div class="zone-lbl" style="color:var(--red)">OPP MC</div>
           <div class="mc-slot" style="border-color:var(--red);box-shadow:0 0 8px rgba(248,113,113,.15)">
+            <img class="mc-img" id="opp-mc-img" src="" alt="" style="display:none" onerror="this.style.display='none'">
+          </div>
+          <div style="display:flex;align-items:center;gap:3px;justify-content:center;flex-wrap:wrap">
             <div class="mc-emoji">🤖</div>
             <div class="mc-name-lbl" style="color:var(--red)" id="opp-mc-name-lbl">AI</div>
           </div>
@@ -423,38 +609,68 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 
       <!-- ══ ADVENTURE ZONE (center, shared) ══ -->
       <div class="adventure-area">
-        <div class="area-title">⚔️ Adventure Area</div>
+      <div class="area-title">⚔️ Adventure Area</div>
 
-        <!-- OPP slots — cards face up, upside-down perspective -->
-        <div class="adv-side">
-          <div class="side-lbl" style="color:var(--red)">OPP</div>
+      <!-- OPP -->
+      <div class="adv-side">
+        <div class="side-lbl" style="color:var(--red)">OPP</div>
           <div class="adv-slots">
-            <div class="adv-slot opp-adv-slot" id="os0"><span class="slot-icon">○</span></div>
-            <div class="adv-slot opp-adv-slot" id="os1"><span class="slot-icon">○</span></div>
-            <div class="adv-slot opp-adv-slot" id="os2"><span class="slot-icon">○</span></div>
+          <!-- SLOT 0 -->
+          <div class="adv-col">
+            <div class="pow-adj-cell" id="opa0"></div>
+            <div class="adv-slot opp-adv-slot" id="os0">
+              <span class="slot-icon">○</span>
+            </div>
           </div>
-          <div style="margin-left:auto;display:flex;flex-direction:column;gap:2px">
-            <div style="font-size:8px;color:var(--text3)">Deck: <span id="od-cnt" style="color:var(--red)">50</span></div>
-            <div style="font-size:8px;color:var(--text3)">Hand: <span id="oh-cnt" style="color:var(--red)">5</span></div>
+          <!-- SLOT 1 -->
+          <div class="adv-col">
+            <div class="pow-adj-cell" id="opa1"></div>
+            <div class="adv-slot opp-adv-slot" id="os1">
+              <span class="slot-icon">○</span>
+            </div>
           </div>
-        </div>
-
-        <!-- slot column labels -->
-        <div style="display:flex;gap:5px;justify-content:center">
-          <div style="width:var(--cw);flex-shrink:0;text-align:center;font-size:8px;color:var(--text3)">1</div>
-          <div style="width:var(--cw);flex-shrink:0;text-align:center;font-size:8px;color:var(--text3)">2</div>
-          <div style="width:var(--cw);flex-shrink:0;text-align:center;font-size:8px;color:var(--text3)">3</div>
-        </div>
-
-        <!-- PLAYER slots -->
-        <div class="adv-side">
-          <div class="side-lbl" style="color:var(--green)">YOU</div>
-          <div class="adv-slots">
-            <div class="adv-slot player-slot" id="ps0" onclick="slotClick(0)"><span class="slot-icon">+</span></div>
-            <div class="adv-slot player-slot" id="ps1" onclick="slotClick(1)"><span class="slot-icon">+</span></div>
-            <div class="adv-slot player-slot" id="ps2" onclick="slotClick(2)"><span class="slot-icon">+</span></div>
+          <!-- SLOT 2 -->
+          <div class="adv-col">
+            <div class="pow-adj-cell" id="opa2"></div>
+            <div class="adv-slot opp-adv-slot" id="os2">
+              <span class="slot-icon">○</span>
+            </div>
           </div>
+          </div>
+      </div>
+    <!-- column labels -->
+    <div style="display:flex;gap:5px;justify-content:center">
+      <div style="width:var(--cw);text-align:center;font-size:8px;color:var(--text3)">1</div>
+      <div style="width:var(--cw);text-align:center;font-size:8px;color:var(--text3)">2</div>
+      <div style="width:var(--cw);text-align:center;font-size:8px;color:var(--text3)">3</div>
+    </div>
+    <!-- PLAYER -->
+    <div class="adv-side">
+      <div class="side-lbl" style="color:var(--green)">YOU</div>
+      <div class="adv-slots">
+        <!-- SLOT 0 -->
+        <div class="adv-col">
+          <div class="adv-slot player-slot" id="ps0" onclick="slotClick(0)" oncontextmenu="event.preventDefault();showAdvCtxMenu(0)">
+            <span class="slot-icon">+</span>
+          </div>
+          <div class="pow-adj-cell" id="ppa0"></div>
         </div>
+        <!-- SLOT 1 -->
+        <div class="adv-col">
+          <div class="adv-slot player-slot" id="ps1" onclick="slotClick(1)" oncontextmenu="event.preventDefault();showAdvCtxMenu(1)">
+            <span class="slot-icon">+</span>
+          </div>
+          <div class="pow-adj-cell" id="ppa1"></div>
+        </div>
+        <!-- SLOT 2 -->
+        <div class="adv-col">
+          <div class="adv-slot player-slot" id="ps2" onclick="slotClick(2)" oncontextmenu="event.preventDefault();showAdvCtxMenu(2)">
+            <span class="slot-icon">+</span>
+          </div>
+          <div class="pow-adj-cell" id="ppa2"></div>
+        </div>
+      </div>
+    </div>
       </div>
 
       <!-- ══ PLAYER SIDE (bottom) ══ -->
@@ -464,6 +680,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
         <div class="mc-col">
           <div class="zone-lbl">Main Char</div>
           <div class="mc-slot">
+            <img class="mc-img" id="mc-img" src="" alt="" style="display:none" onerror="this.style.display='none'">
+          </div>
+          <div style="display:flex;align-items:center;gap:3px;justify-content:center;flex-wrap:wrap">
             <div class="mc-emoji">🍎</div>
             <div class="mc-name-lbl" id="mc-name-lbl">—</div>
           </div>
@@ -487,6 +706,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
         <div class="deck-col">
           <div class="zone-lbl" style="text-align:center">Scene Deck</div>
           <div class="deck-slot-card scene">
+            <img class="deck-back" id="scene-deck-back" src="" alt="" onerror="this.style.display='none'">
             <div class="deck-num" id="sd-cnt">15</div>
             <div class="deck-lbl">Scene<br>Deck</div>
           </div>
@@ -500,6 +720,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
         <div class="deck-col">
           <div class="zone-lbl" style="text-align:center">Main Deck</div>
           <div class="deck-slot-card" onclick="manualDraw()">
+            <img class="deck-back" id="main-deck-back" src="" alt="" onerror="this.style.display='none'">
             <div class="deck-num" id="md-cnt">50</div>
             <div class="deck-lbl">Main<br>Deck</div>
           </div>
@@ -510,44 +731,44 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 
     <!-- RIGHT PANEL -->
     <div class="right-panel">
-      <div class="psec">
-        <div class="ptitle">AI Opponent</div>
-        <div class="ai-stats">
-          <div class="astat"><span class="al">Stage</span><span class="av" id="opp-stage-v">I</span></div>
-          <div class="astat"><span class="al">Deck</span><span class="av" id="opp-deck-v">50</span></div>
-          <div class="astat"><span class="al">Hand</span><span class="av" id="opp-hand-v">5</span></div>
-          <div class="astat"><span class="al">Plans</span><span class="av" id="opp-plan-v">4</span></div>
+      <div class="psec" id="psec-opp">
+        <div class="ptitle"><span class="ptitle-label">AI Opponent</span><button class="psec-toggle" onclick="togglePSec('psec-opp')" title="Collapse">▲</button></div>
+        <div class="psec-body">
+          <div class="ai-stats">
+            <div class="astat"><span class="al">Stage</span><span class="av" id="opp-stage-v">I</span></div>
+            <div class="astat"><span class="al">Deck</span><span class="av" id="opp-deck-v">50</span></div>
+            <div class="astat"><span class="al">Hand</span><span class="av" id="opp-hand-v">5</span></div>
+            <div class="astat"><span class="al">Plans</span><span class="av" id="opp-plan-v">4</span></div>
+          </div>
         </div>
       </div>
-      <div class="psec">
-        <div class="ptitle">Hand (<span id="hand-cnt-lbl">0</span>)</div>
+      <div class="psec" id="psec-hand">
+        <div class="ptitle"><span class="ptitle-label">Hand (<span id="hand-cnt-lbl">0</span>)</span></div>
         <div class="hand-list" id="hand-list"></div>
       </div>
-      <div class="psec">
-        <div class="ptitle">Actions</div>
-        <div style="display:flex;flex-direction:column;gap:4px;">
-          <!-- Harmony -->
-          <button class="tap-btn" onclick="tapSceneHarmony()" title="Tap scene for +1 Harmony">✦ Tap Scene +1H</button>
-          <!-- Draw -->
-          <button class="tap-btn" style="border-color:rgba(96,165,250,.4);color:#60a5fa" onclick="manualDraw()" title="Draw 1 card from deck">📥 Draw 1 Card</button>
-          <!-- Discard -->
-          <button class="tap-btn" id="discard-btn" style="border-color:rgba(248,113,113,.4);color:var(--red)" onclick="toggleDiscardMode()" title="Toggle discard mode — click hand card to discard">🗑 Discard Card</button>
-          <!-- Retire OPP -->
-          <button class="tap-btn" style="border-color:rgba(248,113,113,.35);color:var(--red)" onclick="manualRetireOpp()" title="Retire an OPP character manually">☠ Retire OPP Char</button>
-          <!-- Retire self -->
-          <button class="tap-btn" style="border-color:rgba(251,191,36,.35);color:var(--gold)" onclick="manualRetireSelf()" title="Retire your own character manually">↩ Retire Own Char</button>
-          <!-- +Insp to char -->
-          <button class="tap-btn" style="border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(1)" title="Give +1 Inspiration to a character this turn">+1 Insp (your char)</button>
-          <button class="tap-btn" style="border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(2)" title="Give +2 Inspiration to a character this turn">+2 Insp (your char)</button>
-          <!-- Add card from retire to hand -->
-          <button class="tap-btn" style="border-color:rgba(192,132,252,.35);color:var(--accent)" onclick="manualRetireToHand()" title="Take any card from Retirement to Hand">Retire → Hand</button>
-          <!-- Add plan to story -->
-          <button class="tap-btn" style="border-color:rgba(251,191,36,.3);color:var(--gold)" onclick="manualAddPlan()" title="Put a hand card face-down as a Plan on a Story slot">+ Add Plan</button>
+      <div class="psec" id="psec-actions">
+        <div class="ptitle"><span class="ptitle-label">Actions</span><button class="psec-toggle" onclick="togglePSec('psec-actions')" title="Collapse">▲</button></div>
+        <div class="psec-body">
+          <div class="action-grid">
+            <button class="tap-btn" onclick="tapSceneHarmony()" title="Tap scene for +1 Harmony">✦ Tap +1H</button>
+            <button class="tap-btn" style="border-color:rgba(45,212,191,.4);color:var(--teal)" onclick="manualUntapScene()" title="Untap a tapped scene card">↺ Untap Scene</button>
+            <button class="tap-btn" style="border-color:rgba(96,165,250,.4);color:#60a5fa" onclick="manualDraw()" title="Draw 1 card from deck">📥 Draw 1</button>
+            <button class="tap-btn" id="discard-btn" style="border-color:rgba(248,113,113,.4);color:var(--red)" onclick="toggleDiscardMode()" title="Toggle discard mode">🗑 Discard</button>
+            <button class="tap-btn" style="border-color:rgba(248,113,113,.3);color:var(--red)" onclick="manualMill()" title="Mill top card to Retirement">💀 Mill 1</button>
+            <button class="tap-btn" style="border-color:rgba(248,113,113,.35);color:var(--red)" onclick="manualRetireOpp()" title="Retire an OPP character">☠ Retire OPP</button>
+            <button class="tap-btn" style="border-color:rgba(251,191,36,.35);color:var(--gold)" onclick="manualRetireSelf()" title="Retire your own character">↩ Retire Own</button>
+            <button class="tap-btn" style="border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(1)" title="+1 Inspiration this turn">+1 Insp</button>
+            <button class="tap-btn" style="border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(2)" title="+2 Inspiration this turn">+2 Insp</button>
+            <button class="tap-btn" style="border-color:rgba(192,132,252,.35);color:var(--accent)" onclick="manualRetireToHand()" title="Take card from Retirement to Hand">Retire→Hand</button>
+            <button class="tap-btn" style="border-color:rgba(251,191,36,.3);color:var(--gold)" onclick="manualAddPlan()" title="Place hand card face-down as Plan">+ Add Plan</button>
+          </div>
         </div>
       </div>
-      <div class="psec" style="flex:1">
-        <div class="ptitle">Game Log</div>
-        <div class="log-box" id="log-box"></div>
+      <div class="psec" id="psec-log" style="flex:1;display:flex;flex-direction:column;">
+        <div class="ptitle"><span class="ptitle-label">Game Log</span><button class="psec-toggle" onclick="togglePSec('psec-log')" title="Collapse">▲</button></div>
+        <div class="psec-body" style="flex:1;display:flex;flex-direction:column;">
+          <div class="log-box" id="log-box"></div>
+        </div>
       </div>
     </div>
 
@@ -572,6 +793,17 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     <h2 id="eg-title">—</h2>
     <p id="eg-msg">—</p>
     <button class="start-btn ready" style="max-width:170px;margin:0 auto" onclick="backToSetup()">เล่นใหม่</button>
+  </div>
+</div>
+
+<div class="mulligan-overlay" id="mulligan-overlay">
+  <div class="mulligan-box">
+    <div class="mulligan-title" id="mulligan-title">Mulligan</div>
+    <div class="mulligan-text" id="mulligan-text">—</div>
+    <div class="mulligan-actions">
+      <button class="tbtn" id="mulligan-keep-btn">เก็บมือนี้</button>
+      <button class="tbtn primary" id="mulligan-redraw-btn">Mulligan</button>
+    </div>
   </div>
 </div>
 
@@ -603,6 +835,16 @@ const CARDS_BASE = (() => {
   return '../cards/';
 })();
 
+// MLP-DB.json URL for card detail enrichment
+const MLP_DB_URL = (() => {
+  const loc = window.location.pathname;
+  if (loc.includes('/battlesim')) return loc.replace(/\/battlesim\/.*$/, '/MLP-DB.json');
+  return '../MLP-DB.json';
+})();
+
+// Card database populated from MLP-DB.json, keyed by card id
+const CARD_DB = {};
+
 /* ═══════════════════════════════════
    GLOBAL GAME STATE & UTILITIES
 ═══════════════════════════════════ */
@@ -610,6 +852,25 @@ const G = {};  // Global game state object
 
 // Story stage ordering used for sorting story cards
 const SL = ['I', 'II', 'III', 'IV'];
+
+/* ─── BRACKET RESTRICTION HELPERS ─────────────────────────
+   Extract 「Name」 from ability text for adorn / inspo checks.
+   e.g. "Only adorn 「Applejack」"  →  "Applejack"
+        "Inspo boost for 「Twilight」" →  "Twilight"
+───────────────────────────────────────────────────────── */
+function _adornRestrict(ab){
+  const m=(ab||'').match(/[Oo]nly adorn\s*「([^」]+)」/);
+  return m?m[1]:null;
+}
+function _inspoRestrict(ab){
+  if(!(ab||'').toLowerCase().includes('inspo'))return null;
+  const m=(ab||'').match(/「([^」]+)」/);
+  return m?m[1]:null;
+}
+function _charMatchesRestrict(c,name){
+  if(!c||!name)return true; // no char or no restriction → allow
+  return (c.name||'').includes(name)||((c.subtype||[]).some(s=>s.includes(name)));
+}
 
 // Expand cards with qty > 1 into individual copies, each with a unique runtime ID
 let _uidSeq = 0;
@@ -645,39 +906,78 @@ const SICON = {
   'Rarity':           '💎',
 };
 
-// Known preset decks (key → filename, label, emoji, color)
-const DECK_META = {
-  SD01A_TS: { emoji:'🦄', label:'Twilight Sparkle', color:'#a78bfa', file:'SD01A_TS.json' },
-  SD01B_FS: { emoji:'🦋', label:'Fluttershy',       color:'#fde68a', file:'SD01B_FS.json' },
-  SD01C_PP: { emoji:'🎉', label:'Pinkie Pie',        color:'#f9a8d4', file:'SD01C_PP.json' },
-  SD01D_AJ: { emoji:'🍎', label:'Applejack',         color:'#fb923c', file:'SD01D_AJ.json' },
-  SD01E_RD: { emoji:'⚡', label:'Rainbow Dash',      color:'#60a5fa', file:'SD01E_RD.json' },
-  SD01F_RR: { emoji:'💎', label:'Rarity',            color:'#c4b5fd', file:'SD01F_RR.json' },
-};
-
 // Cache so each deck is fetched only once per session
 const DECK_CACHE = {};
 
-async function fetchDeck(key) {
-  if (DECK_CACHE[key]) return DECK_CACHE[key];
-  const meta = DECK_META[key];
-  if (!meta) return null;
-  try {
-    const res = await fetch(BASE + meta.file);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    // Rewrite imageUrl to absolute path using CARDS_BASE
-    const fixUrl = c => ({ ...c, imageUrl: c.imageUrl ? CARDS_BASE + c.imageUrl.split('/').pop() : null });
-    data.main  = (data.main  || []).map(fixUrl);
-    data.scene = (data.scene || []).map(fixUrl);
-    data.story = (data.story || []).map(fixUrl);
-    if (data.mc) data.mc = fixUrl(data.mc);
-    DECK_CACHE[key] = data;
-    return data;
-  } catch(e) {
-    console.error('Failed to fetch deck', key, e);
-    return null;
-  }
+// Preset deck JSON filenames (loaded from battlesim/decks/)
+const PRESET_DECK_FILES = ['SD01A_TS.json','SD01B_FS.json','SD01C_PP.json','SD01D_AJ.json','SD01E_RD.json','SD01F_RR.json'];
+
+// Populated at runtime by preloadPresetDecks()
+const PRESET_DECKS = [];
+
+// Path alias used by preloadPresetDecks() — same as BASE
+const DECKS_BASE = BASE;
+
+// Deck key prefix → emoji/color theme
+const DECK_THEME = {
+  SD01A: { emoji:'🦄', color:'#a78bfa' },
+  SD01B: { emoji:'🦋', color:'#fde68a' },
+  SD01C: { emoji:'🎉', color:'#f9a8d4' },
+  SD01D: { emoji:'🍎', color:'#fb923c' },
+  SD01E: { emoji:'⚡', color:'#60a5fa' },
+  SD01F: { emoji:'💎', color:'#c4b5fd' },
+};
+
+function withCardAssetUrls(raw){
+  const fixUrl = c => ({ ...c, imageUrl: c?.imageUrl ? CARDS_BASE + c.imageUrl.split('/').pop() : null });
+  const d = normalizeDeck(raw);
+  if(!d) return null;
+  d.main  = (d.main  || []).map(fixUrl);
+  d.scene = (d.scene || []).map(fixUrl);
+  d.story = (d.story || []).map(fixUrl);
+  if (d.mc) d.mc = fixUrl(d.mc);
+  return d;
+}
+
+function getDeckTheme(deckKey){
+  const prefix = String(deckKey || '').slice(0,5);
+  return DECK_THEME[prefix] || { emoji:'🃏', color:'#a78bfa' };
+}
+
+async function preloadPresetDecks() {
+  PRESET_DECKS.length = 0;
+  Object.keys(DECK_CACHE).forEach(k => delete DECK_CACHE[k]);
+  const results = await Promise.all(PRESET_DECK_FILES.map(async file => {
+    try {
+      const res = await fetch(`${DECKS_BASE}${file}`);
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const raw = await res.json();
+      const data = withCardAssetUrls(raw);
+      if(!data) throw new Error('Invalid deck schema');
+      const key = data.deckName || file.replace(/\.json$/,'');
+      const theme = getDeckTheme(key);
+      DECK_CACHE[key] = data;
+      return {
+        key,
+        file,
+        label: data.mc?.name || key,
+        emoji: theme.emoji,
+        color: theme.color,
+        ok: true
+      };
+    } catch (e) {
+      console.error('Failed to preload deck', file, e);
+      return {
+        key: file.replace(/\.json$/,''),
+        file,
+        label: file.replace(/\.json$/,''),
+        emoji: '⚠️',
+        color: '#f87171',
+        ok: false
+      };
+    }
+  }));
+  PRESET_DECKS.push(...results);
 }
 
 /* ═══════════════════════════════════
@@ -686,31 +986,44 @@ async function fetchDeck(key) {
 let selectedPlayerKey=null, selectedBotKey=null;
 
 function initPresetGrids(){
-  const keys = Object.keys(DECK_META);
+  const keys = PRESET_DECKS.map(d => d.key);
   ['player','bot'].forEach(side => {
     const el = document.getElementById('preset-grid-'+side);
     if(!el) return;
     el.innerHTML = keys.map(k => {
-      const m = DECK_META[k];
-      return `<div class="preset-card" id="pc-${side}-${k}" onclick="selectDeck('${k}','${side}')">
+      const m = PRESET_DECKS.find(d => d.key === k);
+      if(!m) return '';
+      const disabledAttr = m.ok ? '' : 'style="opacity:.45;cursor:not-allowed"';
+      const onclick = m.ok ? `onclick="selectDeck('${k}','${side}')"` : '';
+      return `<div class="preset-card" id="pc-${side}-${k}" ${onclick} ${disabledAttr}>
         <div class="pc-mc">${m.emoji}</div>
         <div class="pc-name">${m.label}</div>
+        <div class="pc-color">${m.ok ? 'พร้อมเล่น' : 'โหลดไม่สำเร็จ'}</div>
       </div>`;
     }).join('');
   });
 }
 
+function setSetupMessage(msg='', type=''){
+  const el = document.getElementById('setup-msg');
+  if(!el) return;
+  el.textContent = msg;
+  el.classList.remove('error','ok');
+  if(type) el.classList.add(type);
+}
+
 async function selectDeck(key, side){
-  const meta = DECK_META[key]; if(!meta) return;
+  const meta = PRESET_DECKS.find(d => d.key === key);
+  if(!meta || !meta.ok) return;
 
   // Show loading state on the card
   const cardEl = document.getElementById(`pc-${side}-${key}`);
   if(cardEl) cardEl.style.opacity = '0.5';
 
-  const d = await fetchDeck(key);
+  const d = DECK_CACHE[key];
 
   if(cardEl) cardEl.style.opacity = '';
-  if(!d){ alert(`โหลดเด็ค ${meta.label} ไม่ได้ — ตรวจสอบ /decks/${meta.file}`); return; }
+  if(!d){ setSetupMessage(`โหลดเด็ค ${meta.label} ไม่ได้ — ตรวจสอบ /decks/${meta.file}`,'error'); return; }
 
   if(side === 'player'){
     document.querySelectorAll('.preset-card.selected').forEach(el => el.classList.remove('selected'));
@@ -723,17 +1036,24 @@ async function selectDeck(key, side){
     cardEl?.classList.add('selected-bot');
     loadBotDeck(d);
   }
+  setSetupMessage(`เลือกเด็ค ${meta.label} สำเร็จ`,'ok');
   updateStartBtn();
 }
 
 function loadPlayerDeck(raw){
-  if(!raw.main||!raw.scene||!raw.story||!raw.mc){alert('ต้องมี: main, scene, story, mc');return;}
-  G.raw=raw;
-  const m=expand(raw.main),s=expand(raw.scene);
-  document.getElementById('prev-name').textContent=raw.mc.name;
-  const chars=raw.main.filter(c=>c.type==='Character').reduce((s,c)=>s+(c.qty||1),0);
-  const evts=raw.main.filter(c=>c.type==='Event').reduce((s,c)=>s+(c.qty||1),0);
-  const items=raw.main.filter(c=>c.type==='Item').reduce((s,c)=>s+(c.qty||1),0);
+  const normalized = withCardAssetUrls(raw);
+  if(!normalized){setSetupMessage('ไฟล์เด็คต้องมี: main, scene, story, mc','error');return;}
+  G.raw=normalized;
+  const playerPicked = document.getElementById('player-picked');
+  if(playerPicked){
+    playerPicked.textContent = `${normalized.mc.name}${normalized.deckName ? ` (${normalized.deckName})` : ''}`;
+    playerPicked.classList.add('ready');
+  }
+  const m=expand(normalized.main),s=expand(normalized.scene);
+  document.getElementById('prev-name').textContent=normalized.mc.name;
+  const chars=normalized.main.filter(c=>c.type==='Character').reduce((s,c)=>s+(c.qty||1),0);
+  const evts=normalized.main.filter(c=>c.type==='Event').reduce((s,c)=>s+(c.qty||1),0);
+  const items=normalized.main.filter(c=>c.type==='Item').reduce((s,c)=>s+(c.qty||1),0);
   document.getElementById('prev-stats').innerHTML=
     `<span class="stat-pill"><b>${m.length}</b> Main</span>`+
     `<span class="stat-pill"><b>${s.length}</b> Scene</span>`+
@@ -744,11 +1064,17 @@ function loadPlayerDeck(raw){
 }
 
 function loadBotDeck(raw){
-  if(!raw.main||!raw.scene||!raw.story||!raw.mc){return;}
-  G.botRaw=raw;
-  const m=expand(raw.main),s=expand(raw.scene);
-  document.getElementById('prev-bot-name').textContent=raw.mc.name;
-  const chars=raw.main.filter(c=>c.type==='Character').reduce((s,c)=>s+(c.qty||1),0);
+  const normalized = withCardAssetUrls(raw);
+  if(!normalized){setSetupMessage('เด็ค Bot ไม่ถูกต้อง (ต้องมี: main, scene, story, mc)','error');return;}
+  G.botRaw=normalized;
+  const botPicked = document.getElementById('bot-picked');
+  if(botPicked){
+    botPicked.textContent = `${normalized.mc.name}${normalized.deckName ? ` (${normalized.deckName})` : ''}`;
+    botPicked.classList.add('ready');
+  }
+  const m=expand(normalized.main),s=expand(normalized.scene);
+  document.getElementById('prev-bot-name').textContent=normalized.mc.name;
+  const chars=normalized.main.filter(c=>c.type==='Character').reduce((s,c)=>s+(c.qty||1),0);
   document.getElementById('prev-bot-stats').innerHTML=
     `<span class="stat-pill" style="border-color:rgba(248,113,113,.3)"><b>${m.length}</b> Main</span>`+
     `<span class="stat-pill" style="border-color:rgba(248,113,113,.3)"><b>${s.length}</b> Scene</span>`+
@@ -785,9 +1111,54 @@ function dismissPreloadBanner() {
   localStorage.removeItem('mlp_preload_deck');
   _preloadDeckData = null;
 }
+function normalizeDeck(raw){
+  if(!raw || typeof raw !== 'object') return null;
+  const main = raw.main || raw.mainDeck || raw.cards || [];
+  const scene = raw.scene || raw.sceneDeck || [];
+  const story = raw.story || raw.storyDeck || [];
+  const mc = raw.mc || raw.mainCharacter || null;
+  if(!Array.isArray(main) || !Array.isArray(scene) || !Array.isArray(story) || !mc) return null;
+  return { ...raw, main, scene, story, mc };
+}
+
+async function loadCardDB(){
+  try{
+    const res=await fetch(MLP_DB_URL);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    const items=Array.isArray(data)?data:Object.values(data);
+    items.forEach(c=>{if(c?.id)CARD_DB[c.id]=c;});
+    console.log(`CARD_DB loaded: ${Object.keys(CARD_DB).length} cards`);
+  }catch(e){console.warn('Failed to load MLP-DB.json:',e);}
+}
+
 // Initialize everything once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  initPresetGrids();
+  try {
+  ['player','bot'].forEach(side => {
+    const el = document.getElementById('preset-grid-'+side);
+    if(el) el.innerHTML = '<div style="grid-column:1/-1;text-align:center;font-size:11px;color:var(--text3);padding:8px 0">กำลังโหลดเด็คจากโฟลเดอร์ decks...</div>';
+  });
+  preloadPresetDecks()
+    .then(() => {
+      initPresetGrids();
+      const readyCount = PRESET_DECKS.filter(d => d.ok).length;
+      if(readyCount===0) setSetupMessage('ไม่พบเด็คที่โหลดได้จากโฟลเดอร์ decks','error');
+      else setSetupMessage(`โหลดเด็คสำเร็จ ${readyCount}/${PRESET_DECKS.length} เด็ค`,'ok');
+    })
+    .catch((e) => {
+      console.error('Preset preload failed', e);
+      setSetupMessage('โหลดเด็คจากโฟลเดอร์ decks ไม่สำเร็จ','error');
+    });
+
+  // Load card database for art and detail enrichment (non-blocking)
+  loadCardDB();
+
+  // Set deck back images (CARDS_BASE is available immediately)
+  const mainBack=document.getElementById('main-deck-back');
+  if(mainBack){mainBack.src=CARDS_BASE+'back_main.jpg';mainBack.style.display='block';}
+  const sceneBack=document.getElementById('scene-deck-back');
+  if(sceneBack){sceneBack.src=CARDS_BASE+'back_scene.jpg';sceneBack.style.display='block';}
 
   // Check for preloaded deck from main site
   try {
@@ -817,7 +1188,8 @@ document.addEventListener('DOMContentLoaded', () => {
       selectedPlayerKey = null;
       document.querySelectorAll('.preset-card.selected').forEach(el => el.classList.remove('selected'));
       updateStartBtn();
-    } catch { alert('JSON ไม่ถูกต้อง'); } };
+      setSetupMessage('โหลดไฟล์เด็คผู้เล่นสำเร็จ','ok');
+    } catch { setSetupMessage('JSON ไม่ถูกต้อง','error'); } };
     r.readAsText(f);
   });
 
@@ -835,51 +1207,136 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedPlayerKey = null;
         document.querySelectorAll('.preset-card.selected').forEach(el => el.classList.remove('selected'));
         updateStartBtn();
-      } catch { alert('JSON ไม่ถูกต้อง'); } };
+        setSetupMessage('โหลดไฟล์เด็คผู้เล่นสำเร็จ','ok');
+      } catch { setSetupMessage('JSON ไม่ถูกต้อง','error'); } };
       r.readAsText(f);
     });
   }
+  }catch(e){
+    console.error('Setup init failed', e);
+    setSetupMessage('หน้า Setup โหลดไม่สำเร็จ — กรุณารีเฟรชหน้าอีกครั้ง','error');
+  }
 });
 
-function startGame(){
-  if(!G.raw||!G.botRaw){alert('เลือกเด็คทั้งสองฝั่งก่อนเริ่มเกม');return;}
+async function startGame(){
+  if(!G.raw||!G.botRaw){setSetupMessage('เลือกเด็คทั้งสองฝั่งก่อนเริ่มเกม','error');return;}
+  setSetupMessage('');
   // Player deck
   const m=shuffle(expand(G.raw.main)),s=shuffle(expand(G.raw.scene));
+  log('Setup 1/7: เตรียมเด็ค (Main/Scene/Story/MC)','imp');
+  log('Setup 2/7: สับ Main + Scene deck แยกกัน','imp');
   G.mainDeck=m;G.sceneDeck=s;G.hand=[];G.pAdv=[null,null,null];
   G.pStage=0;G.pPlans=[null,null,null,null];G.sceneArea=[];G.retireArea=[];
   G.harmony=0;
   G.turnCount=1;
-  G.isPlayerTurn=true;
+  G.isPlayerTurn=Math.random()<0.5; // random starting side
+  G.firstPlayer=G.isPlayerTurn? 'player' : 'bot'; //collect first player state​
   G.selIdx=-1;G.itemTargetMode=false;G.pendingItem=null;
   G.oppTargetMode=false;G.oppTargetCallback=null;G.contactQueue=[];G.contactStep=0;
   G.storyCards=[...G.raw.story].sort((a,b)=>SL.indexOf(a.story_stage)-SL.indexOf(b.story_stage));
+  log('Setup 3/7: วาง Story Zone ตามลำดับ I → II → III → IV','imp');
   // Bot uses its OWN separate deck (G.botRaw)
-  G.oMainDeck=shuffle(expand(G.botRaw.main));G.oHand=5;G.oAdv=[null,null,null];
+  G.oMainDeck=shuffle(expand(G.botRaw.main));G.oHand=0;G.oAdv=[null,null,null];
   G.oStage=0;G.oPlans=[null,null,null,null];G.oRetireArea=[];
   G.oStory=[...G.botRaw.story].sort((a,b)=>SL.indexOf(a.story_stage)-SL.indexOf(b.story_stage));
-  G.oSceneDeckCount=expand(G.botRaw.scene).length;G.oSceneCount=0;
+  G.oSceneDeck=shuffle(expand(G.botRaw.scene));G.oSceneArea=[];
+  G.oSceneDeckCount=G.oSceneDeck.length;G.oSceneCount=0;
 
-  // Draw 5 cards for player
-  for(let i=0;i<5;i++)_draw(true);
-  // Draw 5 for bot
-  for(let i=0;i<5;i++){if(G.oMainDeck.length>0)G.oMainDeck.pop();}
+  // Step 3/4: story zone order already prepared in story arrays, then random first player
+  log('Setup 4/7: สุ่มผู้เล่นเริ่มก่อน','imp');
+  log(`ผู้เริ่มก่อน: ${G.isPlayerTurn?'เรา (Player)':'Bot'}`,'act');
 
-  // Place 4 plan cards each
-  for(let i=0;i<4;i++){if(G.mainDeck.length>0)G.pPlans[i]=G.mainDeck.pop();}
-  for(let i=0;i<4;i++){if(G.oMainDeck.length>0)G.oPlans[i]=G.oMainDeck.pop();}
-
-  // Setup first scene for EACH player — both face-up (untapped), per rule 103.4 + 402.3
-  // First player's first scene is added during their Start Phase (step 3)
-  // We pre-add 1 scene per side: player gets tapped (turn 1 rule), bot gets untapped
-  _addScene(true);   // player's first scene — _flipped=true (first player rule: ใช้ inspo ไม่ได้)
-  _addOppScene();    // bot also gets 1 scene at setup — untapped
+  // Opening hand for both sides (mulligan handled via overlay next step)
+  log('Setup 5/7: จั่วมือเริ่มต้นคนละ 5 ใบ','imp');
+  drawOpeningHands();
 
   switchScreen('game-screen');
   G.phase='start';renderAll();updatePhaseUI();
+  // Init mobile tab (show Hand by default on small screens)
+  if(window.innerWidth<=480)setMobTab('hand');
   log(`✨ เกมเริ่ม! เรา: ${G.raw.mc.name} vs Bot: ${G.botRaw.mc.name}`,'imp');
-  log('Turn 1 — ฝั่งเรา (Player)','act');
+  log(`สุ่มผู้เริ่มก่อน: ${G.isPlayerTurn?'เรา (Player)':'Bot'}`,'act');
+  log(`Turn 1 — ${G.isPlayerTurn?'ฝั่งเรา (Player)':'ฝั่ง Bot'}`,'act');
+
+  // Show floating mulligan flow (player can inspect hand before choosing)
+  await runOpeningMulliganFlow();
+
+  // Step 6: Place 4 plan cards each after mulligan choices are done
+  log('Setup 6/7: วาง Plan คว่ำ 4 ใบต่อฝ่าย','imp');
+  for(let i=0;i<4;i++){if(G.mainDeck.length>0)G.pPlans[i]=G.mainDeck.pop();}
+  for(let i=0;i<4;i++){if(G.oMainDeck.length>0)G.oPlans[i]=G.oMainDeck.pop();}
+
+  // Step 7: Place opening scene
+  log('Setup 7/7: วางฉากเริ่มต้น 1 ใบ','imp');
+  _addScene(G.isPlayerTurn===true); // if player starts first, player's first scene is flipped
+  _addOppScene();
+  renderAll();
 }
 function switchScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+function drawManyFromDeck(deck, count){
+  const out=[];
+  for(let i=0;i<count;i++){
+    if(deck.length===0) break;
+    out.push(deck.pop());
+  }
+  return out;
+}
+
+function drawOpeningHands(){
+  // Player opening 5
+  G.hand = drawManyFromDeck(G.mainDeck, 5).map(c => ({...c, _tapped:false, _boosted:0, _item:null}));
+  // Bot opening 5 (hidden list)
+  G.oOpeningHand = drawManyFromDeck(G.oMainDeck, 5);
+  G.oHand = G.oOpeningHand.length;
+}
+
+function askMulligan(title, text){
+  const ov=document.getElementById('mulligan-overlay');
+  const t=document.getElementById('mulligan-title');
+  const d=document.getElementById('mulligan-text');
+  const keep=document.getElementById('mulligan-keep-btn');
+  const redraw=document.getElementById('mulligan-redraw-btn');
+  return new Promise(resolve => {
+    t.textContent=title;
+    d.textContent=text;
+    ov.classList.add('show');
+    const done = (wantMulligan) => {
+      ov.classList.remove('show');
+      keep.onclick=null;
+      redraw.onclick=null;
+      resolve(wantMulligan);
+    };
+    keep.onclick=()=>done(false);
+    redraw.onclick=()=>done(true);
+  });
+}
+
+async function runOpeningMulliganFlow(){
+  renderAll();
+  const pMulligan = await askMulligan(
+    'Player Mulligan',
+    `คุณมีการ์ดเริ่มต้น ${G.hand.length} ใบ — ต้องการเปลี่ยนมือหรือไม่?`
+  );
+  if(pMulligan){
+    // put returned hand to bottom of deck, then draw 5
+    G.mainDeck = [...G.hand, ...G.mainDeck];
+    G.hand = drawManyFromDeck(G.mainDeck, 5).map(c => ({...c, _tapped:false, _boosted:0, _item:null}));
+    log('Player ทำ Mulligan มือเริ่มต้น','warn');
+    renderAll();
+  }
+
+  // Bot auto-mulligan: keep if hand has any Character with cost ≤ 2, otherwise mulligan
+  const hasEarlyChar = G.oOpeningHand.some(c => c.type === 'Character' && (c.cost ?? 99) <= 2);
+  if(!hasEarlyChar){
+    G.oMainDeck = [...G.oOpeningHand, ...G.oMainDeck];
+    G.oOpeningHand = drawManyFromDeck(G.oMainDeck, 5);
+    log('Bot auto-mulligan (ไม่มี Character ราคา ≤ 2 ในมือ)', 'warn');
+  } else {
+    log('Bot auto-keep (มี Character ราคา ≤ 2 ในมือ)', 'act');
+  }
+  G.oHand = G.oOpeningHand.length;
+}
 
 /* ═══════════════════════════════════
    CORE ACTIONS
@@ -892,8 +1349,14 @@ function _draw(silent=false){
   if(!silent)log(`จั่ว: ${c.name} [${c.rarity}]`);
 }
 function manualDraw(){
-  if(G.phase!=='main'){log('คลิก Main Deck ใน Main Phase','warn');return;}
   _draw();renderCounts();renderHand();
+}
+function manualMill(){
+  if(G.mainDeck.length===0){log('Main Deck ว่าง ไม่สามารถ Mill ได้','warn');return;}
+  const c=G.mainDeck.pop();
+  G.retireArea.push(c);
+  log(`Mill: ${c.name} [${c.rarity||'?'}] → Retirement`,'act');
+  renderCounts();
 }
 function _addScene(flipped=false){
   if(G.sceneDeck.length===0)return;
@@ -903,13 +1366,14 @@ function _addScene(flipped=false){
   G.sceneArea.push(s);
 }
 function _addOppScene(){
-  // Bot gets 1 scene at setup — untapped (face-up, usable)
-  // We track bot scenes separately with a simple count since we don't display them
-  G.oSceneCount=(G.oSceneCount||0)+1;
-  G.oSceneDeckCount=Math.max(0,(G.oSceneDeckCount||15)-1);
+  if(!G.oSceneDeck||G.oSceneDeck.length===0)return;
+  const s=G.oSceneDeck.pop();
+  s._tapped=false;s._flipped=false;
+  G.oSceneArea.push(s);
+  G.oSceneCount=G.oSceneArea.length;
+  G.oSceneDeckCount=G.oSceneDeck.length;
 }
 function tapSceneHarmony(){
-  if(G.phase!=='main'){log('Tap Scene ได้ใน Main Phase','warn');return;}
   // Can tap: scene that is NOT yet tapped (not used for harmony) and NOT flipped (not used for inspo)
   // Tapped = sideways = used for harmony already
   // Flipped = face-down = used for inspo boost — BUT still can be tapped for harmony per rule 204
@@ -938,11 +1402,11 @@ function playCard(idx){
   }else if(c.type==='Item'){
     const validTargets=G.pAdv.map((x,i)=>({c:x,i})).filter(({c:x})=>x!==null&&x._item===null);
     if(validTargets.length===0){log('ไม่มีตัวละครรับ Item ได้','warn');return;}
-    // check restriction
+    // check adorn restriction via bracket parse
     const ab=c.ability||'';
-    const restricted=ab.includes('Only adorn 「Applejack」');
-    const actualTargets=restricted?validTargets.filter(({c:x})=>x.subtype?.includes('Applejack')):validTargets;
-    if(actualTargets.length===0){log('Item นี้ติดได้เฉพาะ 「Applejack」 แต่ไม่มีในสนาม','warn');return;}
+    const adornName=_adornRestrict(ab);
+    const actualTargets=adornName?validTargets.filter(({c:x})=>_charMatchesRestrict(x,adornName)):validTargets;
+    if(actualTargets.length===0){log(`Item นี้ติดได้เฉพาะ 「${adornName||'?'}」 แต่ไม่มีในสนาม`,'warn');return;}
     if(actualTargets.length===1){
       // only one valid target, equip directly
       G.harmony-=c.cost;G.hand.splice(idx,1);actualTargets[0].c._item=c;
@@ -1006,8 +1470,9 @@ function slotClick(idx){
     if(!tgt){log('Slot ว่าง — เลือกตัวละครที่มีอยู่','warn');return;}
     if(tgt._item!==null){log(`${tgt.name} มี Item แล้ว — เลือก Slot อื่น`,'warn');return;}
     const ab=G.pendingItem.ability||'';
-    if(ab.includes('Only adorn 「Applejack」')&&!tgt.subtype?.includes('Applejack')){
-      log('ติดได้เฉพาะ 「Applejack」','warn');return;
+    const adornName=_adornRestrict(ab);
+    if(adornName&&!_charMatchesRestrict(tgt,adornName)){
+      log(`ติดได้เฉพาะ 「${adornName}」`,'warn');return;
     }
     tgt._item=G.pendingItem;
     log(`ติดตั้ง ${G.pendingItem.name} → ${tgt.name} ✅`,'good');
@@ -1029,12 +1494,39 @@ function tapChar(idx){
   if(G.phase!=='main')return;
   if(c._tapped){log(`${c.name} tapped แล้ว`,'warn');return;}
   const ab=c.ability||'';
-  if(ab.includes('[Adventure]')&&ab.includes('[Tap]')){
-    c._tapped=true;log(`Tap ${c.name}`,'act');
-    const s=G.sceneArea.find(x=>x._tapped&&!x._flipped);
-    if(s&&ab.includes('untap it')){s._tapped=false;log(`⚡ Untap "${s.name}"`,'good');}
-    renderScene();renderAdv();
+  if(!ab.includes('[Tap]')){
+    // no tap effect — show context menu for this char
+    showAdvCtxMenu(idx);
+    return;
   }
+  c._tapped=true;
+  const th=c.ability_th||ab;
+  log(`[Tap] ${c.name}`,'act');
+  log(`  ⚡ ${th.replace(/\[Tap\]/g,'').trim()}`,'act');
+  log('  → ใช้ปุ่มด้านล่างจัดการ effect ด้วยตัวเอง','warn');
+  // Special built-in: untap a scene
+  if(ab.includes('untap it')){
+    const s=G.sceneArea.find(x=>x._tapped&&!x._flipped);
+    if(s){s._tapped=false;log(`⚡ Untap "${s.name}"`,'good');}
+  }
+  renderScene();renderAdv();
+}
+function showAdvCtxMenu(idx){
+  const c=G.pAdv[idx];if(!c)return;
+  const ab=c.ability||'';
+  const hasTap=ab.includes('[Tap]');
+  const imgSrc=c.imageUrl||(c.id?CARDS_BASE+c.id+'.jpg':null);
+  showModal(c.name,
+    `<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:4px">
+      ${imgSrc?`<img src="${imgSrc}" style="width:56px;height:78px;object-fit:cover;object-position:top;border-radius:3px;flex-shrink:0" onerror="this.style.display='none'">`:''}
+      <div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">${c.rarity||''} · Cost ${c.cost??'—'} · Power ${c.power??'—'}</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.5">${c.ability_th||ab||'—'}</div>
+      </div>
+    </div>`,
+    `${hasTap&&!c._tapped?`<button class="mbtn" style="border-color:var(--accent);color:var(--accent)" onclick="closeModal();tapChar(${idx})">⚡ ใช้ [Tap] Effect</button>`:''}
+     <button class="mbtn" onclick="closeModal()">ปิด</button>`
+  );
 }
 
 /* ═══════════════════════════════════
@@ -1043,7 +1535,7 @@ function tapChar(idx){
 function nextPhase(){
   if(G.phase==='start'){doStart();G.phase='main';}
   else if(G.phase==='main'){G.phase='contact';doContact();}
-  else if(G.phase==='contact'){G.phase='end';doEnd();}
+  else if(G.phase==='contact'){G.phase='end';_clearContactHighlight();doEnd();}
   else if(G.phase==='end'){
     // Advance to next turn (alternating sides)
     G.turnCount++;
@@ -1058,9 +1550,8 @@ function nextPhase(){
 }
 
 function doStart(){
-  // Turn 1 = player, Turn 2 = bot, Turn 3 = player, ...
-  // Skip draw on the very first turn (turnCount===1, player side)
-  const isFirstEver = G.turnCount===1 && G.isPlayerTurn;
+  // Skip draw on the very first turn of the game (whoever starts first)
+  const isFirstEver = G.turnCount===1;
 
   if(!isFirstEver){
     if(G.isPlayerTurn){
@@ -1071,11 +1562,11 @@ function doStart(){
       _draw();
       log('Reset + จั่ว 1 ใบ');
     }else{
-      // Bot start phase — reset bot chars, bot "draws"
-      G.oAdv.forEach(c=>{if(c)c._tapped=false;});
-      G.oHand=Math.min(G.oHand+1,7);
-      log('🤖 Bot Reset + จั่ว 1 ใบ');
-    }
+    // Bot start phase — reset bot chars, bot "draws"
+    G.oAdv.forEach(c=>{if(c)c._tapped=false;});
+    G.oHand=Math.min(G.oHand+1,7);
+    log('🤖 Bot Reset + จั่ว 1 ใบ');
+  }
   }
 
   // Add scene each start phase (both sides add from their own deck)
@@ -1087,12 +1578,9 @@ function doStart(){
     }
     log('Main Phase — เล่น/ใช้การ์ดได้','act');
   }else{
-    // Bot adds scene
-    if(G.oSceneDeckCount>0){
-      G.oSceneCount++;
-      G.oSceneDeckCount--;
-      log(`🤖 Bot เพิ่มฉาก (รวม ${G.oSceneCount} ใบ)`);
-    }
+    // Bot adds scene using proper oSceneDeck
+    _addOppScene();
+    if(G.oSceneArea?.length) log(`🤖 Bot เพิ่มฉาก (รวม ${G.oSceneArea.length} ใบ)`);
     // Bot main phase simulation — plays cheapest char
     aiSim();
     log('🤖 Bot Main Phase เสร็จ — กด Contact Phase','act');
@@ -1110,30 +1598,52 @@ function doEnd(){
     log(`กด "Turn ${G.turnCount+1} →" เพื่อกลับฝั่งเรา`,'act');
   }
 }
+function _clearContactHighlight(){
+  for(let i=0;i<3;i++){
+    document.getElementById(`ps${i}`)?.classList.remove('contact-active');
+    document.getElementById(`os${i}`)?.classList.remove('contact-active');
+  }
+}
+function _highlightContactSlot(idx){
+  _clearContactHighlight();
+  document.getElementById(`ps${idx}`)?.classList.add('contact-active');
+  document.getElementById(`os${idx}`)?.classList.add('contact-active');
+}
+
 function doContact(){
   // Per rulebook 404.1: Contact ถูกข้ามใน "สองเทิร์นแรกของเกม"
   if(G.turnCount<=2){
     log(`Contact ถูกข้าม (Turn ${G.turnCount} — ยังอยู่ใน 2 เทิร์นแรก)`,'warn');
     return;
   }
-  log(`⚔️ Contact Phase — Turn ${G.turnCount} (${G.isPlayerTurn?'Player':'Bot'}) ไล่ทีละคู่`,'act');
-
   // Rulebook 404.2: เริ่มจากแถวซ้ายมือของผู้เล่นเจ้าของเทิร์น
-  // Player turn  → slot 0,1,2 (ซ้ายไปขวาจากฝั่งเรา)
-  // Bot turn     → slot 2,1,0 (ซ้ายไปขวาจากฝั่ง Bot = ขวาไปซ้ายจากฝั่งเรา)
+  // Player turn  → slot 1→2→3 (index 0,1,2) from player's left
+  // Bot turn     → slot 3→2→1 (index 2,1,0) from bot's left = right-to-left on screen
+  //const order = G.isPlayerTurn ? [0,1,2] : [2,1,0];​
+  //const orderLabel = G.isPlayerTurn ? '1→2→3' : '3→2→1';
+  const isPlayerFirst = G.firstPlayer === 'player';
+  const order = isPlayerFirst ? [0,1,2] : [2,1,0];
+  const orderLabel = isPlayerFirst ? 'L→R' : 'R→L';
+  log(`⚔️ Contact Phase — Turn ${G.turnCount} (${G.isPlayerTurn?'Player':'Bot'}) ลำดับ Slot ${orderLabel}`,'act');
   G.contactQueue=[];
-  const order = G.isPlayerTurn ? [0,1,2] : [2,1,0];
   for(const i of order){
-    const p=G.pAdv[i],o=G.oAdv[i];
-    if(p||o) G.contactQueue.push(i);
+    // Include slot if the turn-owner has a character there (rulebook: only turn-owner initiates contact)
+    const ownerChar = G.isPlayerTurn ? G.pAdv[i] : G.oAdv[i];
+    if(ownerChar) G.contactQueue.push(i);
+  }
+  if(!G.contactQueue.length){
+    log('⚔️ ไม่มีตัวละครเริ่ม Contact','warn');
+    return;
   }
   G.contactStep=0;
   processNextContact();
 }
 
 function processNextContact(){
+  G._playerUsedInspo = false;
+  _clearContactHighlight();
   if(G.contactStep>=G.contactQueue.length){
-    // All slots done
+    // All slots done — clear boosts
     G.pAdv.forEach(c=>{if(c)c._boosted=0;});
     log('⚔️ Contact Phase เสร็จสิ้น','act');
     renderAll();
@@ -1141,14 +1651,7 @@ function processNextContact(){
   }
   const slotIdx=G.contactQueue[G.contactStep];
   const p=G.pAdv[slotIdx],o=G.oAdv[slotIdx];
-
-  // Contact happens only if turn-owner has a character in this slot
-  const ownerHasChar = G.isPlayerTurn ? !!p : !!o;
-  if(!ownerHasChar){
-    G.contactStep++;
-    setTimeout(processNextContact, 80);
-    return;
-  }
+  _highlightContactSlot(slotIdx);
   if(p&&o){
     showContactModal(slotIdx,p,o);
   }else if(p&&!o){
@@ -1161,8 +1664,12 @@ function processNextContact(){
 function showContactModal(slotIdx,p,o){
   const pInsp=effInsp(p,true);
   const oInsp=o.power||0;
-  // Available inspo boost scenes: has inspo ability AND not yet flipped (tapped is OK)
-  const inspoScenes=G.sceneArea.filter(s=>!s._flipped&&s.ability?.toLowerCase().includes('inspo'));
+  // Available inspo boost scenes: has inspo ability, not yet flipped, and restriction matches target char
+  const inspoScenes=G.sceneArea.filter(s=>{
+    if(s._flipped||!s.ability?.toLowerCase().includes('inspo'))return false;
+    const r=_inspoRestrict(s.ability);
+    return !r||_charMatchesRestrict(p,r); // only show if char matches restriction
+  });
 
   const sceneOpts=inspoScenes.length>0
     ? inspoScenes.map((s,i)=>`<button class="mbtn" style="font-size:10px;border-color:var(--accent)" onclick="useInspoInContact(${G.sceneArea.indexOf(s)},${slotIdx})">`+
@@ -1197,22 +1704,76 @@ function useInspoInContact(sceneIdx,slotIdx){
   const scene=G.sceneArea[sceneIdx];
   if(!scene){log('ไม่พบฉาก','warn');return;}
   if(scene._flipped){log(`"${scene.name}" ใช้ Inspo ไปแล้ว (ถาวร)`,'warn');return;}
-  scene._flipped=true; // permanent — inspo exhausted for this scene
   const p=G.pAdv[slotIdx];
+  const r=_inspoRestrict(scene.ability);
+  if(r&&!_charMatchesRestrict(p,r)){log(`Inspo นี้ใช้ได้เฉพาะ 「${r}」`,'warn');return;}
+  scene._flipped=true;
+  if(p){p._boosted=(p._boosted||0)+1;log(`Inspo Boost: ${scene.name} → ${p.name} +1 Power`,'act');}
   if(p){
+    G._playerUsedInspo = true;
     p._boosted=(p._boosted||0)+1;
     log(`Inspo Boost: ${scene.name} → ${p.name} +1 Insp`,'act');
   }
   renderScene();
-  // Refresh modal with updated values
   if(G.pAdv[slotIdx]&&G.oAdv[slotIdx])
     showContactModal(slotIdx,G.pAdv[slotIdx],G.oAdv[slotIdx]);
 }
 
-function resolveContact(slotIdx){
+function aiUseInspo(slotIdx){
+  const o = G.oAdv[slotIdx]; // bot
+  const p = G.pAdv[slotIdx]; // player
+  if(!o || !p) return;
+  const baseOi = o.power || 0;
+  const pi = effInsp(p,true);
+  // หา scene ที่ใช้ได้ (ของ bot)
+  const scenes = G.oSceneArea?.filter(s =>
+    !s._flipped && s.ability?.toLowerCase().includes('inspo')
+  ) || [];
+  if(!scenes.length) return;
+  // 👉 logic: ใช้ boost ถ้าช่วยให้ชนะ
+  const need = pi - baseOi;
+  if(need > 0 && need <= scenes.length){
+    for(let i=0;i<need;i++){
+      const s = scenes[i];
+      s._flipped = true;
+      o._boosted = (o._boosted || 0) + 1;
+      log(`🤖 Inspo Boost: ${s.name} → ${o.name} +1 Insp`,'act');
+    }
+  }
+  }
+  
+/*function resolveContact(slotIdx){
   closeModal();
   const p=G.pAdv[slotIdx],o=G.oAdv[slotIdx];
   if(!p||!o){G.contactStep++;setTimeout(processNextContact,100);return;}
+  const pi=effInsp(p,true),oi=o.power||0;
+  log(`Slot${slotIdx+1}: ${p.name}(${pi}) vs ${o.name}(${oi})`);
+  if(pi>oi){log('  → ชนะ ✅ — OPP Retire','good');retireO(slotIdx);}
+  else if(pi<oi){log(`  → แพ้ — ${p.name} Retire`,'warn');retireP(slotIdx);}
+  else{log('  → เสมอ — ทั้งคู่ Retire','warn');retireP(slotIdx);retireO(slotIdx);}
+  G.contactStep++;
+  renderAll();
+  setTimeout(processNextContact,300);
+}*/
+function resolveContact(slotIdx){
+  closeModal();
+  const p=G.pAdv[slotIdx],o=G.oAdv[slotIdx];
+  if(!p||!o){
+    G.contactStep++;
+    setTimeout(processNextContact,100);
+    return;
+  }
+  // 🎯 ลำดับการใช้ boost
+  if(G.isPlayerTurn){
+    // player เป็นคนเริ่ม 👉 ถ้า player ใช้แล้ว → bot ค่อยตอบ
+    if(G._playerUsedInspo){
+      aiUseInspo(slotIdx);
+    }
+  }else{
+    // bot เริ่มก่อน
+    aiUseInspo(slotIdx);
+    // 👉 player จะใช้ผ่าน UI ทีหลังอยู่แล้ว
+  }
   const pi=effInsp(p,true),oi=o.power||0;
   log(`Slot${slotIdx+1}: ${p.name}(${pi}) vs ${o.name}(${oi})`);
   if(pi>oi){log('  → ชนะ ✅ — OPP Retire','good');retireO(slotIdx);}
@@ -1244,6 +1805,44 @@ function showActionModal(slotIdx,p){
 }
 
 function actionAdvance(slotIdx){
+  closeModal();
+  // Show intermediate state: player can apply manual effects before confirming advance
+  const nextStage=G.pStage;
+  const st=G.storyCards[nextStage];
+  const storyHtml=st
+    ?`<div style="background:var(--bg3);border:.5px solid rgba(251,191,36,.3);border-radius:var(--rsm);padding:8px;margin-bottom:10px;text-align:left">
+        <div style="font-size:10px;font-weight:600;color:var(--gold);margin-bottom:3px">📖 ${st.name} [Stage ${st.story_stage}]</div>
+        <div style="font-size:9px;color:var(--text2);line-height:1.5">${st.ability_th||st.ability||'(ไม่มี Effect)'}</div>
+      </div>`
+    :'';
+  // Power adjusters for all active slots
+  const adjRows=[0,1,2].map(i=>{
+    const pc=G.pAdv[i],oc=G.oAdv[i];
+    if(!pc&&!oc)return'';
+    const pv=pc?effInsp(pc,true):'—';const ov=oc?(oc.power+(oc._boosted||0)):'—';
+    return`<div style="display:flex;align-items:center;justify-content:center;gap:4px;margin:2px 0;font-size:9px">
+      <span style="min-width:48px;text-align:right;color:var(--green)">${pc?pc.name.split(' ').slice(-1)[0]:'—'}</span>
+      ${pc?`<button class="pow-btn" onclick="adjPow(${i},'p',-1)">−</button><span class="pow-val">${pv}</span><button class="pow-btn" onclick="adjPow(${i},'p',1)">+</button>`:'<span style="display:inline-block;width:52px"></span>'}
+      <span style="color:var(--text3);margin:0 2px">·</span>
+      ${oc?`<button class="pow-btn" onclick="adjPow(${i},'o',-1)">−</button><span class="pow-val" style="color:var(--red)">${ov}</span><button class="pow-btn" onclick="adjPow(${i},'o',1)">+</button>`:'<span style="display:inline-block;width:52px"></span>'}
+      <span style="min-width:48px;color:var(--red)">${oc?oc.name.split(' ').slice(-1)[0]:'—'}</span>
+    </div>`;
+  }).join('');
+  const actBtns=`<div style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin-top:6px">
+    <button class="tap-btn" style="width:auto;padding:3px 8px;font-size:9px" onclick="manualDraw()">📥 Draw</button>
+    <button class="tap-btn" style="width:auto;padding:3px 8px;font-size:9px;border-color:rgba(248,113,113,.4);color:var(--red)" onclick="toggleDiscardMode()">🗑 Discard</button>
+    <button class="tap-btn" style="width:auto;padding:3px 8px;font-size:9px;border-color:rgba(74,222,128,.35);color:var(--green)" onclick="manualBoostInsp(1)">+1 Insp</button>
+  </div>`;
+  document.getElementById('mo-title').textContent=`📖 Advance → Stage ${SL[nextStage]||'—'}`;
+  document.getElementById('mo-body').innerHTML=storyHtml+
+    `<div style="font-size:9px;color:var(--text3);text-align:center;margin-bottom:4px">ปรับ Power ก่อน Confirm:</div>`+
+    adjRows+actBtns;
+  document.getElementById('mo-btns').innerHTML=
+    `<button class="mbtn primary" onclick="_confirmAdvance(${slotIdx})">✅ Confirm Advance</button>
+     <button class="mbtn" onclick="closeModal();showActionModal(${slotIdx},G.pAdv[${slotIdx}])">↩ Back</button>`;
+  document.getElementById('mo').classList.add('show');
+}
+function _confirmAdvance(slotIdx){
   closeModal();
   doAdv();
   G.contactStep++;
@@ -1298,14 +1897,19 @@ function showOppActionModal(slotIdx, o){
 function oppActionAdvance(slotIdx){
   closeModal();
   if(G.oStage >= 4) return;
-  if(G.pPlans[G.oStage] !== null){ log('🤖 OPP ถูกปิดกั้น!','warn'); }
-  else {
-    G.oStage++;
-    log(`🤖 OPP ดำเนินเนื้อเรื่อง Stage ${SL[G.oStage-1]}!`,'warn');
-    const st = G.oStory[G.oStage-1];
-    if(st) log(`  ⚡ OPP: ${st.ability_th||st.ability}`);
-    if(G.oStage >= 4) endGame(false, 'AI ถึง Stage IV!');
+  if(G.pPlans[G.oStage] !== null){
+    log('🤖 OPP ถูกปิดกั้น! แผนการถูกเปิดเผย','warn');
+    const plan=G.pPlans[G.oStage];
+    G.pPlans[G.oStage]=null;
+    renderAll();
+    showPlanRevealModal(plan, slotIdx);
+    return; // resolvePlan() will advance contactStep
   }
+  G.oStage++;
+  log(`🤖 OPP ดำเนินเนื้อเรื่อง Stage ${SL[G.oStage-1]}!`,'warn');
+  const st = G.oStory[G.oStage-1];
+  if(st) log(`  ⚡ OPP: ${st.ability_th||st.ability}`);
+  if(G.oStage >= 4) endGame(false, 'AI ถึง Stage IV!');
   G.contactStep++;
   renderAll();
   setTimeout(processNextContact, 300);
@@ -1315,25 +1919,21 @@ function oppActionDisrupt(slotIdx){
   closeModal();
   // OPP disrupts the LOWEST plan we have
   const idx = G.pPlans.findIndex(p => p !== null);
-  if(idx === -1){ log('🤖 OPP ไม่พบแผนการของเรา'); }
-  else {
-    const plan = G.pPlans[idx];
-    G.pPlans[idx] = null;
-    log(`🤖 OPP ขัดขวางแผนการเรา Stage ${SL[idx]}: ${plan.name}`,'warn');
-    const ab = plan.ability || '';
-    if(ab.includes('[Pre-plan]') || ab.includes('Pre-plan')){
-      log(`  ⚡ Pre-Plan: ${plan.ability_th||ab}`);
-      G.retireArea.push(plan);
-      if(ab.toLowerCase().includes('draw 1')){ _draw(); log('  → Draw 1 (Pre-Plan)','good'); }
-    } else {
-      // return to our hand
-      G.hand.push(plan);
-      log(`  → คืนขึ้นมือเรา: ${plan.name}`,'good');
-    }
+  if(idx === -1){
+    log('🤖 OPP ไม่พบแผนการของเรา');
+    G.contactStep++;
+    renderAll();
+    setTimeout(processNextContact, 300);
+    return;
   }
-  G.contactStep++;
+  const plan = G.pPlans[idx];
+  G.pPlans[idx] = null;
+  log(`🤖 OPP ขัดขวางแผนการเรา Stage ${SL[idx]}: ${plan.name}`,'warn');
+  const ab = plan.ability || '';
+  if(ab.toLowerCase().includes('draw 1')){ _draw(); log('  → Pre-Plan Draw 1','good'); }
   renderAll();
-  setTimeout(processNextContact, 300);
+  showPlanRevealModal(plan, slotIdx);
+  // resolvePlan() will advance contactStep
 }
 
 function oppActionNone(slotIdx){
@@ -1401,8 +2001,8 @@ function aiAct(i){
     if(G.oStage>=4)endGame(false,'AI ถึง Stage IV!');
   }
 }
-function aiSim(){
-  const botHarmony=G.oSceneCount;
+/*function aiSim(){
+  const botHarmony=G.oSceneArea?.length??G.oSceneCount??0;
   const playable=[...G.oMainDeck].filter(x=>x.type==='Character'&&(x.cost||0)<=botHarmony);
   if(!playable.length)return;
   playable.sort((a,b)=>(b.cost||0)-(a.cost||0)||(b.power||0)-(a.power||0));
@@ -1415,6 +2015,30 @@ function aiSim(){
     G.oMainDeck.splice(G.oMainDeck.indexOf(card),1);
     log(`Bot plays ${card.name}[${card.rarity}] cost:${card.cost} pwr:${card.power} -> Slot${slot+1}`);
   }
+}*/
+function aiSim(){
+  const botHarmony=G.oSceneArea?.length??G.oSceneCount??0;
+  const playable=[...G.oMainDeck]
+    .filter(x=>x.type==='Character'&&(x.cost||0)<=botHarmony);
+  if(!playable.length)return;
+  let bestMove = null;
+  playable.forEach(card=>{
+    [0,1,2].forEach(slot=>{
+      if(G.oAdv[slot]!==null) return;
+      const enemy = G.pAdv[slot];
+      const score = enemy
+        ? (card.power||0)-(enemy.power||0)
+        : (card.power||0);
+      if(!bestMove || score > bestMove.score){
+        bestMove = {card, slot, score};
+      }
+    });
+  });
+  if(!bestMove) return;
+  const {card, slot} = bestMove;
+  G.oAdv[slot]={...card,_tapped:false,_boosted:0,_item:null};
+  G.oMainDeck.splice(G.oMainDeck.indexOf(card),1);
+  log(`Bot plays ${card.name} -> Slot${slot+1}`);
 }
 function effInsp(c,isMyTurn){
   let v=c.power||0;
@@ -1448,11 +2072,27 @@ function updatePhaseUI(){
 /* ═══════════════════════════════════
    RENDER
 ═══════════════════════════════════ */
-function renderAll(){renderAdv();renderHand();renderScene();renderStory();renderCounts();}
+function renderAll(){renderAdv();renderHand();renderScene();renderStory();renderCounts();renderOppScene();}
 
+function adjPow(idx,side,delta){
+  const arr=side==='p'?G.pAdv:G.oAdv;
+  const c=arr[idx];if(!c)return;
+  c._boosted=(c._boosted||0)+delta;
+  log(`${side==='p'?'YOU':'OPP'} slot ${idx+1}: ${c.name} power ${delta>0?'+':''}${delta} (total adj: ${c._boosted})`,'act');
+  renderAdv();
+}
+function _mkPowAdj(idx,side,c){
+  if(!c)return'';
+  const adj=c._boosted||0;
+  const col=side==='p'?'rgba(74,222,128,.7)':'rgba(248,113,113,.7)';
+  return`<button class="pow-btn" onclick="event.stopPropagation();adjPow(${idx},'${side}',-1)" title="-1 power">−</button>
+  <span class="pow-val" style="color:${adj!==0?'var(--gold)':'var(--text3)'}">${adj!==0?(adj>0?'+':'')+adj:'·'}</span>
+  <button class="pow-btn" onclick="event.stopPropagation();adjPow(${idx},'${side}',1)" title="+1 power">+</button>`;
+}
 function renderAdv(){
   for(let i=0;i<3;i++){
     const ps=document.getElementById(`ps${i}`),os=document.getElementById(`os${i}`);
+    const ppa=document.getElementById(`ppa${i}`),opa=document.getElementById(`opa${i}`);
     const pc=G.pAdv[i],oc=G.oAdv[i];
     // player slot
     if(pc){
@@ -1460,23 +2100,23 @@ function renderAdv(){
       ps.innerHTML=mkCard(pc,true);
     }else{
       ps.classList.remove('occupied');
-      // item-target highlight: valid if no item, and passes restriction
       if(G.itemTargetMode){
-        const ab=G.pendingItem?.ability||'';
-        const ok=!ab.includes('Only adorn 「Applejack」'); // no char here anyway
         ps.classList.remove('item-target'); // empty slot can't receive item
       }else ps.classList.remove('item-target');
       ps.innerHTML='<span class="slot-icon">+</span>';
     }
-    // item-target glow on occupied slots with valid char
+    // item-target glow on occupied slots with valid char (bracket-based adorn restriction)
     if(G.itemTargetMode&&pc){
-      const ab=G.pendingItem?.ability||'';
-      const valid=pc._item===null&&(!ab.includes('Only adorn 「Applejack」')||pc.subtype?.includes('Applejack'));
+      const adornName=_adornRestrict(G.pendingItem?.ability||'');
+      const valid=pc._item===null&&(!adornName||_charMatchesRestrict(pc,adornName));
       if(valid)ps.classList.add('item-target'); else ps.classList.remove('item-target');
     }else if(!G.itemTargetMode){ps.classList.remove('item-target');}
     // opp slot
     if(oc){os.classList.add('occupied');os.innerHTML=mkCard(oc,false);}
     else{os.classList.remove('occupied');os.innerHTML='<span class="slot-icon">○</span>';}
+    // power adjuster cells
+    if(ppa)ppa.innerHTML=_mkPowAdj(i,'p',pc);
+    if(opa)opa.innerHTML=_mkPowAdj(i,'o',oc);
   }
 }
 function mkCard(c,isP){
@@ -1486,15 +2126,17 @@ function mkCard(c,isP){
   const insp=isP?effInsp(c,G.phase==='main'):(c.power||0);
   const boosted=(c._boosted||0)>0||(c._item&&isP&&G.phase==='main');
   const st=(c.subtype||[]).map(s=>SICON[s]||'').filter(Boolean)[0]||TICON[c.type]||'?';
+  const artSrc=c.imageUrl||(c.id?CARDS_BASE+c.id+'.jpg':null);
   const ic=isOrange?'orange':(boosted?'boosted':'');
   const safe=JSON.stringify({...c,_item:c._item||null}).replace(/'/g,"&#39;").replace(/"/g,'&quot;');
   return`<div class="gcard ${tc}${isOrange?' orange':''}${tapped}"
     onmouseenter="showTT(event,this)" onmouseleave="hideTT()"
+    ontouchstart="ttStart(()=>showTT(event,this))" ontouchend="ttEnd()" ontouchmove="ttCancel()"
     data-card="${safe}">
     <div class="gface">
       <div class="gcost">${c.cost??'—'}</div>
       <div class="gtype">${TICON[c.type]||'?'}</div>
-      <div class="gart">${st}</div>
+      <div class="gart">${artSrc?`<img src="${artSrc}" alt="${c.name}" onerror="this.style.display='none'">`:`${st}`}</div>
       <div class="gbottom">
         <div class="gname">${c.name}</div>
         <div class="gsub">${(c.subtype||[]).slice(0,2).join('·')||c.rarity}</div>
@@ -1517,7 +2159,8 @@ function renderHand(){
     el.innerHTML=banner+G.hand.map((card,i)=>{
       const isOrange=card.color==='Orange';
       return `<div class="hitem" style="border-color:rgba(248,113,113,.6);cursor:pointer" onclick="selCard(${i})"
-        onmouseenter="showTTIdx(event,${i})" onmouseleave="hideTT()">
+        onmouseenter="showTTIdx(event,${i})" onmouseleave="hideTT()"
+        ontouchstart="ttStart(()=>showTTIdx(event,${i}))" ontouchend="ttEnd()" ontouchmove="ttCancel()">
         <div class="hico ${(card.type||'').toLowerCase()}${isOrange?' orange':''}">${TICON[card.type]||'?'}</div>
         <div class="hinfo"><div class="hname">${card.name}</div><div class="hsub">${card.rarity}</div></div>
         <div style="font-size:11px;color:var(--red)">x</div>
@@ -1535,7 +2178,8 @@ function renderHand(){
       const isOrange=c.color==='Orange';
       const cc=c.cost<=G.harmony?'var(--gold)':'var(--red)';
       return`<div class="hitem${sel}" onclick="selCard(${i})"
-        onmouseenter="showTTIdx(event,${i})" onmouseleave="hideTT()">
+        onmouseenter="showTTIdx(event,${i})" onmouseleave="hideTT()"
+        ontouchstart="ttStart(()=>showTTIdx(event,${i}))" ontouchend="ttEnd()" ontouchmove="ttCancel()">
         <div class="hico ${(c.type||'').toLowerCase()}${isOrange?' orange':''}">${TICON[c.type]||'?'}</div>
         <div class="hinfo">
           <div class="hname">${c.name}</div>
@@ -1551,7 +2195,8 @@ function renderHand(){
     const isOrange=c.color==='Orange';
     const cc=c.cost<=G.harmony?'var(--gold)':'var(--red)';
     return`<div class="hitem${sel}" onclick="selCard(${i})"
-      onmouseenter="showTTIdx(event,${i})" onmouseleave="hideTT()">
+      onmouseenter="showTTIdx(event,${i})" onmouseleave="hideTT()"
+      ontouchstart="ttStart(()=>showTTIdx(event,${i}))" ontouchend="ttEnd()" ontouchmove="ttCancel()">
       <div class="hico ${(c.type||'').toLowerCase()}${isOrange?' orange':''}">${TICON[c.type]||'?'}</div>
       <div class="hinfo">
         <div class="hname">${c.name}</div>
@@ -1617,11 +2262,14 @@ function renderScene(){
     else if(s._tapped)        title='Tapped — ใช้ Harmony ไปแล้วเทิร์นนี้';
     else if(hasInspo)         title='คลิก Tap +1✦ | Contact Phase: ↩ Inspo Boost';
     else                      title='คลิก Tap +1✦';
+    const scImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
     return`<div class="sc-card${tappedCls}${flippedCls}"
       onclick="sceneClick(event,${i})"
       oncontextmenu="sceneCtx(event,${i})"
-      onmouseenter="showTTScene(event,${i})" onmouseleave="hideTT()"
+      onmouseenter="showTTScene(event,${i})" onmouseleave="hideTT()" 
+      ontouchstart="ttStart(()=>showTTScene(event,${i}))" ontouchend="ttEnd()" ontouchmove="ttCancel()"
       title="${title}">
+      ${scImgSrc?`<img class="sc-img" src="${scImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
       <div class="sc-n">${s.name.split(' ').slice(-2).join(' ')}</div>
       ${isEv?'<div class="sc-e">&#9733;</div>':''}
       ${hasInspo&&!s._tapped?'<div class="sc-i">&#8617;</div>':''}
@@ -1631,7 +2279,6 @@ function renderScene(){
 }
 function tapSpecificScene(i){
   const s=G.sceneArea[i];if(!s)return;
-  if(G.phase!=='main'){log('Tap Scene ได้ใน Main Phase เท่านั้น','warn');return;}
   if(s._tapped){log(`"${s.name}" tapped ไปแล้ว`,'warn');return;}
   s._tapped=true;G.harmony++;
   log(`Tap "${s.name}" → +1✦ (รวม:${G.harmony})`,'act');
@@ -1683,11 +2330,78 @@ function sceneUnflip(i){
 function sceneInspo(i){
   const s=G.sceneArea[i];if(!s)return;
   if(G.phase!=='contact'){log('Inspo Boost ใช้ได้ใน Contact Phase เท่านั้น','warn');return;}
-  if(s._flipped){log(`"${s.name}" ใช้ Inspo ไปแล้ว (ถาวร)`,'warn');return;}
+  if(s._flipped){log(`"${s.name}" ใช้ Inspo ไปแล้ว`,'warn');return;}
   if(!s.ability?.toLowerCase().includes('inspo')){log('ฉากนี้ไม่มี Inspo Boost','warn');return;}
-  s._flipped=true;
-  log(`Inspo Boost: ${s.name}`,'act');
+  // Determine target: use active contact slot's player char, or ask if ambiguous
+  const slotIdx=G.contactQueue&&G.contactStep<G.contactQueue.length?G.contactQueue[G.contactStep]:-1;
+  const p=slotIdx>=0?G.pAdv[slotIdx]:null;
+  const r=_inspoRestrict(s.ability);
+  if(p){
+    if(r&&!_charMatchesRestrict(p,r)){log(`Inspo นี้ใช้ได้เฉพาะ 「${r}」 — ${p.name} ไม่ตรงเงื่อนไข`,'warn');return;}
+    s._flipped=true;
+    p._boosted=(p._boosted||0)+1;
+    log(`Inspo Boost: ${s.name} → ${p.name} +1 Power`,'act');
+    renderScene();renderAdv();
+    // refresh contact modal if it's open
+    if(G.oAdv[slotIdx])showContactModal(slotIdx,p,G.oAdv[slotIdx]);
+  }else{
+    // No active contact char — let player pick target manually via modal
+    const candidates=G.pAdv.map((c,idx)=>({c,idx})).filter(({c})=>c&&(!r||_charMatchesRestrict(c,r)));
+    if(!candidates.length){log(`Inspo: ไม่มีตัวละครที่ตรงเงื่อนไข${r?` 「${r}」`:''}`),'warn';return;}
+    showModal(`Inspo Boost: ${s.name}`,
+      `<div style="font-size:10px;color:var(--text2);margin-bottom:6px">เลือกตัวละครที่จะ Boost:</div>`,
+      candidates.map(({c,idx})=>
+        `<button class="mbtn" onclick="closeModal();_applyInspo(${i},${idx})">${c.name}</button>`
+      ).join('')+`<button class="mbtn" onclick="closeModal()">ยกเลิก</button>`
+    );
+  }
+}
+function _applyInspo(sceneIdx,charSlot){
+  const s=G.sceneArea[sceneIdx];const p=G.pAdv[charSlot];
+  if(!s||!p||s._flipped)return;
+  s._flipped=true;p._boosted=(p._boosted||0)+1;
+  log(`Inspo Boost: ${s.name} → ${p.name} +1 Power`,'act');
   renderScene();renderAdv();
+}
+
+function renderOppScene(){
+  const el=document.getElementById('opp-scene-cards');
+  if(!el)return;
+  const osd=document.getElementById('opp-sd-cnt');
+  if(osd)osd.textContent=G.oSceneDeck?.length??G.oSceneDeckCount??'—';
+  if(!G.oSceneArea||!G.oSceneArea.length){
+    el.innerHTML='<span style="font-size:10px;color:rgba(248,113,113,.5)">ยังไม่มีฉาก</span>';
+    return;
+  }
+  el.innerHTML=G.oSceneArea.map((s,i)=>{
+    const scImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
+    return`<div class="sc-card" style="border-color:rgba(248,113,113,.5);cursor:default"
+      onmouseenter="showTTData(event,G.oSceneArea[${i}])" onmouseleave="hideTT()" 
+      ontouchstart="ttStart(()=>showTTData(event,G.oSceneArea[${i}]))" ontouchend="ttEnd()" ontouchmove="ttCancel()">
+      ${scImgSrc?`<img class="sc-img" src="${scImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
+      <div class="sc-n" style="color:rgba(248,113,113,.8)">${s.name.split(' ').slice(-2).join(' ')}</div>
+    </div>`;
+  }).join('');
+}
+function manualUntapScene(){
+  const tapped=G.sceneArea.filter(s=>s._tapped);
+  if(!tapped.length){log('ไม่มีฉากที่ tap อยู่','warn');return;}
+  if(tapped.length===1){
+    tapped[0]._tapped=false;
+    log(`Untap: "${tapped[0].name}"`,'good');
+    renderScene();return;
+  }
+  showModal('↺ Untap Scene',
+    '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">เลือกฉากที่จะ untap:</div>',
+    G.sceneArea.map((s,i)=>s._tapped
+      ?`<button class="mbtn" onclick="closeModal();doUntapScene(${i})">${s.name}</button>`:''
+    ).filter(Boolean).join('')+
+    '<button class="mbtn" onclick="closeModal()">ยกเลิก</button>'
+  );
+}
+function doUntapScene(i){
+  const s=G.sceneArea[i];if(!s)return;
+  s._tapped=false;log(`Untap: "${s.name}"`,'good');renderScene();
 }
 
 function renderStory(){
@@ -1696,19 +2410,14 @@ function renderStory(){
   el.innerHTML=G.storyCards.map((s,i)=>{
     const done=i<G.pStage, cur=i===G.pStage;
     const plan=G.pPlans[i];
-    // Plan is a HIDDEN zone — show face-down card, no name/effect visible
     const planHtml=plan
-      ? `<div class="plan-over" onclick="peekPlan(${i},'player')" title="แผนการ (คว่ำ) — คลิกดูเฉพาะเรา">
-           <div class="plan-facedown">
-             <div class="plan-fd-pattern"></div>
-             <div style="font-size:9px;color:rgba(251,191,36,.5);margin-top:2px">📋</div>
-           </div>
-         </div>`
+      ? `<div class="plan-over" onclick="peekPlan(${i},'player')" title="แผนการ (คว่ำ) — คลิกดูเฉพาะเรา">📋 Plan</div>`
       : '';
-    return`<div class="s-slot"><div class="s-card ${done?'done':''} ${cur?'current':''}">
+    const sImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
+    return`<div class="s-slot" onmouseenter="showTTData(event,G.storyCards[${i}])" onmouseleave="hideTT()" 
+      ontouchstart="ttStart(()=>showTTData(event,G.storyCards[${i}]))" ontouchend="ttEnd()" ontouchmove="ttCancel()"><div class="s-card ${done?'done':''} ${cur?'current':''}">
       <div class="s-phase">${s.story_stage}</div>
-      <div class="s-name">${s.name}</div>
-      <div class="s-effect">${s.ability_th||s.ability||''}</div>
+      ${sImgSrc?`<img class="s-card-img" src="${sImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
       ${planHtml}
     </div></div>`;
   }).join('');
@@ -1720,18 +2429,14 @@ function renderStory(){
       const done=i<G.oStage, cur=i===G.oStage;
       const plan=G.oPlans[i];
       const planHtml=plan
-        ? `<div class="plan-over" style="cursor:default" title="แผนการ OPP (ซ่อน)">
-             <div class="plan-facedown opp-plan">
-               <div class="plan-fd-pattern"></div>
-               <div style="font-size:9px;color:rgba(248,113,113,.4);margin-top:2px">📋</div>
-             </div>
-           </div>`
+        ? `<div class="plan-over opp-plan-bar" title="แผนการ OPP (ซ่อน)">📋 Plan</div>`
         : '';
-      return`<div class="s-slot"><div class="s-card ${done?'done':''} ${cur?'current':''}"
+      const osImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
+      return`<div class="s-slot" onmouseenter="showTTData(event,G.oStory[${i}])" onmouseleave="hideTT()" 
+        ontouchstart="ttStart(()=>showTTData(event,G.oStory[${i}])" ontouchend="ttEnd()" ontouchmove="ttCancel()"><div class="s-card ${done?'done':''} ${cur?'current':''}"
         style="${cur?'border-color:rgba(248,113,113,.6);box-shadow:0 0 5px rgba(248,113,113,.2)':''}">
         <div class="s-phase" style="color:var(--red)">${s.story_stage}</div>
-        <div class="s-name">${s.name}</div>
-        <div class="s-effect">${s.ability_th||s.ability||''}</div>
+        ${osImgSrc?`<img class="s-card-img" src="${osImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
         ${planHtml}
       </div></div>`;
     }).join('');
@@ -1748,8 +2453,8 @@ function renderCounts(){
   document.getElementById('retire-num').textContent=G.retireArea.length;
   const or=document.getElementById('opp-retire-num');if(or)or.textContent=G.oRetireArea.length;
   const ord=document.getElementById('opp-retire-disp');if(ord)ord.textContent=G.oRetireArea.length;
-  document.getElementById('od-cnt').textContent=G.oMainDeck.length;
-  document.getElementById('oh-cnt').textContent=G.oHand;
+  const odc=document.getElementById('od-cnt');if(odc)odc.textContent=G.oMainDeck.length;
+  const ohc=document.getElementById('oh-cnt');if(ohc)ohc.textContent=G.oHand;
   const omd=document.getElementById('opp-md-cnt');if(omd)omd.textContent=G.oMainDeck.length;
   const osd=document.getElementById('opp-sd-cnt');if(osd)osd.textContent=G.oSceneDeckCount??'—';
   const ohd=document.getElementById('opp-hand-disp');if(ohd)ohd.textContent=G.oHand;
@@ -1757,7 +2462,15 @@ function renderCounts(){
   const omcn=document.getElementById('opp-mc-name-lbl');if(omcn)omcn.textContent=G.botRaw?.mc?.name?.split(' ')[0]||'AI';
   document.getElementById('opp-deck-v').textContent=G.oMainDeck.length;
   document.getElementById('opp-hand-v').textContent=G.oHand;
-  if(G.raw)document.getElementById('mc-name-lbl').textContent=G.raw.mc.name.split(' ')[0];
+  if(G.raw){
+    document.getElementById('mc-name-lbl').textContent=G.raw.mc.name.split(' ')[0];
+    const mcImg=document.getElementById('mc-img');
+    if(mcImg){const s=G.raw.mc.imageUrl||(G.raw.mc.id?CARDS_BASE+G.raw.mc.id+'.jpg':'');if(s){mcImg.src=s;mcImg.style.display='block';}}
+  }
+  if(G.botRaw){
+    const oppMcImg=document.getElementById('opp-mc-img');
+    if(oppMcImg){const s=G.botRaw.mc.imageUrl||(G.botRaw.mc.id?CARDS_BASE+G.botRaw.mc.id+'.jpg':'');if(s){oppMcImg.src=s;oppMcImg.style.display='block';}}
+  }
 }
 function updateHarmony(){document.getElementById('harmony-val').textContent=G.harmony;}
 
@@ -1875,6 +2588,37 @@ function _updateDiscardBtn(){
 }
 
 // peekPlan: เจ้าของดูการ์ดแผนการของตัวเองได้ (โซนปิด — เห็นเฉพาะตัวเอง)
+function showPlanRevealModal(plan, slotIdx){
+  window._revealedPlan=plan;
+  const imgSrc=plan.imageUrl||(plan.id?CARDS_BASE+plan.id+'.jpg':null);
+  const ability=plan.ability_th||plan.ability||'';
+  const hasPrePlan=ability.toLowerCase().includes('pre-plan');
+  showModal('📋 แผนการถูกเปิดเผย!',
+    `<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px">
+      ${imgSrc?`<img src="${imgSrc}" style="width:70px;height:98px;object-fit:cover;object-position:top;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'">`:''}
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--gold);margin-bottom:2px">${plan.name}</div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">[${plan.rarity||''}]${hasPrePlan?` · <span style="color:var(--accent)">[Pre-plan]</span>`:''}</div>
+        ${ability?`<div style="font-size:11px;color:var(--text2);line-height:1.5">${ability}</div>`:''}
+      </div>
+    </div>`,
+    `<button class="mbtn" style="border-color:var(--gold);color:var(--gold)" onclick="resolvePlan('hand',${slotIdx})">↩ คืนขึ้นมือ</button>
+     <button class="mbtn" style="border-color:var(--red);color:var(--red)" onclick="resolvePlan('retire',${slotIdx})">☠ ส่ง Retirement</button>`
+  );
+}
+function resolvePlan(dest, slotIdx){
+  closeModal();
+  const plan=window._revealedPlan;
+  window._revealedPlan=null;
+  if(plan){
+    if(dest==='hand'){G.hand.push(plan);log(`แผนการ ${plan.name} → คืนมือ`,'good');}
+    else{G.retireArea.push(plan);log(`แผนการ ${plan.name} → Retirement`,'warn');}
+  }
+  G.contactStep++;
+  renderAll();
+  setTimeout(processNextContact,300);
+}
+
 function peekPlan(i, side){
   const p = side==='player' ? G.pPlans[i] : null;
   if(!p) return;
@@ -1898,27 +2642,84 @@ function viewOppRetire(){
 /* ═══════════════════════════════════
    TOOLTIP
 ═══════════════════════════════════ */
-function showTT(event,el){
+let lastTouchTime = 0;
+document.addEventListener('touchstart', ()=>{lastTouchTime = Date.now();}, {passive:true});
+function showTT(event,el){if(Date.now() - lastTouchTime < 200) return;
   try{showTTData(event,JSON.parse(el.getAttribute('data-card').replace(/&quot;/g,'"')));}catch(e){}
 }
-function showTTIdx(event,i){if(i>=0&&i<G.hand.length)showTTData(event,G.hand[i]);}
-function showTTScene(event,i){if(i>=0&&i<G.sceneArea.length)showTTData(event,G.sceneArea[i]);}
+function showTTIdx(event,i){if(Date.now() - lastTouchTime < 200) return;if(i>=0&&i<G.hand.length)showTTData(event,G.hand[i]);}
+function showTTScene(event,i){if(Date.now() - lastTouchTime < 200) return;if(i>=0&&i<G.sceneArea.length)showTTData(event,G.sceneArea[i]);}
 function showTTData(event,c){
+  if(_lastPointerWasTouch&&!_ttForceShow)return; // suppress accidental hover on touch
   const tt=document.getElementById('tt');
   const insp=G.phase!=='setup'?effInsp(c,G.phase==='main'):(c.power??'—');
+  const db=CARD_DB[c.id]||{};
+  const ability=c.ability_th||c.ability||db.ability_th||db.ability||'';
+  const artSrc=c.imageUrl||(c.id?CARDS_BASE+c.id+'.jpg':null);
   tt.innerHTML=`
+    ${artSrc?`<img class="tt-art" src="${artSrc}" alt="${c.name}" onerror="this.style.display='none'">`:''}
     <div class="ttn">${c.name} <span style="font-size:9px;color:var(--text3)">[${c.rarity||''}] ${c.id||''}</span></div>
     ${c.subtype?.length?`<div class="tts">${c.subtype.join(' · ')}</div>`:''}
     <div class="ttd"></div>
     ${c.cost!=null?`<div class="ttr"><b>Cost:</b> ${c.cost}✦</div>`:''}
     ${c.power!=null?`<div class="ttr"><b>Power:</b> ${c.power}${insp!==c.power?` → <b style="color:var(--gold)">${insp}</b>`:''}</div>`:''}
-    ${(c.ability_th||c.ability)?`<div class="ttr" style="margin-top:4px">${c.ability_th||c.ability}</div>`:''}
+    ${ability?`<div class="ttr" style="margin-top:4px">${ability}</div>`:''}
     ${c._item?`<div class="ttd"></div><div class="ttr"><b>Item:</b> ${c._item.name}</div>`:''}
   `;
   tt.classList.add('show');posTT(event);
 }
 function hideTT(){document.getElementById('tt').classList.remove('show');}
-document.addEventListener('mousemove',e=>{if(document.getElementById('tt').classList.contains('show'))posTT(e);});
+/* ── TOOLTIP TOUCH SUPPORT ──────────────────────────────────
+   Desktop : onmouseenter/onmouseleave work as normal hover.
+   Mobile  : long-press (500ms hold) shows tooltip; lift finger hides it.
+   _lastPointerWasTouch blocks accidental hover-tooltip on synthetic
+   mouseenter that browsers fire after a tap.
+   _ttForceShow bypasses that guard so long-press can still show.
+──────────────────────────────────────────────────────────── */
+let _lastPointerWasTouch=false;
+let _ttForceShow=false;
+let _ttLongTimer=null;
+let _ttLongStartX=0,_ttLongStartY=0;
+
+document.addEventListener('touchstart',()=>{_lastPointerWasTouch=true;},{passive:true});
+document.addEventListener('mousemove',e=>{
+  _lastPointerWasTouch=false;
+  if(document.getElementById('tt').classList.contains('show'))posTT(e);
+});
+
+// Long-press: find closest element with onmouseenter and execute its handler
+document.addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='touch')return;
+  clearTimeout(_ttLongTimer);_ttLongTimer=null;
+  _ttLongStartX=e.clientX;_ttLongStartY=e.clientY;
+  const el=e.target.closest('[onmouseenter]');
+  if(!el)return;
+  const x=e.clientX,y=e.clientY;
+  _ttLongTimer=setTimeout(()=>{
+    _ttLongTimer=null;
+    const handler=el.getAttribute('onmouseenter');
+    if(!handler)return;
+    try{
+      _ttForceShow=true;
+      new Function('event',handler).call(el,{clientX:x,clientY:y});
+    }finally{_ttForceShow=false;}
+  },500);
+},{passive:true});
+
+// Cancel on release — hide tooltip
+document.addEventListener('pointerup',e=>{
+  if(e.pointerType!=='touch')return;
+  clearTimeout(_ttLongTimer);_ttLongTimer=null;
+  hideTT();
+},{passive:true});
+
+// Cancel on significant movement (scrolling / swiping)
+document.addEventListener('pointermove',e=>{
+  if(e.pointerType!=='touch'||!_ttLongTimer)return;
+  if(Math.abs(e.clientX-_ttLongStartX)>8||Math.abs(e.clientY-_ttLongStartY)>8){
+    clearTimeout(_ttLongTimer);_ttLongTimer=null;
+  }
+},{passive:true});
 function posTT(e){
   const tt=document.getElementById('tt');
   let x=e.clientX+14,y=e.clientY+14;
@@ -1926,6 +2727,11 @@ function posTT(e){
   if(y+tt.offsetHeight>window.innerHeight-6)y=e.clientY-tt.offsetHeight-14;
   tt.style.left=x+'px';tt.style.top=y+'px';
 }
+/*Tooltips for mobile*/
+let ttTimer = null;
+function ttStart(fn){ttTimer=setTimeout(()=>{fn();},300);}
+function ttEnd(){clearTimeout(ttTimer);hideTT();}
+function ttCancel(){clearTimeout(ttTimer);}  
 
 /* ═══════════════════════════════════
    MODAL / LOG / ENDGAME
@@ -1950,6 +2756,42 @@ function showModal(title,body,btns){
 }
 function mAct(i){closeModal();window._mActs?.[i]?.();}
 function closeModal(){document.getElementById('mo').classList.remove('show');}
+/* ── THEME ── */
+function toggleTheme(){
+  const isLight=document.body.classList.toggle('light-mode');
+  localStorage.setItem('mlp-theme',isLight?'light':'dark');
+  _applyThemeIcons(isLight);
+}
+function _applyThemeIcons(isLight){
+  const icon=isLight?'🌙':'☀️';
+  document.querySelectorAll('.theme-btn').forEach(b=>b.textContent=icon);
+}
+(function initTheme(){
+  const saved=localStorage.getItem('mlp-theme');
+  const isLight=saved==='light';
+  if(isLight)document.body.classList.add('light-mode');
+  _applyThemeIcons(isLight);
+})();
+
+function togglePSec(id){
+  const el=document.getElementById(id);if(!el)return;
+  el.classList.toggle('collapsed');
+  const btn=el.querySelector('.psec-toggle');if(btn)btn.textContent=el.classList.contains('collapsed')?'▼':'▲';
+}
+/* Mobile panel tab switching (≤480px) */
+function setMobTab(tab){
+  const ids={hand:'psec-hand',actions:'psec-actions',log:'psec-log',opp:'psec-opp'};
+  Object.entries(ids).forEach(([k,v])=>{
+    const el=document.getElementById(v);if(!el)return;
+    el.classList.toggle('mob-hidden',k!==tab);
+  });
+  document.querySelectorAll('.mob-tab-btn').forEach(b=>b.classList.remove('active'));
+  const active=document.getElementById('mobt-'+tab);if(active)active.classList.add('active');
+}
+function toggleMobilePanel(){
+  const rp=document.getElementById('right-panel-wrap');
+  if(rp)rp.classList.toggle('expanded');
+}
 function log(msg,type=''){
   const el=document.getElementById('log-box');
   const d=document.createElement('div');d.className=`lentry ${type}`;d.textContent=msg;
