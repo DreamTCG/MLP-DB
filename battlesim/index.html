@@ -470,8 +470,20 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     <!-- PLAYER DECK -->
     <div style="font-size:10px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:8px">เด็คของคุณ</div>
     <div class="preset-grid" id="preset-grid-player"></div>
-    <div class="divider">หรืออัปโหลด JSON</div>
-    <div class="upload-area" id="upload-area">
+    <!-- Preloaded deck banner (shown only when arriving from main site) -->
+    <div id="preload-banner" style="display:none;margin-bottom:10px;padding:10px 14px;border-radius:10px;background:linear-gradient(135deg,rgba(99,102,241,.18),rgba(124,58,237,.18));border:1px solid rgba(99,102,241,.4);align-items:center;gap:10px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:10px;letter-spacing:.08em;color:var(--text3);text-transform:uppercase;margin-bottom:2px">เด็คจาก Deck Builder</div>
+        <div id="preload-deck-label" style="font-size:13px;font-weight:700;color:var(--text1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div>
+      </div>
+      <button onclick="usePreloadedDeck()" style="background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">✓ ใช้เด็คนี้</button>
+      <button onclick="dismissPreloadBanner()" style="background:transparent;color:var(--text3);border:1px solid var(--border2);border-radius:8px;padding:7px 10px;font-size:11px;cursor:pointer;">✕</button>
+    </div>
+
+    <div style="margin-bottom:8px;">
+      <button id="upload-toggle-btn" onclick="toggleUploadArea()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;width:100%;text-align:left;">📂 อัปโหลด JSON &nbsp;<span id="upload-toggle-arrow" style="float:right">▼</span></button>
+    </div>
+    <div class="upload-area" id="upload-area" style="display:none;">
       <input type="file" id="file-input" accept=".json">
       <div class="upload-icon">📂</div>
       <p>วางไฟล์ JSON หรือคลิกเพื่อเลือก</p>
@@ -1076,6 +1088,29 @@ function updateStartBtn(){
   else{btn.classList.remove('ready');}
 }
 
+let _preloadDeckData = null;
+function toggleUploadArea() {
+  const ua = document.getElementById('upload-area');
+  const arrow = document.getElementById('upload-toggle-arrow');
+  if(!ua) return;
+  const visible = ua.style.display !== 'none';
+  ua.style.display = visible ? 'none' : 'block';
+  if(arrow) arrow.textContent = visible ? '▼' : '▲';
+}
+function usePreloadedDeck() {
+  if(!_preloadDeckData) return;
+  loadPlayerDeck(_preloadDeckData);
+  selectedPlayerKey = null;
+  document.querySelectorAll('#preset-grid-player .preset-card.selected').forEach(el => el.classList.remove('selected'));
+  updateStartBtn();
+  setSetupMessage('โหลดเด็คจาก Deck Builder สำเร็จ','ok');
+}
+function dismissPreloadBanner() {
+  const b = document.getElementById('preload-banner');
+  if(b) b.style.display = 'none';
+  localStorage.removeItem('mlp_preload_deck');
+  _preloadDeckData = null;
+}
 function normalizeDeck(raw){
   if(!raw || typeof raw !== 'object') return null;
   const main = raw.main || raw.mainDeck || raw.cards || [];
@@ -1124,6 +1159,23 @@ document.addEventListener('DOMContentLoaded', () => {
   if(mainBack){mainBack.src=CARDS_BASE+'back_main.jpg';mainBack.style.display='block';}
   const sceneBack=document.getElementById('scene-deck-back');
   if(sceneBack){sceneBack.src=CARDS_BASE+'back_scene.jpg';sceneBack.style.display='block';}
+
+  // Check for preloaded deck from main site
+  try {
+    const preloadRaw = localStorage.getItem('mlp_preload_deck');
+    if(preloadRaw) {
+      const preloadData = JSON.parse(preloadRaw);
+      _preloadDeckData = preloadData;
+      const banner = document.getElementById('preload-banner');
+      const label = document.getElementById('preload-deck-label');
+      if(banner && label) {
+        const mcName = (preloadData.mc && preloadData.mc.name) ? preloadData.mc.name : '?';
+        const deckName = preloadData.deckName || 'Deck';
+        label.textContent = `${deckName} — ${mcName}`;
+        banner.style.display = 'flex';
+      }
+    }
+  } catch(e) { console.warn('Preload deck error', e); }
 
   // File upload handler for player deck
   const fi = document.getElementById('file-input');
