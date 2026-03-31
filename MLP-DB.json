@@ -1480,8 +1480,8 @@
     "rarity": "SPR",
     "deck": "BP01",
     "story_stage": null,
-    "ability": "Choose 1 「Fluttershy」 in your Adventure Area, it gets +1 Inspiration for each Character in your Adventure Area.",
-    "ability_th": "เลือก 「Fluttershy」 1 ตัวในโซนผจญภัยของคุณ ตัวละครนั้นได้รับค่าพลังจินตนาการ +1 ต่อตัวละคร 1 ตัวในโซนผจญภัยของคุณ"
+    "ability": "Choose 1 「Fluttershy」 in your Adventure Area, it gets +1 Inspiration for each Character in your Adventure Area until the end of turn.",
+    "ability_th": "เลือก 「Fluttershy」 1 ตัวในโซนผจญภัยของคุณ ตัวละครนั้นได้รับค่าพลังจินตนาการ +1 ต่อตัวละคร 1 ตัวในโซนผจญภัยของคุณ จนจบเทิร์น"
   },
   {
     "id": "BP01-SPR14",
@@ -5647,8 +5647,8 @@
     "rarity": "※SPR",
     "deck": "BP01",
     "story_stage": null,
-    "ability": "Choose 1 「Fluttershy」 in your Adventure Area, it gets +1 Inspiration for each Character in your Adventure Area.",
-    "ability_th": "เลือก 「Fluttershy」 1 ตัวในโซนผจญภัยของคุณ ตัวละครนั้นได้รับค่าพลังจินตนาการ +1 ต่อตัวละคร 1 ตัวในโซนผจญภัยของคุณ"
+    "ability": "Choose 1 「Fluttershy」 in your Adventure Area, it gets +1 Inspiration for each Character in your Adventure Area until the end of turn​.",
+    "ability_th": "เลือก 「Fluttershy」 1 ตัวในโซนผจญภัยของคุณ ตัวละครนั้นได้รับค่าพลังจินตนาการ +1 ต่อตัวละคร 1 ตัวในโซนผจญภัยของคุณ จนจบเทิร์น"
   },
   {
     "id": "※BP01-SPR18",
