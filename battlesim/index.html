@@ -219,7 +219,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .deck-lbl{font-size:7.5px;color:var(--text3);text-align:center;line-height:1.3;}
 
 .scene-area{flex:1;background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:7px 9px;display:flex;flex-direction:column;gap:4px;min-height:72px;}
-.scene-cards{display:flex;gap:3px;flex-wrap:wrap;align-items:flex-start;flex:1;align-content:flex-start;}
+.scene-cards{display:flex;flex-wrap:nowrap;align-items:center;flex:1;overflow:visible;position:relative;}
+.sc-card+.sc-card{margin-left:-20px;}
 
 /* Scene card */
 .sc-card{
@@ -227,13 +228,13 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   background:var(--sc-grad);
   border:1px solid var(--teal);border-radius:4px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  cursor:pointer;padding:2px;flex-shrink:0;transition:transform .15s,opacity .15s,border-color .15s;
-  position:relative;  /* needed for absolute overlay */
+  cursor:pointer;padding:2px;flex-shrink:0;transition:transform .15s,opacity .15s,border-color .15s,z-index 0s;
+  position:relative;z-index:1;
 }
-.sc-card:hover{transform:translateY(-2px);box-shadow:0 3px 8px rgba(45,212,191,.2);}
+.sc-card:hover{transform:translateY(-4px);box-shadow:0 4px 10px rgba(45,212,191,.3);z-index:10;}
 /* tapped = rotated 90° (used for harmony) */
-.sc-card.tapped{transform:rotate(90deg);border-color:var(--text3);opacity:.65;margin:3px 12px;}
-.sc-card.tapped:hover{transform:rotate(90deg) translateY(-1px);}
+.sc-card.tapped{transform:rotate(90deg);border-color:var(--text3);opacity:.65;}
+.sc-card.tapped:hover{transform:rotate(90deg) translateY(-2px);z-index:10;}
 /* flipped = inspo used permanently — dim border, ✕ overlay, but NOT rotated */
 .sc-card.flipped{border-color:rgba(45,212,191,.2);opacity:.6;}
 .sc-card.flipped:hover{transform:none;box-shadow:none;cursor:default;}
@@ -1717,11 +1718,10 @@ function useInspoInContact(sceneIdx,slotIdx){
   const r=_inspoRestrict(scene.ability);
   if(r&&!_charMatchesRestrict(p,r)){log(`Inspo นี้ใช้ได้เฉพาะ 「${r}」`,'warn');return;}
   scene._flipped=true;
-  if(p){p._boosted=(p._boosted||0)+1;log(`Inspo Boost: ${scene.name} → ${p.name} +1 Power`,'act');}
   if(p){
     G._playerUsedInspo = true;
     p._boosted=(p._boosted||0)+1;
-    log(`Inspo Boost: ${scene.name} → ${p.name} +1 Insp`,'act');
+    log(`Inspo Boost: ${scene.name} → ${p.name} +1 Power`,'act');
   }
   renderScene();
   if(G.pAdv[slotIdx]&&G.oAdv[slotIdx])
