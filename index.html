@@ -308,6 +308,8 @@ html, body { height: 100%; font-family: var(--font-body); background: var(--bg);
   color:var(--muted); border-radius:8px; padding:6px 10px;
   font-size:0.9rem; cursor:pointer; flex-shrink:0;
 }
+.race-tab{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:0.6rem;cursor:pointer;color:var(--muted);flex:1;font-family:var(--font-body);font-weight:600;}
+.race-tab.active{background:var(--purple);color:#fff;border-color:var(--purple);}
 /* lib card badge */
 .lib-badge {
   position:absolute; top:4px; right:4px;
@@ -625,6 +627,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
     <div class="panel-hdr">
       <span class="panel-title">📚 Library</span>
       <span id="lib-count" style="font-size:0.68rem;color:var(--dim);"></span>
+      <a href="library/" style="font-size:0.62rem;color:var(--purple-l);text-decoration:none;margin-left:auto;padding:2px 8px;border:1px solid var(--border2);border-radius:5px;" title="Full library view">🔎 Browse</a>
     </div>
     <div style="padding:10px 10px 0;flex-shrink:0;">
       <div class="lib-search-bar">
@@ -666,6 +669,33 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <div class="dd-wrap">
           <button class="dd-btn" onclick="toggleDD('dd-set-d')"><span id="dd-set-d-lbl">Set</span><span style="font-size:0.55rem">▼</span></button>
           <div class="dd-menu" id="dd-set-d"></div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('dd-race-d')"><span id="dd-race-d-lbl">Race</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="dd-race-d" style="min-width:120px;">
+            <div style="display:flex;gap:3px;margin-bottom:5px;">
+              <button class="race-tab active" id="race-tab-pony-d" onclick="setRaceTab('pony')">🐴 Pony</button>
+              <button class="race-tab" id="race-tab-pet-d" onclick="setRaceTab('pet')">🐾 Pet</button>
+            </div>
+            <div id="race-pony-d">
+              <label class="dd-item"><input type="checkbox" value="Unicorn" onchange="renderLibrary()"> Unicorn</label>
+              <label class="dd-item"><input type="checkbox" value="Pegasus" onchange="renderLibrary()"> Pegasus</label>
+              <label class="dd-item"><input type="checkbox" value="Earth Pony" onchange="renderLibrary()"> Earth Pony</label>
+              <label class="dd-item"><input type="checkbox" value="Alicorn" onchange="renderLibrary()"> Alicorn</label>
+              <label class="dd-item"><input type="checkbox" value="Race:Other" onchange="renderLibrary()"> Other</label>
+            </div>
+            <div id="race-pet-d" style="display:none">
+              <label class="dd-item"><input type="checkbox" value="Dragon" onchange="renderLibrary()"> Dragon</label>
+              <label class="dd-item"><input type="checkbox" value="Crocodile" onchange="renderLibrary()"> Crocodile</label>
+              <label class="dd-item"><input type="checkbox" value="Turtle" onchange="renderLibrary()"> Turtle</label>
+              <label class="dd-item"><input type="checkbox" value="Rabbit" onchange="renderLibrary()"> Rabbit</label>
+              <label class="dd-item"><input type="checkbox" value="Dog" onchange="renderLibrary()"> Dog</label>
+              <label class="dd-item"><input type="checkbox" value="Cat" onchange="renderLibrary()"> Cat</label>
+              <label class="dd-item"><input type="checkbox" value="Owl" onchange="renderLibrary()"> Owl</label>
+              <label class="dd-item"><input type="checkbox" value="Phoenix" onchange="renderLibrary()"> Phoenix</label>
+              <label class="dd-item"><input type="checkbox" value="Pet:Other" onchange="renderLibrary()"> Other</label>
+            </div>
+          </div>
         </div>
         <button class="sort-btn" id="sort-btn-d" onclick="toggleSort()" title="Toggle sort order">↓</button>
         <button class="sort-btn" onclick="clearAllFilters()" title="Clear all filters" style="font-size:0.65rem;">✕</button>
@@ -805,6 +835,33 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <div class="dd-wrap">
           <button class="dd-btn" onclick="toggleDD('dd-set-m')"><span id="dd-set-m-lbl">Set</span><span style="font-size:0.55rem">▼</span></button>
           <div class="dd-menu" id="dd-set-m"></div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('dd-race-m')"><span id="dd-race-m-lbl">Race</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="dd-race-m" style="min-width:120px;">
+            <div style="display:flex;gap:3px;margin-bottom:5px;">
+              <button class="race-tab active" id="race-tab-pony-m" onclick="setRaceTab('pony')">🐴 Pony</button>
+              <button class="race-tab" id="race-tab-pet-m" onclick="setRaceTab('pet')">🐾 Pet</button>
+            </div>
+            <div id="race-pony-m">
+              <label class="dd-item"><input type="checkbox" value="Unicorn" onchange="renderLibrary()"> Unicorn</label>
+              <label class="dd-item"><input type="checkbox" value="Pegasus" onchange="renderLibrary()"> Pegasus</label>
+              <label class="dd-item"><input type="checkbox" value="Earth Pony" onchange="renderLibrary()"> Earth Pony</label>
+              <label class="dd-item"><input type="checkbox" value="Alicorn" onchange="renderLibrary()"> Alicorn</label>
+              <label class="dd-item"><input type="checkbox" value="Race:Other" onchange="renderLibrary()"> Other</label>
+            </div>
+            <div id="race-pet-m" style="display:none">
+              <label class="dd-item"><input type="checkbox" value="Dragon" onchange="renderLibrary()"> Dragon</label>
+              <label class="dd-item"><input type="checkbox" value="Crocodile" onchange="renderLibrary()"> Crocodile</label>
+              <label class="dd-item"><input type="checkbox" value="Turtle" onchange="renderLibrary()"> Turtle</label>
+              <label class="dd-item"><input type="checkbox" value="Rabbit" onchange="renderLibrary()"> Rabbit</label>
+              <label class="dd-item"><input type="checkbox" value="Dog" onchange="renderLibrary()"> Dog</label>
+              <label class="dd-item"><input type="checkbox" value="Cat" onchange="renderLibrary()"> Cat</label>
+              <label class="dd-item"><input type="checkbox" value="Owl" onchange="renderLibrary()"> Owl</label>
+              <label class="dd-item"><input type="checkbox" value="Phoenix" onchange="renderLibrary()"> Phoenix</label>
+              <label class="dd-item"><input type="checkbox" value="Pet:Other" onchange="renderLibrary()"> Other</label>
+            </div>
+          </div>
         </div>
         <button class="sort-btn" id="sort-btn-m" onclick="toggleSort()" title="Toggle sort">↓</button>
         <button class="sort-btn" onclick="clearAllFilters()" title="Clear all filters" >✕</button>
@@ -1002,9 +1059,9 @@ function syncFilters(changedId) {
 function updateFilterLabels() {
   const pairs = [
     {d:'dd-type-d',  m:'dd-type-m',  dl:'dd-type-d-lbl',  ml:'dd-type-m-lbl',  def:'Type'},
-
     {d:'dd-rarity-d',m:'dd-rarity-m',dl:'dd-rarity-d-lbl',ml:'dd-rarity-m-lbl',def:'Rarity'},
     {d:'dd-set-d',   m:'dd-set-m',   dl:'dd-set-d-lbl',   ml:'dd-set-m-lbl',   def:'Set'},
+    {d:'dd-race-d',  m:'dd-race-m',  dl:'dd-race-d-lbl',  ml:'dd-race-m-lbl',  def:'Race'},
   ];
   pairs.forEach(({d,dl,ml,def}) => {
     const vals = getCheckedVals(d);
@@ -1152,7 +1209,7 @@ function toggleAltFilter() {
 
 function clearAllFilters() {
   // Uncheck all filter checkboxes
-  ['dd-type-d','dd-type-m','dd-rarity-d','dd-rarity-m','dd-set-d','dd-set-m'].forEach(id=>{
+  ['dd-type-d','dd-type-m','dd-rarity-d','dd-rarity-m','dd-set-d','dd-set-m','dd-race-d','dd-race-m'].forEach(id=>{
     const el=document.getElementById(id); if(!el) return;
     el.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=false);
   });
@@ -1167,16 +1224,39 @@ function clearAllFilters() {
   renderLibrary();
 }
 
+const _PONY_RACES = ['Unicorn','Pegasus','Earth Pony','Alicorn'];
+const _PET_RACES  = ['Dragon','Crocodile','Turtle','Rabbit','Dog','Cat','Owl','Phoenix'];
+function setRaceTab(tab) {
+  ['d','m'].forEach(sfx => {
+    const pony = document.getElementById(`race-pony-${sfx}`);
+    const pet  = document.getElementById(`race-pet-${sfx}`);
+    const pb   = document.getElementById(`race-tab-pony-${sfx}`);
+    const xb   = document.getElementById(`race-tab-pet-${sfx}`);
+    if(pony) pony.style.display = tab==='pony' ? '' : 'none';
+    if(pet)  pet.style.display  = tab==='pet'  ? '' : 'none';
+    if(pb)   pb.classList.toggle('active', tab==='pony');
+    if(xb)   xb.classList.toggle('active', tab==='pet');
+  });
+}
 function renderLibrary() {
   const search = (($('lib-search-d')||{}).value||($('lib-search-m')||{}).value||'').toLowerCase();
   const types    = getCheckedVals('dd-type-d');
   const rarities = getCheckedVals('dd-rarity-d');
   const sets     = getCheckedVals('dd-set-d');
+  const raceVals = getCheckedVals('dd-race-d');
 
   let cards = state.library;
   if (types.length)    cards = cards.filter(c=>types.includes(c.type));
   if (rarities.length) cards = cards.filter(c=>rarities.includes(c.rarity));
   if (sets.length)     cards = cards.filter(c=>sets.includes(c.deck));
+  if (raceVals.length) cards = cards.filter(c => {
+    const subs = c.subtype || [];
+    return raceVals.some(v => {
+      if (v === 'Race:Other') return (c.type==='Character'||c.type==='Main Character') && !_PONY_RACES.some(r=>subs.includes(r));
+      if (v === 'Pet:Other')  return subs.includes('Pet') && !_PET_RACES.some(r=>subs.includes(r));
+      return subs.includes(v);
+    });
+  });
   // Alt rarity toggle
   if (_altMode === 'no-alt')   cards = cards.filter(c=>!ALT_RARITIES_SET.has(c.rarity));
   if (_altMode === 'alt-only') cards = cards.filter(c=>ALT_RARITIES_SET.has(c.rarity));

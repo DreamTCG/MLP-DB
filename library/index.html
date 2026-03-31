@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MLP Card Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f5f0ff;--surface:#ffffff;--surface2:#ede8f8;--border:#d4c8f0;--border2:#b8a8e0;
+  --text:#1e1040;--muted:#6b52a8;--dim:#a090c8;
+  --purple:#7c3aed;--purple-l:#a78bfa;--pink:#db2777;--gold:#d97706;--green:#16a34a;
+  --font-head:'Fredoka One',cursive;--font-body:'Nunito',sans-serif;--radius:10px;
+}
+body.dark-mode {
+  --bg:#0f0820;--surface:#1a1035;--surface2:#231548;--border:#2d1f5e;--border2:#3d2a7a;
+  --text:#e8e0ff;--muted:#9580c8;--dim:#5a4a8a;
+  --purple:#7c3aed;--purple-l:#a78bfa;--pink:#ec4899;--gold:#fbbf24;--green:#4ade80;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:var(--text);overflow:hidden;}
+
+/* ── TOPBAR ── */
+.topbar{height:44px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 14px;flex-shrink:0;z-index:20;}
+.topbar-title{font-family:var(--font-head);font-size:1.1rem;color:var(--purple);flex:1;}
+.hdr-btn{background:transparent;border:1px solid var(--border2);border-radius:6px;padding:4px 10px;font-size:0.7rem;color:var(--muted);cursor:pointer;font-family:var(--font-body);font-weight:700;}
+.hdr-btn:hover{border-color:var(--purple);color:var(--purple);}
+
+/* ── LAYOUT ── */
+#app{display:flex;flex-direction:column;height:100vh;}
+#main{display:flex;flex:1;overflow:hidden;}
+
+/* ── LEFT PANEL (filters + grid) ── */
+#lib-panel{width:320px;display:flex;flex-direction:column;border-right:1px solid var(--border);background:var(--surface);flex-shrink:0;}
+.lib-filters{padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.lib-search{width:100%;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);font-family:var(--font-body);font-size:0.75rem;margin-bottom:6px;}
+.lib-search:focus{outline:none;border-color:var(--purple);}
+.filter-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.dd-wrap{position:relative;}
+.dd-btn{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;font-size:0.65rem;font-family:var(--font-body);font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;}
+.dd-btn:hover{border-color:var(--purple);}
+.dd-menu{display:none;position:absolute;top:100%;left:0;z-index:100;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px;min-width:110px;max-height:220px;overflow-y:auto;box-shadow:0 6px 20px rgba(0,0,0,.15);}
+.dd-menu.open{display:block;}
+.dd-item{display:flex;align-items:center;gap:6px;padding:3px 4px;border-radius:4px;cursor:pointer;font-size:0.68rem;color:var(--text);white-space:nowrap;}
+.dd-item:hover{background:var(--surface2);}
+.dd-item input{accent-color:var(--purple);width:12px;height:12px;cursor:pointer;}
+.race-tab{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:0.6rem;cursor:pointer;color:var(--muted);flex:1;font-family:var(--font-body);font-weight:600;}
+.race-tab.active{background:var(--purple);color:#fff;border-color:var(--purple);}
+.sort-btn{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;font-size:0.75rem;cursor:pointer;color:var(--muted);flex-shrink:0;}
+.sort-btn:hover{border-color:var(--purple);}
+.lib-count{font-size:0.62rem;color:var(--dim);padding:2px 0;}
+
+/* ── CARD GRID ── */
+.lib-scroll{flex:1;overflow-y:auto;padding:8px;}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:6px;}
+.card-tile{cursor:pointer;border-radius:6px;overflow:hidden;border:1.5px solid transparent;transition:border-color .15s,transform .1s;position:relative;}
+.card-tile:hover{border-color:var(--purple-l);transform:translateY(-2px);}
+.card-tile.selected{border-color:var(--purple);box-shadow:0 0 0 2px rgba(124,58,237,.3);}
+.card-tile img{width:100%;display:block;aspect-ratio:5/7;object-fit:cover;}
+.card-ph{aspect-ratio:5/7;display:flex;align-items:center;justify-content:center;background:var(--surface2);font-size:1.4rem;}
+.in-deck-badge{position:absolute;top:3px;right:3px;background:rgba(124,58,237,.9);color:#fff;font-size:0.55rem;font-weight:800;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;}
+
+/* ── DETAIL PANEL ── */
+#detail-panel{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.detail-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--dim);gap:8px;}
+.detail-empty .ei{font-size:2.5rem;}
+.detail-card{display:flex;gap:14px;align-items:flex-start;}
+.detail-img{width:120px;flex-shrink:0;border-radius:8px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.2);}
+.detail-img img{width:100%;display:block;}
+.detail-img .card-ph{height:168px;font-size:2.5rem;}
+.detail-info{flex:1;min-width:0;}
+.detail-name{font-family:var(--font-head);font-size:1.15rem;color:var(--text);line-height:1.1;margin-bottom:4px;}
+.detail-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.meta-pill{font-size:0.65rem;padding:2px 8px;border-radius:20px;background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
+.meta-pill.rarity{color:var(--gold);border-color:rgba(217,119,6,.3);}
+.meta-pill.type{color:var(--purple-l);border-color:rgba(167,139,250,.3);}
+.detail-stats{display:flex;gap:8px;margin-bottom:8px;}
+.stat-box{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;text-align:center;min-width:44px;}
+.stat-box .sv{font-size:1rem;font-weight:800;color:var(--text);}
+.stat-box .sl{font-size:0.55rem;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;}
+.detail-subtypes{font-size:0.68rem;color:var(--muted);margin-bottom:8px;}
+.detail-ability{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:0.72rem;line-height:1.6;color:var(--text);}
+.detail-ability .ability-label{font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:4px;}
+.lang-toggle{display:flex;gap:4px;margin-bottom:8px;}
+.lang-btn{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:0.6rem;cursor:pointer;color:var(--muted);font-family:var(--font-body);}
+.lang-btn.active{background:var(--purple);color:#fff;border-color:var(--purple);}
+.related-section{border-top:1px solid var(--border);padding-top:12px;}
+.related-title{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:8px;}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:5px;}
+.rel-card{cursor:pointer;border-radius:5px;overflow:hidden;border:1.5px solid transparent;transition:border-color .12s;}
+.rel-card:hover{border-color:var(--purple-l);}
+.rel-card img{width:100%;display:block;aspect-ratio:5/7;object-fit:cover;}
+.rel-card .card-ph{aspect-ratio:5/7;font-size:1rem;}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  #lib-panel{width:100%;border-right:none;}
+  #detail-panel{display:none;}
+  .mo-overlay{display:flex;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);align-items:flex-end;}
+  .mo-sheet{background:var(--surface);border-radius:16px 16px 0 0;padding:16px;max-height:90vh;overflow-y:auto;width:100%;}
+  .mo-close{float:right;background:var(--surface2);border:none;border-radius:50%;width:28px;height:28px;font-size:1rem;cursor:pointer;color:var(--muted);}
+}
+@media(min-width:769px){
+  .mo-overlay{display:none!important;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <button class="hdr-btn" onclick="history.back()">« Back</button>
+    <span class="topbar-title">📚 MLP Card Library</span>
+    <span id="lib-count-lbl" style="font-size:0.65rem;color:var(--dim);"></span>
+    <button class="hdr-btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
+  </div>
+  <div id="main">
+    <!-- LEFT: filters + grid -->
+    <div id="lib-panel">
+      <div class="lib-filters">
+        <input class="lib-search" id="lib-search" placeholder="Search cards..." oninput="renderGrid()">
+        <div class="filter-row">
+          <div class="dd-wrap">
+            <button class="dd-btn" onclick="toggleDD('dd-type')">Type <span style="font-size:0.5rem">▼</span></button>
+            <div class="dd-menu" id="dd-type">
+              <label class="dd-item"><input type="checkbox" value="Character"      onchange="renderGrid()"> Character</label>
+              <label class="dd-item"><input type="checkbox" value="Event"          onchange="renderGrid()"> Event</label>
+              <label class="dd-item"><input type="checkbox" value="Item"           onchange="renderGrid()"> Item</label>
+              <label class="dd-item"><input type="checkbox" value="Scene"          onchange="renderGrid()"> Scene</label>
+              <label class="dd-item"><input type="checkbox" value="Main Character" onchange="renderGrid()"> Main Char</label>
+              <label class="dd-item"><input type="checkbox" value="Story"          onchange="renderGrid()"> Story</label>
+            </div>
+          </div>
+          <div class="dd-wrap">
+            <button class="dd-btn" onclick="toggleDD('dd-rarity')">Rarity <span style="font-size:0.5rem">▼</span></button>
+            <div class="dd-menu" id="dd-rarity">
+              <label class="dd-item"><input type="checkbox" value="CR"   onchange="renderGrid()"> CR</label>
+              <label class="dd-item"><input type="checkbox" value="GR"   onchange="renderGrid()"> GR</label>
+              <label class="dd-item"><input type="checkbox" value="SR"   onchange="renderGrid()"> SR</label>
+              <label class="dd-item"><input type="checkbox" value="RR"   onchange="renderGrid()"> RR</label>
+              <label class="dd-item"><input type="checkbox" value="U"    onchange="renderGrid()"> U</label>
+              <label class="dd-item"><input type="checkbox" value="C"    onchange="renderGrid()"> C</label>
+              <label class="dd-item"><input type="checkbox" value="ER"   onchange="renderGrid()"> ER</label>
+              <label class="dd-item"><input type="checkbox" value="SPR"  onchange="renderGrid()"> SPR</label>
+            </div>
+          </div>
+          <div class="dd-wrap">
+            <button class="dd-btn" onclick="toggleDD('dd-set')">Set <span style="font-size:0.5rem">▼</span></button>
+            <div class="dd-menu" id="dd-set"></div>
+          </div>
+          <div class="dd-wrap">
+            <button class="dd-btn" onclick="toggleDD('dd-race')">Race <span style="font-size:0.5rem">▼</span></button>
+            <div class="dd-menu" id="dd-race" style="min-width:120px;">
+              <div style="display:flex;gap:3px;margin-bottom:5px;">
+                <button class="race-tab active" id="race-tab-pony" onclick="setRaceTab('pony')">🐴 Pony</button>
+                <button class="race-tab" id="race-tab-pet" onclick="setRaceTab('pet')">🐾 Pet</button>
+              </div>
+              <div id="race-pony">
+                <label class="dd-item"><input type="checkbox" value="Unicorn"    onchange="renderGrid()"> Unicorn</label>
+                <label class="dd-item"><input type="checkbox" value="Pegasus"    onchange="renderGrid()"> Pegasus</label>
+                <label class="dd-item"><input type="checkbox" value="Earth Pony" onchange="renderGrid()"> Earth Pony</label>
+                <label class="dd-item"><input type="checkbox" value="Alicorn"    onchange="renderGrid()"> Alicorn</label>
+                <label class="dd-item"><input type="checkbox" value="Race:Other" onchange="renderGrid()"> Other</label>
+              </div>
+              <div id="race-pet" style="display:none">
+                <label class="dd-item"><input type="checkbox" value="Dragon"     onchange="renderGrid()"> Dragon</label>
+                <label class="dd-item"><input type="checkbox" value="Crocodile"  onchange="renderGrid()"> Crocodile</label>
+                <label class="dd-item"><input type="checkbox" value="Turtle"     onchange="renderGrid()"> Turtle</label>
+                <label class="dd-item"><input type="checkbox" value="Rabbit"     onchange="renderGrid()"> Rabbit</label>
+                <label class="dd-item"><input type="checkbox" value="Dog"        onchange="renderGrid()"> Dog</label>
+                <label class="dd-item"><input type="checkbox" value="Cat"        onchange="renderGrid()"> Cat</label>
+                <label class="dd-item"><input type="checkbox" value="Owl"        onchange="renderGrid()"> Owl</label>
+                <label class="dd-item"><input type="checkbox" value="Phoenix"    onchange="renderGrid()"> Phoenix</label>
+                <label class="dd-item"><input type="checkbox" value="Pet:Other"  onchange="renderGrid()"> Other</label>
+              </div>
+            </div>
+          </div>
+          <button class="sort-btn" onclick="clearFilters()" title="Clear filters">✕</button>
+        </div>
+        <div class="lib-count" id="lib-count-lbl2"></div>
+      </div>
+      <div class="lib-scroll">
+        <div class="card-grid" id="card-grid"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: detail panel (desktop only) -->
+    <div id="detail-panel">
+      <div class="detail-empty" id="detail-empty">
+        <div class="ei">🃏</div>
+        <p style="font-size:0.8rem;color:var(--dim);">Click a card to see details</p>
+      </div>
+      <div id="detail-content" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile bottom sheet -->
+<div class="mo-overlay" id="mo-overlay" style="display:none" onclick="closeMoSheet(event)">
+  <div class="mo-sheet" id="mo-sheet">
+    <button class="mo-close" onclick="closeMoSheet()">✕</button>
+    <div id="mo-content"></div>
+  </div>
+</div>
+
+<script>
+const PONY_RACES = ['Unicorn','Pegasus','Earth Pony','Alicorn'];
+const PET_RACES  = ['Dragon','Crocodile','Turtle','Rabbit','Dog','Cat','Owl','Phoenix'];
+const BASE_URLS  = [
+  '.',
+  'https://raw.githubusercontent.com/auac131/MLP-DB/main',
+  'https://raw.githubusercontent.com/auac131/MLP-DB/master',
+];
+
+let _library = [];
+let _selected = null;
+let _lang = 'en'; // 'en' | 'th'
+const COLOR_MAP = {Purple:'#a78bfa',Pink:'#f472b6',Yellow:'#fbbf24',Orange:'#fb923c',Blue:'#60a5fa',White:'#e2e8f0'};
+
+function getChecked(id){return Array.from(document.querySelectorAll(`#${id} input:checked`)).map(e=>e.value);}
+function toggleDD(id){
+  document.querySelectorAll('.dd-menu.open').forEach(m=>{if(m.id!==id)m.classList.remove('open');});
+  document.getElementById(id)?.classList.toggle('open');
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.dd-wrap'))document.querySelectorAll('.dd-menu.open').forEach(m=>m.classList.remove('open'));});
+
+function setRaceTab(tab){
+  document.getElementById('race-pony').style.display = tab==='pony' ? '' : 'none';
+  document.getElementById('race-pet').style.display  = tab==='pet'  ? '' : 'none';
+  document.getElementById('race-tab-pony').classList.toggle('active', tab==='pony');
+  document.getElementById('race-tab-pet').classList.toggle('active', tab==='pet');
+}
+
+function clearFilters(){
+  document.querySelectorAll('.dd-menu input[type=checkbox]').forEach(cb=>cb.checked=false);
+  document.getElementById('lib-search').value='';
+  renderGrid();
+}
+
+function renderGrid(){
+  const search   = document.getElementById('lib-search').value.toLowerCase();
+  const types    = getChecked('dd-type');
+  const rarities = getChecked('dd-rarity');
+  const sets     = getChecked('dd-set');
+  const raceVals = getChecked('dd-race');
+
+  let cards = _library;
+  if(types.length)    cards = cards.filter(c=>types.includes(c.type));
+  if(rarities.length) cards = cards.filter(c=>rarities.includes(c.rarity));
+  if(sets.length)     cards = cards.filter(c=>sets.includes(c.deck));
+  if(raceVals.length) cards = cards.filter(c=>{
+    const subs = c.subtype||[];
+    return raceVals.some(v=>{
+      if(v==='Race:Other') return (c.type==='Character'||c.type==='Main Character')&&!PONY_RACES.some(r=>subs.includes(r));
+      if(v==='Pet:Other')  return subs.includes('Pet')&&!PET_RACES.some(r=>subs.includes(r));
+      return subs.includes(v);
+    });
+  });
+  if(search) cards = cards.filter(c=>
+    c.name.toLowerCase().includes(search)||
+    c.id.toLowerCase().includes(search)||
+    (c.subtype||[]).some(s=>s.toLowerCase().includes(search))
+  );
+
+  const lbl = `${cards.length} cards`;
+  document.getElementById('lib-count-lbl').textContent = lbl;
+  document.getElementById('lib-count-lbl2').textContent = lbl;
+
+  const grid = document.getElementById('card-grid');
+  grid.innerHTML = '';
+  if(!cards.length){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--dim);font-size:0.75rem;">🔍 No cards found</div>';
+    return;
+  }
+  cards.forEach(card=>{
+    const el = document.createElement('div');
+    el.className = 'card-tile' + (_selected?.id===card.id?' selected':'');
+    el.onclick = ()=>selectCard(card);
+    if(card.imageUrl){
+      el.innerHTML=`<img src="${card.imageUrl}" alt="${card.name}" loading="lazy">`;
+    } else {
+      el.innerHTML=`<div class="card-ph">${typeIcon(card.type)}</div>`;
+    }
+    grid.appendChild(el);
+  });
+}
+
+function typeIcon(t){return{Character:'👤',Event:'✨',Item:'🎀',Scene:'🎭','Main Character':'⭐',Story:'📖'}[t]||'🃏';}
+
+function selectCard(card){
+  _selected = card;
+  // Highlight in grid
+  document.querySelectorAll('.card-tile').forEach(el=>el.classList.remove('selected'));
+  event?.currentTarget?.classList.add('selected');
+
+  const html = buildDetailHTML(card);
+  const isMobile = window.innerWidth <= 768;
+  if(isMobile){
+    document.getElementById('mo-content').innerHTML = html;
+    document.getElementById('mo-overlay').style.display = 'flex';
+  } else {
+    document.getElementById('detail-empty').style.display = 'none';
+    const dc = document.getElementById('detail-content');
+    dc.style.display = '';
+    dc.innerHTML = html;
+  }
+}
+
+function buildDetailHTML(card){
+  const colorHex = COLOR_MAP[card.color]||'var(--muted)';
+  const imgHTML = card.imageUrl
+    ? `<img src="${card.imageUrl}" alt="${card.name}">`
+    : `<div class="card-ph">${typeIcon(card.type)}</div>`;
+
+  const hasCost  = card.cost  != null;
+  const hasPower = card.power != null;
+  const statsHTML = (hasCost||hasPower) ? `
+    <div class="detail-stats">
+      ${hasCost  ?`<div class="stat-box"><div class="sv">${card.cost}</div><div class="sl">Cost</div></div>`:''}
+      ${hasPower ?`<div class="stat-box"><div class="sv">${card.power}</div><div class="sl">Power</div></div>`:''}
+    </div>` : '';
+
+  const subs = (card.subtype||[]).join(' · ');
+  const subsHTML = subs ? `<div class="detail-subtypes">${subs}</div>` : '';
+
+  const abilEN = card.ability||'';
+  const abilTH = card.ability_th||'';
+  const hasAbil = abilEN||abilTH;
+  const abilHTML = hasAbil ? `
+    <div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="lb-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="lb-th" onclick="setLang('th')">TH</button>
+      </div>
+      <div class="detail-ability">
+        <div id="abil-en">${abilEN||'—'}</div>
+        <div id="abil-th" style="display:none">${abilTH||'—'}</div>
+      </div>
+    </div>` : '';
+
+  // Related cards
+  const relHTML = buildRelatedHTML(card);
+
+  return `
+    <div class="detail-card">
+      <div class="detail-img">${imgHTML}</div>
+      <div class="detail-info">
+        <div class="detail-name">${card.name}</div>
+        <div class="detail-meta">
+          <span class="meta-pill type">${card.type}</span>
+          <span class="meta-pill rarity">${card.rarity}</span>
+          ${card.color?`<span class="meta-pill" style="color:${colorHex};border-color:${colorHex}44">${card.color}</span>`:''}
+          ${card.deck?`<span class="meta-pill">${card.deck}</span>`:''}
+        </div>
+        ${statsHTML}
+        ${subsHTML}
+      </div>
+    </div>
+    ${abilHTML}
+    ${relHTML}`;
+}
+
+function buildRelatedHTML(card){
+  const subs = card.subtype||[];
+  let sections = [];
+
+  // 1. Same character name (e.g., "Twilight Sparkle" in subtype)
+  const charNames = subs.filter(s=>!PONY_RACES.includes(s)&&!PET_RACES.includes(s)&&s!=='Pet'&&s!=='Everyday');
+  charNames.forEach(name=>{
+    const rel = _library.filter(c=>c.id!==card.id&&(c.subtype||[]).includes(name));
+    if(rel.length) sections.push({title:`✨ ${name}`,cards:rel});
+  });
+
+  // 2. Same pony race
+  const race = PONY_RACES.find(r=>subs.includes(r));
+  if(race){
+    const rel = _library.filter(c=>c.id!==card.id&&(c.subtype||[]).includes(race));
+    if(rel.length) sections.push({title:`🐴 ${race}`,cards:rel.slice(0,20)});
+  }
+
+  // 3. Same pet type
+  const pet = PET_RACES.find(r=>subs.includes(r));
+  if(pet){
+    const rel = _library.filter(c=>c.id!==card.id&&(c.subtype||[]).includes(pet));
+    if(rel.length) sections.push({title:`🐾 ${pet}`,cards:rel});
+  }
+
+  if(!sections.length) return '';
+  return sections.map(sec=>`
+    <div class="related-section">
+      <div class="related-title">${sec.title}</div>
+      <div class="related-grid">
+        ${sec.cards.map(c=>`
+          <div class="rel-card" onclick="selectCard(${JSON.stringify(c).replace(/</g,'\\u003c').replace(/"/g,'&quot;')})">
+            ${c.imageUrl?`<img src="${c.imageUrl}" alt="${c.name}" loading="lazy">`:`<div class="card-ph">${typeIcon(c.type)}</div>`}
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function setLang(lang){
+  _lang = lang;
+  const enEl = document.getElementById('abil-en');
+  const thEl = document.getElementById('abil-th');
+  const lbEn = document.getElementById('lb-en');
+  const lbTh = document.getElementById('lb-th');
+  if(enEl) enEl.style.display = lang==='en' ? '' : 'none';
+  if(thEl) thEl.style.display = lang==='th' ? '' : 'none';
+  if(lbEn) lbEn.classList.toggle('active', lang==='en');
+  if(lbTh) lbTh.classList.toggle('active', lang==='th');
+}
+
+function closeMoSheet(e){
+  if(!e||e.target===document.getElementById('mo-overlay'))
+    document.getElementById('mo-overlay').style.display='none';
+}
+
+function toggleTheme(){
+  const isDark = document.body.classList.toggle('dark-mode');
+  localStorage.setItem('mlp-theme', isDark?'dark':'light');
+  document.getElementById('theme-btn').textContent = isDark?'☀️':'🌙';
+}
+
+function buildSetDropdown(){
+  const sets = [...new Set(_library.map(c=>c.deck).filter(Boolean))].sort();
+  const el = document.getElementById('dd-set');
+  el.innerHTML = sets.map(s=>`<label class="dd-item"><input type="checkbox" value="${s}" onchange="renderGrid()"> ${s}</label>`).join('');
+}
+
+async function loadCards(){
+  const grid = document.getElementById('card-grid');
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--dim);font-size:0.75rem;">⏳ Loading cards...</div>';
+  for(const base of BASE_URLS){
+    try{
+      const res = await fetch(base+'/MLP-DB.json');
+      if(!res.ok) continue;
+      const data = await res.json();
+      const raw = Array.isArray(data) ? data : (data.cards||[]);
+      _library = raw.map((c,i)=>({
+        id:c.id||`c${i}`, name:c.name||'?', type:c.type||'Character',
+        subtype:c.subtype||[], color:c.color||'', cost:c.cost??null, power:c.power??null,
+        rarity:c.rarity||'C', deck:c.deck||(c.id||'').split('-')[0]||'',
+        ability:c.ability||'', ability_th:c.ability_th||'',
+        imageUrl: base+'/cards/'+c.id+'.jpg',
+      }));
+      buildSetDropdown();
+      renderGrid();
+      return;
+    }catch(e){console.warn('Load failed:',e.message);}
+  }
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--dim);font-size:0.75rem;">⚠ Could not load cards</div>';
+}
+
+// Init theme
+(function(){
+  const saved = localStorage.getItem('mlp-theme');
+  if(saved==='dark'){
+    document.body.classList.add('dark-mode');
+    document.getElementById('theme-btn').textContent='☀️';
+  }
+})();
+
+loadCards();
+</script>
+</body>
+</html>
