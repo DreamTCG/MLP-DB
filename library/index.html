@@ -36,7 +36,8 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
 .lib-filters{padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .lib-search{width:100%;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);font-family:var(--font-body);font-size:0.75rem;margin-bottom:6px;}
 .lib-search:focus{outline:none;border-color:var(--purple);}
-.filter-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.filter-row{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.filter-row::-webkit-scrollbar{display:none;}
 .dd-wrap{position:relative;}
 .dd-btn{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;font-size:0.65rem;font-family:var(--font-body);font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;}
 .dd-btn:hover{border-color:var(--purple);}
@@ -98,8 +99,10 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
   #lib-panel{width:100%;border-right:none;}
   #detail-panel{display:none;}
   .mo-overlay{display:flex;position:fixed;top:var(--nav-h,56px);left:0;right:0;bottom:0;z-index:200;background:rgba(0,0,0,.6);align-items:flex-end;}
-  .mo-sheet{background:var(--surface);border-radius:16px 16px 0 0;padding:16px;max-height:90vh;overflow-y:auto;width:100%;}
-  .mo-close{float:right;background:var(--surface2);border:none;border-radius:50%;width:28px;height:28px;font-size:1rem;cursor:pointer;color:var(--muted);}
+  .mo-sheet{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-height:calc(100vh - var(--nav-h,56px));display:flex;flex-direction:column;overflow:hidden;}
+  .mo-sheet-header{display:flex;align-items:center;justify-content:flex-end;padding:10px 14px 4px;flex-shrink:0;}
+  .mo-close{background:var(--surface2);border:none;border-radius:50%;width:30px;height:30px;font-size:1rem;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  #mo-content{flex:1;overflow-y:auto;padding:0 16px 16px;}
 }
 @media(min-width:769px){
   .mo-overlay{display:none!important;}
@@ -189,7 +192,6 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
           <button class="sort-btn" id="lib-alt-btn" onclick="toggleAltLib()" title="Toggle alt art">All ※</button>
           <button class="sort-btn" onclick="clearFilters()" title="Clear filters">✕</button>
         </div>
-        <div class="lib-count" id="lib-count-lbl2"></div>
       </div>
       <div class="lib-scroll">
         <div class="card-grid" id="card-grid"></div>
@@ -209,8 +211,10 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
 
 <!-- Mobile bottom sheet -->
 <div class="mo-overlay" id="mo-overlay" style="display:none" onclick="closeMoSheet(event)">
-  <div class="mo-sheet" id="mo-sheet">
-    <button class="mo-close" onclick="closeMoSheet()">✕</button>
+  <div class="mo-sheet" id="mo-sheet" onclick="event.stopPropagation()">
+    <div class="mo-sheet-header">
+      <button class="mo-close" onclick="closeMoSheet()">✕</button>
+    </div>
     <div id="mo-content"></div>
   </div>
 </div>
@@ -321,9 +325,7 @@ function renderGrid(){
 
   cards = sortCards(cards);
 
-  const lbl = `${cards.length} cards`;
-  document.getElementById('lib-count-lbl').textContent = lbl;
-  document.getElementById('lib-count-lbl2').textContent = lbl;
+  document.getElementById('lib-count-lbl').textContent = `${cards.length} cards`;
 
   const grid = document.getElementById('card-grid');
   grid.innerHTML = '';
