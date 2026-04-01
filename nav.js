@@ -44,7 +44,7 @@
   /* ── STYLES ─────────────────────────────────────────────── */
   const css = `
     #mlp-nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 499;
       background: linear-gradient(90deg, #3a0d6e 0%, #5b1fa8 50%, #3a0d6e 100%);
       box-shadow: 0 2px 20px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.08) inset;
       font-family: 'Nunito', 'Prompt', sans-serif;
