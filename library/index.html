@@ -248,18 +248,30 @@ function setRaceTab(tab){
 function clearFilters(){
   document.querySelectorAll('.dd-menu input[type=checkbox]').forEach(cb=>cb.checked=false);
   document.getElementById('lib-search').value='';
+  _altMode='all';
+  const altBtn=document.getElementById('lib-alt-btn');
+  if(altBtn) altBtn.textContent='All ※';
   renderGrid();
 }
 
-const RARITY_RANK = {CR:0,GR:1,SR:2,RR:3,U:4,C:5,ER:6,SPR:7};
+const RARITY_RANK = {
+  'CR':0,'GR':1,'SR':2,'U':3,'C':4,'RR':5,'ER':6,'SPR':7,
+  '※CR':8,'※GR':9,'※SR':10,'※RR':11,'※ER':12,'※SPR':13,
+};
+const ALT_RARITIES_SET = new Set(['※CR','※GR','※SR','※RR','※ER','※SPR']);
+
+function getDeckCode(card){ return card.deck || (card.id||'').split('-')[0] || ''; }
+function getCardNum(id){ const m=(id||'').match(/([A-Z]+)(\d+)$/i); return m?parseInt(m[2]):0; }
+
 function sortCards(cards){
-  const mult = _sortAsc ? 1 : -1;
   return [...cards].sort((a,b)=>{
-    const da = a.deck||'', db = b.deck||'';
-    if(da!==db) return da.localeCompare(db)*mult;
-    const ra = RARITY_RANK[a.rarity]??99, rb = RARITY_RANK[b.rarity]??99;
-    if(ra!==rb) return (ra-rb)*mult;
-    return (a.name||'').localeCompare(b.name||'')*mult;
+    const dc = getDeckCode(a).localeCompare(getDeckCode(b));
+    if(dc!==0) return _sortAsc ? -dc : dc;
+    const ra=RARITY_RANK[a.rarity]??99, rb=RARITY_RANK[b.rarity]??99;
+    const rd = _sortAsc ? rb-ra : ra-rb;
+    if(rd!==0) return rd;
+    const diff = getCardNum(a.id)-getCardNum(b.id);
+    return _sortAsc ? -diff : diff;
   });
 }
 
@@ -303,9 +315,9 @@ function renderGrid(){
     c.id.toLowerCase().includes(search)||
     (c.subtype||[]).some(s=>s.toLowerCase().includes(search))
   );
-  // Alt art filter (※ rarity)
-  if(_altMode==='no-alt')   cards = cards.filter(c=>c.rarity!=='※');
-  if(_altMode==='alt-only') cards = cards.filter(c=>c.rarity==='※');
+  // Alt art filter
+  if(_altMode==='no-alt')   cards = cards.filter(c=>!ALT_RARITIES_SET.has(c.rarity));
+  if(_altMode==='alt-only') cards = cards.filter(c=>ALT_RARITIES_SET.has(c.rarity));
 
   cards = sortCards(cards);
 
