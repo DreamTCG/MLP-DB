@@ -458,15 +458,30 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 </style>
+<!-- Shared navigation bar (handles dark/light theme toggle) -->
+<script src="../nav.js"></script>
+<script>
+// Bridge nav.js html.dark → body.light-mode for this page's existing CSS
+// (battlesim is dark by default; light-mode class activates light theme)
+(function(){
+  function syncTheme(dark){ document.body.classList.toggle('light-mode', !dark); }
+  document.addEventListener('DOMContentLoaded', function(){
+    syncTheme(document.documentElement.classList.contains('dark'));
+  });
+  window.addEventListener('mlp-theme-change', function(e){ syncTheme(e.detail.dark); });
+})();
+</script>
 </head>
 <body>
 
 <!-- SETUP -->
 <div id="setup-screen" class="screen active">
+  <!-- Navigation buttons temporarily disabled (nav.js handles navigation/theme)
   <div style="position:absolute;top:14px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 14px;z-index:10;">
     <button onclick="goBackToDeckBuilder()" class="back-btn">« Deck Builder</button>
     <button class="theme-btn" id="theme-btn-setup" onclick="toggleTheme()" title="Toggle light/dark mode">☀️</button>
   </div>
+  -->
   <div class="setup-logo">
     <h1>My Little Pony</h1>
     <h2>TCG Simulator</h2>
@@ -554,7 +569,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     </div>
     <div class="harmony-disp">✦ <span class="hv" id="harmony-val">0</span> Harmony</div>
     <div class="topbar-right">
+      <!-- theme-btn-game temporarily disabled (nav.js handles theme)
       <button class="theme-btn" id="theme-btn-game" onclick="toggleTheme()" title="Toggle light/dark mode">☀️</button>
+      -->
       <button class="tbtn" onclick="tapSceneHarmony()">Tap Scene +1✦</button>
       <button class="tbtn primary" id="next-phase-btn" onclick="nextPhase()">Draw →</button>
       <button class="tbtn" onclick="backToSetup()">✕</button>
@@ -2825,22 +2842,7 @@ function showModal(title,body,btns){
 }
 function mAct(i){closeModal();window._mActs?.[i]?.();}
 function closeModal(){document.getElementById('mo').classList.remove('show');}
-/* ── THEME ── */
-function toggleTheme(){
-  const isLight=document.body.classList.toggle('light-mode');
-  localStorage.setItem('mlp-theme',isLight?'light':'dark');
-  _applyThemeIcons(isLight);
-}
-function _applyThemeIcons(isLight){
-  const icon=isLight?'🌙':'☀️';
-  document.querySelectorAll('.theme-btn').forEach(b=>b.textContent=icon);
-}
-(function initTheme(){
-  const saved=localStorage.getItem('mlp-theme');
-  const isLight=saved==='light';
-  if(isLight)document.body.classList.add('light-mode');
-  _applyThemeIcons(isLight);
-})();
+/* ── THEME — handled by nav.js bridge (see <head>) ── */
 
 function togglePSec(id){
   const el=document.getElementById(id);if(!el)return;

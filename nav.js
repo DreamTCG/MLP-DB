@@ -12,11 +12,11 @@
 
   /* ── CONFIG ────────────────────────────────────────────── */
   const NAV_LINKS = [
-    { label: 'หน้าหลัก',  icon: '🏠', href: '/',                       match: ['/', '/index.html'] },
-    { label: 'การ์ด',      icon: '🃏', href: '/MLP-DB/index.html',      match: ['/MLP-DB/', '/MLP-DB/index.html'] },
-    { label: 'จัดเด็ค',    icon: '🗂️', href: '/MLP-DB/index.html?mode=deck', match: [] },
-    { label: 'ทดสอบเด็ค', icon: '⚔️', href: '/battlesim/index.html',   match: ['/battlesim/', '/battlesim/index.html'] },
-    { label: 'วิธีเล่น',   icon: '📋', href: '/#rules',                 match: [] },
+    { label: 'หน้าหลัก',  icon: '🏠', href: '/',               match: ['/', '/index.html'] },
+    { label: 'การ์ด',      icon: '🃏', href: '/library/',        match: ['/library/', '/library/index.html'] },
+    { label: 'จัดเด็ค',    icon: '🗂️', href: '/deckbuilder/',    match: ['/deckbuilder/', '/deckbuilder/index.html'] },
+    // { label: 'ทดสอบเด็ค', icon: '⚔️', href: '/battlesim/',   match: ['/battlesim/', '/battlesim/index.html'] },  // temporarily disabled
+    { label: 'วิธีเล่น',   icon: '📋', href: '/#rules',          match: [] },
   ];
 
   const SITE_TITLE = 'DreamTCG';
