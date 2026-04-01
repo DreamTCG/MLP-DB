@@ -1,6 +1,6 @@
 /* ============================================================
    MLP TCG — Shared Navigation Bar  (v2 — with Dark Mode)
-   Usage: <script src="/nav.js"></script>  (adjust path per page)
+   Usage: <script src="./nav.js"></script>  (use relative path)
 
    Dark mode works via:
    1. <html class="dark"> toggled by this script
@@ -9,14 +9,22 @@
    ============================================================ */
 
 (function () {
+  // Detect base path from this script's own URL so absolute links work
+  // on both root deployments (/) and subdirectory deployments (/MLP-DB/).
+  const _scriptSrc = document.currentScript?.src || '';
+  const BASE = _scriptSrc
+    ? new URL(_scriptSrc).pathname.replace(/\/nav\.js(\?.*)?$/, '')
+    : '';
+  // BASE = ''        on root deployment  → links become '/library/' etc.
+  // BASE = '/MLP-DB' on subdirectory     → links become '/MLP-DB/library/' etc.
 
   /* ── CONFIG ────────────────────────────────────────────── */
   const NAV_LINKS = [
-    { label: 'หน้าหลัก',  icon: '🏠', href: '/',               match: ['/', '/index.html'] },
-    { label: 'การ์ด',      icon: '🃏', href: '/library/',        match: ['/library/', '/library/index.html'] },
-    { label: 'จัดเด็ค',    icon: '🗂️', href: '/deckbuilder/',    match: ['/deckbuilder/', '/deckbuilder/index.html'] },
-    // { label: 'ทดสอบเด็ค', icon: '⚔️', href: '/battlesim/',   match: ['/battlesim/', '/battlesim/index.html'] },  // temporarily disabled
-    { label: 'วิธีเล่น',   icon: '📋', href: '/#rules',          match: [] },
+    { label: 'หน้าหลัก',  icon: '🏠', href: BASE + '/',               match: [BASE + '/', BASE + '/index.html', BASE] },
+    { label: 'การ์ด',      icon: '🃏', href: BASE + '/library/',        match: [BASE + '/library/', BASE + '/library/index.html'] },
+    { label: 'จัดเด็ค',    icon: '🗂️', href: BASE + '/deckbuilder/',    match: [BASE + '/deckbuilder/', BASE + '/deckbuilder/index.html'] },
+    // { label: 'ทดสอบเด็ค', icon: '⚔️', href: BASE + '/battlesim/',   match: [BASE + '/battlesim/', BASE + '/battlesim/index.html'] },  // temporarily disabled
+    { label: 'วิธีเล่น',   icon: '📋', href: BASE + '/#rules',          match: [] },
   ];
 
   const SITE_TITLE = 'DreamTCG';
@@ -185,8 +193,9 @@
   /* ── BUILD HELPERS ───────────────────────────────────────── */
   function isActive(link) {
     const path = location.pathname;
-    if (link.match && link.match.includes(path)) return true;
-    if (link.href !== '/' && path.startsWith(link.href.split('?')[0])) return true;
+    if (link.match && link.match.some(m => path === m)) return true;
+    const hrefPath = link.href.split('?')[0];
+    if (hrefPath !== BASE + '/' && hrefPath !== BASE && path.startsWith(hrefPath)) return true;
     return false;
   }
 
@@ -203,7 +212,7 @@
     return `
       <nav id="mlp-nav">
         <div class="mlp-nav-inner">
-          <a class="mlp-nav-logo" href="/">
+          <a class="mlp-nav-logo" href="${BASE}/">
             <span class="mlp-nav-logo-icon">${SITE_LOGO}</span>
             <span class="mlp-nav-logo-text">${SITE_TITLE}</span>
           </a>
