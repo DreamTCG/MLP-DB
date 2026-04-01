@@ -123,8 +123,16 @@
     .mlp-nav-drawer .mlp-nav-link { font-size:0.95rem; padding:10px 14px; }
 
     @media (max-width: 640px) {
+      :root { --nav-h: 44px; }
       .mlp-nav-links { display:none; }
       .mlp-nav-burger { display:block; }
+      .mlp-nav-inner { height: 44px; padding: 0 12px; gap: 2px; }
+      .mlp-nav-logo { padding: 4px 8px 4px 4px; gap: 5px; margin-right: 2px; }
+      .mlp-nav-logo-icon { font-size: 1.2rem; }
+      .mlp-nav-logo-text { font-size: 0.9rem; }
+      .mlp-nav-div { display: none; }
+      #mlp-theme-btn { width: 30px; height: 30px; font-size: 0.9rem; border-radius: 8px; }
+      .mlp-nav-burger { font-size: 1.2rem; padding: 2px 6px; }
     }
 
     /* ════════════════════════════════════════════════════════
