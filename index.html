@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MLP TCG — DreamTCG</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink:    #ff6eb4;
+    --purple:  #9b59f5;
+    --blue:    #5bc8f5;
+    --yellow:  #ffd84d;
+    --green:   #5de6a0;
+    --orange:  #ff9f43;
+    --card-r:  12px;
+
+    /* Light mode */
+    --page-bg:           #f0e8ff;
+    --page-text:         #1a0a2e;
+    --page-text-sub:     #6b5a8a;
+    --page-card-bg:      rgba(255,255,255,0.80);
+    --page-card-border:  rgba(123,47,247,0.2);
+    --footer-color:      #8b70b8;
+    --star-opacity:      0;
+    --sparkle-opacity:   0.35;
+    --bg-blend:          #e8d5ff;
+  }
+
+  /* Dark mode */
+  html.dark {
+    --page-bg:           #0f0920;
+    --page-text:         #f0e8ff;
+    --page-text-sub:     #c8b8f0;
+    --page-card-bg:      rgba(255,255,255,0.07);
+    --page-card-border:  rgba(255,255,255,0.12);
+    --footer-color:      #6b5a8a;
+    --star-opacity:      1;
+    --sparkle-opacity:   1;
+    --bg-blend:          transparent;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--page-bg);
+    color: var(--page-text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* ── STARFIELD ── */
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: var(--star-opacity); transition: opacity 0.4s; }
+  .star {
+    position: absolute; border-radius: 50%; background: #fff;
+    animation: twinkle var(--d) ease-in-out infinite alternate; opacity: 0;
+  }
+  @keyframes twinkle {
+    0%   { opacity: 0; transform: scale(0.6); }
+    100% { opacity: var(--o); transform: scale(1.2); }
+  }
+
+  /* ── GRADIENT BG — dark layer ── */
+  .bg-gradient {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, #3d1a6e88 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, #1a3a6e66 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, #6b1a5544 0%, transparent 70%),
+      linear-gradient(160deg, #0d0820 0%, #1a0a2e 50%, #0a1428 100%);
+    animation: bgShift 8s ease-in-out infinite alternate;
+    opacity: 0; transition: opacity 0.4s;
+  }
+  html.dark .bg-gradient { opacity: 1; }
+
+  /* ── GRADIENT BG — light layer ── */
+  .bg-gradient-light {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 10%, #e8c5ff88 0%, transparent 55%),
+      radial-gradient(ellipse 60% 50% at 85% 85%, #ffd6f088 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, #d4b3ff44 0%, transparent 65%),
+      linear-gradient(160deg, #f0e0ff 0%, #ead5ff 50%, #fce8ff 100%);
+    animation: bgShift 8s ease-in-out infinite alternate;
+    opacity: 1; transition: opacity 0.4s;
+  }
+  html.dark .bg-gradient-light { opacity: 0; }
+
+  @keyframes bgShift {
+    0%   { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(20deg); }
+  }
+
+  /* ── FLOATING SPARKLES ── */
+  .sparkles {
+    position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    overflow: hidden;
+    opacity: var(--sparkle-opacity);
+    transition: opacity 0.4s;
+  }
+  .sp {
+    position: absolute;
+    font-size: var(--fs);
+    animation: floatUp var(--dur) linear infinite;
+    opacity: 0;
+    bottom: -60px;
+    left: var(--lf);
+    animation-delay: var(--dl);
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.6; }
+    100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    position: relative; z-index: 10;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  /* ── LOGO AREA ── */
+  .logo-area {
+    text-align: center;
+    margin-bottom: 10px;
+    animation: dropIn 0.8s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-40px) scale(0.85); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .logo-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    border-radius: 100px;
+    padding: 6px 22px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 20px #ff6eb466;
+  }
+
+  .logo-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.6rem, 8vw, 4.2rem);
+    line-height: 1.05;
+    background: linear-gradient(135deg, var(--page-text) 0%, var(--blue) 40%, var(--pink) 80%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 4px 20px #9b59f566);
+    position: relative;
+  }
+  .logo-title span {
+    background: linear-gradient(135deg, var(--yellow), var(--orange));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo-sub {
+    font-size: 1rem;
+    color: var(--page-text-sub);
+    margin-top: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  /* ── HERO PONY ROW ── */
+  .pony-row {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 18px 0 28px;
+    animation: dropIn 0.9s 0.1s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  .pony-emoji {
+    font-size: 2.8rem;
+    animation: ponyBounce var(--bd) ease-in-out infinite alternate;
+    animation-delay: var(--bde);
+    display: inline-block;
+    filter: drop-shadow(0 4px 12px #ff6eb466);
+  }
+  @keyframes ponyBounce {
+    from { transform: translateY(0) rotate(-5deg); }
+    to   { transform: translateY(-10px) rotate(5deg); }
+  }
+
+  /* ── CARD GRID ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    max-width: 700px;
+  }
+
+  .nav-card {
+    position: relative;
+    border-radius: 20px;
+    padding: 28px 22px 24px;
+    cursor: pointer;
+    text-decoration: none;
+    color: #fff;
+    overflow: hidden;
+    transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s ease;
+    animation: cardIn 0.7s cubic-bezier(.34,1.56,.64,1) both;
+    animation-delay: var(--ci);
+  }
+  .nav-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--card-bg);
+    z-index: 0;
+    transition: opacity 0.3s;
+  }
+  .nav-card::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    border-radius: 19px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.04) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .nav-card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 20px 50px var(--card-glow), 0 0 0 2px rgba(255,255,255,0.2);
+  }
+  .nav-card:active {
+    transform: translateY(-2px) scale(0.98);
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.9); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* card themes */
+  .card-deck   { --card-bg: linear-gradient(135deg, #7b2ff7, #c44de0); --card-glow: #9b59f566; }
+  .card-battle { --card-bg: linear-gradient(135deg, #e8405a, #ff8c00); --card-glow: #ff6b3566; }
+  .card-db     { --card-bg: linear-gradient(135deg, #0ea5e9, #6366f1); --card-glow: #5bc8f566; }
+  .card-rules  { --card-bg: linear-gradient(135deg, #10b981, #34d399); --card-glow: #5de6a066; }
+
+  .nav-card > * { position: relative; z-index: 2; }
+
+  .nav-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 3px 8px rgba(0,0,0,0.3));
+    transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .nav-card:hover .nav-icon {
+    transform: scale(1.2) rotate(-5deg);
+  }
+
+  .nav-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.45rem;
+    line-height: 1.1;
+    margin-bottom: 6px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  .nav-desc {
+    font-size: 0.82rem;
+    opacity: 0.85;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+
+  .nav-arrow {
+    position: absolute;
+    bottom: 18px; right: 20px;
+    font-size: 1.2rem;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 2;
+  }
+  .nav-card:hover .nav-arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* ── BIG CARD (full width) ── */
+  .card-wide {
+    grid-column: 1 / -1;
+  }
+  .card-wide .nav-title { font-size: 1.6rem; }
+  .card-wide .nav-icon  { display: inline-block; margin-bottom: 0; margin-right: 10px; font-size: 2.4rem; vertical-align: middle; }
+  .card-wide .nav-header { display: flex; align-items: center; margin-bottom: 8px; }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 44px;
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--footer-color);
+    animation: cardIn 0.7s 0.7s both;
+  }
+  .footer a { color: var(--page-text-sub); text-decoration: none; }
+  .footer a:hover { color: var(--pink); }
+
+  /* ── RIBBON ── */
+  .ribbon {
+    position: absolute;
+    top: 14px; right: -1px;
+    background: var(--yellow);
+    color: #1a0a2e;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.68rem;
+    padding: 3px 10px;
+    border-radius: 4px 0 0 4px;
+    letter-spacing: 1px;
+    box-shadow: -2px 2px 6px rgba(0,0,0,0.3);
+    z-index: 3;
+  }
+
+  @media (max-width: 520px) {
+    .card-grid { grid-template-columns: 1fr; }
+    .card-wide { grid-column: 1; }
+    .logo-title { font-size: 2.2rem; }
+  }
+</style>
+</head>
+<body>
+<!-- Shared navigation — loaded from root nav.js -->
+<script src="/nav.js"></script>
+
+<div class="bg-gradient"></div>
+<div class="bg-gradient-light"></div>
+
+<!-- Stars -->
+<div class="stars" id="stars"></div>
+
+<!-- Floating sparkles -->
+<div class="sparkles" id="sparkles"></div>
+
+<div class="container">
+
+  <!-- Logo -->
+  <div class="logo-area">
+    <div class="logo-badge">✦ DreamTCG ✦</div>
+    <h1 class="logo-title">My Little Pony<br><span>Card Game</span></h1>
+    <p class="logo-sub">เว็บไซต์ช่วยเหลือผู้เล่น MLP TCG (KAYOU)</p>
+  </div>
+
+  <!-- Pony row -->
+  <div class="pony-row">
+    <span class="pony-emoji" style="--bd:2.1s;--bde:0s">🦄</span>
+    <span class="pony-emoji" style="--bd:2.4s;--bde:0.3s">🌈</span>
+    <span class="pony-emoji" style="--bd:2.0s;--bde:0.6s">🦋</span>
+    <span class="pony-emoji" style="--bd:2.6s;--bde:0.2s">✨</span>
+    <span class="pony-emoji" style="--bd:1.9s;--bde:0.5s">🍎</span>
+    <span class="pony-emoji" style="--bd:2.3s;--bde:0.1s">🎀</span>
+  </div>
+
+  <!-- Nav cards -->
+  <div class="card-grid">
+
+    <!-- Deck Builder -->
+    <a href="./MLP-DB/index.html" class="nav-card card-deck" style="--ci:0.15s">
+      <span class="nav-icon">🗂️</span>
+      <div class="nav-title">จัดเด็ค</div>
+      <div class="nav-desc">เลือกการ์ด สร้างเด็ค<br>และ export รายการ</div>
+      <div class="nav-arrow">→</div>
+    </a>
+
+    <!-- Battle Sim -->
+    <a href="./battlesim/index.html" class="nav-card card-battle" style="--ci:0.25s">
+      <div class="ribbon">BETA</div>
+      <span class="nav-icon">⚔️</span>
+      <div class="nav-title">ทดสอบเด็ค</div>
+      <div class="nav-desc">Battle Simulator<br>สู้กับ Bot AI</div>
+      <div class="nav-arrow">→</div>
+    </a>
+
+    <!-- Card DB -->
+    <a href="./MLP-DB/index.html?view=db" class="nav-card card-db" style="--ci:0.35s">
+      <span class="nav-icon">📖</span>
+      <div class="nav-title">ดูการ์ดทั้งหมด</div>
+      <div class="nav-desc">ค้นหาการ์ด 320+ ใบ<br>EN / TH ครบ</div>
+      <div class="nav-arrow">→</div>
+    </a>
+
+    <!-- Rules -->
+    <a href="#rules" class="nav-card card-rules" style="--ci:0.45s" onclick="toggleRules(event)">
+      <span class="nav-icon">📋</span>
+      <div class="nav-title">วิธีเล่น</div>
+      <div class="nav-desc">กฎกติกาอย่างเป็นทางการ<br>ฉบับภาษาไทย</div>
+      <div class="nav-arrow">↓</div>
+    </a>
+
+  </div>
+
+  <!-- Rules Quick Ref (collapsible) -->
+  <div id="rules-panel" style="display:none; width:100%; max-width:700px; margin-top:16px; animation: cardIn 0.4s both;">
+    <div style="background: var(--page-card-bg); border: 1px solid var(--page-card-border); border-radius:20px; padding:28px 24px; backdrop-filter: blur(10px);">
+      <h2 style="font-family:'Fredoka One',cursive; font-size:1.4rem; margin-bottom:16px; color:var(--green);">📋 กฎสำคัญแบบย่อ</h2>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; font-size:0.85rem; line-height:1.6; color:var(--page-text);">
+        <div><b style="color:var(--green)">🎯 เป้าหมาย</b><br>ดำเนินเนื้อเรื่องถึง Stage IV ก่อน หรือให้คู่ต่อสู้จั่วไม่ได้</div>
+        <div><b style="color:var(--blue)">🃏 เด็ค</b><br>เด็คหลัก 50 ใบ + ฉาก 15 ใบ + เนื้อเรื่อง 4 ใบ + ตัวละครหลัก 1 ใบ</div>
+        <div><b style="color:var(--yellow)">⚡ เทิร์น</b><br>Start → Main → Contact → End ทำซ้ำสลับกัน</div>
+        <div><b style="color:var(--pink)">💫 Inspo Boost</b><br>คว่ำการ์ดฉากระหว่าง Contact เพื่อบูสค่าพลัง</div>
+        <div><b style="color:var(--orange)">🗺️ Story Zone</b><br>แผนการปิดกั้นการดำเนินเนื้อเรื่องของศัตรู</div>
+        <div><b style="color:var(--purple)">🏃 Contact</b><br>ข้ามใน 2 เทิร์นแรก — ฝ่ายที่พลังน้อยออกจากสนาม</div>
+      </div>
+      <p style="margin-top:16px; font-size:0.78rem; color:var(--page-text-sub); text-align:right">กฎฉบับเต็ม: ดูใน rulebook ของ KAYOU</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Fan-made tool · ไม่มีความเกี่ยวข้องกับ Hasbro / KAYOU อย่างเป็นทางการ</p>
+    <p style="margin-top:4px"><a href="https://dreamtcg.github.io/MLP-DB/" target="_blank">dreamtcg.github.io/MLP-DB</a></p>
+  </div>
+
+</div>
+
+<script>
+// ── Stars ──
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 120; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const size = Math.random() * 2.5 + 0.5;
+  s.style.cssText = `
+    width:${size}px; height:${size}px;
+    top:${Math.random()*100}%; left:${Math.random()*100}%;
+    --d:${(Math.random()*3+1.5).toFixed(1)}s;
+    --o:${(Math.random()*0.7+0.2).toFixed(2)};
+    animation-delay:${(Math.random()*4).toFixed(2)}s;
+  `;
+  starsEl.appendChild(s);
+}
+
+// ── Floating sparkles ──
+const sparklesEl = document.getElementById('sparkles');
+const emojis = ['✨','💫','⭐','🌟','💎','🦄','🌈','🎀','🍬','🔮'];
+for (let i = 0; i < 18; i++) {
+  const sp = document.createElement('div');
+  sp.className = 'sp';
+  sp.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+  sp.style.cssText = `
+    --fs:${(Math.random()*1.2+0.7).toFixed(1)}rem;
+    --dur:${(Math.random()*10+12).toFixed(1)}s;
+    --lf:${Math.random()*100}%;
+    --dl:-${(Math.random()*15).toFixed(1)}s;
+  `;
+  sparklesEl.appendChild(sp);
+}
+
+// ── Rules toggle ──
+function toggleRules(e) {
+  e.preventDefault();
+  const panel = document.getElementById('rules-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+</body>
+</html>
