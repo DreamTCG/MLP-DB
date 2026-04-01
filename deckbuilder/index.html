@@ -504,6 +504,18 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
 
   gtag('config', 'G-VR98SGEQLX');
 </script>
+<!-- Shared navigation bar (handles dark/light theme toggle) -->
+<script src="../nav.js"></script>
+<script>
+// Bridge nav.js html.dark → body.dark-mode for this page's existing CSS
+(function(){
+  function syncDark(dark){ document.body.classList.toggle('dark-mode', dark); }
+  document.addEventListener('DOMContentLoaded', function(){
+    syncDark(document.documentElement.classList.contains('dark'));
+  });
+  window.addEventListener('mlp-theme-change', function(e){ syncDark(e.detail.dark); });
+})();
+</script>
 </head>
 <body>
 
@@ -716,7 +728,6 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
       <div id="color-lock-indicator"></div>
       <button class="hdr-btn danger" onclick="clearDeck()">🗑 Clear</button>
       <button class="hdr-btn primary" onclick="snapshot()">📸 Snapshot</button>
-      <button class="hdr-btn" id="theme-btn-d" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
       <button id="analysis-toggle-btn" class="hdr-btn"
         onclick="toggleAnalysisPanel()"
         style="white-space:nowrap;">📊 Hide</button>
@@ -891,7 +902,6 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <button class="imp-btn" onclick="saveDeck()">💾 Save Draft</button>
         <button class="imp-btn" onclick="openExport()">📤 Export</button>
         <button class="imp-btn" onclick="importFromClipboard()">📋 Import Clipboard</button>
-        <button class="imp-btn" id="theme-btn-m" onclick="toggleTheme()">🌙 Theme</button>
         <button class="imp-btn" onclick="testDraw()">🎴 Test Draw</button>
         <button class="imp-btn" id="battlesim-btn-m" onclick="sendToBattleSim()" style="background:linear-gradient(135deg,var(--purple-l),var(--purple));color:#fff;font-weight:700;">⚔️ BattleSim</button>
       </div>
@@ -1616,7 +1626,7 @@ function sendToBattleSim() {
   const data={deckName:name,mc:state.mc,main:state.main,scene:state.scene,story:state.story};
   try {
     localStorage.setItem('mlp_preload_deck', JSON.stringify(data));
-    window.location.href='battlesim/';
+    window.location.href='../battlesim/';
   } catch(e) {
     toast('❌ ไม่สามารถบันทึกได้','err');
   }
@@ -1906,28 +1916,7 @@ function _renderZoom(card) {
 }
 function closeZoom() { $('zoom-modal').style.display='none'; }
 
-// ─── Theme toggle ───
-function toggleTheme() {
-  const isDark = document.body.classList.toggle('dark-mode');
-  localStorage.setItem('mlp-theme', isDark ? 'dark' : 'light');
-  const icon = isDark ? '☀️' : '🌙';
-  ['theme-btn-d','theme-btn-m'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = id === 'theme-btn-m' ? icon + ' Theme' : icon;
-  });
-}
-
-// Apply saved theme on load (default = light)
-(function() {
-  const saved = localStorage.getItem('mlp-theme');
-  if (saved === 'dark') {
-    document.body.classList.add('dark-mode');
-    ['theme-btn-d','theme-btn-m'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = id === 'theme-btn-m' ? '☀️ Theme' : '☀️';
-    });
-  }
-})();
+// ─── Theme toggle handled by nav.js ───
 
 // ── Zoom font size (persistent) ──
 let _zmFontSize = parseFloat(localStorage.getItem('zm-font-size') || '0.78');
