@@ -41,7 +41,7 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
 .dd-wrap{position:relative;}
 .dd-btn{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;font-size:0.65rem;font-family:var(--font-body);font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;}
 .dd-btn:hover{border-color:var(--purple);}
-.dd-menu{display:none;position:absolute;top:100%;left:0;z-index:100;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px;min-width:110px;max-height:220px;overflow-y:auto;box-shadow:0 6px 20px rgba(0,0,0,.15);}
+.dd-menu{display:none;position:fixed;z-index:1000;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px;min-width:110px;max-height:220px;overflow-y:auto;box-shadow:0 6px 20px rgba(0,0,0,.15);}
 .dd-menu.open{display:block;}
 .dd-item{display:flex;align-items:center;gap:6px;padding:3px 4px;border-radius:4px;cursor:pointer;font-size:0.68rem;color:var(--text);white-space:nowrap;}
 .dd-item:hover{background:var(--surface2);}
@@ -264,8 +264,16 @@ const COLOR_MAP = {Purple:'#a78bfa',Pink:'#f472b6',Yellow:'#fbbf24',Orange:'#fb9
 
 function getChecked(id){return Array.from(document.querySelectorAll(`#${id} input:checked`)).map(e=>e.value);}
 function toggleDD(id){
-  document.querySelectorAll('.dd-menu.open').forEach(m=>{if(m.id!==id)m.classList.remove('open');});
-  document.getElementById(id)?.classList.toggle('open');
+  const wasOpen = document.getElementById(id)?.classList.contains('open');
+  document.querySelectorAll('.dd-menu.open').forEach(m=>m.classList.remove('open'));
+  if(wasOpen) return;
+  const menu = document.getElementById(id);
+  if(!menu) return;
+  const btn = menu.previousElementSibling;
+  const rect = btn.getBoundingClientRect();
+  menu.style.top  = (rect.bottom + 4) + 'px';
+  menu.style.left = rect.left + 'px';
+  menu.classList.add('open');
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.dd-wrap'))document.querySelectorAll('.dd-menu.open').forEach(m=>m.classList.remove('open'));});
 
