@@ -135,6 +135,7 @@
          etc.
        ════════════════════════════════════════════════════════ */
     :root {
+      --nav-h: 56px;   /* height of #mlp-nav — use in pages for layout offsets */
       --bg:          #f8f5ff;
       --bg-card:     #ffffff;
       --bg-surface:  #f0ebff;
