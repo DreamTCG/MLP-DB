@@ -384,6 +384,8 @@ function selectCard(card){
   const isMobile = window.innerWidth <= 768;
   if(isMobile){
     document.getElementById('mo-content').innerHTML = html;
+    const _ms = document.getElementById('mo-sheet');
+    if(_ms){ _ms.style.transform=''; _ms.style.transition=''; }
     document.getElementById('mo-overlay').style.display = 'flex';
   } else {
     document.getElementById('detail-empty').style.display = 'none';
@@ -501,6 +503,35 @@ function closeMoSheet(e){
   if(!e||e.target===document.getElementById('mo-overlay'))
     document.getElementById('mo-overlay').style.display='none';
 }
+
+// Swipe DOWN on sheet header → close bottom sheet
+(function(){
+  const sheet  = document.getElementById('mo-sheet');
+  const header = document.querySelector('.mo-sheet-header');
+  if(!sheet || !header) return;
+  let _sy=0, _dy=0;
+  header.addEventListener('touchstart', e=>{
+    _sy=e.touches[0].clientY; _dy=0;
+    sheet.style.transition='none';
+  },{passive:true});
+  header.addEventListener('touchmove', e=>{
+    const d = e.touches[0].clientY - _sy;
+    if(d>0){ _dy=d; sheet.style.transform=`translateY(${d}px)`; }
+  },{passive:true});
+  header.addEventListener('touchend', ()=>{
+    sheet.style.transition='transform 0.25s ease';
+    if(_dy>110){
+      sheet.style.transform='translateY(100%)';
+      setTimeout(()=>{
+        document.getElementById('mo-overlay').style.display='none';
+        sheet.style.transform=''; sheet.style.transition='';
+      },230);
+    } else {
+      sheet.style.transform='';
+      setTimeout(()=>{ sheet.style.transition=''; },260);
+    }
+  },{passive:true});
+})();
 
 // Theme handled by nav.js
 

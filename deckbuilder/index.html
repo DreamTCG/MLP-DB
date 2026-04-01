@@ -444,7 +444,14 @@ html, body { height: 100%; font-family: var(--font-body); background: var(--bg);
   width:30px; height:30px; border-radius:50%; cursor:pointer;
   font-size:0.9rem; display:flex; align-items:center; justify-content:center;
 }
-.zoom-handle { width:36px; height:4px; background:var(--border2); border-radius:2px; margin:8px auto 16px; }
+.zoom-handle {
+  width:100%; height:32px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  cursor:grab; touch-action:pan-x;
+}
+.zoom-handle::before {
+  content:''; width:40px; height:4px; background:var(--border2); border-radius:2px;
+}
 
 /* ═══════════════════════════════════════════════════════
    TOAST
@@ -1914,6 +1921,9 @@ function _renderZoom(card) {
   }
 
   $('zoom-modal').style.display='flex';
+  // Reset any in-progress swipe transform
+  const _zi = document.querySelector('.zoom-inner');
+  if (_zi) { _zi.style.transform=''; _zi.style.transition=''; }
 }
 function closeZoom() { $('zoom-modal').style.display='none'; }
 
@@ -1959,7 +1969,7 @@ function _applyZoomFont() {
   if (el) el.style.fontSize = _zmFontSize + 'rem';
 }
 
-// Touch swipe on zoom modal
+// Horizontal swipe on zoom overlay → navigate cards
 (function(){
   let _tx=0;
   const modal = document.getElementById('zoom-modal');
@@ -1970,6 +1980,32 @@ function _applyZoomFont() {
     if(Math.abs(dx)>50 && _zmCtx.cards.length>1){
       zoomNav(dx<0?1:-1);
       e.stopPropagation();
+    }
+  },{passive:true});
+})();
+
+// Swipe DOWN on zoom handle → close modal
+(function(){
+  const inner  = document.querySelector('.zoom-inner');
+  const handle = document.querySelector('.zoom-handle');
+  if (!inner || !handle) return;
+  let _sy=0, _dy=0;
+  handle.addEventListener('touchstart', e=>{
+    _sy=e.touches[0].clientY; _dy=0;
+    inner.style.transition='none';
+  },{passive:true});
+  handle.addEventListener('touchmove', e=>{
+    const d = e.touches[0].clientY - _sy;
+    if(d>0){ _dy=d; inner.style.transform=`translateY(${d}px)`; }
+  },{passive:true});
+  handle.addEventListener('touchend', ()=>{
+    inner.style.transition='transform 0.25s ease';
+    if(_dy>110){
+      inner.style.transform='translateY(100%)';
+      setTimeout(()=>{ closeZoom(); inner.style.transform=''; inner.style.transition=''; },230);
+    } else {
+      inner.style.transform='';
+      setTimeout(()=>{ inner.style.transition=''; },260);
     }
   },{passive:true});
 })();
