@@ -44,7 +44,7 @@
   /* ── STYLES ─────────────────────────────────────────────── */
   const css = `
     #mlp-nav {
-      position: sticky; top: 0; z-index: 9999; width: 100%;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
       background: linear-gradient(90deg, #3a0d6e 0%, #5b1fa8 50%, #3a0d6e 100%);
       box-shadow: 0 2px 20px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.08) inset;
       font-family: 'Nunito', 'Prompt', sans-serif;
@@ -165,6 +165,9 @@
       --accent-2:    #f472b6;
       --shadow:      rgba(0,0,0,0.5);
     }
+
+    /* Push page content below the fixed nav — works on ALL pages automatically */
+    body { padding-top: var(--nav-h, 56px); }
 
     /* Smooth theme transition — exclude elements that shouldn't animate */
     body { transition: background-color 0.25s ease, color 0.25s ease; }
