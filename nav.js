@@ -263,6 +263,17 @@
       drawer.classList.toggle('open');
       burger.textContent = drawer.classList.contains('open') ? '✕' : '☰';
     });
+
+    // Dynamically sync --nav-h to the actual rendered nav height so all
+    // calc(100dvh - var(--nav-h)) layouts are pixel-perfect on every device.
+    function _syncNavH() {
+      const nav = document.getElementById('mlp-nav');
+      if (!nav) return;
+      const h = nav.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--nav-h', h + 'px');
+    }
+    _syncNavH();
+    window.addEventListener('resize', _syncNavH);
   }
 
   if (document.readyState === 'loading') {
