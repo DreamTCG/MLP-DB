@@ -99,13 +99,39 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
   #lib-panel{width:100%;border-right:none;}
   #detail-panel{display:none;}
   .mo-overlay{display:flex;position:fixed;top:var(--nav-h,56px);left:0;right:0;bottom:0;z-index:200;background:rgba(0,0,0,.6);align-items:flex-end;}
-  .mo-sheet{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-height:calc(100vh - var(--nav-h,56px));display:flex;flex-direction:column;overflow:hidden;}
-  .mo-sheet-header{display:flex;align-items:center;justify-content:flex-end;padding:10px 14px 4px;flex-shrink:0;}
-  .mo-close{background:var(--surface2);border:none;border-radius:50%;width:30px;height:30px;font-size:1rem;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-  #mo-content{flex:1;overflow-y:auto;padding:0 16px 16px;}
+  .mo-sheet{
+    background:var(--surface);border-radius:16px 16px 0 0;width:100%;
+    max-height:calc(100vh - var(--nav-h,56px));
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+  .mo-sheet-header{
+    position:relative;display:flex;align-items:center;justify-content:flex-end;
+    padding:20px 16px 12px;flex-shrink:0;
+    border-bottom:1px solid var(--border);
+  }
+  /* drag handle pill */
+  .mo-sheet-header::before{
+    content:'';position:absolute;top:8px;left:50%;transform:translateX(-50%);
+    width:40px;height:4px;background:var(--border2);border-radius:2px;
+  }
+  .mo-close{
+    background:var(--surface2);border:1.5px solid var(--border2);border-radius:50%;
+    width:34px;height:34px;font-size:1rem;font-weight:700;
+    cursor:pointer;color:var(--text);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    line-height:1;
+  }
+  .mo-close:active{background:var(--border2);}
+  #mo-content{flex:1;overflow-y:auto;padding:14px 16px 24px;}
 }
 @media(min-width:769px){
   .mo-overlay{display:none!important;}
+}
+/* Inside bottom sheet: shrink image so content has more room */
+@media(max-width:480px){
+  #mo-content .detail-card{gap:10px;}
+  #mo-content .detail-img{width:90px;}
+  #mo-content .detail-img .card-ph{height:126px;}
 }
 </style>
 <!-- Shared navigation bar (handles dark/light theme toggle) -->
