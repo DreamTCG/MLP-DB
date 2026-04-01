@@ -639,7 +639,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
     <div class="panel-hdr">
       <span class="panel-title">📚 Library</span>
       <span id="lib-count" style="font-size:0.68rem;color:var(--dim);"></span>
-      <a href="library/" style="font-size:0.62rem;color:var(--purple-l);text-decoration:none;margin-left:auto;padding:2px 8px;border:1px solid var(--border2);border-radius:5px;" title="Full library view">🔎 Browse</a>
+      <a href="../library/" style="font-size:0.62rem;color:var(--purple-l);text-decoration:none;margin-left:auto;padding:2px 8px;border:1px solid var(--border2);border-radius:5px;" title="Full library view">🔎 Browse</a>
     </div>
     <div style="padding:10px 10px 0;flex-shrink:0;">
       <div class="lib-search-bar">
@@ -2366,7 +2366,7 @@ async function preloadAssets() {
   if (location.protocol==='file:') { showFileProtocolBanner(); return; }
   toast('⏳ Loading cards...','ok');
   const SOURCES=[
-    {base:'.',label:'GitHub Pages'},
+    {base:'..',label:'GitHub Pages'},
     {base:'https://raw.githubusercontent.com/auac131/MLP-DB/main',label:'GitHub Raw (main)'},
     {base:'https://raw.githubusercontent.com/auac131/MLP-DB/master',label:'GitHub Raw (master)'},
   ];
@@ -2469,7 +2469,7 @@ function testDraw() {
 
       const img = document.createElement('img');
       const imgId = card.id.replace('※','');
-      img.src = `./cards/${imgId}.jpg`;
+      img.src = `../cards/${imgId}.jpg`;
       img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
       img.onerror = () => { img.style.display='none'; imgWrap.textContent='🃏'; };
 

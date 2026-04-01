@@ -121,7 +121,7 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
 <body>
 <div id="app">
   <div class="topbar">
-    <button class="hdr-btn" onclick="history.back()">« Back</button>
+    <a class="hdr-btn" href="/" style="text-decoration:none;">🏠 หน้าหลัก</a>
     <span class="topbar-title">📚 MLP Card Library</span>
     <span id="lib-count-lbl" style="font-size:0.65rem;color:var(--dim);"></span>
   </div>
@@ -220,7 +220,7 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
 const PONY_RACES = ['Unicorn','Pegasus','Earth Pony','Alicorn'];
 const PET_RACES  = ['Dragon','Crocodile','Turtle','Rabbit','Dog','Cat','Owl','Phoenix'];
 const BASE_URLS  = [
-  '.',
+  '..',
   'https://raw.githubusercontent.com/auac131/MLP-DB/main',
   'https://raw.githubusercontent.com/auac131/MLP-DB/master',
 ];
