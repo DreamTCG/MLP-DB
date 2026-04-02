@@ -231,7 +231,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   background:var(--sc-grad);
   border:1px solid var(--teal);border-radius:4px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  cursor:pointer;padding:2px;flex-shrink:0;transition:transform .15s,opacity .15s,border-color .15s,z-index 0s;
+  cursor:pointer;padding:2px;flex-shrink:0;transition:transform .3s ease,opacity .3s ease,border-color .3s ease,z-index 0s;
   position:relative;z-index:1;
 }
 .sc-card:hover{transform:translateY(-4px);box-shadow:0 4px 10px rgba(45,212,191,.3);z-index:10;}
@@ -1649,8 +1649,9 @@ function doStart(){
       _draw();
       log('Reset + จั่ว 1 ใบ');
     }else{
-    // Bot start phase — reset bot chars, bot "draws"
+    // Bot start phase — reset bot chars + scenes, bot "draws"
     G.oAdv.forEach(c=>{if(c)c._tapped=false;});
+    G.oSceneArea.forEach(s=>{s._tapped=false;});
     G.oHand=Math.min(G.oHand+1,7);
     log('🤖 Bot Reset + จั่ว 1 ใบ');
   }
@@ -1668,8 +1669,10 @@ function doStart(){
     // Bot adds scene using proper oSceneDeck
     _addOppScene();
     if(G.oSceneArea?.length) log(`🤖 Bot เพิ่มฉาก (รวม ${G.oSceneArea.length} ใบ)`);
-    // Bot main phase simulation — plays cheapest char
-    aiSim();
+    // Bot plays cards until harmony is exhausted or all slots are filled
+    G.oBotHarmony = G.oSceneArea?.length ?? G.oSceneCount ?? 0;
+    while(aiSim()){}
+    delete G.oBotHarmony;
     log('🤖 Bot Main Phase เสร็จ — กด Contact Phase','act');
   }
 }
@@ -1830,18 +1833,9 @@ function resolveContact(slotIdx){
     setTimeout(processNextContact,100);
     return;
   }
-  // 🎯 ลำดับการใช้ boost
-  if(G.isPlayerTurn){
-    // player เป็นคนเริ่ม 👉 ถ้า player ใช้แล้ว → bot ค่อยตอบ
-    if(G._playerUsedInspo){
-      aiUseInspo(slotIdx);
-    }
-  }else{
-    // bot เริ่มก่อน
-    aiUseInspo(slotIdx);
-    // 👉 player จะใช้ผ่าน UI ทีหลังอยู่แล้ว
-  }
-  const pi=effInsp(p,true),oi=o.power||0;
+  // AI responds after player has finalised their boost via modal UI
+  aiUseInspo(slotIdx);
+  const pi=effInsp(p,true),oi=(o.power||0)+(o._boosted||0);
   log(`Slot${slotIdx+1}: ${p.name}(${pi}) vs ${o.name}(${oi})`);
   if(pi>oi){log('  → ชนะ ✅ — OPP Retire','good');retireO(slotIdx);}
   else if(pi<oi){log(`  → แพ้ — ${p.name} Retire`,'warn');retireP(slotIdx);}
@@ -2083,9 +2077,8 @@ function aiAct(i){
     log(`Bot plays ${card.name}[${card.rarity}] cost:${card.cost} pwr:${card.power} -> Slot${slot+1}`);
   }
 }*/
-// Wrapper — delegates to modular AI (ai-core.js).
-// doStart() calls this unchanged; signature is preserved.
-function aiSim(){ runAI(G); }
+// Wrapper — delegates to modular AI (ai-core.js). Returns true if a card was placed.
+function aiSim(){ return runAI(G); }
 function effInsp(c,isMyTurn){
   let v=c.power||0;
   v+=c._boosted||0;
@@ -2426,11 +2419,14 @@ function renderOppScene(){
   }
   el.innerHTML=G.oSceneArea.map((s,i)=>{
     const scImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
-    return`<div class="sc-card" style="border-color:rgba(248,113,113,.5);cursor:default"
-      onmouseenter="showTTData(event,G.oSceneArea[${i}])" onmouseleave="hideTT()" 
+    const tappedCls=s._tapped?' tapped':'';
+    const flippedCls=s._flipped?' flipped':'';
+    return`<div class="sc-card${tappedCls}${flippedCls}" style="border-color:rgba(248,113,113,.5);cursor:default"
+      onmouseenter="showTTData(event,G.oSceneArea[${i}])" onmouseleave="hideTT()"
       ontouchstart="ttStart(()=>showTTData(event,G.oSceneArea[${i}]))" ontouchend="ttEnd()" ontouchmove="ttCancel()">
       ${scImgSrc?`<img class="sc-img" src="${scImgSrc}" alt="${s.name}" onerror="this.style.display='none'">`:''}
       <div class="sc-n" style="color:rgba(248,113,113,.8)">${s.name.split(' ').slice(-2).join(' ')}</div>
+      ${s._flipped?'<div class="sc-flip-overlay">&#x2715;</div>':''}
     </div>`;
   }).join('');
 }

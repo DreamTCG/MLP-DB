@@ -12,11 +12,6 @@
  * Called from the wrapper aiUseInspo(slotIdx) in index.html, which preserves the
  * existing call-site signature used by resolveContact().
  *
- * Improvements over the original aiUseInspo():
- *   - Respects scene.inspoTarget restrictions via canInspoTarget()
- *   - Uses shouldUseInspo() to gate the decision through AI_CONFIG.useInspoThreshold
- *   - Accepts explicit G parameter (no implicit global read at definition time)
- *
  * @param {object} G       — Global game state
  * @param {number} slotIdx — Contact slot index (0–2)
  */
@@ -46,6 +41,7 @@ function coreAiUseInspo(G, slotIdx) {
     o._boosted           = (o._boosted || 0) + 1;
     log(`🤖 Inspo Boost: ${scenes[i].name} → ${o.name} +1 Insp`, 'act');
   }
+  renderScene(); // refresh scene area to show flip state
 }
 
 // ---------------------------------------------------------------------------
@@ -56,26 +52,29 @@ function coreAiUseInspo(G, slotIdx) {
  * Select and play the best character card from the bot's hand.
  * Called from the wrapper aiSim() in index.html.
  *
+ * Multi-play support: if G.oBotHarmony is set (initialized by doStart before the loop),
+ * uses that as the remaining harmony budget and deducts card cost on each play.
+ * Returns true if a card was placed, false if nothing could be played.
+ *
  * Algorithm:
- *   1. Filter playable characters (cost ≤ current harmony, slot empty)
+ *   1. Filter playable characters (cost ≤ remaining harmony, slot empty)
  *   2. Score every (card, slot) combination using scoreCard + scoreSlot
  *   3. Sort by score descending
  *   4. Pick randomly from the top 1–3 candidates (controlled by AI_CONFIG.randomness)
- *      — prevents perfectly deterministic play without sacrificing strategy
- *
- * Improvements over the original aiSim():
- *   - Evaluates ALL (card, slot) combinations instead of just best card per slot
- *   - Slot scoring rewards winning matchups and penalises losing ones
- *   - Slight randomness keeps gameplay varied
  *
  * @param {object} G — Global game state
+ * @returns {boolean} true if a card was placed this call
  */
 function runAI(G) {
-  const harmony  = G.oSceneArea?.length ?? G.oSceneCount ?? 0;
+  // Use per-turn harmony budget if set (enables multi-card play), else scene count
+  const harmony = (G.oBotHarmony !== undefined)
+    ? G.oBotHarmony
+    : (G.oSceneArea?.length ?? G.oSceneCount ?? 0);
+
   const playable = [...G.oMainDeck].filter(x =>
     x.type === 'Character' && (x.cost || 0) <= harmony
   );
-  if (!playable.length) return;
+  if (!playable.length) return false;
 
   // Build and score all valid (card, slot) combinations
   const candidates = [];
@@ -86,7 +85,7 @@ function runAI(G) {
       candidates.push({ card, slot, score });
     });
   });
-  if (!candidates.length) return;
+  if (!candidates.length) return false;
 
   // Sort best → worst
   candidates.sort((a, b) => b.score - a.score);
@@ -99,5 +98,10 @@ function runAI(G) {
   const { card, slot } = best;
   G.oAdv[slot] = { ...card, _tapped: false, _boosted: 0, _item: null };
   G.oMainDeck.splice(G.oMainDeck.indexOf(card), 1);
+
+  // Deduct cost from per-turn budget
+  if (G.oBotHarmony !== undefined) G.oBotHarmony -= (card.cost || 0);
+
   log(`🤖 Bot plays ${card.name} → Slot${slot + 1}`);
+  return true;
 }
