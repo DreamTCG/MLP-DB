@@ -8,15 +8,17 @@
 
 /**
  * Check whether a scene card is allowed to boost a specific character.
- * If the scene has no inspoTarget restriction, any character is valid.
+ * Mirrors the player logic: parses 「Name」 from the ability text via
+ * _inspoRestrict(), then checks name/subtype via _charMatchesRestrict().
+ * Both helpers are defined in index.html and available as globals at call-time.
  *
- * @param {object} scene     — Scene card object (may have .inspoTarget array)
- * @param {object} character — Character card object (.name)
+ * @param {object} scene     — Scene card object (.ability string)
+ * @param {object} character — Character card object (.name, .subtype)
  * @returns {boolean}
  */
 function canInspoTarget(scene, character) {
-  if (!scene.inspoTarget) return true;
-  return scene.inspoTarget.includes(character.name);
+  const restrict = _inspoRestrict(scene.ability);           // parse 「Name」 from ability text
+  return !restrict || _charMatchesRestrict(character, restrict); // allow if no restriction, or char matches
 }
 
 // ---------------------------------------------------------------------------
