@@ -1303,7 +1303,11 @@ function renderLibrary() {
       const inDeck = getDeckQty(card);
       const hasMinus = inDeck>0 && card.type!=='Main Character' && card.type!=='Story';
       const combinedQty = (card.type==='Character'||card.type==='Event'||card.type==='Item') ? getMainQtyByBaseId(card.id) : inDeck;
-      const maxed    = combinedQty>=4 && card.type!=='Main Character' && card.type!=='Story' && card.type!=='Scene';
+      const mainTotal  = state.main.reduce((s,c)=>s+c.qty,0);
+      const sceneTotal = state.scene.reduce((s,c)=>s+c.qty,0);
+      const maxed = (card.type==='Main Character'||card.type==='Story') ? false
+        : card.type==='Scene' ? sceneTotal>=15
+        : combinedQty>=4 || mainTotal>=50;
       const el = document.createElement('div');
       el.className = 'card-tile';
       const imgWrap = document.createElement('div');
@@ -1464,7 +1468,9 @@ function makeTile(card, zone) {
     const ctrl=document.createElement('div');
     ctrl.className='card-ctrl';
     const canMinus=zone==='main'?card.qty>1:card.qty>1;
-    const canPlus=zone==='main'?card.qty<4:true;
+    const mainTotal =state.main.reduce((s,c)=>s+c.qty,0);
+    const sceneTotal=state.scene.reduce((s,c)=>s+c.qty,0);
+    const canPlus=zone==='main'?(card.qty<4&&mainTotal<50):sceneTotal<15;
     ctrl.innerHTML=`
       <button class="btn-minus" onclick="changeQty('${zone}','${card.id}',-1)" ${!canMinus?'disabled':''}>−</button>
       <button class="btn-plus"  onclick="changeQty('${zone}','${card.id}',1)"  ${!canPlus?'disabled':''}>+</button>
