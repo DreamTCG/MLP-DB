@@ -772,8 +772,8 @@
     "story_title": "Suited For Success",
     "story_subtitle": "First Edition",
     "story_stage": "III",
-    "ability": "When promoted to this stage, you win the game.",
-    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ คุณชนะเกม"
+    "ability": "When promoted to this stage, choose 1 Character with Inspiration 4 or less in Rival's Adventrue Area to Retire.",
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ เลือกตัวละครที่มีค่าพลังจินตนาการ 4 หรือต่ำกว่าจำนวน 1 ใบจากโซนผจญภัยของฝ่ายตรงข้าม ส่งลงโซนพักผ่อน"
   },
   {
     "id": "BP01-C48",
