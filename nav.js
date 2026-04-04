@@ -88,6 +88,22 @@
 
     .mlp-nav-right { display:flex; align-items:center; gap:8px; margin-left:auto; flex-shrink:0; }
 
+    /* ── Feedback button ── */
+    #mlp-feedback-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.12);
+      border: 1.5px solid rgba(255,255,255,0.25);
+      border-radius: 10px; font-size: 1.05rem; text-decoration: none;
+      transition: background 0.2s, transform 0.2s, border-color 0.2s;
+      flex-shrink: 0; color: #fff; line-height: 1;
+    }
+    #mlp-feedback-btn:hover { background: rgba(255,255,255,0.22); transform: scale(1.1); border-color: rgba(255,255,255,0.45); }
+    #mlp-feedback-btn:active { transform: scale(0.92); }
+    html.dark #mlp-feedback-btn { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.20); }
+    html.dark #mlp-feedback-btn:hover { background: rgba(255,255,255,0.20); }
+    @media (max-width: 640px) { #mlp-feedback-btn { width: 30px; height: 30px; font-size: 0.9rem; border-radius: 8px; } }
+
     /* ── Dark mode toggle ── */
     #mlp-theme-btn {
       display: flex; align-items: center; justify-content: center;
@@ -231,6 +247,7 @@
           <div class="mlp-nav-div"></div>
           <div class="mlp-nav-links">${buildLinks(NAV_LINKS)}</div>
           <div class="mlp-nav-right">
+            <a id="mlp-feedback-btn" href="https://m.me/Kiettisak.v" target="_blank" rel="noopener" aria-label="Feedback" title="Feedback">💬</a>
             <span class="mlp-theme-label" id="mlp-theme-label"></span>
             <button id="mlp-theme-btn" aria-label="Toggle dark mode"></button>
           </div>
