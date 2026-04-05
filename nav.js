@@ -9,6 +9,47 @@
    ============================================================ */
 
 (function () {
+  // ── Supabase CDN: inject async, init client on load ──────
+  (function _loadSupabase() {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    s.onload = _initSupabase;
+    document.head.appendChild(s);
+  })();
+
+  function _initSupabase() {
+    // Replace these placeholders with your real Supabase project values.
+    // On Vercel: set SUPABASE_URL and SUPABASE_ANON_KEY env vars, then
+    // serve nav.js through an edge function that substitutes them, OR
+    // just hardcode the public anon key here (it is safe to expose).
+    const SUPABASE_URL = 'SUPABASE_URL_PLACEHOLDER';
+    const SUPABASE_KEY = 'SUPABASE_ANON_KEY_PLACEHOLDER';
+    if (SUPABASE_URL === 'SUPABASE_URL_PLACEHOLDER') return; // not configured yet
+
+    try {
+      window._supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch (e) { console.warn('Supabase init failed:', e); return; }
+
+    window._supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        localStorage.setItem('dreamtcg-session', JSON.stringify(session));
+        _updateAuthUI(session.user);
+        if (event === 'SIGNED_IN' && typeof window._onFirstLogin === 'function') {
+          // Small delay so deckbuilder script has time to register _onFirstLogin
+          setTimeout(() => window._onFirstLogin(), 500);
+        }
+      } else {
+        localStorage.removeItem('dreamtcg-session');
+        _updateAuthUI(null);
+      }
+    });
+
+    // Restore session from previous visit
+    window._supabase.auth.getSession().then(({ data: { session } }) => {
+      _updateAuthUI(session ? session.user : null);
+    });
+  }
+
   // Detect base path from this script's own URL so absolute links work
   // on both root deployments (/) and subdirectory deployments (/MLP-DB/).
   const _scriptSrc = document.currentScript?.src || '';
@@ -188,6 +229,112 @@
     /* Smooth theme transition — exclude elements that shouldn't animate */
     body { transition: background-color 0.25s ease, color 0.25s ease; }
     img, svg, canvas, video, .mlp-nav-icon, .pony-emoji, .star, .sp { transition: none !important; }
+
+    /* ── Auth UI ── */
+    #mlp-auth-wrap { display:flex; align-items:center; }
+
+    #mlp-login-btn {
+      display:flex; align-items:center; gap:5px;
+      background:rgba(255,255,255,0.15); border:1.5px solid rgba(255,255,255,0.3);
+      color:#fff; border-radius:9px; padding:5px 11px;
+      font-size:0.75rem; font-weight:700; font-family:'Nunito','Prompt',sans-serif;
+      cursor:pointer; white-space:nowrap; flex-shrink:0;
+      transition:background 0.2s, border-color 0.2s;
+    }
+    #mlp-login-btn:hover { background:rgba(255,255,255,0.25); border-color:rgba(255,255,255,0.5); }
+    @media (max-width:640px) { #mlp-login-btn { padding:3px 8px; font-size:0.68rem; } }
+
+    #mlp-user-wrap { position:relative; display:flex; align-items:center; }
+    #mlp-user-btn {
+      display:flex; align-items:center; gap:6px;
+      background:rgba(255,255,255,0.12); border:1.5px solid rgba(255,255,255,0.25);
+      color:#fff; border-radius:9px; padding:4px 9px 4px 4px;
+      font-size:0.75rem; font-weight:700; font-family:'Nunito','Prompt',sans-serif;
+      cursor:pointer; white-space:nowrap; transition:background 0.2s;
+    }
+    #mlp-user-btn:hover { background:rgba(255,255,255,0.22); }
+    .mlp-avatar {
+      width:28px; height:28px; border-radius:50%;
+      background:linear-gradient(135deg,#a855f7,#ec4899);
+      display:flex; align-items:center; justify-content:center;
+      font-size:0.72rem; font-weight:900; color:#fff;
+      overflow:hidden; flex-shrink:0;
+    }
+    .mlp-avatar img { width:100%; height:100%; object-fit:cover; }
+    .mlp-username { max-width:80px; overflow:hidden; text-overflow:ellipsis; }
+    @media (max-width:640px) { .mlp-username { display:none; } }
+
+    #mlp-user-dropdown {
+      display:none; position:absolute; top:calc(100%+6px); right:0;
+      background:var(--bg-card,#1a0f35); border:1px solid var(--border,#3a2560);
+      border-radius:10px; min-width:140px; padding:5px;
+      box-shadow:0 8px 28px rgba(0,0,0,0.6); z-index:600;
+    }
+    #mlp-user-dropdown.open { display:block; }
+    .mlp-dd-item {
+      display:block; width:100%; text-align:left;
+      padding:7px 11px; border-radius:7px; border:none;
+      background:none; color:var(--text,#f0e8ff);
+      font-size:0.78rem; font-weight:700; font-family:'Nunito','Prompt',sans-serif;
+      cursor:pointer; white-space:nowrap;
+    }
+    .mlp-dd-item:hover { background:rgba(255,255,255,0.08); }
+    .mlp-dd-item.danger { color:#f87171; }
+
+    /* ── Login modal ── */
+    #mlp-login-modal {
+      display:none; position:fixed; inset:0; z-index:700;
+      background:rgba(0,0,0,0.78); align-items:center; justify-content:center;
+      padding:20px;
+    }
+    #mlp-login-modal.open { display:flex; }
+    #mlp-login-box {
+      background:var(--bg-card,#1a0f35); border:1px solid var(--border,#3a2560);
+      border-radius:16px; padding:24px 20px; width:100%; max-width:340px;
+      box-shadow:0 16px 48px rgba(0,0,0,0.7);
+    }
+    .mlp-login-title {
+      font-family:'Fredoka One',cursive; font-size:1.2rem;
+      color:var(--text,#f0e8ff); text-align:center; margin-bottom:6px;
+    }
+    .mlp-login-sub {
+      font-size:0.72rem; color:var(--text-muted,#9b8bbf);
+      text-align:center; margin-bottom:18px;
+    }
+    .mlp-oauth-btn {
+      display:flex; align-items:center; gap:10px;
+      width:100%; padding:10px 14px; margin-bottom:8px;
+      border-radius:10px; border:1.5px solid var(--border,#3a2560);
+      background:var(--bg-surface,#221545); color:var(--text,#f0e8ff);
+      font-size:0.82rem; font-weight:700; font-family:'Nunito','Prompt',sans-serif;
+      cursor:pointer; transition:background 0.2s, border-color 0.2s;
+    }
+    .mlp-oauth-btn:hover { background:rgba(255,255,255,0.06); border-color:var(--accent,#a855f7); }
+    .mlp-oauth-icon { font-size:1.1rem; line-height:1; flex-shrink:0; }
+    .mlp-login-cancel {
+      display:block; width:100%; padding:8px; margin-top:4px;
+      border:none; background:none; color:var(--text-muted,#9b8bbf);
+      font-size:0.75rem; font-family:'Nunito','Prompt',sans-serif;
+      cursor:pointer; text-align:center; border-radius:8px;
+    }
+    .mlp-login-cancel:hover { background:rgba(255,255,255,0.05); color:var(--text,#f0e8ff); }
+
+    /* ── Sync banner ── */
+    #mlp-sync-banner {
+      position:fixed; top:var(--nav-h,56px); left:0; right:0; z-index:490;
+      background:linear-gradient(90deg,#4a0fa8,#6b21c8,#4a0fa8);
+      color:rgba(255,255,255,0.92); font-size:0.75rem; font-weight:700;
+      font-family:'Nunito','Prompt',sans-serif;
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      padding:7px 16px; cursor:pointer;
+      box-shadow:0 2px 12px rgba(0,0,0,0.3);
+    }
+    #mlp-sync-banner:hover { background:linear-gradient(90deg,#5b1fa8,#7c2fd4,#5b1fa8); }
+    #mlp-banner-close {
+      background:none; border:none; color:rgba(255,255,255,0.7);
+      font-size:1rem; cursor:pointer; padding:0 2px; line-height:1; flex-shrink:0;
+    }
+    #mlp-banner-close:hover { color:#fff; }
   `;
 
   /* ── DARK MODE HELPERS ───────────────────────────────────── */
@@ -247,6 +394,7 @@
           <div class="mlp-nav-div"></div>
           <div class="mlp-nav-links">${buildLinks(NAV_LINKS)}</div>
           <div class="mlp-nav-right">
+            <div id="mlp-auth-wrap"></div>
             <a id="mlp-feedback-btn" href="https://m.me/Kiettisak.v" target="_blank" rel="noopener" aria-label="Feedback" title="Feedback">💬</a>
             <span class="mlp-theme-label" id="mlp-theme-label"></span>
             <button id="mlp-theme-btn" aria-label="Toggle dark mode"></button>
@@ -291,7 +439,168 @@
     }
     _syncNavH();
     window.addEventListener('resize', _syncNavH);
+
+    // Inject login modal into body
+    _injectLoginModal();
+
+    // Inject sync banner (only when logged out, dismissible per session)
+    _injectSyncBanner();
+
+    // Render initial auth state from cached session while Supabase loads
+    const _cached = localStorage.getItem('dreamtcg-session');
+    if (_cached) {
+      try { _updateAuthUI(JSON.parse(_cached).user); } catch(e) {}
+    } else {
+      _updateAuthUI(null);
+    }
+
+    // Close user dropdown on outside click
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#mlp-user-wrap')) {
+        const dd = document.getElementById('mlp-user-dropdown');
+        if (dd) dd.classList.remove('open');
+      }
+    });
   }
+
+  /* ── AUTH UI ─────────────────────────────────────────── */
+  function _updateAuthUI(user) {
+    const wrap = document.getElementById('mlp-auth-wrap');
+    if (!wrap) return;
+    const banner = document.getElementById('mlp-sync-banner');
+
+    if (!user) {
+      wrap.innerHTML = `<button id="mlp-login-btn" onclick="_openLoginModal()">🔑 เข้าสู่ระบบ</button>`;
+      // Show banner if not dismissed this session
+      if (banner && !sessionStorage.getItem('mlp-banner-dismissed')) {
+        banner.style.display = '';
+        _syncNavHBanner();
+      }
+    } else {
+      const name  = (user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User').slice(0, 12);
+      const avatar = user.user_metadata?.avatar_url || '';
+      const initials = name.charAt(0).toUpperCase();
+      wrap.innerHTML = `
+        <div id="mlp-user-wrap">
+          <button id="mlp-user-btn" onclick="_toggleUserMenu()">
+            <span class="mlp-avatar">${avatar
+              ? `<img src="${avatar}" alt="${initials}" onerror="this.style.display='none';this.parentNode.textContent='${initials}'">`
+              : initials
+            }</span>
+            <span class="mlp-username">${name}</span>
+            <span style="font-size:0.6rem;opacity:0.7;">▼</span>
+          </button>
+          <div id="mlp-user-dropdown">
+            <button class="mlp-dd-item" onclick="_logOut()">ออกจากระบบ</button>
+          </div>
+        </div>`;
+      // Hide banner when logged in
+      if (banner) banner.style.display = 'none';
+      _syncNavHBanner();
+    }
+  }
+
+  function _toggleUserMenu() {
+    const dd = document.getElementById('mlp-user-dropdown');
+    if (dd) dd.classList.toggle('open');
+  }
+
+  function _openLoginModal() {
+    const m = document.getElementById('mlp-login-modal');
+    if (m) m.classList.add('open');
+  }
+
+  function _closeLoginModal() {
+    const m = document.getElementById('mlp-login-modal');
+    if (m) m.classList.remove('open');
+  }
+
+  function _loginWith(provider) {
+    const sb = window._supabase;
+    if (!sb) { alert('ระบบ Auth ยังไม่พร้อม กรุณารอสักครู่'); return; }
+    sb.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: window.location.origin + window.location.pathname }
+    });
+    _closeLoginModal();
+  }
+
+  function _logOut() {
+    const sb = window._supabase;
+    if (sb) sb.auth.signOut();
+    localStorage.removeItem('dreamtcg-session');
+    _updateAuthUI(null);
+  }
+
+  function _injectLoginModal() {
+    if (document.getElementById('mlp-login-modal')) return;
+    const el = document.createElement('div');
+    el.id = 'mlp-login-modal';
+    el.onclick = e => { if (e.target === el) _closeLoginModal(); };
+    el.innerHTML = `
+      <div id="mlp-login-box">
+        <div class="mlp-login-title">🦄 เข้าสู่ระบบ</div>
+        <div class="mlp-login-sub">ซิงก์เด็คของคุณไว้บน cloud</div>
+        <button class="mlp-oauth-btn" onclick="_loginWith('google')">
+          <span class="mlp-oauth-icon">🔵</span> เข้าสู่ระบบด้วย Google
+        </button>
+        <button class="mlp-oauth-btn" onclick="_loginWith('facebook')">
+          <span class="mlp-oauth-icon">🔷</span> เข้าสู่ระบบด้วย Facebook
+        </button>
+        <button class="mlp-oauth-btn" onclick="_loginWith('twitter')">
+          <span class="mlp-oauth-icon">⬛</span> เข้าสู่ระบบด้วย X
+        </button>
+        <button class="mlp-login-cancel" onclick="_closeLoginModal()">ยกเลิก</button>
+      </div>`;
+    document.body.appendChild(el);
+  }
+
+  function _injectSyncBanner() {
+    if (document.getElementById('mlp-sync-banner')) return;
+    if (sessionStorage.getItem('mlp-banner-dismissed')) return;
+    const el = document.createElement('div');
+    el.id = 'mlp-sync-banner';
+    el.style.display = 'none'; // shown by _updateAuthUI when logged out
+    el.onclick = _openLoginModal;
+    el.innerHTML = `ล็อกอินเพื่อซิงก์เด็คของคุณไว้ออนไลน์ →
+      <button id="mlp-banner-close" onclick="_dismissBanner(event)" title="ปิด">✕</button>`;
+    // Insert after nav
+    const nav = document.getElementById('mlp-nav');
+    if (nav && nav.nextSibling) {
+      document.body.insertBefore(el, nav.nextSibling);
+    } else {
+      document.body.appendChild(el);
+    }
+    _syncNavHBanner();
+  }
+
+  function _dismissBanner(e) {
+    if (e) e.stopPropagation();
+    sessionStorage.setItem('mlp-banner-dismissed', '1');
+    const el = document.getElementById('mlp-sync-banner');
+    if (el) el.style.display = 'none';
+    _syncNavHBanner();
+  }
+
+  // Adjust body padding-top to account for banner height
+  function _syncNavHBanner() {
+    requestAnimationFrame(() => {
+      const nav    = document.getElementById('mlp-nav');
+      const banner = document.getElementById('mlp-sync-banner');
+      if (!nav) return;
+      const navH    = nav.getBoundingClientRect().height;
+      const bannerH = (banner && banner.style.display !== 'none')
+        ? banner.getBoundingClientRect().height : 0;
+      document.documentElement.style.setProperty('--nav-h', (navH + bannerH) + 'px');
+    });
+  }
+
+  // Expose auth helpers so inline onclick attrs work
+  window._openLoginModal  = _openLoginModal;
+  window._closeLoginModal = _closeLoginModal;
+  window._loginWith       = _loginWith;
+  window._logOut          = _logOut;
+  window._dismissBanner   = _dismissBanner;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', inject);
