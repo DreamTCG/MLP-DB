@@ -23,6 +23,14 @@
 <!-- Canonical URL -->
 <link rel="canonical" href="https://dreamtcg.github.io/MLP-DB/">
 
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#7b2ff7">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/icon-192.png">
+
 <!-- Vercel Web Analytics -->
 <script defer src="/_vercel/insights/script.js"></script>
 
@@ -3054,6 +3062,14 @@ function closeTestDraw() {
     </div>
   </div>
 </div>
+
+<!-- Service Worker registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+      .catch(e => console.warn('SW registration failed:', e));
+  }
+</script>
 
 </body>
 </html>
