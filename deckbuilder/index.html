@@ -736,7 +736,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
     <!-- Deck header bar -->
     <div class="deck-hdr">
       <span style="font-family:var(--font-head);font-size:1rem;color:var(--purple-l);white-space:nowrap;">🃏 Deck</span>
-      <input class="deck-name-input" id="deck-name" placeholder="Deck name..." value="My Deck">
+      <input class="deck-name-input" id="deck-name" placeholder="Deck name..." value="My Deck" oninput="scheduleAutoSave()">
       <div id="color-lock-indicator"></div>
       <button class="hdr-btn danger" onclick="clearDeck()">🗑 Clear</button>
       <button class="hdr-btn primary" onclick="snapshot()">📸 Snapshot</button>
@@ -992,6 +992,101 @@ const state = {
   library: [], sortAsc: false,
   mainSortMode: 'rarity' // 'rarity' | 'cost-asc' | 'cost-desc'
 };
+
+// ═══════════════════════════════════════════════════════
+// INDEXEDDB — local deck persistence
+// ═══════════════════════════════════════════════════════
+let _db = null;
+let _currentDeckId = null;
+let _autoSaveTimer = null;
+
+function _openDB() {
+  if (_db) return Promise.resolve(_db);
+  return new Promise((res, rej) => {
+    const req = indexedDB.open('dreamtcg', 1);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      const store = db.createObjectStore('decks', { keyPath: 'id' });
+      store.createIndex('name', 'name', { unique: true });
+      store.createIndex('updated_at', 'updated_at');
+    };
+    req.onsuccess = e => { _db = e.target.result; res(_db); };
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+
+async function dbGetAllDecks() {
+  const db = await _openDB();
+  return new Promise((res, rej) => {
+    const req = db.transaction('decks', 'readonly').objectStore('decks').getAll();
+    req.onsuccess = () => res((req.result || []).sort((a, b) => a.name.localeCompare(b.name)));
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+
+async function dbGetDeck(id) {
+  const db = await _openDB();
+  return new Promise((res, rej) => {
+    const req = db.transaction('decks', 'readonly').objectStore('decks').get(id);
+    req.onsuccess = () => res(req.result);
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+
+async function dbSaveDeck(deck) {
+  const db = await _openDB();
+  const now = new Date().toISOString();
+  const rec = {
+    id:         deck.id || crypto.randomUUID(),
+    name:       (deck.name || 'My Deck').slice(0, 30),
+    cards_json: { mc: deck.mc, main: deck.main, scene: deck.scene, story: deck.story },
+    created_at: deck.created_at || now,
+    updated_at: now,
+  };
+  return new Promise((res, rej) => {
+    const req = db.transaction('decks', 'readwrite').objectStore('decks').put(rec);
+    req.onsuccess = () => res(rec);
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+
+async function dbDeleteDeck(id) {
+  const db = await _openDB();
+  return new Promise((res, rej) => {
+    const req = db.transaction('decks', 'readwrite').objectStore('decks').delete(id);
+    req.onsuccess = () => res();
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+
+async function dbRenameDeck(id, name) {
+  const rec = await dbGetDeck(id);
+  if (!rec) return;
+  rec.name = name.slice(0, 30);
+  rec.updated_at = new Date().toISOString();
+  return dbSaveDeck(rec);
+}
+
+function scheduleAutoSave() {
+  clearTimeout(_autoSaveTimer);
+  _autoSaveTimer = setTimeout(_autoSaveNow, 1000);
+}
+
+async function _autoSaveNow() {
+  const name = (($('deck-name') || {}).value || 'My Deck').slice(0, 30);
+  const deck = { id: _currentDeckId, name, mc: state.mc, main: state.main, scene: state.scene, story: state.story };
+  try {
+    const rec = await dbSaveDeck(deck);
+    _currentDeckId = rec.id;
+    if (typeof _refreshDeckDropdown === 'function') _refreshDeckDropdown();
+    if (window._supabase && typeof cloudSaveDeck === 'function') {
+      cloudSaveDeck(rec).catch(e => console.warn('Cloud sync fail:', e));
+    }
+  } catch (err) {
+    if (err.name === 'ConstraintError') toast('⚠ ชื่อเด็คซ้ำ', 'warn');
+    else console.warn('Auto-save failed:', err);
+  }
+}
 
 // ═══════════════════════════════════════════════════════
 // HELPERS
@@ -1376,12 +1471,14 @@ function addCard(card) {
   const type=card.type;
   if (type==='Main Character') {
     if (state.mc) { toast('⚠ Already have a Main Character','warn'); return; }
-    state.mc={...card}; renderMC(); updateSidebar(); toast(`⭐ ${card.name}`,'ok'); return;
+    state.mc={...card}; renderMC(); updateSidebar(); toast(`⭐ ${card.name}`,'ok');
+    scheduleAutoSave(); return;
   }
   if (type==='Scene') {
     const ex=state.scene.find(c=>c.id===card.id);
     if(ex) ex.qty++; else state.scene.push({...card,qty:1});
-    renderScene(); updateSidebar(); toast(`🎭 ${card.name}`,'ok'); return;
+    renderScene(); updateSidebar(); toast(`🎭 ${card.name}`,'ok');
+    scheduleAutoSave(); return;
   }
   if (type==='Story') {
     // Auto-fill by matching story name (card.name) — same title = same story set
@@ -1397,6 +1494,7 @@ function addCard(card) {
     if (added) {
       renderStory(); updateSidebar();
       toast(`📖 ${storyName} — ${added} tier(s) added`,'ok');
+      scheduleAutoSave();
     } else {
       toast('⚠ Story slots already filled','warn');
     }
@@ -1409,7 +1507,7 @@ function addCard(card) {
   if (ex) { ex.qty++; }
   else state.main.push({...card,qty:1});
   renderMain(); updateSidebar(); toast(`🃏 ${card.name}`,'ok');
-  renderLibrary();
+  renderLibrary(); scheduleAutoSave();
 }
 function changeQty(zone, id, delta) {
   const arr=state[zone];
@@ -1419,7 +1517,7 @@ function changeQty(zone, id, delta) {
   if(arr[idx].qty<=0) arr.splice(idx,1);
   if(zone==='main') renderMain();
   else renderScene();
-  updateSidebar(); renderLibrary();
+  updateSidebar(); renderLibrary(); scheduleAutoSave();
 }
 function removeCard(zone, id) {
   if(zone==='mc'){state.mc=null;renderMC();}
@@ -1430,13 +1528,14 @@ function removeCard(zone, id) {
     state[zone]=state[zone].filter(c=>c.id!==id);
     if(zone==='main') renderMain(); else renderScene();
   }
-  updateSidebar(); renderLibrary();
+  updateSidebar(); renderLibrary(); scheduleAutoSave();
 }
 function clearDeck() {
   if(!confirm('Clear entire deck?')) return;
   state.mc=null; state.main=[]; state.scene=[]; state.story=[null,null,null,null];
   renderMC(); renderMain(); renderScene(); renderStory(); updateSidebar(); renderLibrary();
   toast('🗑 Deck cleared','ok');
+  scheduleAutoSave();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1664,6 +1763,7 @@ function loadDeck(input) {
       state.story=(data.story||[null,null,null,null]).map(c=>c?{...(libMap[c.id]||c)}:null);
       renderMC(); renderMain(); renderScene(); renderStory(); updateSidebar(); renderLibrary();
       toast('📂 Deck loaded','ok');
+      _currentDeckId = null; scheduleAutoSave();
     } catch { toast('❌ Load failed','err'); }
   };
   reader.readAsText(file); input.value='';
@@ -1748,6 +1848,7 @@ function _parseAndLoadDeckText(text) {
   }
   renderMC(); renderMain(); renderScene(); renderStory(); updateSidebar(); renderLibrary();
   toast(skipped ? `📋 Imported ${added} entries (${skipped} not found)` : `📋 Imported ${added} entries`, skipped ? 'warn' : 'ok');
+  _currentDeckId = null; scheduleAutoSave();
 }
 function openExport() {
   const name=($('deck-name')||{}).value||'My Deck';
@@ -2453,10 +2554,32 @@ function showFileProtocolBanner() {
 // ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   renderMC(); renderMain(); renderScene(); renderStory();
   renderLibrary(); updateSidebar();
-  preloadAssets();
+  await preloadAssets();
+  // After library is ready, restore the most recently updated deck from IndexedDB
+  try {
+    const decks = await dbGetAllDecks();
+    if (decks.length) {
+      // Sort by updated_at desc to get the most recent
+      const last = [...decks].sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''))[0];
+      if (last) {
+        _currentDeckId = last.id;
+        const d = last.cards_json;
+        const libMap = Object.fromEntries(state.library.map(c => [c.id, c]));
+        const restore = c => c ? {...(libMap[c.id] || c), qty: c.qty} : null;
+        state.mc    = d.mc    ? {...(libMap[d.mc.id] || d.mc)} : null;
+        state.main  = (d.main  || []).map(restore).filter(Boolean);
+        state.scene = (d.scene || []).map(restore).filter(Boolean);
+        state.story = (d.story || [null,null,null,null]).map(c => c ? {...(libMap[c.id] || c)} : null);
+        $('deck-name').value = last.name;
+        if ($('deck-name-m')) $('deck-name-m').value = last.name;
+        renderMC(); renderMain(); renderScene(); renderStory(); updateSidebar(); renderLibrary();
+      }
+    }
+    if (typeof _refreshDeckDropdown === 'function') _refreshDeckDropdown();
+  } catch(e) { console.warn('Failed to restore deck from IndexedDB:', e); }
 });
 
 
