@@ -544,9 +544,6 @@
         <button class="mlp-oauth-btn" onclick="_loginWith('google')">
           <span class="mlp-oauth-icon">🔵</span> เข้าสู่ระบบด้วย Google
         </button>
-        <button class="mlp-oauth-btn" onclick="_loginWith('facebook')">
-          <span class="mlp-oauth-icon">🔷</span> เข้าสู่ระบบด้วย Facebook
-        </button>
         <button class="mlp-oauth-btn" onclick="_loginWith('twitter')">
           <span class="mlp-oauth-icon">⬛</span> เข้าสู่ระบบด้วย X
         </button>
