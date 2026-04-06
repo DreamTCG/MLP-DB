@@ -464,7 +464,8 @@
     const banner = document.getElementById('mlp-sync-banner');
 
     if (!user) {
-      wrap.innerHTML = `<button id="mlp-login-btn" onclick="_openLoginModal()">🔑 เข้าสู่ระบบ</button>`;
+      wrap.innerHTML = `<button id="mlp-login-btn">🔑 เข้าสู่ระบบ</button>`;
+      wrap.querySelector('#mlp-login-btn').addEventListener('click', _openLoginModal);
       // Remove any stale dropdown portal
       const stale = document.getElementById('mlp-user-dropdown');
       if (stale) stale.remove();
@@ -479,7 +480,7 @@
       const initials = name.charAt(0).toUpperCase();
       wrap.innerHTML = `
         <div id="mlp-user-wrap">
-          <button id="mlp-user-btn" onclick="_toggleUserMenu()">
+          <button id="mlp-user-btn">
             <span class="mlp-avatar">${avatar
               ? `<img src="${avatar}" alt="${initials}" onerror="this.style.display='none';this.parentNode.textContent='${initials}'">`
               : initials
@@ -488,6 +489,9 @@
             <span style="font-size:0.6rem;opacity:0.7;">▼</span>
           </button>
         </div>`;
+      // Bind click directly — no onclick attr, no window global needed
+      const btn = wrap.querySelector('#mlp-user-btn');
+      btn.addEventListener('click', e => { e.stopPropagation(); _toggleUserMenu(btn); });
       // Ensure portal dropdown exists in body (outside nav stacking context)
       _ensureDropdownPortal();
       // Hide banner when logged in
@@ -500,31 +504,30 @@
     if (document.getElementById('mlp-user-dropdown')) return;
     const dd = document.createElement('div');
     dd.id = 'mlp-user-dropdown';
-    dd.innerHTML = `<button class="mlp-dd-item" onclick="_logOut()">ออกจากระบบ</button>`;
+    const logoutBtn = document.createElement('button');
+    logoutBtn.className = 'mlp-dd-item';
+    logoutBtn.textContent = 'ออกจากระบบ';
+    logoutBtn.addEventListener('click', e => { e.stopPropagation(); _logOut(); });
+    dd.appendChild(logoutBtn);
     document.body.appendChild(dd);
-    // Close on outside click
-    document.addEventListener('click', e => {
-      if (!e.target.closest('#mlp-user-wrap') && !e.target.closest('#mlp-user-dropdown')) {
-        dd.classList.remove('open');
-      }
-    }, { capture: true });
+    // Close when clicking anywhere outside the dropdown
+    document.addEventListener('click', () => dd.classList.remove('open'));
+    // Prevent clicks inside dropdown from propagating to above listener
+    dd.addEventListener('click', e => e.stopPropagation());
   }
 
-  function _toggleUserMenu() {
+  function _toggleUserMenu(btn) {
     const dd = document.getElementById('mlp-user-dropdown');
     if (!dd) return;
     if (dd.classList.contains('open')) {
       dd.classList.remove('open');
       return;
     }
-    // Position below the trigger button
-    const btn = document.getElementById('mlp-user-btn');
-    if (btn) {
-      const r = btn.getBoundingClientRect();
-      dd.style.top  = (r.bottom + 6) + 'px';
-      dd.style.right = (window.innerWidth - r.right) + 'px';
-      dd.style.left  = 'auto';
-    }
+    // Position below the trigger button using fixed coords (escapes any overflow)
+    const r = (btn || document.getElementById('mlp-user-btn')).getBoundingClientRect();
+    dd.style.top   = (r.bottom + 6) + 'px';
+    dd.style.right  = (window.innerWidth - r.right) + 'px';
+    dd.style.left   = 'auto';
     dd.classList.add('open');
   }
 
