@@ -1,12 +1,14 @@
 /**
  * GET /api/decks/[id]
- * Returns: { deck: object, name: string, imageUrl: string|null, createdAt: string }
- * Or 404 if not found.
- *
- * Requires KV_REST_API_URL and KV_REST_API_TOKEN env vars.
+ * Returns: { deck, name, imageUrl, createdAt } or 404
  */
 
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+const redis = new Redis({
+  url:   process.env.KV_REST_API_URL,
+  token: process.env.KV_REST_API_TOKEN,
+});
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -19,11 +21,13 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid id' });
   }
 
-  const data = await kv.get(`deck:${id}`);
+  const raw = await redis.get(`deck:${id}`);
 
-  if (!data) {
+  if (!raw) {
     return res.status(404).json({ error: 'Deck not found' });
   }
+
+  const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
 
   return res.status(200).json(data);
 }
