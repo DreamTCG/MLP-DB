@@ -22,9 +22,9 @@
     // On Vercel: set SUPABASE_URL and SUPABASE_ANON_KEY env vars, then
     // serve nav.js through an edge function that substitutes them, OR
     // just hardcode the public anon key here (it is safe to expose).
-    const SUPABASE_URL = 'rljgoglmdqqzzuoozsfs.supabase.co';
+    const SUPABASE_URL = 'https://rljgoglmdqqzzuoozsfs.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsamdvZ2xtZHFxenp1b296c2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MjE4NjEsImV4cCI6MjA5MDk5Nzg2MX0.zuXAGh_C7dhOdMvN8Y64jOi6ZjvrnvIe6rd5sSo_yU0';
-    if (SUPABASE_URL === 'rljgoglmdqqzzuoozsfs.supabase.co') return; // not configured yet
+    if (SUPABASE_URL === 'SUPABASE_URL_PLACEHOLDER') return; // not configured yet
 
     try {
       window._supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
