@@ -598,6 +598,7 @@
   window._loginWith       = _loginWith;
   window._logOut          = _logOut;
   window._dismissBanner   = _dismissBanner;
+  window._toggleUserMenu  = _toggleUserMenu;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', inject);
