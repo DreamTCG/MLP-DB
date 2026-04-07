@@ -253,6 +253,7 @@
       cursor:pointer; white-space:nowrap; transition:background 0.2s;
     }
     #mlp-user-btn:hover { background:rgba(255,255,255,0.22); }
+    #mlp-user-btn.active { background:rgba(255,255,255,0.28); border-color:rgba(255,255,255,0.5); }
     .mlp-avatar {
       width:28px; height:28px; border-radius:50%;
       background:linear-gradient(135deg,#a855f7,#ec4899);
@@ -262,23 +263,29 @@
     }
     .mlp-avatar img { width:100%; height:100%; object-fit:cover; }
     .mlp-username { max-width:80px; overflow:hidden; text-overflow:ellipsis; }
-    @media (max-width:640px) { .mlp-username { display:none; } }
 
-    /* Dropdown is body-level (portal) so it escapes nav stacking context */
-    #mlp-user-dropdown {
-      display:none; position:fixed;
-      background:var(--bg-card,#1a0f35); border:1px solid var(--border,#3a2560);
-      border-radius:10px; min-width:150px; padding:5px;
-      box-shadow:0 8px 28px rgba(0,0,0,0.6); z-index:800;
+    /* ── User panel: a full-width row that drops below the nav bar ── */
+    #mlp-user-panel {
+      display:none; background:#2d0a5c;
+      border-top:1px solid rgba(255,255,255,0.12);
+      padding:10px 20px; gap:10px;
+      align-items:center; justify-content:flex-end;
+      font-family:'Nunito','Prompt',sans-serif;
     }
-    #mlp-user-dropdown.open { display:block; }
-    .mlp-dd-item {
-      display:block; width:100%; text-align:left;
-      padding:7px 11px; border-radius:7px; border:none;
-      background:none; color:var(--text,#f0e8ff);
-      font-size:0.78rem; font-weight:700; font-family:'Nunito','Prompt',sans-serif;
-      cursor:pointer; white-space:nowrap;
+    #mlp-user-panel.open { display:flex; }
+    .mlp-panel-name {
+      color:rgba(255,255,255,0.85); font-size:0.8rem; font-weight:700;
+      flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
     }
+    .mlp-panel-btn {
+      background:rgba(255,255,255,0.12); border:1.5px solid rgba(255,255,255,0.25);
+      color:#fff; border-radius:8px; padding:5px 13px;
+      font-size:0.75rem; font-weight:700; font-family:'Nunito','Prompt',sans-serif;
+      cursor:pointer; white-space:nowrap; transition:background 0.2s;
+    }
+    .mlp-panel-btn:hover { background:rgba(255,255,255,0.22); }
+    .mlp-panel-btn.danger { border-color:rgba(248,113,113,0.5); color:#fca5a5; }
+    .mlp-panel-btn.danger:hover { background:rgba(248,113,113,0.15); }
     .mlp-dd-item:hover { background:rgba(255,255,255,0.08); }
     .mlp-dd-item.danger { color:#f87171; }
 
@@ -402,6 +409,7 @@
           </div>
           <button class="mlp-nav-burger" id="mlp-burger" aria-label="เมนู">☰</button>
         </div>
+        <div id="mlp-user-panel"></div>
         <div class="mlp-nav-drawer" id="mlp-drawer">
           ${buildLinks(NAV_LINKS)}
         </div>
@@ -462,73 +470,81 @@
     const wrap = document.getElementById('mlp-auth-wrap');
     if (!wrap) return;
     const banner = document.getElementById('mlp-sync-banner');
+    const panel  = document.getElementById('mlp-user-panel');
 
     if (!user) {
-      wrap.innerHTML = `<button id="mlp-login-btn">🔑 เข้าสู่ระบบ</button>`;
-      wrap.querySelector('#mlp-login-btn').addEventListener('click', _openLoginModal);
-      // Remove any stale dropdown portal
-      const stale = document.getElementById('mlp-user-dropdown');
-      if (stale) stale.remove();
+      wrap.innerHTML = '';
+      const loginBtn = document.createElement('button');
+      loginBtn.id = 'mlp-login-btn';
+      loginBtn.textContent = '🔑 เข้าสู่ระบบ';
+      loginBtn.addEventListener('click', _openLoginModal);
+      wrap.appendChild(loginBtn);
+      // Hide user panel
+      if (panel) { panel.classList.remove('open'); panel.innerHTML = ''; }
       // Show banner if not dismissed this session
       if (banner && !sessionStorage.getItem('mlp-banner-dismissed')) {
         banner.style.display = '';
         _syncNavHBanner();
       }
     } else {
-      const name  = (user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User').slice(0, 12);
-      const avatar = user.user_metadata?.avatar_url || '';
+      const fullName = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
+      const name     = fullName.slice(0, 20);
+      const avatar   = user.user_metadata?.avatar_url || '';
       const initials = name.charAt(0).toUpperCase();
-      wrap.innerHTML = `
-        <div id="mlp-user-wrap">
-          <button id="mlp-user-btn">
-            <span class="mlp-avatar">${avatar
-              ? `<img src="${avatar}" alt="${initials}" onerror="this.style.display='none';this.parentNode.textContent='${initials}'">`
-              : initials
-            }</span>
-            <span class="mlp-username">${name}</span>
-            <span style="font-size:0.6rem;opacity:0.7;">▼</span>
-          </button>
-        </div>`;
-      // Bind click directly — no onclick attr, no window global needed
-      const btn = wrap.querySelector('#mlp-user-btn');
-      btn.addEventListener('click', e => { e.stopPropagation(); _toggleUserMenu(btn); });
-      // Ensure portal dropdown exists in body (outside nav stacking context)
-      _ensureDropdownPortal();
+
+      // Build avatar element
+      const avatarEl = document.createElement('span');
+      avatarEl.className = 'mlp-avatar';
+      if (avatar) {
+        const img = document.createElement('img');
+        img.src = avatar; img.alt = initials;
+        img.onerror = () => { img.style.display = 'none'; avatarEl.textContent = initials; };
+        avatarEl.appendChild(img);
+      } else {
+        avatarEl.textContent = initials;
+      }
+
+      // Build trigger button
+      const btn = document.createElement('button');
+      btn.id = 'mlp-user-btn';
+      const chevron = document.createElement('span');
+      chevron.style.cssText = 'font-size:0.6rem;opacity:0.7;';
+      chevron.textContent = '▼';
+      btn.appendChild(avatarEl);
+      btn.appendChild(chevron);
+
+      wrap.innerHTML = '';
+      const userWrap = document.createElement('div');
+      userWrap.id = 'mlp-user-wrap';
+      userWrap.appendChild(btn);
+      wrap.appendChild(userWrap);
+
+      // Populate user panel (row below nav)
+      if (panel) {
+        panel.innerHTML = '';
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'mlp-panel-name';
+        nameSpan.textContent = '👤 ' + name;
+        const logoutBtn = document.createElement('button');
+        logoutBtn.className = 'mlp-panel-btn danger';
+        logoutBtn.textContent = '🚪 ออกจากระบบ';
+        logoutBtn.addEventListener('click', _logOut);
+        panel.appendChild(nameSpan);
+        panel.appendChild(logoutBtn);
+      }
+
+      // Toggle panel on button click
+      btn.addEventListener('click', () => {
+        if (!panel) return;
+        const isOpen = panel.classList.toggle('open');
+        btn.classList.toggle('active', isOpen);
+        _syncNavHBanner();
+      });
+
       // Hide banner when logged in
       if (banner) banner.style.display = 'none';
       _syncNavHBanner();
     }
-  }
-
-  function _ensureDropdownPortal() {
-    if (document.getElementById('mlp-user-dropdown')) return;
-    const dd = document.createElement('div');
-    dd.id = 'mlp-user-dropdown';
-    const logoutBtn = document.createElement('button');
-    logoutBtn.className = 'mlp-dd-item';
-    logoutBtn.textContent = 'ออกจากระบบ';
-    logoutBtn.addEventListener('click', e => { e.stopPropagation(); _logOut(); });
-    dd.appendChild(logoutBtn);
-    document.body.appendChild(dd);
-    // Close when clicking anywhere outside the dropdown
-    document.addEventListener('click', () => dd.classList.remove('open'));
-    // Prevent clicks inside dropdown from propagating to above listener
-    dd.addEventListener('click', e => e.stopPropagation());
-  }
-
-  function _toggleUserMenu(btn) {
-    const dd = document.getElementById('mlp-user-dropdown');
-    if (!dd) return;
-    if (dd.classList.contains('open')) {
-      dd.classList.remove('open');
-      return;
-    }
-    // Position below the trigger button using fixed coords (escapes any overflow)
-    const r = (btn || document.getElementById('mlp-user-btn')).getBoundingClientRect();
-    dd.style.top   = (r.bottom + 6) + 'px';
-    dd.style.right  = (window.innerWidth - r.right) + 'px';
-    dd.style.left   = 'auto';
-    dd.classList.add('open');
   }
 
   function _openLoginModal() {
@@ -624,7 +640,6 @@
   window._loginWith       = _loginWith;
   window._logOut          = _logOut;
   window._dismissBanner   = _dismissBanner;
-  window._toggleUserMenu  = _toggleUserMenu;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', inject);
