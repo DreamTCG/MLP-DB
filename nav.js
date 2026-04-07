@@ -38,6 +38,9 @@
           // Small delay so deckbuilder script has time to register _onFirstLogin
           setTimeout(() => window._onFirstLogin(), 500);
         }
+        if (typeof window._onAuthReady === 'function') {
+          setTimeout(() => window._onAuthReady(session), 600);
+        }
       } else {
         localStorage.removeItem('dreamtcg-session');
         _updateAuthUI(null);
@@ -47,6 +50,9 @@
     // Restore session from previous visit
     window._supabase.auth.getSession().then(({ data: { session } }) => {
       _updateAuthUI(session ? session.user : null);
+      if (session && typeof window._onAuthReady === 'function') {
+        setTimeout(() => window._onAuthReady(session), 600);
+      }
     });
   }
 
