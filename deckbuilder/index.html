@@ -1521,6 +1521,32 @@ async function _syncFromCloud() {
 
 window._onAuthReady = _syncFromCloud;
 
+// Called by nav.js on logout — wipe IDB decks and reset deckbuilder state
+window._onLogout = async () => {
+  // Cancel any pending auto-save
+  clearTimeout(_autoSaveTimer);
+  _currentDeckId = null;
+  _cloudSyncBusy = false;
+
+  // Clear all decks from IndexedDB
+  try {
+    const db = await _openDB();
+    await new Promise((res, rej) => {
+      const req = db.transaction('decks', 'readwrite').objectStore('decks').clear();
+      req.onsuccess = res;
+      req.onerror   = e => rej(e.target.error);
+    });
+  } catch(e) { console.warn('[logout] IDB clear failed:', e); }
+
+  // Reset deck state
+  state.mc = null; state.main = []; state.scene = []; state.story = [null,null,null,null];
+  if ($('deck-name'))   $('deck-name').value   = 'My Deck';
+  if ($('deck-name-m')) $('deck-name-m').value = 'My Deck';
+  renderMC(); renderMain(); renderScene(); renderStory(); updateSidebar(); renderLibrary();
+  if (typeof _refreshDeckDropdown === 'function') _refreshDeckDropdown();
+  toast('🔓 ออกจากระบบแล้ว — ล้างเด็คในเครื่องแล้ว', 'ok');
+};
+
 // ═══════════════════════════════════════════════════════
 // DECK SHARE (Task 6)
 // ═══════════════════════════════════════════════════════

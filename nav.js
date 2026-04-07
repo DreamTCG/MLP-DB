@@ -546,6 +546,7 @@
     const sb = window._supabase;
     if (sb) sb.auth.signOut();
     localStorage.removeItem('dreamtcg-session');
+    if (typeof window._onLogout === 'function') window._onLogout();
     _updateAuthUI(null);
   }
 
