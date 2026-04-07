@@ -244,7 +244,6 @@
     #mlp-login-btn:hover { background:rgba(255,255,255,0.25); border-color:rgba(255,255,255,0.5); }
     @media (max-width:640px) { #mlp-login-btn { padding:3px 8px; font-size:0.68rem; } }
 
-    #mlp-user-wrap { display:flex; align-items:center; }
     #mlp-user-btn {
       display:flex; align-items:center; gap:6px;
       background:rgba(255,255,255,0.12); border:1.5px solid rgba(255,255,255,0.25);
@@ -253,7 +252,6 @@
       cursor:pointer; white-space:nowrap; transition:background 0.2s;
     }
     #mlp-user-btn:hover { background:rgba(255,255,255,0.22); }
-    #mlp-user-btn.active { background:rgba(255,255,255,0.28); border-color:rgba(255,255,255,0.5); }
     .mlp-avatar {
       width:28px; height:28px; border-radius:50%;
       background:linear-gradient(135deg,#a855f7,#ec4899);
@@ -262,32 +260,6 @@
       overflow:hidden; flex-shrink:0;
     }
     .mlp-avatar img { width:100%; height:100%; object-fit:cover; }
-    .mlp-username { max-width:80px; overflow:hidden; text-overflow:ellipsis; }
-
-    /* ── User panel: a full-width row that drops below the nav bar ── */
-    #mlp-user-panel {
-      display:none; background:#2d0a5c;
-      border-top:1px solid rgba(255,255,255,0.12);
-      padding:10px 20px; gap:10px;
-      align-items:center; justify-content:flex-end;
-      font-family:'Nunito','Prompt',sans-serif;
-    }
-    #mlp-user-panel.open { display:flex; }
-    .mlp-panel-name {
-      color:rgba(255,255,255,0.85); font-size:0.8rem; font-weight:700;
-      flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-    }
-    .mlp-panel-btn {
-      background:rgba(255,255,255,0.12); border:1.5px solid rgba(255,255,255,0.25);
-      color:#fff; border-radius:8px; padding:5px 13px;
-      font-size:0.75rem; font-weight:700; font-family:'Nunito','Prompt',sans-serif;
-      cursor:pointer; white-space:nowrap; transition:background 0.2s;
-    }
-    .mlp-panel-btn:hover { background:rgba(255,255,255,0.22); }
-    .mlp-panel-btn.danger { border-color:rgba(248,113,113,0.5); color:#fca5a5; }
-    .mlp-panel-btn.danger:hover { background:rgba(248,113,113,0.15); }
-    .mlp-dd-item:hover { background:rgba(255,255,255,0.08); }
-    .mlp-dd-item.danger { color:#f87171; }
 
     /* ── Login modal ── */
     #mlp-login-modal {
@@ -409,7 +381,7 @@
           </div>
           <button class="mlp-nav-burger" id="mlp-burger" aria-label="เมนู">☰</button>
         </div>
-        <div id="mlp-user-panel"></div>
+        <div class="mlp-nav-drawer" id="mlp-user-drawer"></div>
         <div class="mlp-nav-drawer" id="mlp-drawer">
           ${buildLinks(NAV_LINKS)}
         </div>
@@ -436,6 +408,14 @@
     burger?.addEventListener('click', () => {
       drawer.classList.toggle('open');
       burger.textContent = drawer.classList.contains('open') ? '✕' : '☰';
+    });
+
+    // User menu — event delegation on stable #mlp-auth-wrap (same pattern as burger)
+    document.getElementById('mlp-auth-wrap').addEventListener('click', e => {
+      if (e.target.closest('#mlp-user-btn')) {
+        const ud = document.getElementById('mlp-user-drawer');
+        if (ud) { ud.classList.toggle('open'); _syncNavHBanner(); }
+      }
     });
 
     // Dynamically sync --nav-h to the actual rendered nav height so all
@@ -470,78 +450,42 @@
     const wrap = document.getElementById('mlp-auth-wrap');
     if (!wrap) return;
     const banner = document.getElementById('mlp-sync-banner');
-    const panel  = document.getElementById('mlp-user-panel');
+    const ud     = document.getElementById('mlp-user-drawer');
 
     if (!user) {
-      wrap.innerHTML = '';
-      const loginBtn = document.createElement('button');
-      loginBtn.id = 'mlp-login-btn';
-      loginBtn.textContent = '🔑 เข้าสู่ระบบ';
-      loginBtn.addEventListener('click', _openLoginModal);
-      wrap.appendChild(loginBtn);
-      // Hide user panel
-      if (panel) { panel.classList.remove('open'); panel.innerHTML = ''; }
-      // Show banner if not dismissed this session
+      wrap.innerHTML = '<button id="mlp-login-btn">🔑 เข้าสู่ระบบ</button>';
+      wrap.querySelector('#mlp-login-btn').addEventListener('click', _openLoginModal);
+      if (ud) { ud.classList.remove('open'); ud.innerHTML = ''; }
       if (banner && !sessionStorage.getItem('mlp-banner-dismissed')) {
         banner.style.display = '';
         _syncNavHBanner();
       }
     } else {
-      const fullName = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
-      const name     = fullName.slice(0, 20);
-      const avatar   = user.user_metadata?.avatar_url || '';
-      const initials = name.charAt(0).toUpperCase();
+      const name    = (user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User').slice(0, 20);
+      const avatar  = user.user_metadata?.avatar_url || '';
+      const initial = name.charAt(0).toUpperCase();
+      const avatarHTML = avatar
+        ? `<img src="${avatar}" alt="${initial}" onerror="this.style.display='none';this.parentNode.textContent='${initial}'">`
+        : initial;
 
-      // Build avatar element
-      const avatarEl = document.createElement('span');
-      avatarEl.className = 'mlp-avatar';
-      if (avatar) {
-        const img = document.createElement('img');
-        img.src = avatar; img.alt = initials;
-        img.onerror = () => { img.style.display = 'none'; avatarEl.textContent = initials; };
-        avatarEl.appendChild(img);
-      } else {
-        avatarEl.textContent = initials;
-      }
+      wrap.innerHTML = `<button id="mlp-user-btn"><span class="mlp-avatar">${avatarHTML}</span><span style="font-size:0.6rem;opacity:0.7;margin-left:4px;">▼</span></button>`;
 
-      // Build trigger button
-      const btn = document.createElement('button');
-      btn.id = 'mlp-user-btn';
-      const chevron = document.createElement('span');
-      chevron.style.cssText = 'font-size:0.6rem;opacity:0.7;';
-      chevron.textContent = '▼';
-      btn.appendChild(avatarEl);
-      btn.appendChild(chevron);
-
-      wrap.innerHTML = '';
-      const userWrap = document.createElement('div');
-      userWrap.id = 'mlp-user-wrap';
-      userWrap.appendChild(btn);
-      wrap.appendChild(userWrap);
-
-      // Populate user panel (row below nav)
-      if (panel) {
-        panel.innerHTML = '';
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'mlp-panel-name';
-        nameSpan.textContent = '👤 ' + name;
+      if (ud) {
+        ud.innerHTML = '';
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 16px;gap:12px;';
+        const nameEl = document.createElement('span');
+        nameEl.style.cssText = 'color:rgba(255,255,255,0.85);font-size:0.82rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+        nameEl.textContent = '👤 ' + name;
         const logoutBtn = document.createElement('button');
-        logoutBtn.className = 'mlp-panel-btn danger';
         logoutBtn.textContent = '🚪 ออกจากระบบ';
+        logoutBtn.style.cssText = 'background:rgba(248,113,113,0.15);border:1.5px solid rgba(248,113,113,0.4);color:#fca5a5;border-radius:8px;padding:5px 12px;font-size:0.75rem;font-weight:700;font-family:Nunito,Prompt,sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;';
         logoutBtn.addEventListener('click', _logOut);
-        panel.appendChild(nameSpan);
-        panel.appendChild(logoutBtn);
+        row.appendChild(nameEl);
+        row.appendChild(logoutBtn);
+        ud.appendChild(row);
       }
 
-      // Toggle panel on button click
-      btn.addEventListener('click', () => {
-        if (!panel) return;
-        const isOpen = panel.classList.toggle('open');
-        btn.classList.toggle('active', isOpen);
-        _syncNavHBanner();
-      });
-
-      // Hide banner when logged in
       if (banner) banner.style.display = 'none';
       _syncNavHBanner();
     }
