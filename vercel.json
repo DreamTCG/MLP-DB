@@ -6,6 +6,14 @@
     "KV_REST_API_URL": "https://engaged-colt-93108.upstash.io",
     "BLOB_READ_WRITE_TOKEN": "vercel_blob_rw_NoZsXyBmTCPJbOJh_LASbHp3THiUnl3aoqCI6svyuShFJDb"
   },
+  "headers": [
+    {
+      "source": "/nav.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache" }
+      ]
+    }
+  ],
   "rewrites": [
     { "source": "/deck/:id", "destination": "/deckbuilder/?share=:id" }
   ]
