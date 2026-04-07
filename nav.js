@@ -35,11 +35,11 @@
         localStorage.setItem('dreamtcg-session', JSON.stringify(session));
         _updateAuthUI(session.user);
         if (event === 'SIGNED_IN' && typeof window._onFirstLogin === 'function') {
-          // Small delay so deckbuilder script has time to register _onFirstLogin
           setTimeout(() => window._onFirstLogin(), 500);
         }
-        if (typeof window._onAuthReady === 'function') {
-          setTimeout(() => window._onAuthReady(session), 600);
+        // Only trigger cloud sync on explicit login or initial session restore, not on token refresh
+        if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && typeof window._onAuthReady === 'function') {
+          setTimeout(() => window._onAuthReady(session), 800);
         }
       } else {
         localStorage.removeItem('dreamtcg-session');
@@ -50,8 +50,10 @@
     // Restore session from previous visit
     window._supabase.auth.getSession().then(({ data: { session } }) => {
       _updateAuthUI(session ? session.user : null);
+      // INITIAL_SESSION from onAuthStateChange already covers restored sessions;
+      // only call here when onAuthStateChange won't fire (some edge cases)
       if (session && typeof window._onAuthReady === 'function') {
-        setTimeout(() => window._onAuthReady(session), 600);
+        setTimeout(() => window._onAuthReady(session), 800);
       }
     });
   }

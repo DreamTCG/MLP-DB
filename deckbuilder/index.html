@@ -1450,9 +1450,8 @@ function closeMigrateModal() {
 // Expose for nav.js to call on first login
 window._onFirstLogin = _migrateLocalToCloud;
 
-// ── Cloud → Local sync (called by nav.js whenever a valid session exists) ──
+// ── Cloud → Local sync (called by nav.js on SIGNED_IN / INITIAL_SESSION) ──
 async function _saveCloudDeckToIDB(cd) {
-  // Writes a cloud deck record directly to IDB preserving the original timestamps
   const db = await _openDB();
   const rec = {
     id:         cd.id,
@@ -1468,35 +1467,53 @@ async function _saveCloudDeckToIDB(cd) {
   });
 }
 
+let _cloudSyncBusy = false;
 async function _syncFromCloud() {
-  const cloudDecks = await cloudGetAllDecks();
-  if (!cloudDecks.length) return;
+  if (_cloudSyncBusy) { console.log('[cloud] sync already running, skip'); return; }
+  _cloudSyncBusy = true;
+  try {
+    console.log('[cloud] _syncFromCloud: start');
 
-  const localDecks = await dbGetAllDecks();
-  const localMap   = Object.fromEntries(localDecks.map(d => [d.id, d]));
+    const cloudDecks = await cloudGetAllDecks();
+    console.log('[cloud] fetched', cloudDecks.length, 'deck(s) from cloud');
+    if (!cloudDecks.length) { console.log('[cloud] no cloud decks'); return; }
 
-  let synced = 0;
-  for (const cd of cloudDecks) {
-    const local = localMap[cd.id];
-    // Skip if local copy is same age or newer (avoids overwriting unsaved local changes)
-    if (local && local.updated_at >= cd.updated_at) continue;
-    await _saveCloudDeckToIDB(cd);
-    synced++;
+    const localDecks = await dbGetAllDecks();
+    const localMap   = Object.fromEntries(localDecks.map(d => [d.id, d]));
+    console.log('[cloud] local IDB has', localDecks.length, 'deck(s)');
+
+    let synced = 0;
+    for (const cd of cloudDecks) {
+      const local = localMap[cd.id];
+      if (local && local.updated_at >= cd.updated_at) {
+        console.log('[cloud] skip', cd.name, '(local is same/newer)');
+        continue;
+      }
+      console.log('[cloud] saving to IDB:', cd.name, cd.id);
+      await _saveCloudDeckToIDB(cd);
+      synced++;
+    }
+    console.log('[cloud] synced', synced, 'deck(s) to IDB');
+
+    await _refreshDeckDropdown();
+
+    // Load most-recent cloud deck if nothing is currently open (new device)
+    if (!_currentDeckId) {
+      const sorted = [...cloudDecks].sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''));
+      console.log('[cloud] no deck open — loading most recent:', sorted[0].name);
+      await loadDeckFromDB(sorted[0].id);
+    }
+
+    if (synced > 0) toast(`☁️ โหลดเด็คจาก cloud ${synced} เด็ค`, 'ok');
+    console.log('[cloud] _syncFromCloud: done');
+  } catch (err) {
+    console.error('[cloud] _syncFromCloud error:', err);
+    toast('☁️ โหลดจาก cloud ไม่สำเร็จ: ' + err.message, 'warn');
+  } finally {
+    _cloudSyncBusy = false;
   }
-
-  if (typeof _refreshDeckDropdown === 'function') _refreshDeckDropdown();
-
-  // Load the most-recent cloud deck if nothing is open yet (new device)
-  if (!_currentDeckId && cloudDecks.length) {
-    const sorted = [...cloudDecks].sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''));
-    await loadDeckFromDB(sorted[0].id);
-  }
-
-  if (synced > 0) toast(`☁️ โหลดเด็คจาก cloud ${synced} เด็ค`, 'ok');
-  console.log(`[cloud] _syncFromCloud: ${synced} new/updated decks pulled`);
 }
 
-// Called by nav.js both on restored session and fresh SIGNED_IN
 window._onAuthReady = _syncFromCloud;
 
 // ═══════════════════════════════════════════════════════
