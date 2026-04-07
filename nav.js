@@ -231,23 +231,20 @@
     img, svg, canvas, video, .mlp-nav-icon, .pony-emoji, .star, .sp { transition: none !important; }
 
     /* ── Auth UI ── */
-    #mlp-auth-wrap { display:flex; align-items:center; position:relative; }
+    #mlp-auth-wrap { display:flex; align-items:center; }
 
-    /* ── User account dropdown panel ── */
-    #mlp-user-drawer {
-      position:absolute; top:calc(100% + 8px); right:0;
-      min-width:220px; width:auto;
-      background:#3a0d6e;
-      border:1px solid rgba(255,255,255,0.12);
-      border-radius:12px;
-      box-shadow:0 8px 32px rgba(0,0,0,0.5);
-      padding:6px;
-      z-index:600;
-      flex-direction:column;
-      border-top:none;
-      gap:0;
+    /* ── User account bar (same drawer pattern as hamburger menu) ── */
+    #mlp-user-drawer { flex-direction:row; align-items:center; justify-content:space-between; padding:8px 20px; gap:12px; }
+    #mlp-user-drawer .mlp-user-name { color:rgba(255,255,255,0.85); font-size:0.82rem; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:flex; align-items:center; gap:8px; }
+    #mlp-user-drawer .mlp-user-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+    #mlp-user-logout {
+      background:rgba(248,113,113,0.15); border:1.5px solid rgba(248,113,113,0.4);
+      color:#fca5a5; border-radius:8px; padding:5px 14px;
+      font-size:0.75rem; font-weight:700; font-family:'Nunito','Prompt',sans-serif;
+      cursor:pointer; white-space:nowrap;
+      transition:background 0.2s, border-color 0.2s;
     }
-    #mlp-user-drawer.open { display:flex; }
+    #mlp-user-logout:hover { background:rgba(248,113,113,0.28); border-color:rgba(248,113,113,0.65); }
 
     #mlp-login-btn {
       display:flex; align-items:center; gap:5px;
@@ -390,15 +387,14 @@
           <div class="mlp-nav-div"></div>
           <div class="mlp-nav-links">${buildLinks(NAV_LINKS)}</div>
           <div class="mlp-nav-right">
-            <div id="mlp-auth-wrap">
-              <div id="mlp-user-drawer"></div>
-            </div>
+            <div id="mlp-auth-wrap"></div>
             <a id="mlp-feedback-btn" href="https://m.me/Kiettisak.v" target="_blank" rel="noopener" aria-label="Feedback" title="Feedback">💬</a>
             <span class="mlp-theme-label" id="mlp-theme-label"></span>
             <button id="mlp-theme-btn" aria-label="Toggle dark mode"></button>
           </div>
           <button class="mlp-nav-burger" id="mlp-burger" aria-label="เมนู">☰</button>
         </div>
+        <div class="mlp-nav-drawer" id="mlp-user-drawer"></div>
         <div class="mlp-nav-drawer" id="mlp-drawer">
           ${buildLinks(NAV_LINKS)}
         </div>
@@ -427,20 +423,14 @@
       burger.textContent = drawer.classList.contains('open') ? '✕' : '☰';
     });
 
-    // User menu — event delegation on stable #mlp-auth-wrap (same pattern as burger)
+    // User account bar — same toggle pattern as burger/drawer
     document.getElementById('mlp-auth-wrap').addEventListener('click', e => {
       if (e.target.closest('#mlp-user-btn')) {
         const ud = document.getElementById('mlp-user-drawer');
-        if (ud) { ud.classList.toggle('open'); }
-      }
-    });
-
-    // Close user dropdown when clicking outside
-    document.addEventListener('click', e => {
-      const ud = document.getElementById('mlp-user-drawer');
-      if (!ud || !ud.classList.contains('open')) return;
-      if (!e.target.closest('#mlp-auth-wrap')) {
-        ud.classList.remove('open');
+        if (ud) {
+          ud.classList.toggle('open');
+          _syncNavHBanner();
+        }
       }
     });
 
@@ -473,52 +463,45 @@
 
   /* ── AUTH UI ─────────────────────────────────────────── */
   function _updateAuthUI(user) {
-    const wrap = document.getElementById('mlp-auth-wrap');
+    const wrap   = document.getElementById('mlp-auth-wrap');
     if (!wrap) return;
     const banner = document.getElementById('mlp-sync-banner');
     const ud     = document.getElementById('mlp-user-drawer');
 
-    // Update only the button slot — never touch #mlp-user-drawer so it isn't destroyed
-    let slot = document.getElementById('mlp-auth-btn-slot');
-    if (!slot) {
-      slot = document.createElement('div');
-      slot.id = 'mlp-auth-btn-slot';
-      slot.style.cssText = 'display:contents';
-      wrap.insertBefore(slot, ud);
-    }
-
     if (!user) {
-      slot.innerHTML = '<button id="mlp-login-btn">🔑 เข้าสู่ระบบ</button>';
-      slot.querySelector('#mlp-login-btn').addEventListener('click', _openLoginModal);
+      // Logged out: show login button, hide & clear account bar
+      wrap.innerHTML = '<button id="mlp-login-btn">🔑 เข้าสู่ระบบ</button>';
+      wrap.querySelector('#mlp-login-btn').addEventListener('click', _openLoginModal);
       if (ud) { ud.classList.remove('open'); ud.innerHTML = ''; }
       if (banner && !sessionStorage.getItem('mlp-banner-dismissed')) {
         banner.style.display = '';
-        _syncNavHBanner();
       }
+      _syncNavHBanner();
     } else {
-      const name    = (user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User').slice(0, 20);
+      // Logged in: show avatar button and populate account bar
+      const name    = (user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User').slice(0, 24);
       const avatar  = user.user_metadata?.avatar_url || '';
       const initial = name.charAt(0).toUpperCase();
       const avatarHTML = avatar
         ? `<img src="${avatar}" alt="${initial}" onerror="this.style.display='none';this.parentNode.textContent='${initial}'">`
         : initial;
 
-      slot.innerHTML = `<button id="mlp-user-btn"><span class="mlp-avatar">${avatarHTML}</span><span style="font-size:0.6rem;opacity:0.7;margin-left:4px;">▼</span></button>`;
+      wrap.innerHTML = `<button id="mlp-user-btn"><span class="mlp-avatar">${avatarHTML}</span><span style="font-size:0.6rem;opacity:0.7;margin-left:4px;">▼</span></button>`;
 
       if (ud) {
-        ud.innerHTML = '';
-        const row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 12px;gap:12px;';
-        const nameEl = document.createElement('span');
-        nameEl.style.cssText = 'color:rgba(255,255,255,0.85);font-size:0.82rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
-        nameEl.textContent = '👤 ' + name;
-        const logoutBtn = document.createElement('button');
-        logoutBtn.textContent = '🚪 ออกจากระบบ';
-        logoutBtn.style.cssText = 'background:rgba(248,113,113,0.15);border:1.5px solid rgba(248,113,113,0.4);color:#fca5a5;border-radius:8px;padding:5px 12px;font-size:0.75rem;font-weight:700;font-family:Nunito,Prompt,sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;';
-        logoutBtn.addEventListener('click', () => { ud.classList.remove('open'); _logOut(); });
-        row.appendChild(nameEl);
-        row.appendChild(logoutBtn);
-        ud.appendChild(row);
+        ud.innerHTML = `
+          <div class="mlp-user-name">
+            <span class="mlp-avatar" style="width:24px;height:24px;font-size:0.65rem;">${avatarHTML}</span>
+            👤 ${name}
+          </div>
+          <div class="mlp-user-actions">
+            <button id="mlp-user-logout">🚪 ออกจากระบบ</button>
+          </div>`;
+        ud.querySelector('#mlp-user-logout').addEventListener('click', () => {
+          ud.classList.remove('open');
+          _syncNavHBanner();
+          _logOut();
+        });
       }
 
       if (banner) banner.style.display = 'none';
