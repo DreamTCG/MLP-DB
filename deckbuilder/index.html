@@ -688,7 +688,6 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
     <textarea id="export-text" rows="10" readonly></textarea>
     <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
       <button class="btn btn-primary" onclick="copyExport()">📋 Copy</button>
-      <button class="btn btn-secondary" onclick="downloadExport()">💾 Download JSON</button>
       <button class="btn btn-secondary" onclick="downloadExportTxt()">📄 Download TXT</button>
       <button class="btn btn-secondary" onclick="closeExport()">✕ Close</button>
     </div>
@@ -992,6 +991,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
           </button>
           <div class="deck-dropdown" id="deck-dropdown-m" style="display:none;"></div>
         </div>
+        <button class="imp-btn" onclick="openShareModal()">🔗 แชร์</button>
         <button class="imp-btn" onclick="openExport()">📤 Export</button>
         <button class="imp-btn" onclick="importFromClipboard()">📋 Import Clipboard</button>
         <button class="imp-btn" onclick="testDraw()">🎴 Test Draw</button>
@@ -1119,7 +1119,12 @@ async function dbSaveDeck(deck) {
   const rec = {
     id:         deck.id || crypto.randomUUID(),
     name:       (deck.name || 'My Deck').slice(0, 30),
-    cards_json: { mc: deck.mc, main: deck.main, scene: deck.scene, story: deck.story },
+    cards_json: {
+      mc:    deck.mc ? { id: deck.mc.id, name: deck.mc.name } : null,
+      main:  (deck.main  || []).map(c => ({ id: c.id, name: c.name, qty: c.qty })),
+      scene: (deck.scene || []).map(c => ({ id: c.id, name: c.name, qty: c.qty })),
+      story: (deck.story || [null,null,null,null]).map(c => c ? { id: c.id, name: c.name } : null),
+    },
     created_at: deck.created_at || now,
     updated_at: now,
   };
