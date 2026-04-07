@@ -231,7 +231,23 @@
     img, svg, canvas, video, .mlp-nav-icon, .pony-emoji, .star, .sp { transition: none !important; }
 
     /* ── Auth UI ── */
-    #mlp-auth-wrap { display:flex; align-items:center; }
+    #mlp-auth-wrap { display:flex; align-items:center; position:relative; }
+
+    /* ── User account dropdown panel ── */
+    #mlp-user-drawer {
+      position:absolute; top:calc(100% + 8px); right:0;
+      min-width:220px; width:auto;
+      background:#3a0d6e;
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:12px;
+      box-shadow:0 8px 32px rgba(0,0,0,0.5);
+      padding:6px;
+      z-index:600;
+      flex-direction:column;
+      border-top:none;
+      gap:0;
+    }
+    #mlp-user-drawer.open { display:flex; }
 
     #mlp-login-btn {
       display:flex; align-items:center; gap:5px;
@@ -374,14 +390,15 @@
           <div class="mlp-nav-div"></div>
           <div class="mlp-nav-links">${buildLinks(NAV_LINKS)}</div>
           <div class="mlp-nav-right">
-            <div id="mlp-auth-wrap"></div>
+            <div id="mlp-auth-wrap">
+              <div id="mlp-user-drawer"></div>
+            </div>
             <a id="mlp-feedback-btn" href="https://m.me/Kiettisak.v" target="_blank" rel="noopener" aria-label="Feedback" title="Feedback">💬</a>
             <span class="mlp-theme-label" id="mlp-theme-label"></span>
             <button id="mlp-theme-btn" aria-label="Toggle dark mode"></button>
           </div>
           <button class="mlp-nav-burger" id="mlp-burger" aria-label="เมนู">☰</button>
         </div>
-        <div class="mlp-nav-drawer" id="mlp-user-drawer"></div>
         <div class="mlp-nav-drawer" id="mlp-drawer">
           ${buildLinks(NAV_LINKS)}
         </div>
@@ -414,7 +431,16 @@
     document.getElementById('mlp-auth-wrap').addEventListener('click', e => {
       if (e.target.closest('#mlp-user-btn')) {
         const ud = document.getElementById('mlp-user-drawer');
-        if (ud) { ud.classList.toggle('open'); _syncNavHBanner(); }
+        if (ud) { ud.classList.toggle('open'); }
+      }
+    });
+
+    // Close user dropdown when clicking outside
+    document.addEventListener('click', e => {
+      const ud = document.getElementById('mlp-user-drawer');
+      if (!ud || !ud.classList.contains('open')) return;
+      if (!e.target.closest('#mlp-auth-wrap')) {
+        ud.classList.remove('open');
       }
     });
 
@@ -452,9 +478,18 @@
     const banner = document.getElementById('mlp-sync-banner');
     const ud     = document.getElementById('mlp-user-drawer');
 
+    // Update only the button slot — never touch #mlp-user-drawer so it isn't destroyed
+    let slot = document.getElementById('mlp-auth-btn-slot');
+    if (!slot) {
+      slot = document.createElement('div');
+      slot.id = 'mlp-auth-btn-slot';
+      slot.style.cssText = 'display:contents';
+      wrap.insertBefore(slot, ud);
+    }
+
     if (!user) {
-      wrap.innerHTML = '<button id="mlp-login-btn">🔑 เข้าสู่ระบบ</button>';
-      wrap.querySelector('#mlp-login-btn').addEventListener('click', _openLoginModal);
+      slot.innerHTML = '<button id="mlp-login-btn">🔑 เข้าสู่ระบบ</button>';
+      slot.querySelector('#mlp-login-btn').addEventListener('click', _openLoginModal);
       if (ud) { ud.classList.remove('open'); ud.innerHTML = ''; }
       if (banner && !sessionStorage.getItem('mlp-banner-dismissed')) {
         banner.style.display = '';
@@ -468,19 +503,19 @@
         ? `<img src="${avatar}" alt="${initial}" onerror="this.style.display='none';this.parentNode.textContent='${initial}'">`
         : initial;
 
-      wrap.innerHTML = `<button id="mlp-user-btn"><span class="mlp-avatar">${avatarHTML}</span><span style="font-size:0.6rem;opacity:0.7;margin-left:4px;">▼</span></button>`;
+      slot.innerHTML = `<button id="mlp-user-btn"><span class="mlp-avatar">${avatarHTML}</span><span style="font-size:0.6rem;opacity:0.7;margin-left:4px;">▼</span></button>`;
 
       if (ud) {
         ud.innerHTML = '';
         const row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 16px;gap:12px;';
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 12px;gap:12px;';
         const nameEl = document.createElement('span');
         nameEl.style.cssText = 'color:rgba(255,255,255,0.85);font-size:0.82rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
         nameEl.textContent = '👤 ' + name;
         const logoutBtn = document.createElement('button');
         logoutBtn.textContent = '🚪 ออกจากระบบ';
         logoutBtn.style.cssText = 'background:rgba(248,113,113,0.15);border:1.5px solid rgba(248,113,113,0.4);color:#fca5a5;border-radius:8px;padding:5px 12px;font-size:0.75rem;font-weight:700;font-family:Nunito,Prompt,sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;';
-        logoutBtn.addEventListener('click', _logOut);
+        logoutBtn.addEventListener('click', () => { ud.classList.remove('open'); _logOut(); });
         row.appendChild(nameEl);
         row.appendChild(logoutBtn);
         ud.appendChild(row);
