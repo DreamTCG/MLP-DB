@@ -1535,62 +1535,52 @@ async function openShareModal() {
 
   toast('🔗 กำลังสร้างลิงก์...', 'ok');
 
-  // Step 1: take a snapshot and get it as a data URL (then blob-upload)
-  let imageUrl = null;
-  try {
-    imageUrl = await _snapshotDataUrl();
-  } catch(e) { console.warn('Snapshot failed, sharing without image:', e); }
-
-  // Step 2: Upload image to Vercel Blob (if we have it)
-  let blobImageUrl = null;
-  if (imageUrl) {
-    try {
-      blobImageUrl = await _uploadSnapshotBlob(imageUrl, deckName);
-    } catch(e) { console.warn('Blob upload failed:', e); }
-  }
-
-  // Step 3: POST deck to share API
+  // Step 1: POST deck to share API first (fast — no image needed for the link)
   const deckData = { mc: state.mc, main: state.main, scene: state.scene, story: state.story };
-  let shareId = null;
   try {
     const resp = await fetch('/api/decks/share', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ deck: deckData, name: deckName, imageUrl: blobImageUrl }),
+      body: JSON.stringify({ deck: deckData, name: deckName, imageUrl: null }),
     });
     if (!resp.ok) throw new Error(await resp.text());
     const json = await resp.json();
     _shareUrl = json.url;
-    shareId   = json.id;
   } catch(e) {
     toast('❌ แชร์ไม่สำเร็จ: ' + e.message, 'err');
     return;
   }
 
-  // Step 4: Show share sheet modal
-  const preview = $('share-preview');
-  if (preview) {
-    if (blobImageUrl || imageUrl) {
-      preview.src   = blobImageUrl || imageUrl;
-      preview.style.display = '';
-    } else {
-      preview.style.display = 'none';
-    }
-  }
+  // Step 2: Show modal immediately with the link
   const urlText = $('share-url-text');
   if (urlText) urlText.textContent = _shareUrl;
 
-  // Wire up social share buttons
-  const fbBtn = $('share-fb-btn');
-  if (fbBtn) fbBtn.onclick = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(_shareUrl)}`, '_blank');
+  const preview = $('share-preview');
+  if (preview) { preview.src = ''; preview.style.display = 'none'; }
 
   const xBtn = $('share-x-btn');
   if (xBtn) {
     const text = `เช็คเด็ค MLP TCG ของฉันได้เลย! 🐴✨ #MLPTCG #DreamTCG`;
     xBtn.onclick = () => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(_shareUrl)}`, '_blank');
   }
+  const fbBtn = $('share-fb-btn');
+  if (fbBtn) fbBtn.onclick = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(_shareUrl)}`, '_blank');
 
   $('share-modal').classList.add('open');
+
+  // Step 3: Take snapshot in background and show preview when ready
+  try {
+    const imageUrl = await _snapshotDataUrl();
+    if (imageUrl && preview) {
+      preview.src = imageUrl;
+      preview.style.display = '';
+    }
+    // Upload to Vercel Blob and swap to CDN URL
+    if (imageUrl) {
+      const blobUrl = await _uploadSnapshotBlob(imageUrl, deckName);
+      if (blobUrl && preview) preview.src = blobUrl;
+    }
+  } catch(e) { console.warn('Snapshot failed:', e); }
 }
 
 function closeShareModal() {
