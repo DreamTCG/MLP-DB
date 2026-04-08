@@ -469,21 +469,14 @@ function buildRelatedHTML(card){
   );
   if(altArts.length) sections.push({title:'🌟 Alt Art',cards:altArts});
 
-  // 1. Same pony race
-  const race = PONY_RACES.find(r=>subs.includes(r));
-  if(race){
-    const rel = _library.filter(c=>c.id!==card.id&&(c.subtype||[]).includes(race));
-    if(rel.length) sections.push({title:`🐴 ${race}`,cards:rel.slice(0,20)});
-  }
+  // 1. Character name — subtypes that are not race/pet keywords
+  const charNames = subs.filter(s=>!PONY_RACES.includes(s)&&!PET_RACES.includes(s)&&s!=='Pet'&&s!=='Everyday');
+  charNames.forEach(name=>{
+    const rel = _library.filter(c=>c.id!==card.id&&(c.subtype||[]).includes(name));
+    if(rel.length) sections.push({title:`✨ ${name}`,cards:rel});
+  });
 
-  // 2. Same pet type
-  const pet = PET_RACES.find(r=>subs.includes(r));
-  if(pet){
-    const rel = _library.filter(c=>c.id!==card.id&&(c.subtype||[]).includes(pet));
-    if(rel.length) sections.push({title:`🐾 ${pet}`,cards:rel});
-  }
-
-  // 3. Cards that mention this card's name in their effect text
+  // 2. Cards that mention this card's name in their effect text
   if(card.name){
     const mentioned = _library.filter(c =>
       c.id !== card.id &&
