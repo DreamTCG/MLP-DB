@@ -1581,9 +1581,6 @@ async function openShareModal() {
   const urlText = $('share-url-text');
   if (urlText) urlText.textContent = _shareUrl;
 
-  const preview = $('share-preview');
-  if (preview) { preview.src = ''; preview.style.display = 'none'; }
-
   const xBtn = $('share-x-btn');
   if (xBtn) {
     const text = `เช็คเด็ค MLP TCG ของฉันได้เลย! 🐴✨ #MLPTCG #DreamTCG`;
@@ -1593,20 +1590,6 @@ async function openShareModal() {
   if (fbBtn) fbBtn.onclick = () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(_shareUrl)}`, '_blank');
 
   $('share-modal').classList.add('open');
-
-  // Step 3: Take snapshot in background and show preview when ready
-  try {
-    const imageUrl = await _snapshotDataUrl();
-    if (imageUrl && preview) {
-      preview.src = imageUrl;
-      preview.style.display = '';
-    }
-    // Upload to Vercel Blob and swap to CDN URL
-    if (imageUrl) {
-      const blobUrl = await _uploadSnapshotBlob(imageUrl, deckName);
-      if (blobUrl && preview) preview.src = blobUrl;
-    }
-  } catch(e) { console.warn('Snapshot failed:', e); }
 }
 
 function closeShareModal() {
@@ -1626,110 +1609,6 @@ function copyShareUrl() {
       inp.remove();
       toast('📋 คัดลอกลิงก์แล้ว', 'ok');
     });
-}
-
-// Returns a PNG data-URL of the deck snapshot (reuses existing html2canvas logic)
-function _snapshotDataUrl() {
-  return new Promise((resolve, reject) => {
-    // Re-use the same iframe snapshot approach from snapshot()
-    const CW = 900, CH = 1200, SCALE = 1; // lower scale for upload
-    const deckName = (($('deck-name') || $('deck-name-m') || {}).value || 'My Deck');
-    const mainTotal  = state.main.reduce((s,c) => s + c.qty, 0);
-    const sceneTotal = state.scene.reduce((s,c) => s + c.qty, 0);
-    const sortedMain = sortMainCards(state.main);
-    const TYPE_ICON  = {Character:'🐴',Event:'⚡',Item:'🎁',Scene:'🎭',Story:'📜','Main Character':'⭐'};
-
-    function makeTileHTML(card) {
-      const icon = TYPE_ICON[card.type] || '🃏';
-      return card.imageUrl
-        ? `<div style="width:100%;height:100%;background-image:url('${card.imageUrl}');background-size:cover;background-position:center;"></div>`
-        : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;">${icon}</div>`;
-    }
-
-    function makeGrid(cards, cols, tileH) {
-      let h = '<div style="display:grid;grid-template-columns:repeat('+cols+',1fr);gap:6px;width:100%;">';
-      cards.forEach(c => {
-        h += `<div style="border-radius:6px;overflow:hidden;aspect-ratio:5/7;background:#231548;position:relative;">
-          ${makeTileHTML(c)}
-          ${c.qty>1?`<div style="position:absolute;top:3px;right:3px;background:rgba(109,40,217,0.9);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:800;">${c.qty}</div>`:''}
-        </div>`;
-      });
-      h += '</div>';
-      return h;
-    }
-
-    const snapHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8">
-    <style>*{box-sizing:border-box;margin:0;padding:0;font-family:'Nunito',sans-serif;}</style>
-    </head><body>
-    <div style="width:${CW}px;min-height:${CH}px;background:#0f0820;color:#e8e0ff;padding:24px;border-radius:12px;">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-        <span style="font-size:1.6rem;">🦄</span>
-        <span style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:#a78bfa;">DreamTCG</span>
-        <span style="margin-left:auto;font-size:0.85rem;color:#5a4a8a;">${new Date().toLocaleDateString('th-TH')}</span>
-      </div>
-      <div style="font-size:1.1rem;font-weight:800;color:#e8e0ff;margin-bottom:14px;">🗂 ${deckName}</div>
-      ${state.mc ? `
-      <div style="margin-bottom:14px;">
-        <div style="font-size:0.62rem;color:#9580c8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">⭐ Main Character</div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="width:54px;height:76px;border-radius:6px;overflow:hidden;background:#231548;flex-shrink:0;">
-            ${state.mc.imageUrl?`<div style="width:100%;height:100%;background-image:url('${state.mc.imageUrl}');background-size:cover;background-position:center;"></div>`:`<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:1.5rem;">⭐</div>`}
-          </div>
-          <div>
-            <div style="font-weight:800;font-size:0.95rem;color:#ec4899;">${state.mc.name}</div>
-            <div style="font-size:0.68rem;color:#9580c8;">${state.mc.rarity||''} · ${state.mc.color||''}</div>
-          </div>
-        </div>
-      </div>` : ''}
-      <div style="margin-bottom:12px;">
-        <div style="font-size:0.62rem;color:#9580c8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">🃏 Main Deck — ${mainTotal}/50</div>
-        ${makeGrid(sortedMain, 9, 0)}
-      </div>
-      ${state.scene.length ? `
-      <div style="margin-bottom:12px;">
-        <div style="font-size:0.62rem;color:#9580c8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">🎭 Scene — ${sceneTotal}</div>
-        ${makeGrid(state.scene, 9, 0)}
-      </div>` : ''}
-    </div></body></html>`;
-
-    const iframe = document.createElement('iframe');
-    iframe.style.cssText = `position:fixed;left:-9999px;top:-9999px;width:${CW}px;height:${CH}px;border:none;`;
-    document.body.appendChild(iframe);
-    iframe.onload = () => {
-      setTimeout(() => {
-        html2canvas(iframe.contentDocument.body.firstElementChild, {
-          backgroundColor: null, scale: SCALE,
-          useCORS: true, allowTaint: true, logging: false,
-          width: CW, height: CH, windowWidth: CW, windowHeight: CH,
-        }).then(canvas => {
-          document.body.removeChild(iframe);
-          resolve(canvas.toDataURL('image/jpeg', 0.82));
-        }).catch(e => { document.body.removeChild(iframe); reject(e); });
-      }, 400);
-    };
-    iframe.contentDocument.open();
-    iframe.contentDocument.write(snapHTML);
-    iframe.contentDocument.close();
-  });
-}
-
-// Upload base64 data-URL to Vercel Blob and return public URL
-async function _uploadSnapshotBlob(dataUrl, deckName) {
-  // Convert data-URL to Blob
-  const res = await fetch(dataUrl);
-  const blob = await res.blob();
-  const safeName = deckName.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 40);
-  const filename = `deck_${safeName}_${Date.now()}.jpg`;
-
-  // Vercel Blob client-side upload
-  const blobRes = await fetch(`/api/blob-upload?filename=${encodeURIComponent(filename)}`, {
-    method: 'POST',
-    body: blob,
-    headers: { 'Content-Type': 'image/jpeg' },
-  });
-  if (!blobRes.ok) throw new Error('Blob upload failed');
-  const { url } = await blobRes.json();
-  return url;
 }
 
 // ── Shared deck detection: handle ?share=<id> URL param ───
@@ -3446,7 +3325,6 @@ function closeTestDraw() {
 <div class="modal-overlay" id="share-modal" onclick="closeShareModal()">
   <div class="modal-box" onclick="event.stopPropagation()" style="max-width:400px;">
     <div class="modal-title">🔗 แชร์เด็ค</div>
-    <img id="share-preview" style="width:100%;border-radius:10px;margin-bottom:12px;max-height:220px;object-fit:cover;" src="" alt="Deck snapshot">
     <div id="share-url-text" style="font-size:0.72rem;color:var(--muted);text-align:center;margin-bottom:14px;word-break:break-all;background:var(--surface2);padding:8px 12px;border-radius:8px;border:1px solid var(--border2);"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
       <button class="btn" onclick="copyShareUrl()"

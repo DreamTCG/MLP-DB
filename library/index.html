@@ -462,6 +462,14 @@ function buildRelatedHTML(card){
   const subs = card.subtype||[];
   let sections = [];
 
+  // 0. Alt art versions (same name, one is alt rarity)
+  const isAlt = ALT_RARITIES_SET.has(card.rarity);
+  const altArts = _library.filter(c =>
+    c.id !== card.id && c.name === card.name &&
+    (isAlt || ALT_RARITIES_SET.has(c.rarity))
+  );
+  if(altArts.length) sections.push({title:'🌟 Alt Art',cards:altArts});
+
   // 1. Same character name (e.g., "Twilight Sparkle" in subtype)
   const charNames = subs.filter(s=>!PONY_RACES.includes(s)&&!PET_RACES.includes(s)&&s!=='Pet'&&s!=='Everyday');
   charNames.forEach(name=>{
@@ -482,6 +490,21 @@ function buildRelatedHTML(card){
     const rel = _library.filter(c=>c.id!==card.id&&(c.subtype||[]).includes(pet));
     if(rel.length) sections.push({title:`🐾 ${pet}`,cards:rel});
   }
+
+  // 4. Cards that mention this card's name in their effect text
+  if(card.name){
+    const mentioned = _library.filter(c =>
+      c.id !== card.id &&
+      ((c.ability||'').includes(card.name) || (c.ability_th||'').includes(card.name))
+    );
+    if(mentioned.length) sections.push({title:`📖 กล่าวถึง "${card.name}"`,cards:mentioned});
+  }
+
+  // 5. Same card name (different IDs, non-alt)
+  const sameName = _library.filter(c =>
+    c.id !== card.id && c.name === card.name && !ALT_RARITIES_SET.has(c.rarity) && !isAlt
+  );
+  if(sameName.length) sections.push({title:`🔄 ชื่อเดียวกัน`,cards:sameName});
 
   if(!sections.length) return '';
   return sections.map(sec=>`
