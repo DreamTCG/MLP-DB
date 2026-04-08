@@ -462,49 +462,35 @@ function buildRelatedHTML(card){
   const subs = card.subtype||[];
   let sections = [];
 
-  // 0. Alt art versions (same name, one is alt rarity)
-  const isAlt = ALT_RARITIES_SET.has(card.rarity);
+  // 0. Alt art — same base ID (strip leading ※)
+  const baseId = card.id.replace(/^※/, '');
   const altArts = _library.filter(c =>
-    c.id !== card.id && c.name === card.name &&
-    (isAlt || ALT_RARITIES_SET.has(c.rarity))
+    c.id !== card.id && c.id.replace(/^※/, '') === baseId
   );
   if(altArts.length) sections.push({title:'🌟 Alt Art',cards:altArts});
 
-  // 1. Same character name (e.g., "Twilight Sparkle" in subtype)
-  const charNames = subs.filter(s=>!PONY_RACES.includes(s)&&!PET_RACES.includes(s)&&s!=='Pet'&&s!=='Everyday');
-  charNames.forEach(name=>{
-    const rel = _library.filter(c=>c.id!==card.id&&(c.subtype||[]).includes(name));
-    if(rel.length) sections.push({title:`✨ ${name}`,cards:rel});
-  });
-
-  // 2. Same pony race
+  // 1. Same pony race
   const race = PONY_RACES.find(r=>subs.includes(r));
   if(race){
     const rel = _library.filter(c=>c.id!==card.id&&(c.subtype||[]).includes(race));
     if(rel.length) sections.push({title:`🐴 ${race}`,cards:rel.slice(0,20)});
   }
 
-  // 3. Same pet type
+  // 2. Same pet type
   const pet = PET_RACES.find(r=>subs.includes(r));
   if(pet){
     const rel = _library.filter(c=>c.id!==card.id&&(c.subtype||[]).includes(pet));
     if(rel.length) sections.push({title:`🐾 ${pet}`,cards:rel});
   }
 
-  // 4. Cards that mention this card's name in their effect text
+  // 3. Cards that mention this card's name in their effect text
   if(card.name){
     const mentioned = _library.filter(c =>
       c.id !== card.id &&
       ((c.ability||'').includes(card.name) || (c.ability_th||'').includes(card.name))
     );
-    if(mentioned.length) sections.push({title:`📖 กล่าวถึง "${card.name}"`,cards:mentioned});
+    if(mentioned.length) sections.push({title:`📖 Related to "${card.name}"`,cards:mentioned});
   }
-
-  // 5. Same card name (different IDs, non-alt)
-  const sameName = _library.filter(c =>
-    c.id !== card.id && c.name === card.name && !ALT_RARITIES_SET.has(c.rarity) && !isAlt
-  );
-  if(sameName.length) sections.push({title:`🔄 ชื่อเดียวกัน`,cards:sameName});
 
   if(!sections.length) return '';
   return sections.map(sec=>`
