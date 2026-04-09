@@ -1,0 +1,20 @@
+{
+  "env": {
+    "SUPABASE_URL": "https://rljgoglmdqqzzuoozsfs.supabase.co",
+    "SUPABASE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsamdvZ2xtZHFxenp1b296c2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MjE4NjEsImV4cCI6MjA5MDk5Nzg2MX0.zuXAGh_C7dhOdMvN8Y64jOi6ZjvrnvIe6rd5sSo_yU0",
+    "KV_REST_API_TOKEN": "gQAAAAAAAWu0AAIncDFjNzY2ODg2NjQ5Y2Q0ZWJjODAxNDZhNjkxNjU0YTc5YnAxOTMxMDg",
+    "KV_REST_API_URL": "https://engaged-colt-93108.upstash.io",
+    "BLOB_READ_WRITE_TOKEN": "vercel_blob_rw_NoZsXyBmTCPJbOJh_LASbHp3THiUnl3aoqCI6svyuShFJDb"
+  },
+  "headers": [
+    {
+      "source": "/nav.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/deck/:id", "destination": "/deckbuilder/?share=:id" }
+  ]
+}

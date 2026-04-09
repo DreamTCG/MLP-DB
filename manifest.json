@@ -1,0 +1,14 @@
+{
+  "name": "DreamTCG",
+  "short_name": "DreamTCG",
+  "description": "Fan-made deck builder for the My Little Pony Card Game (KAYOU)",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#7b2ff7",
+  "background_color": "#0f0920",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

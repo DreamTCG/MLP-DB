@@ -676,8 +676,8 @@
     "story_title": "Griffon the Brush Off",
     "story_subtitle": "Old Pal Here",
     "story_stage": "I",
-    "ability": "When promoted to this stage, you win the game.",
-    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ คุณชนะเกม"
+    "ability": "When promoted to this stage, draw 1 card..",
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ จั่วการ์ด 1 ใบ"
   },
   {
     "id": "BP01-C42",
