@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — DreamTCG Online</title>
+  <link rel="icon" href="/icon-192.png">
+  <style>
+    :root {
+      --bg: #0f0820; --surface: #1a1035; --surface2: #251848;
+      --purple: #a78bfa; --text: #e8e0ff; --muted: #9580c8; --dim: #6b5a9a;
+      --border: #2e2060; --font-head: 'Fredoka One', cursive; --font-body: 'Nunito', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 0.9rem; line-height: 1.7; }
+    a { color: var(--purple); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .topbar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .topbar-logo { font-family: var(--font-head); font-size: 1.1rem; color: var(--purple); }
+    .topbar-back {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+      padding: 4px 12px; font-size: 0.72rem; color: var(--muted); cursor: pointer;
+      font-family: var(--font-body); font-weight: 700; text-decoration: none;
+    }
+    .topbar-back:hover { color: var(--text); text-decoration: none; }
+
+    .wrap { max-width: 680px; margin: 0 auto; padding: 32px 20px 60px; }
+
+    h1 { font-family: var(--font-head); font-size: 1.6rem; color: var(--purple); margin-bottom: 6px; }
+    .effective { font-size: 0.72rem; color: var(--dim); margin-bottom: 32px; }
+
+    h2 { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+         color: var(--muted); margin: 28px 0 8px; }
+    p { color: var(--text); margin-bottom: 10px; }
+    ul { padding-left: 20px; margin-bottom: 10px; }
+    ul li { margin-bottom: 4px; color: var(--text); }
+
+    .card {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 20px; margin-top: 28px;
+      font-size: 0.78rem; color: var(--muted);
+    }
+    .card strong { color: var(--text); }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-logo">🦄 DreamTCG Online</span>
+  <a class="topbar-back" href="/">← Back</a>
+</div>
+
+<div class="wrap">
+  <h1>Privacy Policy &amp; Disclaimer</h1>
+  <div class="effective">Effective date: April 2026</div>
+
+  <h2>About This App</h2>
+  <p>
+    DreamTCG Online is a <strong>non-commercial, fan-made</strong> web application for building
+    decks for the My Little Pony Card Game published by KAYOU. It is not affiliated with,
+    endorsed by, or connected to KAYOU or Hasbro in any way.
+  </p>
+
+  <hr class="divider">
+
+  <h2>What We Collect</h2>
+  <p>When you choose to sign in, we receive the following from your auth provider (Google or X):</p>
+  <ul>
+    <li>Display name</li>
+    <li>Email address</li>
+    <li>A unique user ID issued by the provider</li>
+  </ul>
+  <p>
+    We also store the decks you save: card IDs, card names, and quantities.
+    We do <strong>not</strong> collect passwords, payment information, or any other personal data.
+  </p>
+
+  <hr class="divider">
+
+  <h2>How We Use Your Data</h2>
+  <p>Your data is used <strong>solely</strong> to:</p>
+  <ul>
+    <li>Identify your account so your decks are accessible across devices</li>
+    <li>Store and retrieve your saved decks (cloud sync)</li>
+  </ul>
+  <p>
+    We do not sell, rent, share, or use your data for advertising, analytics,
+    or any commercial purpose — <strong>now or in the future</strong>.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Data Storage &amp; Security</h2>
+  <p>
+    All data is stored on <a href="https://supabase.com" target="_blank" rel="noopener">Supabase</a>,
+    a managed cloud database platform. Your decks are protected by Row-Level Security (RLS),
+    meaning only your own account can read or modify your data. Authentication tokens
+    are stored locally in your browser and never sent to any server we control beyond Supabase.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Third-Party Services</h2>
+  <ul>
+    <li><strong>Google OAuth</strong> — Sign-in handled by Google. Subject to <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.</li>
+    <li><strong>X (Twitter) OAuth</strong> — Sign-in handled by X. Subject to <a href="https://twitter.com/privacy" target="_blank" rel="noopener">X's Privacy Policy</a>.</li>
+    <li><strong>Supabase</strong> — Database and authentication. Subject to <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Supabase's Privacy Policy</a>.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <h2>Data Deletion</h2>
+  <p>
+    You can request deletion of your account and all associated deck data at any time
+    by opening an issue on our
+    <a href="https://github.com/DreamTCG/MLP-DB/issues" target="_blank" rel="noopener">GitHub repository</a>.
+    Signing out of the app automatically clears your locally cached deck data.
+  </p>
+
+  <hr class="divider">
+
+  <h2>No Commercial Use</h2>
+  <p>
+    This is a free, non-profit fan project. No fees are charged, no advertisements are
+    displayed, and user data will never be monetized in any form. The project has no
+    plans to become a commercial product.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Copyright Disclaimer</h2>
+  <p>
+    All card artwork, card names, characters, and game mechanics are the property of
+    <strong>KAYOU</strong> and/or <strong>Hasbro</strong>. This tool is created for
+    fan use only, is not for sale, and generates no revenue. If you are a rights holder
+    and have concerns, please contact us via GitHub.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Changes to This Policy</h2>
+  <p>
+    This policy may be updated as the app evolves. The effective date at the top of
+    this page will reflect the most recent revision. Continued use of the app after
+    changes are posted constitutes your acceptance of the updated policy.
+  </p>
+
+  <div class="card">
+    <strong>Questions or data requests?</strong><br>
+    Open an issue at <a href="https://github.com/DreamTCG/MLP-DB/issues" target="_blank" rel="noopener">github.com/DreamTCG/MLP-DB</a>
+  </div>
+</div>
+
+</body>
+</html>
