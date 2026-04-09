@@ -7,12 +7,15 @@
     "BLOB_READ_WRITE_TOKEN": "vercel_blob_rw_NoZsXyBmTCPJbOJh_LASbHp3THiUnl3aoqCI6svyuShFJDb"
   },
   "headers": [
-    {
-      "source": "/nav.js",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-cache" }
-      ]
-    }
+    { "source": "/nav.js",               "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+    { "source": "/service-worker.js",    "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+    { "source": "/",                     "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+    { "source": "/index.html",           "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+    { "source": "/deckbuilder/",         "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+    { "source": "/deckbuilder/index.html","headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+    { "source": "/library/",             "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+    { "source": "/library/index.html",   "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+    { "source": "/privacy/",             "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }
   ],
   "rewrites": [
     { "source": "/deck/:id", "destination": "/deckbuilder/?share=:id" }

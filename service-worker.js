@@ -3,7 +3,7 @@
    Cache version: bump CACHE_NAME to force full refresh on deploy
    ============================================================ */
 
-const CACHE_NAME = 'dreamtcg-v1';
+const CACHE_NAME = 'dreamtcg-v2';
 
 // App shell files to pre-cache on install
 const APP_SHELL = [
@@ -85,7 +85,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// ── Fetch: cache-first for app shell, network-only for rest ─
+// ── Fetch: network-first for HTML navigation, cache-first for assets ─
 self.addEventListener('fetch', event => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
@@ -98,29 +98,43 @@ self.addEventListener('fetch', event => {
   // Never cache: cards, DB JSON, API, Vercel internals
   if (shouldSkip(url)) return;
 
+  // HTML navigation: network-first so deploys are visible immediately
+  // Falls back to cache (offline), then shows offline page
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() =>
+          caches.match(event.request).then(cached =>
+            cached || new Response(OFFLINE_HTML, {
+              headers: { 'Content-Type': 'text/html; charset=utf-8' }
+            })
+          )
+        )
+    );
+    return;
+  }
+
+  // All other assets (fonts, images, JS, CSS): cache-first for performance
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) return cached;
 
       return fetch(event.request)
         .then(response => {
-          // Cache successful responses for app-shell paths
           if (response.ok) {
             const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+            caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
           }
           return response;
         })
-        .catch(() => {
-          // Offline fallback for navigation requests
-          if (event.request.mode === 'navigate') {
-            return new Response(OFFLINE_HTML, {
-              headers: { 'Content-Type': 'text/html; charset=utf-8' }
-            });
-          }
-          // For other requests just fail silently
-          return new Response('', { status: 503 });
-        });
+        .catch(() => new Response('', { status: 503 }));
     })
   );
 });
