@@ -319,6 +319,47 @@
       cursor:pointer; text-align:center; border-radius:8px;
     }
     .mlp-login-cancel:hover { background:rgba(255,255,255,0.05); color:var(--text,#f0e8ff); }
+    .mlp-tab-row {
+      display:flex; gap:0; margin-bottom:16px;
+      border-bottom:1.5px solid var(--border,#3a2560);
+    }
+    .mlp-tab {
+      flex:1; padding:8px 0; border:none; background:none;
+      color:var(--text-muted,#9b8bbf); font-size:0.8rem; font-weight:700;
+      font-family:'Nunito','Prompt',sans-serif; cursor:pointer;
+      border-bottom:2.5px solid transparent; margin-bottom:-1.5px;
+      transition:color 0.15s, border-color 0.15s;
+    }
+    .mlp-tab.active { color:var(--accent,#a855f7); border-bottom-color:var(--accent,#a855f7); }
+    .mlp-login-input {
+      display:block; width:100%; padding:9px 12px; margin-bottom:8px;
+      border-radius:9px; border:1.5px solid var(--border,#3a2560);
+      background:var(--bg-surface,#221545); color:var(--text,#f0e8ff);
+      font-size:0.82rem; font-family:'Nunito','Prompt',sans-serif;
+      outline:none; box-sizing:border-box; transition:border-color 0.2s;
+    }
+    .mlp-login-input:focus { border-color:var(--accent,#a855f7); }
+    .mlp-login-input::placeholder { color:var(--text-muted,#9b8bbf); }
+    .mlp-login-submit {
+      display:block; width:100%; padding:10px; margin-bottom:6px;
+      border-radius:9px; border:none;
+      background:var(--accent,#a855f7); color:#fff;
+      font-size:0.85rem; font-weight:700; font-family:'Nunito','Prompt',sans-serif;
+      cursor:pointer; transition:opacity 0.2s;
+    }
+    .mlp-login-submit:hover { opacity:0.88; }
+    .mlp-login-submit:disabled { opacity:0.5; cursor:default; }
+    .mlp-login-error {
+      font-size:0.72rem; color:#f87171; text-align:center;
+      margin-bottom:6px; min-height:1em;
+    }
+    .mlp-login-divider {
+      display:flex; align-items:center; gap:8px;
+      margin:10px 0; color:var(--text-muted,#9b8bbf); font-size:0.7rem;
+    }
+    .mlp-login-divider::before, .mlp-login-divider::after {
+      content:''; flex:1; height:1px; background:var(--border,#3a2560);
+    }
 
     /* ── Sync banner ── */
     #mlp-sync-banner {
@@ -542,6 +583,69 @@
     });
   }
 
+  function _toggleAuthTab(mode) {
+    const loginTab = document.getElementById('mlp-tab-login');
+    const signupTab = document.getElementById('mlp-tab-signup');
+    const submitBtn = document.getElementById('mlp-submit-btn');
+    const pwInput = document.getElementById('mlp-pw-input');
+    const errDiv = document.getElementById('mlp-auth-error');
+    if (!loginTab) return;
+    if (mode === 'signup') {
+      loginTab.classList.remove('active');
+      signupTab.classList.add('active');
+      submitBtn.textContent = 'สมัครสมาชิก';
+      pwInput.autocomplete = 'new-password';
+    } else {
+      signupTab.classList.remove('active');
+      loginTab.classList.add('active');
+      submitBtn.textContent = 'เข้าสู่ระบบ';
+      pwInput.autocomplete = 'current-password';
+    }
+    if (errDiv) errDiv.textContent = '';
+  }
+
+  function _submitEmailAuth() {
+    const sb = window._supabase;
+    if (!sb) { alert('ระบบ Auth ยังไม่พร้อม กรุณารอสักครู่'); return; }
+    const email = (document.getElementById('mlp-email-input') || {}).value || '';
+    const password = (document.getElementById('mlp-pw-input') || {}).value || '';
+    const errDiv = document.getElementById('mlp-auth-error');
+    const submitBtn = document.getElementById('mlp-submit-btn');
+    const isSignup = document.getElementById('mlp-tab-signup').classList.contains('active');
+
+    if (!email || !password) {
+      if (errDiv) errDiv.textContent = 'กรุณากรอกอีเมลและรหัสผ่าน';
+      return;
+    }
+    if (errDiv) errDiv.textContent = '';
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '...'; }
+
+    const done = (err, msg) => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = isSignup ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
+      }
+      if (err && errDiv) errDiv.textContent = err;
+      if (msg && errDiv) { errDiv.style.color = '#4ade80'; errDiv.textContent = msg; }
+    };
+
+    if (isSignup) {
+      sb.auth.signUp({ email, password }).then(({ data, error }) => {
+        if (error) { done(error.message); return; }
+        if (data.session) {
+          _closeLoginModal();
+        } else {
+          done(null, 'กรุณาตรวจสอบอีเมลเพื่อยืนยันการสมัคร');
+        }
+      });
+    } else {
+      sb.auth.signInWithPassword({ email, password }).then(({ error }) => {
+        if (error) { done(error.message); return; }
+        _closeLoginModal();
+      });
+    }
+  }
+
   function _logOut() {
     const sb = window._supabase;
     if (sb) sb.auth.signOut();
@@ -559,6 +663,15 @@
       <div id="mlp-login-box">
         <div class="mlp-login-title">🦄 เข้าสู่ระบบ</div>
         <div class="mlp-login-sub">ซิงก์เด็คของคุณไว้บน cloud</div>
+        <div class="mlp-tab-row">
+          <button class="mlp-tab active" id="mlp-tab-login" onclick="_toggleAuthTab('login')">เข้าสู่ระบบ</button>
+          <button class="mlp-tab" id="mlp-tab-signup" onclick="_toggleAuthTab('signup')">สมัครสมาชิก</button>
+        </div>
+        <input id="mlp-email-input" class="mlp-login-input" type="email" placeholder="อีเมล" autocomplete="email" />
+        <input id="mlp-pw-input" class="mlp-login-input" type="password" placeholder="รหัสผ่าน" autocomplete="current-password" />
+        <button id="mlp-submit-btn" class="mlp-login-submit" onclick="_submitEmailAuth()">เข้าสู่ระบบ</button>
+        <div id="mlp-auth-error" class="mlp-login-error"></div>
+        <div class="mlp-login-divider">หรือ</div>
         <button class="mlp-oauth-btn" onclick="_loginWith('google')">
           <span class="mlp-oauth-icon"><svg width="18" height="18" viewBox="0 0 24 24" style="display:block"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg></span>
           เข้าสู่ระบบด้วย Google
@@ -623,6 +736,8 @@
   window._loginWith       = _loginWith;
   window._logOut          = _logOut;
   window._dismissBanner   = _dismissBanner;
+  window._toggleAuthTab   = _toggleAuthTab;
+  window._submitEmailAuth = _submitEmailAuth;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', inject);
