@@ -83,9 +83,11 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
 .detail-subtypes{font-size:0.68rem;color:var(--muted);margin-bottom:8px;}
 .detail-ability{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:0.72rem;line-height:1.6;color:var(--text);}
 .detail-ability .ability-label{font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:4px;}
-.lang-toggle{display:flex;gap:4px;margin-bottom:8px;}
+.lang-toggle{display:flex;gap:4px;margin-bottom:8px;align-items:center;}
 .lang-btn{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:0.6rem;cursor:pointer;color:var(--muted);font-family:var(--font-body);}
 .lang-btn.active{background:var(--purple);color:#fff;border-color:var(--purple);}
+.fs-btn{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:0.6rem;cursor:pointer;color:var(--muted);font-family:var(--font-body);line-height:1.4;}
+.lang-sep{width:1px;height:14px;background:var(--border);margin:0 2px;}
 .related-section{border-top:1px solid var(--border);padding-top:12px;}
 .related-title{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:8px;}
 .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:5px;}
@@ -258,6 +260,11 @@ const BASE_URLS  = [
 let _library = [];
 let _selected = null;
 let _lang = 'en'; // 'en' | 'th'
+const FS_DEFAULT = 0.72; // rem
+const FS_STEP = 0.06;
+const FS_MIN = 0.54;
+const FS_MAX = 1.1;
+let _abilFontSize = parseFloat(localStorage.getItem('abil_fs') || FS_DEFAULT);
 let _sortAsc = false;
 let _altMode = 'all'; // 'all' | 'no-alt' | 'alt-only'
 const COLOR_MAP = {Purple:'#a78bfa',Pink:'#f472b6',Yellow:'#fbbf24',Orange:'#fb923c',Blue:'#60a5fa',White:'#e2e8f0'};
@@ -402,6 +409,7 @@ function selectCard(card){
     dc.style.display = '';
     dc.innerHTML = html;
   }
+  _applyAbilFontSize();
 }
 
 function buildDetailHTML(card){
@@ -429,8 +437,12 @@ function buildDetailHTML(card){
       <div class="lang-toggle">
         <button class="lang-btn active" id="lb-en" onclick="setLang('en')">EN</button>
         <button class="lang-btn" id="lb-th" onclick="setLang('th')">TH</button>
+        <span class="lang-sep"></span>
+        <button class="fs-btn" onclick="setAbilFontSize(-1)" title="Smaller">A−</button>
+        <button class="fs-btn" onclick="setAbilFontSize(1)" title="Larger">A+</button>
+        <button class="fs-btn" onclick="setAbilFontSize(0)" title="Reset">↺</button>
       </div>
-      <div class="detail-ability">
+      <div class="detail-ability" id="detail-ability-box">
         <div id="abil-en">${abilEN||'—'}</div>
         <div id="abil-th" style="display:none">${abilTH||'—'}</div>
       </div>
@@ -496,6 +508,22 @@ function buildRelatedHTML(card){
           </div>`).join('')}
       </div>
     </div>`).join('');
+}
+
+function _applyAbilFontSize(){
+  const box = document.getElementById('detail-ability-box');
+  if(box) box.style.fontSize = _abilFontSize + 'rem';
+}
+
+function setAbilFontSize(delta){
+  if(delta === 0){
+    _abilFontSize = FS_DEFAULT;
+  } else {
+    _abilFontSize = Math.min(FS_MAX, Math.max(FS_MIN, _abilFontSize + delta * FS_STEP));
+  }
+  _abilFontSize = Math.round(_abilFontSize * 1000) / 1000;
+  localStorage.setItem('abil_fs', _abilFontSize);
+  _applyAbilFontSize();
 }
 
 function setLang(lang){
