@@ -568,6 +568,11 @@
           เข้าสู่ระบบด้วย X
         </button>
         <button class="mlp-login-cancel" onclick="_closeLoginModal()">ยกเลิก</button>
+        <div style="margin-top:12px;font-size:0.58rem;color:var(--dim,#6b5a9a);text-align:center;line-height:1.5;">
+          การเข้าสู่ระบบถือว่าคุณยอมรับ
+          <a href="/privacy/" target="_blank" style="color:var(--purple,#a78bfa);text-decoration:underline;">Privacy Policy</a>
+          ของเรา — ข้อมูลของคุณจะไม่ถูกนำไปใช้เพื่อผลประโยชน์เชิงพาณิชย์ใดๆ
+        </div>
       </div>`;
     document.body.appendChild(el);
   }
