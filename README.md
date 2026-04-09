@@ -2,7 +2,7 @@
 
 A fan-made web app for building decks for the **My Little Pony Card Game (KAYOU)**. Runs entirely in the browser — no installation required.
 
-🔗 **Live App:** [dreamtcg.vercel.app](https://dreamtcg.vercel.app)
+🔗 **Live App:** [mlptcg.vercel.app](https://mlptcg.vercel.app/)
 
 ---
 
