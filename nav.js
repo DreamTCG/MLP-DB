@@ -525,9 +525,7 @@
   function buildLinks(links) {
     return links.map(l => {
       const active = isActive(l) ? ' active' : '';
-      return `<a class="mlp-nav-link${active}" href="${l.href}" data-i18n-key="${l.key}">
-        <span class="mlp-nav-icon">${l.icon}</span>${t(l.key)}
-      </a>`;
+      return `<a class="mlp-nav-link${active}" href="${l.href}" data-i18n-key="${l.key}"><span class="mlp-nav-icon">${l.icon}</span><span class="mlp-nav-text">${t(l.key)}</span></a>`;
     }).join('');
   }
 
@@ -562,11 +560,8 @@
     // Nav links (desktop + mobile drawer)
     document.querySelectorAll('.mlp-nav-link[data-i18n-key]').forEach(el => {
       const key = el.dataset.i18nKey;
-      const icon = el.querySelector('.mlp-nav-icon');
-      if (icon) {
-        const textNode = [...el.childNodes].find(n => n.nodeType === 3);
-        if (textNode) textNode.textContent = t(key);
-      }
+      const textSpan = el.querySelector('.mlp-nav-text');
+      if (textSpan) textSpan.textContent = t(key);
     });
     // Lang toggle button (shows the language you'll switch TO)
     const lb = document.getElementById('mlp-lang-btn');
