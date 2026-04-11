@@ -160,10 +160,10 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
     <!-- LEFT: filters + grid -->
     <div id="lib-panel">
       <div class="lib-filters">
-        <input class="lib-search" id="lib-search" placeholder="Search cards..." oninput="renderGrid()">
+        <input class="lib-search" id="lib-search" placeholder="Search cards..." oninput="renderGrid()" data-i18n-ph="lib.search">
         <div class="filter-row">
           <div class="dd-wrap">
-            <button class="dd-btn" onclick="toggleDD('dd-type')">Type <span style="font-size:0.5rem">▼</span></button>
+            <button class="dd-btn" id="lib-filter-type-btn" onclick="toggleDD('dd-type')">Type <span style="font-size:0.5rem">▼</span></button>
             <div class="dd-menu" id="dd-type">
               <label class="dd-item"><input type="checkbox" value="Character"      onchange="renderGrid()"> Character</label>
               <label class="dd-item"><input type="checkbox" value="Event"          onchange="renderGrid()"> Event</label>
@@ -174,7 +174,7 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
             </div>
           </div>
           <div class="dd-wrap">
-            <button class="dd-btn" onclick="toggleDD('dd-rarity')">Rarity <span style="font-size:0.5rem">▼</span></button>
+            <button class="dd-btn" id="lib-filter-rarity-btn" onclick="toggleDD('dd-rarity')">Rarity <span style="font-size:0.5rem">▼</span></button>
             <div class="dd-menu" id="dd-rarity">
               <label class="dd-item"><input type="checkbox" value="CR"   onchange="renderGrid()"> CR</label>
               <label class="dd-item"><input type="checkbox" value="GR"   onchange="renderGrid()"> GR</label>
@@ -187,11 +187,11 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
             </div>
           </div>
           <div class="dd-wrap">
-            <button class="dd-btn" onclick="toggleDD('dd-set')">Set <span style="font-size:0.5rem">▼</span></button>
+            <button class="dd-btn" id="lib-filter-set-btn" onclick="toggleDD('dd-set')">Set <span style="font-size:0.5rem">▼</span></button>
             <div class="dd-menu" id="dd-set"></div>
           </div>
           <div class="dd-wrap">
-            <button class="dd-btn" onclick="toggleDD('dd-race')">Race <span style="font-size:0.5rem">▼</span></button>
+            <button class="dd-btn" id="lib-filter-race-btn" onclick="toggleDD('dd-race')">Race <span style="font-size:0.5rem">▼</span></button>
             <div class="dd-menu" id="dd-race" style="min-width:120px;">
               <div style="display:flex;gap:3px;margin-bottom:5px;">
                 <button class="race-tab active" id="race-tab-pony" onclick="setRaceTab('pony')">🐴 Pony</button>
@@ -217,8 +217,8 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
               </div>
             </div>
           </div>
-          <button class="sort-btn" id="lib-sort-btn" onclick="toggleSortLib()" title="Toggle sort order">↓ Sort</button>
-          <button class="sort-btn" id="lib-alt-btn" onclick="toggleAltLib()" title="Toggle alt art">All ※</button>
+          <button class="sort-btn" id="lib-sort-btn" onclick="toggleSortLib()" title="Toggle sort order" data-i18n="lib.sortDesc">↓ Sort</button>
+          <button class="sort-btn" id="lib-alt-btn" onclick="toggleAltLib()" title="Toggle alt art" data-i18n="lib.altAll">All ※</button>
           <button class="sort-btn" onclick="clearFilters()" title="Clear filters">✕</button>
         </div>
       </div>
@@ -231,7 +231,7 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
     <div id="detail-panel">
       <div class="detail-empty" id="detail-empty">
         <div class="ei">🃏</div>
-        <p style="font-size:0.8rem;color:var(--dim);">Click a card to see details</p>
+        <p id="detail-empty-txt" style="font-size:0.8rem;color:var(--dim);">Click a card to see details</p>
       </div>
       <div id="detail-content" style="display:none;"></div>
     </div>
@@ -257,9 +257,33 @@ const BASE_URLS  = [
   'https://raw.githubusercontent.com/auac131/MLP-DB/master',
 ];
 
+const _LIB_DICT = {
+  en: {
+    'lib.topbarTitle':'📚 MLP Card Library',
+    'lib.search':'Search cards...',
+    'lib.filterType':'Type','lib.filterRarity':'Rarity','lib.filterSet':'Set','lib.filterRace':'Race',
+    'lib.sortDesc':'↓ Sort','lib.sortAsc':'↑ Sort',
+    'lib.altAll':'All ※','lib.altNo':'No ※','lib.altOnly':'※ Only',
+    'lib.noCards':'No cards found','lib.loading':'Loading cards...',
+    'lib.clickDetail':'Click a card to see details',
+    'lib.cards':'cards',
+  },
+  th: {
+    'lib.topbarTitle':'📚 คลังการ์ด MLP',
+    'lib.search':'ค้นหาการ์ด...',
+    'lib.filterType':'ประเภท','lib.filterRarity':'ความหายาก','lib.filterSet':'เซ็ต','lib.filterRace':'เผ่าพันธุ์',
+    'lib.sortDesc':'↓ เรียง','lib.sortAsc':'↑ เรียง',
+    'lib.altAll':'ทั้งหมด ※','lib.altNo':'ไม่มี ※','lib.altOnly':'※ เท่านั้น',
+    'lib.noCards':'ไม่พบการ์ด','lib.loading':'กำลังโหลดการ์ด...',
+    'lib.clickDetail':'คลิกการ์ดเพื่อดูรายละเอียด',
+    'lib.cards':'ใบ',
+  },
+};
+function _lt(key){ const l=(window.i18n&&window.i18n.lang)||'en'; return (_LIB_DICT[l]&&_LIB_DICT[l][key])||(_LIB_DICT.en[key])||key; }
+
 let _library = [];
 let _selected = null;
-let _lang = 'en'; // 'en' | 'th'
+let _lang = (window.i18n && window.i18n.lang) || 'en'; // 'en' | 'th' — synced with global i18n
 const FS_DEFAULT = 0.72; // rem
 const FS_STEP = 0.06;
 const FS_MIN = 0.54;
@@ -296,7 +320,7 @@ function clearFilters(){
   document.getElementById('lib-search').value='';
   _altMode='all';
   const altBtn=document.getElementById('lib-alt-btn');
-  if(altBtn) altBtn.textContent='All ※';
+  if(altBtn) altBtn.textContent=_lt('lib.altAll');
   renderGrid();
 }
 
@@ -324,16 +348,16 @@ function sortCards(cards){
 function toggleSortLib(){
   _sortAsc = !_sortAsc;
   const btn = document.getElementById('lib-sort-btn');
-  if(btn) btn.textContent = _sortAsc ? '↑ Sort' : '↓ Sort';
+  if(btn) btn.textContent = _sortAsc ? _lt('lib.sortAsc') : _lt('lib.sortDesc');
   renderGrid();
 }
 
 function toggleAltLib(){
   const cycle = {all:'no-alt','no-alt':'alt-only','alt-only':'all'};
   _altMode = cycle[_altMode];
-  const labels = {all:'All ※','no-alt':'No ※','alt-only':'※ Only'};
+  const altKeys = {all:'lib.altAll','no-alt':'lib.altNo','alt-only':'lib.altOnly'};
   const btn = document.getElementById('lib-alt-btn');
-  if(btn) btn.textContent = labels[_altMode];
+  if(btn) btn.textContent = _lt(altKeys[_altMode]);
   renderGrid();
 }
 
@@ -367,12 +391,12 @@ function renderGrid(){
 
   cards = sortCards(cards);
 
-  document.getElementById('lib-count-lbl').textContent = `${cards.length} cards`;
+  document.getElementById('lib-count-lbl').textContent = `${cards.length} ${_lt('lib.cards')}`;
 
   const grid = document.getElementById('card-grid');
   grid.innerHTML = '';
   if(!cards.length){
-    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--dim);font-size:0.75rem;">🔍 No cards found</div>';
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--dim);font-size:0.75rem;">🔍 ${_lt('lib.noCards')}</div>`;
     return;
   }
   cards.forEach(card=>{
@@ -582,7 +606,7 @@ function buildSetDropdown(){
 
 async function loadCards(){
   const grid = document.getElementById('card-grid');
-  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--dim);font-size:0.75rem;">⏳ Loading cards...</div>';
+  grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--dim);font-size:0.75rem;">⏳ ${_lt('lib.loading')}</div>`;
   for(const base of BASE_URLS){
     try{
       const res = await fetch(base+'/MLP-DB.json');
@@ -603,6 +627,43 @@ async function loadCards(){
   }
   grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--dim);font-size:0.75rem;">⚠ Could not load cards</div>';
 }
+
+function _renderLibI18n(){
+  // Topbar title
+  const ttl = document.querySelector('.topbar-title');
+  if(ttl) ttl.textContent = _lt('lib.topbarTitle');
+  // Search placeholder
+  const srch = document.getElementById('lib-search');
+  if(srch) srch.placeholder = _lt('lib.search');
+  // Filter buttons
+  const fbMap = {'lib-filter-type-btn':'lib.filterType','lib-filter-rarity-btn':'lib.filterRarity','lib-filter-set-btn':'lib.filterSet','lib-filter-race-btn':'lib.filterRace'};
+  Object.entries(fbMap).forEach(([id,key])=>{
+    const btn=document.getElementById(id);
+    if(btn) btn.innerHTML=_lt(key)+' <span style="font-size:0.5rem">▼</span>';
+  });
+  // Sort / alt buttons (reflect current state)
+  const sortBtn=document.getElementById('lib-sort-btn');
+  if(sortBtn) sortBtn.textContent=_sortAsc?_lt('lib.sortAsc'):_lt('lib.sortDesc');
+  const altKeys={all:'lib.altAll','no-alt':'lib.altNo','alt-only':'lib.altOnly'};
+  const altBtn=document.getElementById('lib-alt-btn');
+  if(altBtn) altBtn.textContent=_lt(altKeys[_altMode]||'lib.altAll');
+  // Detail empty state
+  const det=document.getElementById('detail-empty-txt');
+  if(det) det.textContent=_lt('lib.clickDetail');
+  // Re-render grid to refresh count/empty-state strings
+  if(_library.length) renderGrid();
+}
+
+function _onLangChange(){
+  if(window.i18n){ _lang=window.i18n.lang; if(_selected) setLang(_lang); }
+  _renderLibI18n();
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  if(window.i18n) _lang=window.i18n.lang;
+  _renderLibI18n();
+});
+window.addEventListener('mlp-lang-change', _onLangChange);
 
 loadCards();
 </script>

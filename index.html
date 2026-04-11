@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-VR98SGEQLX"></script>
@@ -385,8 +385,8 @@
     <!-- Deck Builder -->
     <a href="./deckbuilder/" class="nav-card card-deck" style="--ci:0.15s">
       <span class="nav-icon">🗂️</span>
-      <div class="nav-title">จัดเด็ค</div>
-      <div class="nav-desc">เลือกการ์ด สร้างเด็ค<br>และ export รายการ</div>
+      <div class="nav-title" data-i18n="home.deckTitle">Deck Builder</div>
+      <div class="nav-desc" data-i18n="home.deckDesc">Browse cards, build decks<br>and export lists</div>
       <div class="nav-arrow">→</div>
     </a>
 
@@ -403,16 +403,16 @@
     <!-- Card Library -->
     <a href="./library/" class="nav-card card-db" style="--ci:0.25s">
       <span class="nav-icon">📖</span>
-      <div class="nav-title">ดูการ์ดทั้งหมด</div>
-      <div class="nav-desc">ค้นหาการ์ด 320+ ใบ<br>EN / TH ครบ</div>
+      <div class="nav-title" data-i18n="home.libraryTitle">Card Library</div>
+      <div class="nav-desc" data-i18n="home.libraryDesc">Browse 320+ cards<br>EN / TH included</div>
       <div class="nav-arrow">→</div>
     </a>
 
     <!-- Rules -->
     <a href="#rules" class="nav-card card-rules" style="--ci:0.35s" onclick="toggleRules(event)">
       <span class="nav-icon">📋</span>
-      <div class="nav-title">วิธีเล่น</div>
-      <div class="nav-desc">กฎกติกาอย่างเป็นทางการ<br>ฉบับภาษาไทย</div>
+      <div class="nav-title" data-i18n="home.rulesTitle">How to Play</div>
+      <div class="nav-desc" data-i18n="home.rulesDesc">Official rules summary<br>in English</div>
       <div class="nav-arrow">↓</div>
     </a>
 
@@ -421,27 +421,87 @@
   <!-- Rules Quick Ref (collapsible) -->
   <div id="rules-panel" style="display:none; width:100%; max-width:700px; margin-top:16px; animation: cardIn 0.4s both;">
     <div style="background: var(--page-card-bg); border: 1px solid var(--page-card-border); border-radius:20px; padding:28px 24px; backdrop-filter: blur(10px);">
-      <h2 style="font-family:'Fredoka One',cursive; font-size:1.4rem; margin-bottom:16px; color:var(--green);">📋 กฎสำคัญแบบย่อ</h2>
+      <h2 id="rules-heading" style="font-family:'Fredoka One',cursive; font-size:1.4rem; margin-bottom:16px; color:var(--green);">📋 Quick Rules Reference</h2>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; font-size:0.85rem; line-height:1.6; color:var(--page-text);">
-        <div><b style="color:var(--green)">🎯 เป้าหมาย</b><br>ดำเนินเนื้อเรื่องถึง Stage IV ก่อน หรือให้คู่ต่อสู้จั่วไม่ได้</div>
-        <div><b style="color:var(--blue)">🃏 เด็ค</b><br>เด็คหลัก 50 ใบ + ฉาก 15 ใบ + เนื้อเรื่อง 4 ใบ + ตัวละครหลัก 1 ใบ</div>
-        <div><b style="color:var(--yellow)">⚡ เทิร์น</b><br>Start → Main → Contact → End ทำซ้ำสลับกัน</div>
-        <div><b style="color:var(--pink)">💫 Inspo Boost</b><br>คว่ำการ์ดฉากระหว่าง Contact เพื่อบูสค่าพลัง</div>
-        <div><b style="color:var(--orange)">🗺️ Story Zone</b><br>แผนการปิดกั้นการดำเนินเนื้อเรื่องของศัตรู</div>
-        <div><b style="color:var(--purple)">🏃 Contact</b><br>ข้ามใน 2 เทิร์นแรก — ฝ่ายที่พลังน้อยออกจากสนาม</div>
+        <div data-i18n="rule.objective"><b style="color:var(--green)">🎯 Objective</b><br>Reach Story Stage IV first, or force opponent to draw from an empty deck</div>
+        <div data-i18n="rule.deck"><b style="color:var(--blue)">🃏 Deck</b><br>Main 50 + Scene 15 + Story 4 + Main Character 1</div>
+        <div data-i18n="rule.turn"><b style="color:var(--yellow)">⚡ Turn</b><br>Start → Main → Contact → End, alternating each turn</div>
+        <div data-i18n="rule.inspo"><b style="color:var(--pink)">💫 Inspo Boost</b><br>Tap a Scene card during Contact to boost Power</div>
+        <div data-i18n="rule.story"><b style="color:var(--orange)">🗺️ Story Zone</b><br>Block opponent's Story progression with face-down Plans</div>
+        <div data-i18n="rule.contact"><b style="color:var(--purple)">🏃 Contact</b><br>Skip first 2 turns — losing side retires their character</div>
       </div>
-      <p style="margin-top:16px; font-size:0.78rem; color:var(--page-text-sub); text-align:right">กฎฉบับเต็ม: ดูใน rulebook ของ KAYOU</p>
+      <p id="rules-note" style="margin-top:16px; font-size:0.78rem; color:var(--page-text-sub); text-align:right">Full rules: see the official KAYOU rulebook</p>
     </div>
   </div>
 
   <div class="footer">
-    <p>Fan-made tool · ไม่มีความเกี่ยวข้องกับ Hasbro / KAYOU อย่างเป็นทางการ</p>
+    <p data-i18n="home.footer">Fan-made tool · Not affiliated with Hasbro / KAYOU officially</p>
     <p style="margin-top:4px"><a href="https://dreamtcg.github.io/MLP-DB/" target="_blank">dreamtcg.github.io/MLP-DB</a></p>
   </div>
 
 </div>
 
 <script>
+
+// ── i18n ──
+const _HOME_DICT = {
+  en: {
+    'home.deckTitle':   'Deck Builder',
+    'home.deckDesc':    'Browse cards, build decks<br>and export lists',
+    'home.libraryTitle':'Card Library',
+    'home.libraryDesc': 'Browse 320+ cards<br>EN / TH included',
+    'home.rulesTitle':  'How to Play',
+    'home.rulesDesc':   'Official rules summary<br>in English',
+    'home.rulesHeading':'📋 Quick Rules Reference',
+    'rule.objective':   '<b style="color:var(--green)">🎯 Objective</b><br>Reach Story Stage IV first, or force opponent to draw from an empty deck',
+    'rule.deck':        '<b style="color:var(--blue)">🃏 Deck</b><br>Main 50 + Scene 15 + Story 4 + Main Character 1',
+    'rule.turn':        '<b style="color:var(--yellow)">⚡ Turn</b><br>Start → Main → Contact → End, alternating each turn',
+    'rule.inspo':       '<b style="color:var(--pink)">💫 Inspo Boost</b><br>Tap a Scene card during Contact to boost Power',
+    'rule.story':       '<b style="color:var(--orange)">🗺️ Story Zone</b><br>Block opponent\'s Story progression with face-down Plans',
+    'rule.contact':     '<b style="color:var(--purple)">🏃 Contact</b><br>Skip first 2 turns — losing side retires their character',
+    'home.rulesNote':   'Full rules: see the official KAYOU rulebook',
+    'home.footer':      'Fan-made tool · Not affiliated with Hasbro / KAYOU officially',
+  },
+  th: {
+    'home.deckTitle':   'จัดเด็ค',
+    'home.deckDesc':    'เลือกการ์ด สร้างเด็ค<br>และ export รายการ',
+    'home.libraryTitle':'ดูการ์ดทั้งหมด',
+    'home.libraryDesc': 'ค้นหาการ์ด 320+ ใบ<br>EN / TH ครบ',
+    'home.rulesTitle':  'วิธีเล่น',
+    'home.rulesDesc':   'กฎกติกาอย่างเป็นทางการ<br>ฉบับภาษาไทย',
+    'home.rulesHeading':'📋 กฎสำคัญแบบย่อ',
+    'rule.objective':   '<b style="color:var(--green)">🎯 เป้าหมาย</b><br>ดำเนินเนื้อเรื่องถึง Stage IV ก่อน หรือให้คู่ต่อสู้จั่วไม่ได้',
+    'rule.deck':        '<b style="color:var(--blue)">🃏 เด็ค</b><br>เด็คหลัก 50 ใบ + ฉาก 15 ใบ + เนื้อเรื่อง 4 ใบ + ตัวละครหลัก 1 ใบ',
+    'rule.turn':        '<b style="color:var(--yellow)">⚡ เทิร์น</b><br>Start → Main → Contact → End ทำซ้ำสลับกัน',
+    'rule.inspo':       '<b style="color:var(--pink)">💫 Inspo Boost</b><br>คว่ำการ์ดฉากระหว่าง Contact เพื่อบูสค่าพลัง',
+    'rule.story':       '<b style="color:var(--orange)">🗺️ Story Zone</b><br>แผนการปิดกั้นการดำเนินเนื้อเรื่องของศัตรู',
+    'rule.contact':     '<b style="color:var(--purple)">🏃 Contact</b><br>ข้ามใน 2 เทิร์นแรก — ฝ่ายที่พลังน้อยออกจากสนาม',
+    'home.rulesNote':   'กฎฉบับเต็ม: ดูใน rulebook ของ KAYOU',
+    'home.footer':      'Fan-made tool · ไม่มีความเกี่ยวข้องกับ Hasbro / KAYOU อย่างเป็นทางการ',
+  }
+};
+
+function _ht(key) {
+  const lang = (window.i18n && window.i18n.lang) || 'en';
+  return (_HOME_DICT[lang] && _HOME_DICT[lang][key]) || (_HOME_DICT.en[key]) || key;
+}
+
+function _applyHomeI18n() {
+  // data-i18n elements — use innerHTML (rules contain <b> tags and <br>)
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.innerHTML = _ht(el.dataset.i18n);
+  });
+  // Rules heading (id-targeted for clarity)
+  const rh = document.getElementById('rules-heading');
+  if (rh) rh.textContent = _ht('home.rulesHeading');
+  const rn = document.getElementById('rules-note');
+  if (rn) rn.textContent = _ht('home.rulesNote');
+  // Update html lang attribute
+  document.documentElement.lang = (window.i18n && window.i18n.lang) || 'en';
+}
+
+document.addEventListener('DOMContentLoaded', _applyHomeI18n);
+window.addEventListener('mlp-lang-change', _applyHomeI18n);
 
 // ── Stars ──
 const starsEl = document.getElementById('stars');

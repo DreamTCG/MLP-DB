@@ -476,22 +476,16 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 
 <!-- SETUP -->
 <div id="setup-screen" class="screen active">
-  <!-- Navigation buttons temporarily disabled (nav.js handles navigation/theme)
-  <div style="position:absolute;top:14px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 14px;z-index:10;">
-    <button onclick="goBackToDeckBuilder()" class="back-btn">« Deck Builder</button>
-    <button class="theme-btn" id="theme-btn-setup" onclick="toggleTheme()" title="Toggle light/dark mode">☀️</button>
-  </div>
-  -->
   <div class="setup-logo">
     <h1>My Little Pony</h1>
     <h2>TCG Simulator</h2>
     <p class="sub">Deck Tester</p>
   </div>
   <div class="setup-box">
-    <h3>LOAD YOUR DECK</h3>
+    <h3 id="sim-h3-load">LOAD YOUR DECK</h3>
 
     <!-- PLAYER DECK -->
-    <div style="font-size:10px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:8px">เด็คของคุณ</div>
+    <div id="sim-your-deck-lbl" style="font-size:10px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:8px">YOUR DECK</div>
     <div class="preset-grid" id="preset-grid-player"></div>
     <!-- Preloaded deck banner (shown only when arriving from main site) -->
     <div id="preload-banner" style="display:none;margin-bottom:10px;padding:10px 14px;border-radius:10px;background:linear-gradient(135deg,rgba(99,102,241,.18),rgba(124,58,237,.18));border:1px solid rgba(99,102,241,.4);align-items:center;gap:10px;flex-wrap:wrap;">
@@ -504,36 +498,36 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     </div>
 
     <div style="margin-bottom:8px;">
-      <button id="upload-toggle-btn" onclick="toggleUploadArea()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;width:100%;text-align:left;">📂 อัปโหลด JSON &nbsp;<span id="upload-toggle-arrow" style="float:right">▼</span></button>
+      <button id="upload-toggle-btn" onclick="toggleUploadArea()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;width:100%;text-align:left;"><span id="sim-upload-json-lbl">📂 Upload JSON</span> &nbsp;<span id="upload-toggle-arrow" style="float:right">▼</span></button>
     </div>
     <div class="upload-area" id="upload-area" style="display:none;">
       <input type="file" id="file-input" accept=".json">
       <div class="upload-icon">📂</div>
-      <p>วางไฟล์ JSON หรือคลิกเพื่อเลือก</p>
+      <p id="sim-upload-json-p">Drop JSON file or click to select</p>
       <span>format: main / scene / story / mc</span>
     </div>
 
     <!-- BOT DECK -->
-    <div style="font-size:10px;letter-spacing:.1em;color:var(--red);text-transform:uppercase;margin:14px 0 8px">เด็ค Bot 🤖</div>
+    <div id="sim-bot-deck-lbl" style="font-size:10px;letter-spacing:.1em;color:var(--red);text-transform:uppercase;margin:14px 0 8px">BOT DECK 🤖</div>
     <div class="preset-grid" id="preset-grid-bot"></div>
     <div style="margin-top:6px;">
-      <button id="upload-toggle-btn-bot" onclick="toggleUploadAreaBot()" style="background:var(--surface2);border:1px solid rgba(248,113,113,.3);color:var(--red);border-radius:8px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;width:100%;text-align:left;">📂 อัปโหลด JSON (Bot) &nbsp;<span id="upload-toggle-arrow-bot" style="float:right">▼</span></button>
+      <button id="upload-toggle-btn-bot" onclick="toggleUploadAreaBot()" style="background:var(--surface2);border:1px solid rgba(248,113,113,.3);color:var(--red);border-radius:8px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;width:100%;text-align:left;"><span id="sim-upload-bot-lbl">📂 Upload JSON (Bot)</span> &nbsp;<span id="upload-toggle-arrow-bot" style="float:right">▼</span></button>
     </div>
     <div class="upload-area" id="upload-area-bot" style="display:none;">
       <input type="file" id="file-input-bot" accept=".json">
       <div class="upload-icon">📂</div>
-      <p>วางไฟล์ JSON หรือคลิกเพื่อเลือก (Bot)</p>
+      <p id="sim-upload-bot-p">Drop JSON file or click to select (Bot)</p>
       <span>format: main / scene / story / mc</span>
     </div>
 
     <div class="picked-decks">
       <div class="pick-box">
         <div class="pick-title">Player Deck Pickup</div>
-        <div class="pick-value" id="player-picked">ยังไม่ได้เลือกเด็ค</div>
+        <div class="pick-value" id="player-picked" data-empty="true">No deck selected</div>
       </div>
       <div class="pick-box bot">
         <div class="pick-title">Bot Deck Pickup</div>
-        <div class="pick-value" id="bot-picked">ยังไม่ได้เลือกเด็ค</div>
+        <div class="pick-value" id="bot-picked" data-empty="true">No deck selected</div>
       </div>
     </div>
     <div class="setup-msg" id="setup-msg"></div>
@@ -555,7 +549,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
       </div>
     </div>
 
-    <button class="start-btn" id="start-btn" onclick="startGame()">เริ่มเกม</button>
+    <button class="start-btn" id="start-btn" onclick="startGame()">Start Game</button>
   </div>
 </div>
 
@@ -569,12 +563,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     </div>
     <div class="harmony-disp">✦ <span class="hv" id="harmony-val">0</span> Harmony</div>
     <div class="topbar-right">
-      <!-- theme-btn-game temporarily disabled (nav.js handles theme)
-      <button class="theme-btn" id="theme-btn-game" onclick="toggleTheme()" title="Toggle light/dark mode">☀️</button>
-      -->
-      <button class="tbtn" onclick="tapSceneHarmony()">Tap Scene +1✦</button>
+      <button class="tbtn" id="tbtn-tap-scene" onclick="tapSceneHarmony()">Tap Scene +1✦</button>
       <button class="tbtn primary" id="next-phase-btn" onclick="nextPhase()">Draw →</button>
-      <button class="tbtn" onclick="backToSetup()">✕</button>
+      <button class="tbtn" id="tbtn-back" onclick="backToSetup()">✕</button>
       <button class="tbtn" id="topbar-menu-btn" style="display:none" onclick="toggleMobilePanel()" title="Panel">☰</button>
     </div>
   </div>
@@ -594,20 +585,20 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
       <!-- OPP outermost: Scene Deck | OPP Scene Area | OPP Scene Deck (row-reverse = mirrored) -->
       <div class="bottom-row" style="flex-direction:row-reverse">
         <div class="deck-col">
-          <div class="zone-lbl" style="text-align:center;color:var(--red)">OPP Deck</div>
+          <div class="zone-lbl" id="zlbl-opp-deck" style="text-align:center;color:var(--red)">OPP Deck</div>
           <div class="deck-slot-card" style="border-color:rgba(248,113,113,.3)">
             <div class="deck-num" id="opp-md-cnt" style="color:var(--red)">50</div>
             <div class="deck-lbl" style="color:rgba(248,113,113,.6)">OPP<br>Deck</div>
           </div>
         </div>
         <div class="scene-area" style="border-color:rgba(248,113,113,.15)">
-          <div class="area-title" style="color:rgba(248,113,113,.7)">OPP Scene Area</div>
+          <div class="area-title" id="zlbl-opp-scene-area" style="color:rgba(248,113,113,.7)">OPP Scene Area</div>
           <div class="scene-cards" id="opp-scene-cards">
             <span style="font-size:10px;color:rgba(248,113,113,.5)">ยังไม่มีฉาก</span>
           </div>
         </div>
         <div class="deck-col">
-          <div class="zone-lbl" style="text-align:center;color:var(--red)">OPP Scene</div>
+          <div class="zone-lbl" id="zlbl-opp-scene" style="text-align:center;color:var(--red)">OPP Scene</div>
           <div class="deck-slot-card scene" style="border-color:rgba(248,113,113,.2)">
             <div class="deck-num" id="opp-sd-cnt" style="color:rgba(248,113,113,.8)">15</div>
             <div class="deck-lbl" style="color:rgba(248,113,113,.5)">OPP<br>Scene</div>
@@ -618,18 +609,18 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
       <!-- OPP inner (closer to adventure zone): Retire | Story | MC -->
       <div class="middle-row">
         <div class="retire-col">
-          <div class="zone-lbl" style="color:var(--red)">OPP Retire</div>
+          <div class="zone-lbl" id="zlbl-opp-retire" style="color:var(--red)">OPP Retire</div>
           <div class="retire-slot" style="border-color:rgba(248,113,113,.25)" onclick="viewOppRetire()">
             <div class="retire-num" id="opp-retire-num" style="color:var(--red)">0</div>
             <div class="retire-lbl">cards</div>
           </div>
         </div>
         <div class="story-area" style="border-color:rgba(248,113,113,.2)">
-          <div class="area-title" style="color:rgba(248,113,113,.8)">🤖 OPP Story Area</div>
+          <div class="area-title" id="zlbl-opp-story-area" style="color:rgba(248,113,113,.8)">🤖 OPP Story Area</div>
           <div class="story-slots-row" id="opp-story-slots-row"></div>
         </div>
         <div class="mc-col">
-          <div class="zone-lbl" style="color:var(--red)">OPP MC</div>
+          <div class="zone-lbl" id="zlbl-opp-mc" style="color:var(--red)">OPP MC</div>
           <div class="mc-slot" style="border-color:var(--red);box-shadow:0 0 8px rgba(248,113,113,.15)">
             <img class="mc-img" id="opp-mc-img" src="" alt="" style="display:none" onerror="this.style.display='none'">
           </div>
@@ -643,11 +634,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 
       <!-- ══ ADVENTURE ZONE (center, shared) ══ -->
       <div class="adventure-area">
-      <div class="area-title">⚔️ Adventure Area</div>
+      <div class="area-title" id="zlbl-adv-area">⚔️ Adventure Area</div>
 
       <!-- OPP -->
       <div class="adv-side">
-        <div class="side-lbl" style="color:var(--red)">OPP</div>
+        <div class="side-lbl" id="zlbl-side-opp" style="color:var(--red)">OPP</div>
           <div class="adv-slots">
           <!-- SLOT 0 -->
           <div class="adv-col">
@@ -680,7 +671,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     </div>
     <!-- PLAYER -->
     <div class="adv-side">
-      <div class="side-lbl" style="color:var(--green)">YOU</div>
+      <div class="side-lbl" id="zlbl-side-you" style="color:var(--green)">YOU</div>
       <div class="adv-slots">
         <!-- SLOT 0 -->
         <div class="adv-col">
@@ -712,7 +703,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
       <!-- PLAYER inner (closer to adventure zone): MC | Story | Retire -->
       <div class="middle-row">
         <div class="mc-col">
-          <div class="zone-lbl">Main Char</div>
+          <div class="zone-lbl" id="zlbl-main-char">Main Char</div>
           <div class="mc-slot">
             <img class="mc-img" id="mc-img" src="" alt="" style="display:none" onerror="this.style.display='none'">
           </div>
@@ -723,11 +714,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
           <div class="mc-stage">Stage <span id="player-stage-lbl">I</span></div>
         </div>
         <div class="story-area">
-          <div class="area-title">Story Area</div>
+          <div class="area-title" id="zlbl-story-area">Story Area</div>
           <div class="story-slots-row" id="story-slots-row"></div>
         </div>
         <div class="retire-col">
-          <div class="zone-lbl">Retirement</div>
+          <div class="zone-lbl" id="zlbl-retirement">Retirement</div>
           <div class="retire-slot" onclick="viewRetire()">
             <div class="retire-num" id="retire-num">0</div>
             <div class="retire-lbl">cards</div>
@@ -738,7 +729,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
       <!-- PLAYER outermost: Scene Deck | Scene Area | Main Deck -->
       <div class="bottom-row">
         <div class="deck-col">
-          <div class="zone-lbl" style="text-align:center">Scene Deck</div>
+          <div class="zone-lbl" id="zlbl-scene-deck" style="text-align:center">Scene Deck</div>
           <div class="deck-slot-card scene">
             <img class="deck-back" id="scene-deck-back" src="" alt="" onerror="this.style.display='none'">
             <div class="deck-num" id="sd-cnt">15</div>
@@ -746,13 +737,13 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
           </div>
         </div>
         <div class="scene-area">
-          <div class="area-title">Scene Area</div>
+          <div class="area-title" id="zlbl-scene-area">Scene Area</div>
           <div class="scene-cards" id="scene-cards">
             <span style="font-size:10px;color:var(--text3)">ยังไม่มีฉาก</span>
           </div>
         </div>
         <div class="deck-col">
-          <div class="zone-lbl" style="text-align:center">Main Deck</div>
+          <div class="zone-lbl" id="zlbl-main-deck" style="text-align:center">Main Deck</div>
           <div class="deck-slot-card" onclick="manualDraw()">
             <img class="deck-back" id="main-deck-back" src="" alt="" onerror="this.style.display='none'">
             <div class="deck-num" id="md-cnt">50</div>
@@ -857,6 +848,78 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
    Repo: DreamTCG/MLP-DB  |  This file: /battlesim/index.html
    Cards images: /cards/*.jpg  (shared with deck builder)
 ═══════════════════════════════════ */
+
+// ── i18n support (delegates to window.i18n from nav.js) ──
+const _SIM_DICT = {
+  en: {
+    'sim.loadDeck':'LOAD YOUR DECK','sim.yourDeck':'YOUR DECK','sim.botDeck':'BOT DECK 🤖',
+    'sim.uploadJson':'📂 Upload JSON','sim.uploadJsonP':'Drop JSON file or click to select',
+    'sim.uploadBot':'📂 Upload JSON (Bot)','sim.uploadBotP':'Drop JSON file or click to select (Bot)',
+    'sim.noDeck':'No deck selected','sim.startGame':'Start Game',
+    'sim.startPhase':'START PHASE','sim.mainPhase':'MAIN PHASE',
+    'sim.contactPhase':'CONTACT PHASE','sim.endPhase':'END PHASE',
+    'sim.toMain':'Main Phase →','sim.toContact':'Contact Phase →','sim.toEnd':'End Phase →',
+    'sim.tapScene':'Tap Scene +1✦','sim.draw':'Draw →','sim.back':'✕',
+    'sim.hand':'Hand','sim.actions':'Actions','sim.log':'Log','sim.oppTab':'OPP',
+    'sim.oppDeck':'OPP Deck','sim.oppScene':'OPP Scene','sim.oppSceneArea':'OPP Scene Area','sim.oppRetire':'OPP Retire',
+    'sim.oppMC':'OPP MC','sim.oppStoryArea':'🤖 OPP Story Area','sim.advArea':'⚔️ Adventure Area',
+    'sim.you':'YOU','sim.opp':'OPP','sim.mainChar':'Main Char',
+    'sim.storyArea':'Story Area','sim.retirement':'Retirement',
+    'sim.sceneDeck':'Scene Deck','sim.sceneArea':'Scene Area','sim.mainDeck':'Main Deck',
+  },
+  th: {
+    'sim.loadDeck':'โหลดเด็คของคุณ','sim.yourDeck':'เด็คของคุณ','sim.botDeck':'เด็ค Bot 🤖',
+    'sim.uploadJson':'📂 อัปโหลด JSON','sim.uploadJsonP':'วางไฟล์ JSON หรือคลิกเพื่อเลือก',
+    'sim.uploadBot':'📂 อัปโหลด JSON (Bot)','sim.uploadBotP':'วางไฟล์ JSON หรือคลิกเพื่อเลือก (Bot)',
+    'sim.noDeck':'ยังไม่ได้เลือกเด็ค','sim.startGame':'เริ่มเกม',
+    'sim.startPhase':'START PHASE','sim.mainPhase':'MAIN PHASE',
+    'sim.contactPhase':'CONTACT PHASE','sim.endPhase':'END PHASE',
+    'sim.toMain':'Main Phase →','sim.toContact':'Contact Phase →','sim.toEnd':'End Phase →',
+    'sim.tapScene':'แตะฉาก +1✦','sim.draw':'จั่ว →','sim.back':'✕',
+    'sim.hand':'มือ','sim.actions':'การกระทำ','sim.log':'บันทึก','sim.oppTab':'ฝ่ายตรงข้าม',
+    'sim.oppDeck':'เด็ค OPP','sim.oppScene':'ฉาก OPP','sim.oppSceneArea':'พื้นที่ฉาก OPP','sim.oppRetire':'Retire OPP',
+    'sim.oppMC':'การ์ดหลัก OPP','sim.oppStoryArea':'🤖 พื้นที่เรื่องราว OPP','sim.advArea':'⚔️ พื้นที่ผจญภัย',
+    'sim.you':'เรา','sim.opp':'ฝ่ายตรงข้าม','sim.mainChar':'การ์ดหลัก',
+    'sim.storyArea':'พื้นที่เรื่องราว','sim.retirement':'Retirement',
+    'sim.sceneDeck':'เด็คฉาก','sim.sceneArea':'พื้นที่ฉาก','sim.mainDeck':'เด็คหลัก',
+  },
+};
+function _st(key){ const l=(window.i18n&&window.i18n.lang)||'en'; return (_SIM_DICT[l]&&_SIM_DICT[l][key])||(_SIM_DICT.en[key])||key; }
+
+function _renderSimI18n(){
+  // Setup screen
+  const _s=(id,key)=>{const el=document.getElementById(id);if(el)el.textContent=_st(key);};
+  _s('sim-h3-load','sim.loadDeck'); _s('sim-your-deck-lbl','sim.yourDeck'); _s('sim-bot-deck-lbl','sim.botDeck');
+  _s('sim-upload-json-lbl','sim.uploadJson'); _s('sim-upload-json-p','sim.uploadJsonP');
+  _s('sim-upload-bot-lbl','sim.uploadBot'); _s('sim-upload-bot-p','sim.uploadBotP');
+  _s('start-btn','sim.startGame');
+  // Deck-picked placeholders (only when no deck selected yet)
+  const pp=document.getElementById('player-picked');
+  if(pp&&pp.dataset.empty!=='false') pp.textContent=_st('sim.noDeck');
+  const bp=document.getElementById('bot-picked');
+  if(bp&&bp.dataset.empty!=='false') bp.textContent=_st('sim.noDeck');
+  // Game screen zone labels
+  const zmap={
+    'zlbl-opp-deck':'sim.oppDeck','zlbl-opp-scene-area':'sim.oppSceneArea',
+    'zlbl-opp-scene':'sim.oppScene','zlbl-opp-retire':'sim.oppRetire',
+    'zlbl-opp-story-area':'sim.oppStoryArea','zlbl-opp-mc':'sim.oppMC',
+    'zlbl-adv-area':'sim.advArea','zlbl-side-opp':'sim.opp','zlbl-side-you':'sim.you',
+    'zlbl-main-char':'sim.mainChar','zlbl-story-area':'sim.storyArea',
+    'zlbl-retirement':'sim.retirement','zlbl-scene-deck':'sim.sceneDeck',
+    'zlbl-scene-area':'sim.sceneArea','zlbl-main-deck':'sim.mainDeck',
+  };
+  Object.entries(zmap).forEach(([id,key])=>_s(id,key));
+  // Topbar buttons
+  const tap=document.getElementById('tbtn-tap-scene'); if(tap) tap.textContent=_st('sim.tapScene');
+  const bk=document.getElementById('tbtn-back'); if(bk) bk.textContent=_st('sim.back');
+  // Mobile tab buttons
+  [['mobt-hand','sim.hand'],['mobt-actions','sim.actions'],['mobt-log','sim.log'],['mobt-opp','sim.oppTab']].forEach(([id,key])=>_s(id,key));
+  // Re-apply phase UI labels if game is running
+  if(typeof G!=='undefined'&&G.phase) updatePhaseUI();
+}
+
+window.addEventListener('mlp-lang-change', _renderSimI18n);
+document.addEventListener('DOMContentLoaded', _renderSimI18n);
 
 // Base URL for raw GitHub assets (works both on GitHub Pages and locally via Live Server)
 const BASE = (() => {
@@ -1087,6 +1150,7 @@ function loadPlayerDeck(raw){
   if(playerPicked){
     playerPicked.textContent = `${normalized.mc.name}${normalized.deckName ? ` (${normalized.deckName})` : ''}`;
     playerPicked.classList.add('ready');
+    playerPicked.dataset.empty = 'false';
   }
   const m=expand(normalized.main),s=expand(normalized.scene);
   document.getElementById('prev-name').textContent=normalized.mc.name;
@@ -1110,6 +1174,7 @@ function loadBotDeck(raw){
   if(botPicked){
     botPicked.textContent = `${normalized.mc.name}${normalized.deckName ? ` (${normalized.deckName})` : ''}`;
     botPicked.classList.add('ready');
+    botPicked.dataset.empty = 'false';
   }
   const m=expand(normalized.main),s=expand(normalized.scene);
   document.getElementById('prev-bot-name').textContent=normalized.mc.name;
@@ -1812,19 +1877,6 @@ function useInspoInContact(sceneIdx,slotIdx){
 // resolveContact() calls this unchanged; signature is preserved.
 function aiUseInspo(slotIdx){ coreAiUseInspo(G, slotIdx); }
   
-/*function resolveContact(slotIdx){
-  closeModal();
-  const p=G.pAdv[slotIdx],o=G.oAdv[slotIdx];
-  if(!p||!o){G.contactStep++;setTimeout(processNextContact,100);return;}
-  const pi=effInsp(p,true),oi=o.power||0;
-  log(`Slot${slotIdx+1}: ${p.name}(${pi}) vs ${o.name}(${oi})`);
-  if(pi>oi){log('  → ชนะ ✅ — OPP Retire','good');retireO(slotIdx);}
-  else if(pi<oi){log(`  → แพ้ — ${p.name} Retire`,'warn');retireP(slotIdx);}
-  else{log('  → เสมอ — ทั้งคู่ Retire','warn');retireP(slotIdx);retireO(slotIdx);}
-  G.contactStep++;
-  renderAll();
-  setTimeout(processNextContact,300);
-}*/
 function resolveContact(slotIdx){
   closeModal();
   const p=G.pAdv[slotIdx],o=G.oAdv[slotIdx];
@@ -2062,21 +2114,6 @@ function aiAct(i){
     if(G.oStage>=4)endGame(false,'AI ถึง Stage IV!');
   }
 }
-/*function aiSim(){
-  const botHarmony=G.oSceneArea?.length??G.oSceneCount??0;
-  const playable=[...G.oMainDeck].filter(x=>x.type==='Character'&&(x.cost||0)<=botHarmony);
-  if(!playable.length)return;
-  playable.sort((a,b)=>(b.cost||0)-(a.cost||0)||(b.power||0)-(a.power||0));
-  const card=playable[0];
-  // Bot fills slots right-to-left (mirrors bot contact order 2->1->0)
-  const slotOrder=[2,1,0];
-  const slot=slotOrder.find(i=>G.oAdv[i]===null);
-  if(slot!==undefined){
-    G.oAdv[slot]={...card,_tapped:false,_boosted:0,_item:null};
-    G.oMainDeck.splice(G.oMainDeck.indexOf(card),1);
-    log(`Bot plays ${card.name}[${card.rarity}] cost:${card.cost} pwr:${card.power} -> Slot${slot+1}`);
-  }
-}*/
 // Wrapper — delegates to modular AI (ai-core.js). Returns true if a card was placed.
 function aiSim(){ return runAI(G); }
 function effInsp(c,isMyTurn){
@@ -2097,10 +2134,10 @@ function updatePhaseUI(){
   const side=G.isPlayerTurn?'':'🤖 ';
   const nextTurnLabel=`Turn ${G.turnCount+1} (${G.isPlayerTurn?'Bot':'Player'}) →`;
   const map={
-    start:  ['START PHASE','start','Main Phase →'],
-    main:   ['MAIN PHASE','main','Contact Phase →'],
-    contact:['CONTACT PHASE','contact','End Phase →'],
-    end:    ['END PHASE','end', nextTurnLabel],
+    start:  [_st('sim.startPhase'),  'start',   _st('sim.toMain')],
+    main:   [_st('sim.mainPhase'),   'main',    _st('sim.toContact')],
+    contact:[_st('sim.contactPhase'),'contact', _st('sim.toEnd')],
+    end:    [_st('sim.endPhase'),    'end',      nextTurnLabel],
   };
   const[t,c,b]=map[G.phase]||['—','','—'];
   badge.textContent=side+t;badge.className=`phase-badge ${c}`;btn.textContent=b;
