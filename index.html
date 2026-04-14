@@ -348,6 +348,8 @@
 </style>
 </head>
 <body>
+<!-- i18n translations (must load before nav.js) -->
+<script src="./i18n/translations.js"></script>
 <!-- Shared navigation — loaded from root nav.js -->
 <script src="./nav.js"></script>
 
@@ -443,48 +445,8 @@
 
 <script>
 
-// ── i18n ──
-const _HOME_DICT = {
-  en: {
-    'home.deckTitle':   'Deck Builder',
-    'home.deckDesc':    'Browse cards, build decks<br>and export lists',
-    'home.libraryTitle':'Card Library',
-    'home.libraryDesc': 'Browse 320+ cards<br>EN / TH included',
-    'home.rulesTitle':  'How to Play',
-    'home.rulesDesc':   'Official rules summary<br>in English',
-    'home.rulesHeading':'📋 Quick Rules Reference',
-    'rule.objective':   '<b style="color:var(--green)">🎯 Objective</b><br>Reach Story Stage IV first, or force opponent to draw from an empty deck',
-    'rule.deck':        '<b style="color:var(--blue)">🃏 Deck</b><br>Main 50 + Scene 15 + Story 4 + Main Character 1',
-    'rule.turn':        '<b style="color:var(--yellow)">⚡ Turn</b><br>Start → Main → Contact → End, alternating each turn',
-    'rule.inspo':       '<b style="color:var(--pink)">💫 Inspo Boost</b><br>Tap a Scene card during Contact to boost Power',
-    'rule.story':       '<b style="color:var(--orange)">🗺️ Story Zone</b><br>Block opponent\'s Story progression with face-down Plans',
-    'rule.contact':     '<b style="color:var(--purple)">🏃 Contact</b><br>Skip first 2 turns — losing side retires their character',
-    'home.rulesNote':   'Full rules: see the official KAYOU rulebook',
-    'home.footer':      'Fan-made tool · Not affiliated with Hasbro / KAYOU officially',
-  },
-  th: {
-    'home.deckTitle':   'จัดเด็ค',
-    'home.deckDesc':    'เลือกการ์ด สร้างเด็ค<br>และ export รายการ',
-    'home.libraryTitle':'ดูการ์ดทั้งหมด',
-    'home.libraryDesc': 'ค้นหาการ์ด 320+ ใบ<br>EN / TH ครบ',
-    'home.rulesTitle':  'วิธีเล่น',
-    'home.rulesDesc':   'กฎกติกาอย่างเป็นทางการ<br>ฉบับภาษาไทย',
-    'home.rulesHeading':'📋 กฎสำคัญแบบย่อ',
-    'rule.objective':   '<b style="color:var(--green)">🎯 เป้าหมาย</b><br>ดำเนินเนื้อเรื่องถึง Stage IV ก่อน หรือให้คู่ต่อสู้จั่วไม่ได้',
-    'rule.deck':        '<b style="color:var(--blue)">🃏 เด็ค</b><br>เด็คหลัก 50 ใบ + ฉาก 15 ใบ + เนื้อเรื่อง 4 ใบ + ตัวละครหลัก 1 ใบ',
-    'rule.turn':        '<b style="color:var(--yellow)">⚡ เทิร์น</b><br>Start → Main → Contact → End ทำซ้ำสลับกัน',
-    'rule.inspo':       '<b style="color:var(--pink)">💫 Inspo Boost</b><br>คว่ำการ์ดฉากระหว่าง Contact เพื่อบูสค่าพลัง',
-    'rule.story':       '<b style="color:var(--orange)">🗺️ Story Zone</b><br>แผนการปิดกั้นการดำเนินเนื้อเรื่องของศัตรู',
-    'rule.contact':     '<b style="color:var(--purple)">🏃 Contact</b><br>ข้ามใน 2 เทิร์นแรก — ฝ่ายที่พลังน้อยออกจากสนาม',
-    'home.rulesNote':   'กฎฉบับเต็ม: ดูใน rulebook ของ KAYOU',
-    'home.footer':      'Fan-made tool · ไม่มีความเกี่ยวข้องกับ Hasbro / KAYOU อย่างเป็นทางการ',
-  }
-};
-
-function _ht(key) {
-  const lang = (window.i18n && window.i18n.lang) || 'en';
-  return (_HOME_DICT[lang] && _HOME_DICT[lang][key]) || (_HOME_DICT.en[key]) || key;
-}
+// ── i18n — delegates to centralized /i18n/translations.js via window.i18n ──
+function _ht(key) { return (window.i18n && window.i18n.t(key)) || key; }
 
 function _applyHomeI18n() {
   // data-i18n elements — use innerHTML (rules contain <b> tags and <br>)

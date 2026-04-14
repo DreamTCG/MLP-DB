@@ -458,6 +458,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 </style>
+<!-- i18n translations (must load before nav.js) -->
+<script src="../i18n/translations.js"></script>
 <!-- Shared navigation bar (handles dark/light theme toggle) -->
 <script src="../nav.js"></script>
 <script>
@@ -849,42 +851,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
    Cards images: /cards/*.jpg  (shared with deck builder)
 ═══════════════════════════════════ */
 
-// ── i18n support (delegates to window.i18n from nav.js) ──
-const _SIM_DICT = {
-  en: {
-    'sim.loadDeck':'LOAD YOUR DECK','sim.yourDeck':'YOUR DECK','sim.botDeck':'BOT DECK 🤖',
-    'sim.uploadJson':'📂 Upload JSON','sim.uploadJsonP':'Drop JSON file or click to select',
-    'sim.uploadBot':'📂 Upload JSON (Bot)','sim.uploadBotP':'Drop JSON file or click to select (Bot)',
-    'sim.noDeck':'No deck selected','sim.startGame':'Start Game',
-    'sim.startPhase':'START PHASE','sim.mainPhase':'MAIN PHASE',
-    'sim.contactPhase':'CONTACT PHASE','sim.endPhase':'END PHASE',
-    'sim.toMain':'Main Phase →','sim.toContact':'Contact Phase →','sim.toEnd':'End Phase →',
-    'sim.tapScene':'Tap Scene +1✦','sim.draw':'Draw →','sim.back':'✕',
-    'sim.hand':'Hand','sim.actions':'Actions','sim.log':'Log','sim.oppTab':'OPP',
-    'sim.oppDeck':'OPP Deck','sim.oppScene':'OPP Scene','sim.oppSceneArea':'OPP Scene Area','sim.oppRetire':'OPP Retire',
-    'sim.oppMC':'OPP MC','sim.oppStoryArea':'🤖 OPP Story Area','sim.advArea':'⚔️ Adventure Area',
-    'sim.you':'YOU','sim.opp':'OPP','sim.mainChar':'Main Char',
-    'sim.storyArea':'Story Area','sim.retirement':'Retirement',
-    'sim.sceneDeck':'Scene Deck','sim.sceneArea':'Scene Area','sim.mainDeck':'Main Deck',
-  },
-  th: {
-    'sim.loadDeck':'โหลดเด็คของคุณ','sim.yourDeck':'เด็คของคุณ','sim.botDeck':'เด็ค Bot 🤖',
-    'sim.uploadJson':'📂 อัปโหลด JSON','sim.uploadJsonP':'วางไฟล์ JSON หรือคลิกเพื่อเลือก',
-    'sim.uploadBot':'📂 อัปโหลด JSON (Bot)','sim.uploadBotP':'วางไฟล์ JSON หรือคลิกเพื่อเลือก (Bot)',
-    'sim.noDeck':'ยังไม่ได้เลือกเด็ค','sim.startGame':'เริ่มเกม',
-    'sim.startPhase':'START PHASE','sim.mainPhase':'MAIN PHASE',
-    'sim.contactPhase':'CONTACT PHASE','sim.endPhase':'END PHASE',
-    'sim.toMain':'Main Phase →','sim.toContact':'Contact Phase →','sim.toEnd':'End Phase →',
-    'sim.tapScene':'แตะฉาก +1✦','sim.draw':'จั่ว →','sim.back':'✕',
-    'sim.hand':'มือ','sim.actions':'การกระทำ','sim.log':'บันทึก','sim.oppTab':'ฝ่ายตรงข้าม',
-    'sim.oppDeck':'เด็ค OPP','sim.oppScene':'ฉาก OPP','sim.oppSceneArea':'พื้นที่ฉาก OPP','sim.oppRetire':'Retire OPP',
-    'sim.oppMC':'การ์ดหลัก OPP','sim.oppStoryArea':'🤖 พื้นที่เรื่องราว OPP','sim.advArea':'⚔️ พื้นที่ผจญภัย',
-    'sim.you':'เรา','sim.opp':'ฝ่ายตรงข้าม','sim.mainChar':'การ์ดหลัก',
-    'sim.storyArea':'พื้นที่เรื่องราว','sim.retirement':'Retirement',
-    'sim.sceneDeck':'เด็คฉาก','sim.sceneArea':'พื้นที่ฉาก','sim.mainDeck':'เด็คหลัก',
-  },
-};
-function _st(key){ const l=(window.i18n&&window.i18n.lang)||'en'; return (_SIM_DICT[l]&&_SIM_DICT[l][key])||(_SIM_DICT.en[key])||key; }
+// ── i18n — delegates to centralized /i18n/translations.js via window.i18n ──
+function _st(key){ return (window.i18n && window.i18n.t(key)) || key; }
 
 function _renderSimI18n(){
   // Setup screen

@@ -137,6 +137,8 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
   #mo-content .detail-img .card-ph{height:126px;}
 }
 </style>
+<!-- i18n translations (must load before nav.js) -->
+<script src="../i18n/translations.js"></script>
 <!-- Shared navigation bar (handles dark/light theme toggle) -->
 <script src="../nav.js"></script>
 <script>
@@ -257,29 +259,8 @@ const BASE_URLS  = [
   'https://raw.githubusercontent.com/auac131/MLP-DB/master',
 ];
 
-const _LIB_DICT = {
-  en: {
-    'lib.topbarTitle':'📚 MLP Card Library',
-    'lib.search':'Search cards...',
-    'lib.filterType':'Type','lib.filterRarity':'Rarity','lib.filterSet':'Set','lib.filterRace':'Race',
-    'lib.sortDesc':'↓ Sort','lib.sortAsc':'↑ Sort',
-    'lib.altAll':'All ※','lib.altNo':'No ※','lib.altOnly':'※ Only',
-    'lib.noCards':'No cards found','lib.loading':'Loading cards...',
-    'lib.clickDetail':'Click a card to see details',
-    'lib.cards':'cards',
-  },
-  th: {
-    'lib.topbarTitle':'📚 คลังการ์ด MLP',
-    'lib.search':'ค้นหาการ์ด...',
-    'lib.filterType':'ประเภท','lib.filterRarity':'ความหายาก','lib.filterSet':'เซ็ต','lib.filterRace':'เผ่าพันธุ์',
-    'lib.sortDesc':'↓ เรียง','lib.sortAsc':'↑ เรียง',
-    'lib.altAll':'ทั้งหมด ※','lib.altNo':'ไม่มี ※','lib.altOnly':'※ เท่านั้น',
-    'lib.noCards':'ไม่พบการ์ด','lib.loading':'กำลังโหลดการ์ด...',
-    'lib.clickDetail':'คลิกการ์ดเพื่อดูรายละเอียด',
-    'lib.cards':'ใบ',
-  },
-};
-function _lt(key){ const l=(window.i18n&&window.i18n.lang)||'en'; return (_LIB_DICT[l]&&_LIB_DICT[l][key])||(_LIB_DICT.en[key])||key; }
+// ── i18n — delegates to centralized /i18n/translations.js via window.i18n ──
+function _lt(key){ return (window.i18n && window.i18n.t(key)) || key; }
 
 let _library = [];
 let _selected = null;

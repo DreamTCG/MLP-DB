@@ -82,74 +82,15 @@
   const LS_LANG    = 'mlp-lang';
 
   /* ── i18n DICTIONARY ────────────────────────────────────── */
-  const _DICT = {
-    en: {
-      'nav.home':         'Home',
-      'nav.cards':        'Cards',
-      'nav.deckbuilder':  'Deck Builder',
-      'nav.rules':        'Rules',
-      'auth.login':       '🔑 Login',
-      'auth.logout':      '🚪 Logout',
-      'auth.title':       '🦄 Sign In',
-      'auth.subtitle':    'Sync your decks to the cloud',
-      'auth.tabLogin':    'Sign In',
-      'auth.tabSignup':   'Sign Up',
-      'auth.email':       'Email',
-      'auth.password':    'Password',
-      'auth.submitLogin': 'Sign In',
-      'auth.submitSignup':'Sign Up',
-      'auth.or':          'or',
-      'auth.loginGoogle': 'Sign in with Google',
-      'auth.loginX':      'Sign in with X',
-      'auth.cancel':      'Cancel',
-      'auth.privacyPre':  'By signing in you accept our',
-      'auth.privacyLink': 'Privacy Policy',
-      'auth.privacyPost': '— your data will not be used for commercial purposes',
-      'auth.errorEmpty':  'Please enter email and password',
-      'auth.notReady':    'Auth system not ready, please wait',
-      'auth.loginFailed': 'Sign in failed:\n',
-      'auth.signupOk':    'Check your email to confirm sign-up',
-      'banner.text':      'Login to sync your decks online →',
-      'banner.close':     'Close',
-      'theme.toLight':    'Switch to Light Mode',
-      'theme.toDark':     'Switch to Dark Mode',
-      'lang.switchTo':    'TH',
-      'nav.burger':       'Menu',
-    },
-    th: {
-      'nav.home':         'หน้าหลัก',
-      'nav.cards':        'การ์ด',
-      'nav.deckbuilder':  'จัดเด็ค',
-      'nav.rules':        'วิธีเล่น',
-      'auth.login':       '🔑 เข้าสู่ระบบ',
-      'auth.logout':      '🚪 ออกจากระบบ',
-      'auth.title':       '🦄 เข้าสู่ระบบ',
-      'auth.subtitle':    'ซิงก์เด็คของคุณไว้บน cloud',
-      'auth.tabLogin':    'เข้าสู่ระบบ',
-      'auth.tabSignup':   'สมัครสมาชิก',
-      'auth.email':       'อีเมล',
-      'auth.password':    'รหัสผ่าน',
-      'auth.submitLogin': 'เข้าสู่ระบบ',
-      'auth.submitSignup':'สมัครสมาชิก',
-      'auth.or':          'หรือ',
-      'auth.loginGoogle': 'เข้าสู่ระบบด้วย Google',
-      'auth.loginX':      'เข้าสู่ระบบด้วย X',
-      'auth.cancel':      'ยกเลิก',
-      'auth.privacyPre':  'การเข้าสู่ระบบถือว่าคุณยอมรับ',
-      'auth.privacyLink': 'Privacy Policy',
-      'auth.privacyPost': 'ของเรา — ข้อมูลของคุณจะไม่ถูกนำไปใช้เพื่อผลประโยชน์เชิงพาณิชย์ใดๆ',
-      'auth.errorEmpty':  'กรุณากรอกอีเมลและรหัสผ่าน',
-      'auth.notReady':    'ระบบ Auth ยังไม่พร้อม กรุณารอสักครู่',
-      'auth.loginFailed': 'เข้าสู่ระบบไม่สำเร็จ:\n',
-      'auth.signupOk':    'กรุณาตรวจสอบอีเมลเพื่อยืนยันการสมัคร',
-      'banner.text':      'ล็อกอินเพื่อซิงก์เด็คของคุณไว้ออนไลน์ →',
-      'banner.close':     'ปิด',
-      'theme.toLight':    'เปลี่ยนเป็น Light Mode',
-      'theme.toDark':     'เปลี่ยนเป็น Dark Mode',
-      'lang.switchTo':    'EN',
-      'nav.burger':       'เมนู',
-    }
-  };
+  // Reads from the centralized /i18n/translations.js file (window.MLP_I18N).
+  // That file must be loaded before nav.js via:
+  //   <script src="/i18n/translations.js"></script>
+  //   <script src="/nav.js"></script>
+  // If translations.js is missing (e.g. in a standalone embed), falls back to
+  // an empty object so t() gracefully returns the key string.
+  const _DICT = (typeof window.MLP_I18N !== 'undefined')
+    ? window.MLP_I18N
+    : { en: {}, th: {} };
 
   let _lang = localStorage.getItem(LS_LANG) || 'en';
 

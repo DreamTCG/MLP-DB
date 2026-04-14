@@ -585,6 +585,8 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
 
   gtag('config', 'G-VR98SGEQLX');
 </script>
+<!-- i18n translations (must load before nav.js) -->
+<script src="../i18n/translations.js"></script>
 <!-- Shared navigation bar (handles dark/light theme toggle) -->
 <script src="../nav.js"></script>
 <script>
@@ -1073,38 +1075,8 @@ const state = {
   mainSortMode: 'rarity' // 'rarity' | 'cost-asc' | 'cost-desc'
 };
 
-// ═══════════════════════════════════════════════════════
-// i18n — bilingual support (delegates to window.i18n from nav.js)
-// ═══════════════════════════════════════════════════════
-const _DECK_DICT = {
-  en: {
-    'deck.library':'📚 Library','deck.analysis':'📊 Analysis',
-    'deck.search':'Search cards...','deck.deckName':'Deck name...',
-    'deck.importData':'⚙️ Import / Data','deck.importActions':'⚙️ Import / Actions',
-    'deck.mainChar':'⭐ Main Character','deck.mainDeck':'🃏 Main Deck',
-    'deck.sceneDeck':'🎭 Scene Deck','deck.storyDeck':'📖 Story Deck',
-    'deck.filterType':'Type','deck.filterRarity':'Rarity','deck.filterSet':'Set','deck.filterRace':'Race',
-    'deck.emptyMC':'Click to add Main Character',
-    'deck.emptyMain':'Add cards from Library',
-    'deck.emptyScene':'Add Scene cards from Library',
-    'deck.mcEmpty':'Empty',
-    'deck.navLib':'Library','deck.navDeck':'Deck','deck.navAnalysis':'Analysis',
-  },
-  th: {
-    'deck.library':'📚 คลังการ์ด','deck.analysis':'📊 วิเคราะห์',
-    'deck.search':'ค้นหาการ์ด...','deck.deckName':'ชื่อเด็ค...',
-    'deck.importData':'⚙️ นำเข้า / ข้อมูล','deck.importActions':'⚙️ นำเข้า / การดำเนินการ',
-    'deck.mainChar':'⭐ การ์ดหลัก','deck.mainDeck':'🃏 เด็คหลัก',
-    'deck.sceneDeck':'🎭 เด็คฉาก','deck.storyDeck':'📖 เด็คเรื่องราว',
-    'deck.filterType':'ประเภท','deck.filterRarity':'ความหายาก','deck.filterSet':'เซ็ต','deck.filterRace':'เผ่าพันธุ์',
-    'deck.emptyMC':'คลิกเพื่อเพิ่มการ์ดหลัก',
-    'deck.emptyMain':'เพิ่มการ์ดจากคลัง',
-    'deck.emptyScene':'เพิ่มการ์ดฉากจากคลัง',
-    'deck.mcEmpty':'ว่าง',
-    'deck.navLib':'คลัง','deck.navDeck':'เด็ค','deck.navAnalysis':'วิเคราะห์',
-  },
-};
-function _dt(key){ const l=(window.i18n&&window.i18n.lang)||'en'; return (_DECK_DICT[l]&&_DECK_DICT[l][key])||(_DECK_DICT.en[key])||key; }
+// ── i18n — delegates to centralized /i18n/translations.js via window.i18n ──
+function _dt(key){ return (window.i18n && window.i18n.t(key)) || key; }
 
 // ═══════════════════════════════════════════════════════
 // INDEXEDDB — local deck persistence
