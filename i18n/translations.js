@@ -84,7 +84,7 @@
       'home.deckTitle':    'Deck Builder',                  // ✅ translate
       'home.deckDesc':     'Browse cards, build decks<br>and export lists', // ✅ translate  /* html */
       'home.libraryTitle': 'Card Library',                  // ✅ translate
-      'home.libraryDesc':  'Browse 320+ cards<br>EN / TH included', // ✅ translate  /* html */
+      'home.libraryDesc':  'Browse all latest cards<br>EN / TH included', // ✅ translate  /* html */
       'home.rulesTitle':   'How to Play',                   // ✅ translate
       'home.rulesDesc':    'Official rules summary<br>in English', // ✅ translate  /* html */
 
@@ -112,7 +112,7 @@
       'lib.filterRace':    'Race',                          // ✅ translate
       'lib.sortDesc':      '↓ Sort',                        // ✅ translate
       'lib.sortAsc':       '↑ Sort',                        // ✅ translate
-      'lib.altAll':        'All ※',                         // ⚠️ review — ※ is alt-art symbol; label may be fine in EN
+      'lib.altAll':        'All',                         // ⚠️ review — ※ is alt-art symbol; label may be fine in EN
       'lib.altNo':         'No ※',                          // ⚠️ review
       'lib.altOnly':       '※ Only',                        // ⚠️ review
       'lib.noCards':       'No cards found',                // ✅ translate
@@ -266,7 +266,7 @@
       'home.deckTitle':    'จัดเด็ค',
       'home.deckDesc':     'เลือกการ์ด สร้างเด็ค<br>และ export รายการ',        /* html */
       'home.libraryTitle': 'ดูการ์ดทั้งหมด',
-      'home.libraryDesc':  'ค้นหาการ์ด 320+ ใบ<br>EN / TH ครบ',                /* html */
+      'home.libraryDesc':  'ค้นหาการ์ดทุกใบ<br>EN / TH ครบ',                /* html */
       'home.rulesTitle':   'วิธีเล่น',
       'home.rulesDesc':    'กฎกติกาอย่างเป็นทางการ<br>ฉบับภาษาไทย',           /* html */
 
@@ -285,15 +285,15 @@
 
       'lib.topbarTitle':   '📚 คลังการ์ด MLP',
       'lib.search':        'ค้นหาการ์ด...',
-      'lib.filterType':    'ประเภท',
-      'lib.filterRarity':  'ความหายาก',
-      'lib.filterSet':     'เซ็ต',
-      'lib.filterRace':    'เผ่าพันธุ์',
+      'lib.filterType':    'Type',
+      'lib.filterRarity':  'Rarity',
+      'lib.filterSet':     'Set',
+      'lib.filterRace':    'Race',
       'lib.sortDesc':      '↓ เรียง',
       'lib.sortAsc':       '↑ เรียง',
-      'lib.altAll':        'ทั้งหมด ※',
-      'lib.altNo':         'ไม่มี ※',
-      'lib.altOnly':       '※ เท่านั้น',
+      'lib.altAll':        'All',
+      'lib.altNo':         'No ※',
+      'lib.altOnly':       '※ Only',
       'lib.noCards':       'ไม่พบการ์ด',
       'lib.loading':       'กำลังโหลดการ์ด...',
       'lib.clickDetail':   'คลิกการ์ดเพื่อดูรายละเอียด',
@@ -312,10 +312,10 @@
       'deck.mainDeck':     '🃏 เด็คหลัก',
       'deck.sceneDeck':    '🎭 เด็คฉาก',
       'deck.storyDeck':    '📖 เด็คเรื่องราว',
-      'deck.filterType':   'ประเภท',
-      'deck.filterRarity': 'ความหายาก',
-      'deck.filterSet':    'เซ็ต',
-      'deck.filterRace':   'เผ่าพันธุ์',
+      'deck.filterType':   'Type',
+      'deck.filterRarity': 'Rarity',
+      'deck.filterSet':    'Set',
+      'deck.filterRace':   'Race',
       'deck.emptyMC':      'คลิกเพื่อเพิ่มการ์ดหลัก',
       'deck.emptyMain':    'เพิ่มการ์ดจากคลัง',
       'deck.emptyScene':   'เพิ่มการ์ดฉากจากคลัง',
