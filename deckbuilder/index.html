@@ -836,6 +836,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         </div>
         <button class="imp-btn" onclick="openShareModal()">🔗 แชร์</button>
         <button class="imp-btn" onclick="openExport()">📤 Export</button>
+        <button class="imp-btn" onclick="sendToWishlist()" title="Send deck cards to Wishlist tracker">⭐ Wishlist</button>
         <button class="imp-btn" onclick="importFromClipboard()">📋 Import Clipboard</button>
         <button class="imp-btn" onclick="testDraw()">🎴 Test Draw</button>
         <button class="imp-btn" id="battlesim-btn-d" onclick="sendToBattleSim()" style="background:linear-gradient(135deg,var(--purple-l),var(--purple));color:#fff;font-weight:700;">⚔️ BattleSim</button>
@@ -1001,6 +1002,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         </div>
         <button class="imp-btn" onclick="openShareModal()">🔗 แชร์</button>
         <button class="imp-btn" onclick="openExport()">📤 Export</button>
+        <button class="imp-btn" onclick="sendToWishlist()" title="Send deck cards to Wishlist tracker">⭐ Wishlist</button>
         <button class="imp-btn" onclick="importFromClipboard()">📋 Import Clipboard</button>
         <button class="imp-btn" onclick="testDraw()">🎴 Test Draw</button>
         <button class="imp-btn" id="battlesim-btn-m" onclick="sendToBattleSim()" style="background:linear-gradient(135deg,var(--purple-l),var(--purple));color:#fff;font-weight:700;">⚔️ BattleSim</button>
@@ -2353,6 +2355,19 @@ function saveDeck() {
   a.href='data:application/json,'+encodeURIComponent(JSON.stringify(data,null,2));
   a.download=name.replace(/\s+/g,'_')+'.json'; a.click();
   toast('💾 Deck saved','ok');
+}
+function sendToWishlist() {
+  const inject = [];
+  state.main.forEach(c  => inject.push({ id: c.id, needed: c.qty, owned: 0 }));
+  state.scene.forEach(c => inject.push({ id: c.id, needed: c.qty || 1, owned: 0 }));
+  state.story.forEach(c => { if (c) inject.push({ id: c.id, needed: 1, owned: 0 }); });
+  if (state.mc) inject.push({ id: state.mc.id, needed: 1, owned: 0 });
+  if (!inject.length) { toast('Nothing in deck to send', 'warn'); return; }
+  try {
+    localStorage.setItem('mlp-wishlist-inject', JSON.stringify(inject));
+    window.open('../wishlist/', '_blank');
+    toast('⭐ Opening Wishlist…', 'ok');
+  } catch(e) { toast('Failed to send to Wishlist', 'err'); }
 }
 function sendToBattleSim() {
   if(!state.mc){ toast('❌ กรุณาเลือก Main Character ก่อน','err'); return; }

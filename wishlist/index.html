@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MLP TCG Wishlist | DreamTCG</title>
+  <meta name="description" content="Track the MLP TCG cards you want and own with the DreamTCG Wishlist tracker.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    /* ── TOKENS ── */
+    :root {
+      --bg:#f5f0ff; --surface:#ffffff; --surface2:#ede8f8;
+      --border:#d4c8f0; --border2:#b8a8e0;
+      --text:#1e1040; --muted:#6b52a8; --dim:#a090c8;
+      --purple:#7c3aed; --purple-l:#a78bfa; --pink:#db2777;
+      --gold:#d97706; --green:#16a34a;
+      --font-head:'Fredoka One',cursive; --font-body:'Nunito',sans-serif;
+      --radius:10px; --radius-lg:16px;
+    }
+    body.dark-mode {
+      --bg:#0f0820; --surface:#1a1035; --surface2:#231548;
+      --border:#2d1f5e; --border2:#3d2a7a;
+      --text:#e8e0ff; --muted:#9580c8; --dim:#5a4a8a;
+      --purple:#7c3aed; --purple-l:#a78bfa; --pink:#ec4899;
+      --gold:#fbbf24; --green:#4ade80;
+    }
+
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { font-family: var(--font-body); background: var(--bg); color: var(--text); }
+
+    /* ── PAGE LAYOUT ── */
+    #page-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: calc(var(--nav-h, 56px) + 16px) 14px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* ── PAGE HEADER ── */
+    #page-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .page-title {
+      font-family: var(--font-head); font-size: 1.6rem; color: var(--purple-l);
+    }
+    .hdr-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      border: none; border-radius: 8px; padding: 7px 13px;
+      font-family: var(--font-body); font-weight: 800; font-size: 0.8rem;
+      cursor: pointer; white-space: nowrap; transition: opacity .15s, transform .1s;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary   { background: linear-gradient(135deg, var(--purple), var(--pink)); color: #fff; }
+    .btn-secondary {
+      background: var(--surface2); border: 1px solid var(--border2);
+      color: var(--muted);
+    }
+    .btn-secondary:hover { border-color: var(--purple); color: var(--purple); }
+
+    /* ── STATS BAR ── */
+    #stats-bar {
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch;
+    }
+    .stat-chip {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 8px 14px;
+      display: flex; flex-direction: column; align-items: center;
+      min-width: 76px;
+    }
+    .stat-chip .sv {
+      font-family: var(--font-head); font-size: 1.15rem; font-weight: 800;
+      color: var(--text); line-height: 1.1;
+    }
+    .stat-chip .sl {
+      font-size: 0.58rem; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--dim); margin-top: 3px;
+    }
+    .stat-chip.complete-chip .sv { color: var(--green); }
+    .rarity-chip-row {
+      display: flex; gap: 4px; flex-wrap: wrap; align-items: center;
+    }
+    .rarity-chip {
+      font-size: 0.6rem; font-weight: 800; padding: 2px 7px;
+      border-radius: 20px; border: 1px solid; white-space: nowrap;
+    }
+
+    /* ── TOOLBAR ── */
+    #toolbar {
+      display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+    }
+    .toolbar-sep {
+      width: 1px; height: 22px; background: var(--border2); margin: 0 2px;
+    }
+    .filter-pill {
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 20px; padding: 5px 14px;
+      font-size: 0.72rem; font-weight: 800; color: var(--muted);
+      cursor: pointer; transition: all .15s;
+    }
+    .filter-pill.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+    .filter-pill:hover:not(.active) { border-color: var(--purple); color: var(--purple); }
+
+    /* ── DROPDOWN ── */
+    .dd-wrap { position: relative; }
+    .dd-btn {
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 6px; padding: 5px 9px;
+      font-size: 0.7rem; font-family: var(--font-body); font-weight: 700;
+      color: var(--muted); cursor: pointer; white-space: nowrap;
+    }
+    .dd-btn:hover { border-color: var(--purple); color: var(--purple); }
+    .dd-menu {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0; z-index: 300;
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 8px; padding: 6px; min-width: 120px;
+      max-height: 240px; overflow-y: auto;
+      box-shadow: 0 6px 20px rgba(0,0,0,.18);
+    }
+    .dd-menu.open { display: block; }
+    .dd-item {
+      display: flex; align-items: center; gap: 7px;
+      padding: 4px 6px; border-radius: 5px; cursor: pointer;
+      font-size: 0.72rem; color: var(--text); white-space: nowrap;
+    }
+    .dd-item:hover { background: var(--surface2); }
+    .dd-item input[type=checkbox] { accent-color: var(--purple); width: 13px; height: 13px; }
+    .sort-opt { justify-content: flex-start; }
+    .sort-opt:hover { background: var(--surface2); color: var(--purple); font-weight: 700; }
+
+    /* ── WISHLIST GRID ── */
+    #wishlist-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    /* ── CARD TILE ── */
+    .wl-tile {
+      background: var(--surface); border: 1.5px solid var(--border2);
+      border-radius: var(--radius-lg); overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: border-color .15s, box-shadow .15s, transform .15s;
+      position: relative;
+    }
+    .wl-tile:hover {
+      border-color: var(--purple-l);
+      box-shadow: 0 4px 18px rgba(124,58,237,.18);
+      transform: translateY(-2px);
+    }
+    .wl-tile.complete { border-color: var(--green); }
+
+    /* Card image area */
+    .wl-img-wrap {
+      position: relative; aspect-ratio: 5/7;
+      background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .wl-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .wl-ph {
+      font-size: 2.2rem; color: var(--dim);
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; height: 100%; position: absolute; inset: 0;
+    }
+
+    /* Done badge (top-right) */
+    .wl-done-badge {
+      display: none; position: absolute; top: 6px; right: 6px;
+      background: var(--green); color: #fff;
+      font-size: 0.58rem; font-weight: 800; border-radius: 20px;
+      padding: 2px 7px; z-index: 1;
+    }
+    .wl-tile.complete .wl-done-badge { display: block; }
+
+    /* Remove button (top-left, shows on hover) */
+    .wl-rm-btn {
+      position: absolute; top: 6px; left: 6px; z-index: 1;
+      background: rgba(0,0,0,.65); border: none; color: #f87171;
+      width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+      font-size: 0.75rem; display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .15s;
+    }
+    .wl-tile:hover .wl-rm-btn { opacity: 1; }
+
+    /* Info area */
+    .wl-info {
+      padding: 8px 8px 7px; flex: 1;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .wl-name {
+      font-family: var(--font-head); font-size: 0.78rem;
+      color: var(--text); line-height: 1.2;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .wl-meta { font-size: 0.6rem; color: var(--dim); }
+
+    /* Quantity stepper row */
+    .wl-qty-row { display: flex; align-items: center; gap: 4px; }
+    .wl-qty-label { font-size: 0.6rem; color: var(--muted); flex: 0 0 38px; }
+    .wl-qty-ctrl  { display: flex; align-items: center; gap: 4px; flex: 1; }
+    .wl-btn {
+      width: 20px; height: 20px; border-radius: 4px; border: none;
+      cursor: pointer; font-size: 0.8rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity .1s;
+    }
+    .wl-btn:disabled { opacity: 0.25; cursor: default; }
+    .wl-btn-minus { background: rgba(248,113,113,.2); color: #f87171; }
+    .wl-btn-plus  { background: rgba(74,222,128,.2);  color: #4ade80; }
+    .wl-qty-val {
+      font-size: 0.78rem; font-weight: 800; color: var(--text);
+      min-width: 16px; text-align: center;
+    }
+
+    /* Progress bar */
+    .wl-progress-wrap { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+    .wl-progress-bar  {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--purple), var(--pink));
+      transition: width .35s ease;
+    }
+    .wl-tile.complete .wl-progress-bar { background: var(--green); }
+    .wl-fraction { font-size: 0.6rem; color: var(--dim); text-align: right; }
+
+    /* ── MODALS ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 600;
+      background: rgba(0,0,0,.72);
+      align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: var(--radius-lg); width: 100%; max-width: 500px;
+      max-height: 85vh; display: flex; flex-direction: column;
+      overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,.35);
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px 10px; flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-title {
+      font-family: var(--font-head); font-size: 1.05rem; color: var(--text);
+    }
+    .modal-close {
+      background: none; border: none; color: var(--dim);
+      font-size: 1rem; cursor: pointer; padding: 2px 6px; border-radius: 4px;
+    }
+    .modal-close:hover { background: var(--surface2); color: var(--text); }
+    .modal-hint {
+      padding: 8px 16px 4px; font-size: 0.72rem; color: var(--dim); flex-shrink: 0;
+    }
+    .modal-hint code {
+      background: var(--surface2); border-radius: 4px; padding: 1px 5px;
+      font-size: 0.7rem; color: var(--purple-l);
+    }
+    .modal-actions {
+      display: flex; gap: 7px; padding: 10px 16px 14px;
+      flex-wrap: wrap; flex-shrink: 0; border-top: 1px solid var(--border);
+    }
+
+    /* ── SEARCH MODAL INNER ── */
+    .modal-filter-row {
+      display: flex; gap: 6px; align-items: center;
+      padding: 8px 16px; flex-shrink: 0; flex-wrap: wrap;
+    }
+    .search-count { font-size: 0.65rem; color: var(--dim); margin-left: auto; }
+    .search-input {
+      display: block; width: calc(100% - 32px); margin: 10px 16px 0;
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 8px; padding: 8px 12px; color: var(--text);
+      font-family: var(--font-body); font-size: 0.85rem; flex-shrink: 0;
+    }
+    .search-input:focus { outline: none; border-color: var(--purple); }
+    .search-results {
+      flex: 1; overflow-y: auto; padding: 4px 10px 10px;
+      display: flex; flex-direction: column; gap: 3px;
+      scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
+    }
+
+    /* Search result item */
+    .sri {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 8px; border-radius: 8px; cursor: pointer;
+      border: 1.5px solid transparent; transition: background .12s, border-color .12s;
+    }
+    .sri:hover { background: var(--surface2); }
+    .sri.in-list { border-color: var(--purple); background: rgba(124,58,237,.08); }
+    .sri.in-list:hover { background: rgba(124,58,237,.15); }
+    .sri-img {
+      width: 34px; height: 47px; border-radius: 5px; overflow: hidden;
+      background: var(--surface2); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+    .sri-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .sri-info { flex: 1; min-width: 0; }
+    .sri-name {
+      font-size: 0.78rem; font-weight: 700; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .sri-meta { font-size: 0.62rem; color: var(--dim); margin-top: 2px; }
+    .sri-badge {
+      font-size: 0.58rem; font-weight: 800;
+      background: rgba(124,58,237,.14); color: var(--purple-l);
+      border-radius: 4px; padding: 2px 6px; flex-shrink: 0;
+    }
+
+    /* ── IO TEXTAREA ── */
+    .io-textarea {
+      flex: 1; margin: 6px 16px; resize: vertical;
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 8px; color: var(--text);
+      font-family: monospace; font-size: 0.74rem; padding: 10px; min-height: 160px;
+    }
+    .io-textarea:focus { outline: none; border-color: var(--purple); }
+
+    /* ── TOASTS ── */
+    .toast-wrap {
+      position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%);
+      z-index: 1000; display: flex; flex-direction: column;
+      gap: 5px; align-items: center; pointer-events: none;
+    }
+    .toast {
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 20px; padding: 7px 16px;
+      font-size: 0.78rem; font-weight: 700; color: var(--text);
+      opacity: 0; transform: translateY(8px);
+      transition: opacity .22s, transform .22s; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.t-ok   { border-color: #4ade8055; color: var(--green); }
+    .toast.t-warn { border-color: #fbbf2455; color: var(--gold); }
+    .toast.t-err  { border-color: #f8717155; color: #f87171; }
+
+    /* ── EMPTY STATE ── */
+    #empty-state {
+      text-align: center; padding: 70px 24px; color: var(--muted);
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    .empty-icon { font-size: 3.5rem; }
+    .empty-msg  { font-family: var(--font-head); font-size: 1.1rem; color: var(--muted); }
+    .empty-sub  { font-size: 0.82rem; color: var(--dim); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      #wishlist-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .hdr-actions .btn { padding: 6px 9px; font-size: 0.72rem; }
+      .page-title { font-size: 1.3rem; }
+      .stat-chip { min-width: 62px; padding: 7px 10px; }
+      .stat-chip .sv { font-size: 1rem; }
+    }
+    @media (max-width: 380px) {
+      #wishlist-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      .wl-info { padding: 6px 6px 5px; }
+    }
+  </style>
+  <script src="../i18n/translations.js"></script>
+  <script src="../nav.js"></script>
+  <script>
+    /* Dark-mode bridge: nav.js sets html.dark, this page uses body.dark-mode */
+    (function () {
+      function syncDark(dark) { document.body.classList.toggle('dark-mode', dark); }
+      document.addEventListener('DOMContentLoaded', function () {
+        syncDark(document.documentElement.classList.contains('dark'));
+      });
+      window.addEventListener('mlp-theme-change', function (e) { syncDark(e.detail.dark); });
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- ── Toast notifications ── -->
+  <div class="toast-wrap" id="toasts"></div>
+
+  <!-- ════════════════════════════════════════════════════════
+       SEARCH MODAL — Add cards to wishlist
+       ════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="search-modal" onclick="closeSearchModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title">➕ Add Cards to Wishlist</span>
+        <button class="modal-close" onclick="closeSearchModal()">✕</button>
+      </div>
+
+      <!-- Search input -->
+      <input id="search-input" class="search-input"
+             placeholder="Search by name or ID..."
+             oninput="renderSearchResults()" autocomplete="off">
+
+      <!-- Filter row inside modal -->
+      <div class="modal-filter-row">
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('sm-type'); event.stopPropagation()">Type ▼</button>
+          <div class="dd-menu" id="sm-type">
+            <label class="dd-item"><input type="checkbox" value="Character"      onchange="renderSearchResults()"> Character</label>
+            <label class="dd-item"><input type="checkbox" value="Event"          onchange="renderSearchResults()"> Event</label>
+            <label class="dd-item"><input type="checkbox" value="Item"           onchange="renderSearchResults()"> Item</label>
+            <label class="dd-item"><input type="checkbox" value="Scene"          onchange="renderSearchResults()"> Scene</label>
+            <label class="dd-item"><input type="checkbox" value="Story"          onchange="renderSearchResults()"> Story</label>
+            <label class="dd-item"><input type="checkbox" value="Main Character" onchange="renderSearchResults()"> Main Char</label>
+          </div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('sm-rarity'); event.stopPropagation()">Rarity ▼</button>
+          <div class="dd-menu" id="sm-rarity">
+            <label class="dd-item"><input type="checkbox" value="CR"  onchange="renderSearchResults()"> CR</label>
+            <label class="dd-item"><input type="checkbox" value="GR"  onchange="renderSearchResults()"> GR</label>
+            <label class="dd-item"><input type="checkbox" value="SR"  onchange="renderSearchResults()"> SR</label>
+            <label class="dd-item"><input type="checkbox" value="RR"  onchange="renderSearchResults()"> RR</label>
+            <label class="dd-item"><input type="checkbox" value="ER"  onchange="renderSearchResults()"> ER</label>
+            <label class="dd-item"><input type="checkbox" value="SPR" onchange="renderSearchResults()"> SPR</label>
+            <label class="dd-item"><input type="checkbox" value="U"   onchange="renderSearchResults()"> U</label>
+            <label class="dd-item"><input type="checkbox" value="C"   onchange="renderSearchResults()"> C</label>
+          </div>
+        </div>
+        <span id="search-count" class="search-count"></span>
+      </div>
+
+      <!-- Scrollable results -->
+      <div id="search-results" class="search-results"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       IO MODAL — Import / Export text
+       ════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="io-modal" onclick="closeIOModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title">📋 Import / Export</span>
+        <button class="modal-close" onclick="closeIOModal()">✕</button>
+      </div>
+      <p class="modal-hint">Format: <code>ID | Needed | Owned</code> (one per line, # for comments)</p>
+      <textarea id="io-text" class="io-textarea" rows="12"
+                placeholder="BP01-C01 | 4 | 2&#10;BP01-C02 | 3 | 1"></textarea>
+      <div class="modal-actions">
+        <button class="btn btn-primary"   onclick="doImport()">✅ Import</button>
+        <button class="btn btn-secondary" onclick="doExportText()">📤 Fill from wishlist</button>
+        <button class="btn btn-secondary" onclick="copyIOText()">📋 Copy</button>
+        <button class="btn btn-secondary" onclick="closeIOModal()">✕ Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       MAIN PAGE
+       ════════════════════════════════════════════════════════ -->
+  <div id="page-wrap">
+
+    <!-- ── Page header ── -->
+    <div id="page-hdr">
+      <h1 class="page-title">🎴 My Wishlist</h1>
+      <div class="hdr-actions">
+        <button class="btn btn-primary"   onclick="openSearchModal()">➕ Add Card</button>
+        <button class="btn btn-secondary" onclick="openIOModal()">📋 Import/Export</button>
+        <button class="btn btn-secondary" onclick="copyShareURL()">🔗 Share</button>
+        <button class="btn btn-secondary" onclick="exportPNG()">📸 Export PNG</button>
+      </div>
+    </div>
+
+    <!-- ── Stats dashboard ── -->
+    <div id="stats-bar">
+      <!-- Populated by renderStats() -->
+    </div>
+
+    <!-- ── Toolbar: filters + sort ── -->
+    <div id="toolbar">
+      <!-- Status pills -->
+      <button id="pill-all"      class="filter-pill active" onclick="setStatusFilter('all')">All</button>
+      <button id="pill-needed"   class="filter-pill"        onclick="setStatusFilter('needed')">Needed</button>
+      <button id="pill-complete" class="filter-pill"        onclick="setStatusFilter('complete')">Completed</button>
+
+      <div class="toolbar-sep"></div>
+
+      <!-- Type filter -->
+      <div class="dd-wrap">
+        <button class="dd-btn" onclick="toggleDD('dd-wl-type'); event.stopPropagation()">
+          <span id="dd-wl-type-lbl">Type</span> ▼
+        </button>
+        <div class="dd-menu" id="dd-wl-type">
+          <label class="dd-item"><input type="checkbox" value="Character"      onchange="applyFilters()"> Character</label>
+          <label class="dd-item"><input type="checkbox" value="Event"          onchange="applyFilters()"> Event</label>
+          <label class="dd-item"><input type="checkbox" value="Item"           onchange="applyFilters()"> Item</label>
+          <label class="dd-item"><input type="checkbox" value="Scene"          onchange="applyFilters()"> Scene</label>
+          <label class="dd-item"><input type="checkbox" value="Story"          onchange="applyFilters()"> Story</label>
+          <label class="dd-item"><input type="checkbox" value="Main Character" onchange="applyFilters()"> Main Char</label>
+        </div>
+      </div>
+
+      <!-- Rarity filter -->
+      <div class="dd-wrap">
+        <button class="dd-btn" onclick="toggleDD('dd-wl-rarity'); event.stopPropagation()">
+          <span id="dd-wl-rarity-lbl">Rarity</span> ▼
+        </button>
+        <div class="dd-menu" id="dd-wl-rarity">
+          <label class="dd-item"><input type="checkbox" value="CR"  onchange="applyFilters()"> CR</label>
+          <label class="dd-item"><input type="checkbox" value="GR"  onchange="applyFilters()"> GR</label>
+          <label class="dd-item"><input type="checkbox" value="SR"  onchange="applyFilters()"> SR</label>
+          <label class="dd-item"><input type="checkbox" value="RR"  onchange="applyFilters()"> RR</label>
+          <label class="dd-item"><input type="checkbox" value="ER"  onchange="applyFilters()"> ER</label>
+          <label class="dd-item"><input type="checkbox" value="SPR" onchange="applyFilters()"> SPR</label>
+          <label class="dd-item"><input type="checkbox" value="U"   onchange="applyFilters()"> U</label>
+          <label class="dd-item"><input type="checkbox" value="C"   onchange="applyFilters()"> C</label>
+        </div>
+      </div>
+
+      <!-- Sort -->
+      <div class="dd-wrap" style="margin-left:auto;">
+        <button class="dd-btn" onclick="toggleDD('dd-wl-sort'); event.stopPropagation()">
+          <span id="dd-sort-lbl">Sort: Newest</span> ▼
+        </button>
+        <div class="dd-menu" id="dd-wl-sort">
+          <div class="dd-item sort-opt" onclick="setSortMode('newest')">Newest Added</div>
+          <div class="dd-item sort-opt" onclick="setSortMode('id')">Card ID</div>
+          <div class="dd-item sort-opt" onclick="setSortMode('pct')">Completion %</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Wishlist card grid ── -->
+    <div id="wishlist-grid">
+      <!-- Populated by renderGrid() -->
+    </div>
+
+    <!-- ── Empty state ── -->
+    <div id="empty-state" style="display:none;">
+      <div class="empty-icon">🎴</div>
+      <p class="empty-msg">Your wishlist is empty.</p>
+      <p class="empty-sub">Search for cards to start tracking what you need.</p>
+      <button class="btn btn-primary" onclick="openSearchModal()">➕ Add Cards</button>
+    </div>
+
+  </div><!-- /#page-wrap -->
+
+  <script>
+  // ═══════════════════════════════════════════════════════
+  // STATE
+  // ═══════════════════════════════════════════════════════
+  const BASE_URLS = [
+    '..',
+    'https://raw.githubusercontent.com/auac131/MLP-DB/main',
+    'https://raw.githubusercontent.com/auac131/MLP-DB/master'
+  ];
+  const LS_KEY = 'mlp-wishlist';
+  const LS_INJECT = 'mlp-wishlist-inject';
+
+  const RARITY_COLORS = {
+    CR:'#a78bfa', GR:'#fbbf24', SR:'#34d399', RR:'#f472b6',
+    ER:'#38bdf8', SPR:'#fb923c', U:'#60a5fa', C:'#9ca3af'
+  };
+  const RARITY_ORDER = ['CR','GR','SR','RR','ER','SPR','U','C'];
+
+  let library  = [];   // all cards from MLP-DB.json
+  let wishlist = [];   // [{id, needed, owned, addedAt}]
+
+  // UI state
+  let filterStatus   = 'all';   // 'all' | 'needed' | 'complete'
+  let filterTypes    = [];
+  let filterRarities = [];
+  let sortMode       = 'newest'; // 'newest' | 'id' | 'pct'
+
+  // ═══════════════════════════════════════════════════════
+  // UTILITIES
+  // ═══════════════════════════════════════════════════════
+  function $(id) { return document.getElementById(id); }
+
+  function toast(msg, type = 'ok') {
+    const wrap = $('toasts');
+    const el = document.createElement('div');
+    el.className = `toast t-${type}`;
+    el.textContent = msg;
+    wrap.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => {
+      el.classList.remove('show');
+      setTimeout(() => el.remove(), 300);
+    }, 2800);
+  }
+
+  function getChecked(menuId) {
+    return Array.from(document.querySelectorAll(`#${menuId} input:checked`))
+      .map(el => el.value);
+  }
+
+  function toggleDD(id) {
+    document.querySelectorAll('.dd-menu.open').forEach(el => {
+      if (el.id !== id) el.classList.remove('open');
+    });
+    if (id) document.getElementById(id)?.classList.toggle('open');
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // PERSISTENCE
+  // ═══════════════════════════════════════════════════════
+  function saveWishlist() {
+    localStorage.setItem(LS_KEY, JSON.stringify({ cards: wishlist }));
+  }
+
+  function loadWishlist() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (raw) wishlist = JSON.parse(raw).cards || [];
+    } catch (e) { wishlist = []; }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // DATA LOADING
+  // ═══════════════════════════════════════════════════════
+  async function loadLibrary() {
+    for (const base of BASE_URLS) {
+      try {
+        const res = await fetch(base + '/MLP-DB.json');
+        if (!res.ok) continue;
+        const data = await res.json();
+        const raw = Array.isArray(data) ? data : (data.cards || []);
+        library = raw.map(c => ({
+          id:      c.id,
+          name:    c.name,
+          type:    c.type || 'Character',
+          subtype: c.subtype || [],
+          color:   c.color || '',
+          cost:    c.cost ?? null,
+          power:   c.power ?? null,
+          rarity:  c.rarity || 'C',
+          deck:    c.deck || '',
+          ability: c.ability || '',
+          imageUrl: base + '/cards/' + c.id + '.jpg'
+        }));
+        return true;
+      } catch (e) { console.warn('Load failed:', base, e.message); }
+    }
+    toast('⚠ Could not load card data', 'err');
+    return false;
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // WISHLIST CRUD
+  // ═══════════════════════════════════════════════════════
+  function addCard(id) {
+    if (wishlist.find(w => w.id === id)) {
+      toast('Already in wishlist', 'warn'); return;
+    }
+    wishlist.unshift({ id, needed: 1, owned: 0, addedAt: new Date().toISOString() });
+    saveWishlist();
+    render();
+    toast('Added to wishlist ✓', 'ok');
+  }
+
+  function removeCard(id) {
+    wishlist = wishlist.filter(w => w.id !== id);
+    saveWishlist();
+    render();
+  }
+
+  function adjustNeeded(id, delta) {
+    const item = wishlist.find(w => w.id === id);
+    if (!item) return;
+    item.needed = Math.max(1, Math.min(4, item.needed + delta));
+    item.owned  = Math.min(item.owned, item.needed);
+    saveWishlist();
+    render();
+  }
+
+  function adjustOwned(id, delta) {
+    const item = wishlist.find(w => w.id === id);
+    if (!item) return;
+    item.owned = Math.max(0, Math.min(item.needed, item.owned + delta));
+    saveWishlist();
+    render();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // FILTERING & SORTING
+  // ═══════════════════════════════════════════════════════
+  function getFilteredSorted() {
+    let items = wishlist
+      .map(w => ({ ...w, _card: library.find(c => c.id === w.id) }))
+      .filter(w => w._card);
+
+    if (filterStatus === 'needed')   items = items.filter(w => w.owned < w.needed);
+    if (filterStatus === 'complete') items = items.filter(w => w.owned >= w.needed);
+    if (filterTypes.length)    items = items.filter(w => filterTypes.includes(w._card.type));
+    if (filterRarities.length) items = items.filter(w => filterRarities.includes(w._card.rarity));
+
+    if (sortMode === 'newest') items.sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
+    if (sortMode === 'id')     items.sort((a, b) => a.id.localeCompare(b.id));
+    if (sortMode === 'pct')    items.sort((a, b) => (b.owned / b.needed) - (a.owned / a.needed));
+
+    return items;
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // RENDER — STATS BAR
+  // ═══════════════════════════════════════════════════════
+  function renderStats() {
+    const totalCards  = wishlist.length;
+    const totalNeeded = wishlist.reduce((s, w) => s + w.needed, 0);
+    const totalOwned  = wishlist.reduce((s, w) => s + w.owned,  0);
+    const pct = totalNeeded > 0 ? Math.round((totalOwned / totalNeeded) * 100) : 0;
+
+    const rarityCount = {};
+    wishlist.forEach(w => {
+      const card = library.find(c => c.id === w.id);
+      if (!card) return;
+      rarityCount[card.rarity] = (rarityCount[card.rarity] || 0) + 1;
+    });
+
+    const rarityChips = RARITY_ORDER
+      .filter(r => rarityCount[r])
+      .map(r => {
+        const col = RARITY_COLORS[r] || '#9ca3af';
+        return `<span class="rarity-chip" style="color:${col};border-color:${col}44;background:${col}11;">${r}: ${rarityCount[r]}</span>`;
+      }).join('');
+
+    $('stats-bar').innerHTML = `
+      <div class="stat-chip">
+        <span class="sv">${totalCards}</span>
+        <span class="sl">Cards</span>
+      </div>
+      <div class="stat-chip">
+        <span class="sv">${totalNeeded}</span>
+        <span class="sl">Needed</span>
+      </div>
+      <div class="stat-chip">
+        <span class="sv">${totalOwned}</span>
+        <span class="sl">Owned</span>
+      </div>
+      <div class="stat-chip ${pct === 100 ? 'complete-chip' : ''}">
+        <span class="sv">${pct}%</span>
+        <span class="sl">Complete</span>
+      </div>
+      ${rarityChips ? `<div class="stat-chip" style="flex-direction:row;flex-wrap:wrap;gap:4px;min-width:auto;padding:8px 12px;align-items:center;"><div class="rarity-chip-row">${rarityChips}</div></div>` : ''}
+    `;
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // RENDER — CARD TILE
+  // ═══════════════════════════════════════════════════════
+  function makeTile(item) {
+    const card = item._card;
+    const pct  = item.needed > 0 ? Math.round((item.owned / item.needed) * 100) : 0;
+    const done = item.owned >= item.needed;
+
+    const tile = document.createElement('div');
+    tile.className = 'wl-tile' + (done ? ' complete' : '');
+
+    // — Image wrap —
+    const imgWrap = document.createElement('div');
+    imgWrap.className = 'wl-img-wrap';
+
+    const img = document.createElement('img');
+    img.alt = card.name; img.loading = 'lazy';
+    const ph = document.createElement('div');
+    ph.className = 'wl-ph'; ph.textContent = '🃏';
+    img.src = card.imageUrl;
+    img.onerror = () => { img.style.display = 'none'; };
+
+    const doneBadge = document.createElement('div');
+    doneBadge.className = 'wl-done-badge'; doneBadge.textContent = '✓ Done';
+
+    const rmBtn = document.createElement('button');
+    rmBtn.className = 'wl-rm-btn'; rmBtn.title = 'Remove';
+    rmBtn.innerHTML = '✕';
+    rmBtn.onclick = e => { e.stopPropagation(); removeCard(item.id); };
+
+    imgWrap.append(ph, img, doneBadge, rmBtn);
+
+    // — Info area —
+    const info = document.createElement('div');
+    info.className = 'wl-info';
+
+    const name = document.createElement('div');
+    name.className = 'wl-name'; name.title = card.name; name.textContent = card.name;
+
+    const rarCol = RARITY_COLORS[card.rarity] || '#9ca3af';
+    const meta = document.createElement('div');
+    meta.className = 'wl-meta';
+    meta.innerHTML = `${card.id} · <span style="color:${rarCol};font-weight:800;">${card.rarity}</span>`;
+
+    // Progress bar
+    const progWrap = document.createElement('div');
+    progWrap.className = 'wl-progress-wrap';
+    const progBar = document.createElement('div');
+    progBar.className = 'wl-progress-bar';
+    progBar.style.width = pct + '%';
+    progWrap.appendChild(progBar);
+
+    const fraction = document.createElement('div');
+    fraction.className = 'wl-fraction';
+    fraction.textContent = `${item.owned} / ${item.needed}`;
+
+    // Needed stepper
+    const neededRow = makeQtyRow(
+      'Need:', item.needed,
+      () => adjustNeeded(item.id, -1),
+      () => adjustNeeded(item.id, +1),
+      item.needed <= 1, item.needed >= 4
+    );
+
+    // Owned stepper
+    const ownedRow = makeQtyRow(
+      'Own:', item.owned,
+      () => adjustOwned(item.id, -1),
+      () => adjustOwned(item.id, +1),
+      item.owned <= 0, item.owned >= item.needed
+    );
+
+    info.append(name, meta, progWrap, fraction, neededRow, ownedRow);
+    tile.append(imgWrap, info);
+    return tile;
+  }
+
+  function makeQtyRow(label, value, onMinus, onPlus, disableMinus, disablePlus) {
+    const row  = document.createElement('div');  row.className  = 'wl-qty-row';
+    const lbl  = document.createElement('span'); lbl.className  = 'wl-qty-label'; lbl.textContent = label;
+    const ctrl = document.createElement('div');  ctrl.className = 'wl-qty-ctrl';
+    const minus = document.createElement('button'); minus.className = 'wl-btn wl-btn-minus';
+    minus.textContent = '−'; minus.disabled = disableMinus; minus.onclick = onMinus;
+    const val  = document.createElement('span'); val.className  = 'wl-qty-val'; val.textContent = value;
+    const plus = document.createElement('button'); plus.className = 'wl-btn wl-btn-plus';
+    plus.textContent = '+'; plus.disabled = disablePlus; plus.onclick = onPlus;
+    ctrl.append(minus, val, plus);
+    row.append(lbl, ctrl);
+    return row;
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // RENDER — GRID
+  // ═══════════════════════════════════════════════════════
+  function renderGrid() {
+    const grid  = $('wishlist-grid');
+    const empty = $('empty-state');
+    grid.innerHTML = '';
+
+    if (wishlist.length === 0) {
+      empty.style.display = '';
+      return;
+    }
+    empty.style.display = 'none';
+
+    const items = getFilteredSorted();
+    if (items.length === 0) {
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--dim);font-size:0.85rem;">No cards match the current filters.</div>';
+      return;
+    }
+    items.forEach(item => grid.appendChild(makeTile(item)));
+  }
+
+  function render() {
+    renderStats();
+    renderGrid();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // SEARCH MODAL
+  // ═══════════════════════════════════════════════════════
+  function openSearchModal() {
+    $('search-modal').classList.add('open');
+    renderSearchResults();
+    setTimeout(() => $('search-input').focus(), 60);
+  }
+
+  function closeSearchModal() {
+    $('search-modal').classList.remove('open');
+    $('search-input').value = '';
+  }
+
+  function renderSearchResults() {
+    const q        = $('search-input').value.toLowerCase().trim();
+    const types    = getChecked('sm-type');
+    const rarities = getChecked('sm-rarity');
+    const inWL     = new Set(wishlist.map(w => w.id));
+
+    let cards = library;
+    if (q)             cards = cards.filter(c => c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q));
+    if (types.length)    cards = cards.filter(c => types.includes(c.type));
+    if (rarities.length) cards = cards.filter(c => rarities.includes(c.rarity));
+
+    $('search-count').textContent = cards.length + ' cards';
+    const visible = cards.slice(0, 100);
+    const container = $('search-results');
+    container.innerHTML = '';
+
+    if (visible.length === 0) {
+      container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--dim);font-size:0.8rem;">No cards found.</div>';
+      return;
+    }
+
+    visible.forEach(card => {
+      const inList = inWL.has(card.id);
+      const item   = document.createElement('div');
+      item.className = 'sri' + (inList ? ' in-list' : '');
+
+      const imgWrap = document.createElement('div'); imgWrap.className = 'sri-img';
+      const img = document.createElement('img');
+      img.src = card.imageUrl; img.alt = card.name;
+      img.onerror = () => { img.style.display = 'none'; imgWrap.textContent = '🃏'; };
+      imgWrap.appendChild(img);
+
+      const info = document.createElement('div'); info.className = 'sri-info';
+      const rarCol = RARITY_COLORS[card.rarity] || '#9ca3af';
+      info.innerHTML = `<div class="sri-name">${card.name}</div>
+        <div class="sri-meta">${card.id} · <span style="color:${rarCol};font-weight:800;">${card.rarity}</span> · ${card.type}</div>`;
+
+      const badge = document.createElement('div');
+      if (inList) { badge.className = 'sri-badge'; badge.textContent = '✓ Added'; }
+
+      item.append(imgWrap, info, badge);
+      item.onclick = () => {
+        if (inList) removeCard(card.id);
+        else        addCard(card.id);
+        renderSearchResults();
+      };
+      container.appendChild(item);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // DECK BUILDER INJECT (localStorage bridge)
+  // ═══════════════════════════════════════════════════════
+  function loadInjected() {
+    const raw = localStorage.getItem(LS_INJECT);
+    if (!raw) return;
+    localStorage.removeItem(LS_INJECT);
+    try {
+      const entries = JSON.parse(raw);
+      let added = 0;
+      entries.forEach(e => {
+        if (!library.find(c => c.id === e.id)) return;
+        if (wishlist.find(w => w.id === e.id)) return;
+        wishlist.push({
+          id: e.id,
+          needed: Math.max(1, Math.min(4, e.needed || 1)),
+          owned:  Math.max(0, e.owned || 0),
+          addedAt: new Date().toISOString()
+        });
+        added++;
+      });
+      if (added) {
+        saveWishlist();
+        toast(`📥 Added ${added} cards from Deck Builder`, 'ok');
+      }
+    } catch (e) { console.warn('Inject parse failed:', e); }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // FILTERS & SORT
+  // ═══════════════════════════════════════════════════════
+  function setStatusFilter(status) {
+    filterStatus = status;
+    ['all','needed','complete'].forEach(s => {
+      $('pill-' + s).classList.toggle('active', s === status);
+    });
+    renderGrid();
+  }
+
+  function applyFilters() {
+    filterTypes    = getChecked('dd-wl-type');
+    filterRarities = getChecked('dd-wl-rarity');
+    const typeLbl   = filterTypes.length    ? filterTypes.length + ' selected'    : 'Type';
+    const rarityLbl = filterRarities.length ? filterRarities.length + ' selected' : 'Rarity';
+    $('dd-wl-type-lbl').textContent   = typeLbl;
+    $('dd-wl-rarity-lbl').textContent = rarityLbl;
+    renderGrid();
+  }
+
+  function setSortMode(mode) {
+    sortMode = mode;
+    const labels = { newest: 'Sort: Newest', id: 'Sort: ID', pct: 'Sort: Complete %' };
+    $('dd-sort-lbl').textContent = labels[mode] || 'Sort';
+    toggleDD('');
+    renderGrid();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // IO MODAL — Import / Export Text
+  // ═══════════════════════════════════════════════════════
+  function openIOModal() {
+    $('io-modal').classList.add('open');
+    $('io-text').value = '';
+  }
+
+  function closeIOModal() { $('io-modal').classList.remove('open'); }
+
+  function doExportText() {
+    const lines = ['# MLP TCG Wishlist Export', '# Format: ID | Needed | Owned', ''];
+    wishlist.forEach(w => {
+      const card = library.find(c => c.id === w.id);
+      lines.push(`${w.id} | ${w.needed} | ${w.owned}${card ? '  # ' + card.name : ''}`);
+    });
+    $('io-text').value = lines.join('\n');
+  }
+
+  function doImport() {
+    const lines = $('io-text').value.split('\n')
+      .map(l => l.trim())
+      .filter(l => l && !l.startsWith('#'));
+
+    let imported = 0, skipped = 0;
+    lines.forEach(line => {
+      const parts = line.split('|').map(p => p.trim().split('#')[0].trim());
+      const id = parts[0];
+      if (!id) { skipped++; return; }
+      if (!library.find(c => c.id === id)) { skipped++; return; }
+      const needed = Math.max(1, Math.min(4, parseInt(parts[1]) || 1));
+      const owned  = Math.max(0, Math.min(needed, parseInt(parts[2]) || 0));
+      const existing = wishlist.find(w => w.id === id);
+      if (existing) { existing.needed = needed; existing.owned = owned; }
+      else { wishlist.push({ id, needed, owned, addedAt: new Date().toISOString() }); }
+      imported++;
+    });
+
+    saveWishlist();
+    render();
+    toast(`✅ Imported ${imported}${skipped ? `, ${skipped} skipped` : ''}`, 'ok');
+    closeIOModal();
+  }
+
+  function copyIOText() {
+    const text = $('io-text').value;
+    if (!text.trim()) { toast('Nothing to copy', 'warn'); return; }
+    navigator.clipboard.writeText(text)
+      .then(() => toast('📋 Copied!', 'ok'))
+      .catch(() => toast('Copy failed', 'err'));
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // SHARE URL
+  // ═══════════════════════════════════════════════════════
+  function copyShareURL() {
+    if (!wishlist.length) { toast('Wishlist is empty', 'warn'); return; }
+    const param = wishlist.map(w => `${w.id}:${w.needed}:${w.owned}`).join(',');
+    const url   = location.href.split('?')[0] + '?cards=' + encodeURIComponent(param);
+    navigator.clipboard.writeText(url)
+      .then(() => toast('🔗 Share URL copied!', 'ok'))
+      .catch(() => {
+        const inp = document.createElement('input');
+        inp.value = url; document.body.appendChild(inp);
+        inp.select(); document.execCommand('copy'); inp.remove();
+        toast('🔗 Share URL copied!', 'ok');
+      });
+  }
+
+  function loadFromURL() {
+    const raw = new URLSearchParams(location.search).get('cards');
+    if (!raw) return;
+    try {
+      decodeURIComponent(raw).split(',').forEach(seg => {
+        const [id, n, o] = seg.trim().split(':');
+        if (!id || !library.find(c => c.id === id)) return;
+        if (wishlist.find(w => w.id === id)) return;
+        wishlist.push({
+          id, needed: Math.max(1, Math.min(4, +n || 1)),
+          owned: Math.max(0, +o || 0), addedAt: new Date().toISOString()
+        });
+      });
+      saveWishlist();
+    } catch (e) { console.warn('URL parse failed:', e); }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // EXPORT PNG (html2canvas, iframe approach)
+  // ═══════════════════════════════════════════════════════
+  function exportPNG() {
+    if (!wishlist.length) { toast('Wishlist is empty', 'warn'); return; }
+    toast('📸 Building PNG…', 'ok');
+
+    const CW = 900, SCALE = 2, PAD = 24;
+    const items = wishlist
+      .map(w => ({ ...w, _card: library.find(c => c.id === w.id) }))
+      .filter(w => w._card);
+
+    const totalNeeded = items.reduce((s, w) => s + w.needed, 0);
+    const totalOwned  = items.reduce((s, w) => s + w.owned, 0);
+    const pct  = totalNeeded > 0 ? Math.round((totalOwned / totalNeeded) * 100) : 0;
+    const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    const tilesHTML = items.map(w => {
+      const barPct = Math.round((w.owned / w.needed) * 100);
+      const barCol = w.owned >= w.needed ? '#16a34a' : '#7c3aed';
+      const rarCol = RARITY_COLORS[w._card.rarity] || '#9ca3af';
+      return `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="aspect-ratio:5/7;border-radius:6px;overflow:hidden;background:#ede8f8;border:1px solid #d4c8f0;position:relative;">
+          <img src="${w._card.imageUrl}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none'">
+          ${w.owned >= w.needed ? `<div style="position:absolute;top:4px;right:4px;background:#16a34a;color:#fff;font-size:0.4rem;font-weight:800;border-radius:8px;padding:1px 5px;">✓</div>` : ''}
+        </div>
+        <div style="font-size:0.4rem;font-weight:700;color:#1e1040;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${w._card.name}">${w._card.name}</div>
+        <div style="font-size:0.34rem;color:#a090c8;">${w.id} · <span style="color:${rarCol};font-weight:800;">${w._card.rarity}</span></div>
+        <div style="height:3px;background:#e8e0f8;border-radius:2px;overflow:hidden;">
+          <div style="height:100%;width:${barPct}%;background:${barCol};"></div>
+        </div>
+        <div style="font-size:0.34rem;color:#6b52a8;text-align:center;">${w.owned}/${w.needed}</div>
+      </div>`;
+    }).join('');
+
+    const snapHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{background:#fff;}</style>
+</head><body>
+<div style="width:${CW}px;background:#fff;font-family:'Nunito',sans-serif;">
+  <div style="height:5px;background:linear-gradient(90deg,#7c3aed,#db2777,#f59e0b,#db2777,#7c3aed);"></div>
+  <div style="padding:16px ${PAD}px 12px;border-bottom:1px solid #e8e0f8;display:flex;align-items:center;justify-content:space-between;">
+    <div>
+      <div style="font-family:'Fredoka One',cursive;font-size:1.5rem;color:#1e1040;">🎴 My MLP TCG Wishlist</div>
+      <div style="font-size:0.55rem;color:#9580c8;margin-top:4px;">${items.length} cards · ${totalOwned}/${totalNeeded} owned · ${pct}% complete · ${date}</div>
+    </div>
+    <div style="font-family:'Fredoka One',cursive;font-size:0.62rem;color:#c4b5fd;text-align:right;line-height:1.8;">🌈 DreamTCG</div>
+  </div>
+  <div style="padding:14px ${PAD}px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+    ${tilesHTML}
+  </div>
+  <div style="padding:8px ${PAD}px 14px;border-top:1px solid #e8e0f8;font-size:0.36rem;color:#c4b5fd;">Fan-made tool · Not affiliated with Hasbro or KAYOU</div>
+</div>
+</body></html>`;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = `position:fixed;left:-9999px;top:0;width:${CW}px;height:2000px;border:none;visibility:hidden;`;
+    document.body.appendChild(iframe);
+    iframe.onload = () => {
+      setTimeout(() => {
+        const root = iframe.contentDocument.body.firstElementChild;
+        const h    = root.scrollHeight;
+        iframe.style.height = h + 'px';
+        html2canvas(root, {
+          backgroundColor: null, scale: SCALE,
+          useCORS: true, allowTaint: true, logging: false,
+          width: CW, height: h, windowWidth: CW, windowHeight: h
+        }).then(canvas => {
+          document.body.removeChild(iframe);
+          const a = document.createElement('a');
+          a.href = canvas.toDataURL('image/png');
+          a.download = 'mlp_wishlist_' + Date.now() + '.png';
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          toast('✅ PNG saved!', 'ok');
+        }).catch(err => {
+          document.body.removeChild(iframe);
+          toast('Export failed', 'err');
+          console.error(err);
+        });
+      }, 700);
+    };
+    iframe.contentDocument.open();
+    iframe.contentDocument.write(snapHTML);
+    iframe.contentDocument.close();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // GLOBAL EVENT LISTENERS
+  // ═══════════════════════════════════════════════════════
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dd-menu.open').forEach(el => el.classList.remove('open'));
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeSearchModal(); closeIOModal(); }
+  });
+
+  // ═══════════════════════════════════════════════════════
+  // INIT
+  // ═══════════════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', async () => {
+    loadWishlist();
+    render(); // show what we have before library loads
+
+    await loadLibrary();
+
+    loadInjected(); // consume any deck-builder inject
+    loadFromURL();  // parse ?cards= URL param
+
+    render(); // full render with library data
+  });
+  </script>
+
+</body>
+</html>

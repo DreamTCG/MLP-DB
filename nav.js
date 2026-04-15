@@ -73,6 +73,7 @@
     { key: 'nav.cards',       icon: '🃏', href: BASE + '/library/',     match: [BASE + '/library/', BASE + '/library/index.html'] },
     { key: 'nav.deckbuilder', icon: '🗂️', href: BASE + '/deckbuilder/', match: [BASE + '/deckbuilder/', BASE + '/deckbuilder/index.html'] },
     // { key: 'nav.battlesim', icon: '⚔️', href: BASE + '/battlesim/',  match: [BASE + '/battlesim/', BASE + '/battlesim/index.html'] },  // temporarily disabled
+    { key: 'nav.wishlist',    icon: '⭐', href: BASE + '/wishlist/',    match: [BASE + '/wishlist/', BASE + '/wishlist/index.html'] },
     { key: 'nav.rules',       icon: '📋', href: BASE + '/#rules',       match: [] },
   ];
 
