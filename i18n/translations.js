@@ -34,10 +34,10 @@
 
       // ── SHARED / COMMON (library + deckbuilder) ─────────────
       'common.search':        'Search cards...',               // ✅ translate
-      'common.filterType':    'Type',                          // ✅ translate
-      'common.filterRarity':  'Rarity',                        // ✅ translate
-      'common.filterSet':     'Set',                           // ✅ translate
-      'common.filterRace':    'Race',                          // ✅ translate
+      'common.filterType':    'Type',                          // ❌ same — kept EN in TH (audit decision)
+      'common.filterRarity':  'Rarity',                        // ❌ same
+      'common.filterSet':     'Set',                           // ❌ same
+      'common.filterRace':    'Race',                          // ❌ same
 
       // ── NAV BAR (nav.js) ────────────────────────────────────
       'nav.home':         'Home',                              // ✅ translate
@@ -48,7 +48,7 @@
 
       // ── LANGUAGE TOGGLE (nav.js) ────────────────────────────
       // Shows the language you will switch TO (opposite of current).
-      'lang.switchTo':    'TH',                                // ❌ same — language code (differs per lang, kept manually)
+      'lang.switchTo':    'TH',                                // special — differs per lang block; kept manually
 
       // ── THEME TOGGLE TOOLTIPS (nav.js) ──────────────────────
       'theme.toLight':    'Switch to Light Mode',              // ✅ translate
@@ -90,7 +90,7 @@
       'home.deckTitle':    'Deck Builder',                     // ✅ translate
       'home.deckDesc':     'Browse cards, build decks<br>and export lists', // ✅ translate  /* html */
       'home.libraryTitle': 'Card Library',                     // ✅ translate
-      'home.libraryDesc':  'Browse 320+ cards<br>EN / TH included', // ✅ translate  /* html */
+      'home.libraryDesc':  'Browse all latest cards<br>EN / TH included', // ✅ translate  /* html */
       'home.rulesTitle':   'How to Play',                      // ✅ translate
       'home.rulesDesc':    'Official rules summary<br>in English', // ✅ translate  /* html */
 
@@ -111,11 +111,11 @@
       // ── CARD LIBRARY (library/index.html) ───────────────────
 
       'lib.topbarTitle':   '📚 MLP Card Library',              // ✅ translate
-      'lib.sortDesc':      '↓ Sort',                           // ✅ translate
-      'lib.sortAsc':       '↑ Sort',                           // ✅ translate
-      'lib.altAll':        'All ※',                            // ⚠️ review — ※ is alt-art symbol
-      'lib.altNo':         'No ※',                             // ⚠️ review
-      'lib.altOnly':       '※ Only',                           // ⚠️ review
+      'lib.sortDesc':      '↓',                                // ❌ same — symbol only
+      'lib.sortAsc':       '↑',                                // ❌ same — symbol only
+      'lib.altAll':        'All',                              // ❌ same — kept EN (audit decision)
+      'lib.altNo':         'No ※',                             // ❌ same — kept EN
+      'lib.altOnly':       '※ Only',                           // ❌ same — kept EN
       'lib.noCards':       'No cards found',                   // ✅ translate
       'lib.loading':       'Loading cards...',                 // ✅ translate
       'lib.clickDetail':   'Click a card to see details',      // ✅ translate
@@ -166,25 +166,25 @@
       'sim.noDeck':        'No deck selected',                 // ✅ translate
       'sim.startGame':     'Start Game',                       // ✅ translate
 
-      // Phase names — game mechanic terms; kept EN in TH (❌ same, omitted from TH block)
-      'sim.startPhase':    'START PHASE',                      // ❌ same — game term kept EN
+      // Phase names — game mechanic terms; kept EN in both languages (❌ same)
+      'sim.startPhase':    'START PHASE',                      // ❌ same
       'sim.mainPhase':     'MAIN PHASE',                       // ❌ same
       'sim.contactPhase':  'CONTACT PHASE',                    // ❌ same
       'sim.endPhase':      'END PHASE',                        // ❌ same
 
-      // Phase transition button labels — also kept EN (❌ same)
+      // Phase transition button labels — also ❌ same
       'sim.toMain':        'Main Phase →',                     // ❌ same
       'sim.toContact':     'Contact Phase →',                  // ❌ same
       'sim.toEnd':         'End Phase →',                      // ❌ same
 
       // Top bar game buttons
-      'sim.tapScene':      'Tap Scene +1✦',                    // ⚠️ review — "Tap" is a card-game action term
-      'sim.back':          '✕',                                // ❌ same — symbol; omitted from TH block
+      'sim.tapScene':      'Tap Scene +1✦',                    // ❌ same — kept EN (audit decision)
+      'sim.back':          '✕',                                // ❌ same — symbol
 
       // Mobile tab buttons
       'sim.hand':          'Hand',                             // ⚠️ review — card-game term
       'sim.actions':       'Actions',                          // ✅ translate
-      'sim.log':           'Log',                              // ✅ translate
+      'sim.log':           'Log',                              // ❌ same — kept EN (audit decision)
       'sim.oppTab':        'OPP',                              // ⚠️ review — abbreviation
 
       // Game zone labels
@@ -199,7 +199,7 @@
       'sim.opp':           'OPP',                              // ⚠️ review — abbreviation
       'sim.mainChar':      'Main Char',                        // ⚠️ review — game term
       'sim.storyArea':     'Story Area',                       // ⚠️ review — game zone name
-      'sim.retirement':    'Retirement',                       // ❌ same — game term kept EN; omitted from TH block
+      'sim.retirement':    'Retirement',                       // ✅ translate — zone name (translated in TH)
       'sim.sceneDeck':     'Scene Deck',                       // ⚠️ review — game zone name
       'sim.sceneArea':     'Scene Area',                       // ⚠️ review — game zone name
       'sim.mainDeck':      'Main Deck',                        // ⚠️ review — game zone name
@@ -216,10 +216,7 @@
 
       // ── SHARED / COMMON ──────────────────────────────────────
       'common.search':        'ค้นหาการ์ด...',
-      'common.filterType':    'ประเภท',
-      'common.filterRarity':  'ความหายาก',
-      'common.filterSet':     'เซ็ต',
-      'common.filterRace':    'เผ่าพันธุ์',
+      // common.filterType / filterRarity / filterSet / filterRace — ❌ same (kept EN)
 
       // ── NAV BAR ─────────────────────────────────────────────
       'nav.home':         'หน้าหลัก',
@@ -229,7 +226,7 @@
       'nav.burger':       'เมนู',
 
       // ── LANGUAGE TOGGLE ─────────────────────────────────────
-      'lang.switchTo':    'EN',                                // opposite language label
+      'lang.switchTo':    'EN',
 
       // ── THEME TOGGLE TOOLTIPS ────────────────────────────────
       'theme.toLight':    'เปลี่ยนเป็น Light Mode',
@@ -251,7 +248,7 @@
       'auth.loginX':      'เข้าสู่ระบบด้วย X',
       'auth.cancel':      'ยกเลิก',
       'auth.privacyPre':  'การเข้าสู่ระบบถือว่าคุณยอมรับ',
-      // auth.privacyLink omitted — ❌ same (Privacy Policy kept EN)
+      // auth.privacyLink — ❌ same (Privacy Policy kept EN)
       'auth.privacyPost': 'ของเรา — ข้อมูลของคุณจะไม่ถูกนำไปใช้เพื่อผลประโยชน์เชิงพาณิชย์ใดๆ',
 
       // ── AUTH MESSAGES ────────────────────────────────────────
@@ -270,7 +267,7 @@
       'home.deckTitle':    'จัดเด็ค',
       'home.deckDesc':     'เลือกการ์ด สร้างเด็ค<br>และ export รายการ',           /* html */
       'home.libraryTitle': 'ดูการ์ดทั้งหมด',
-      'home.libraryDesc':  'ค้นหาการ์ด 320+ ใบ<br>EN / TH ครบ',                  /* html */
+      'home.libraryDesc':  'ค้นหาการ์ดทุกใบ<br>EN / TH ครบ',                     /* html */
       'home.rulesTitle':   'วิธีเล่น',
       'home.rulesDesc':    'กฎกติกาอย่างเป็นทางการ<br>ฉบับภาษาไทย',             /* html */
 
@@ -288,11 +285,8 @@
       // ── CARD LIBRARY ─────────────────────────────────────────
 
       'lib.topbarTitle':   '📚 คลังการ์ด MLP',
-      'lib.sortDesc':      '↓ เรียง',
-      'lib.sortAsc':       '↑ เรียง',
-      'lib.altAll':        'ทั้งหมด ※',
-      'lib.altNo':         'ไม่มี ※',
-      'lib.altOnly':       '※ เท่านั้น',
+      // lib.sortDesc / sortAsc — ❌ same (↓ / ↑ symbols)
+      // lib.altAll / altNo / altOnly — ❌ same (kept EN: audit decision)
       'lib.noCards':       'ไม่พบการ์ด',
       'lib.loading':       'กำลังโหลดการ์ด...',
       'lib.clickDetail':   'คลิกการ์ดเพื่อดูรายละเอียด',
@@ -310,6 +304,7 @@
       'deck.mainDeck':     '🃏 เด็คหลัก',
       'deck.sceneDeck':    '🎭 เด็คฉาก',
       'deck.storyDeck':    '📖 เด็คเรื่องราว',
+      // deck.filterType / filterRarity / filterSet / filterRace — ❌ same (moved to common.*, kept EN)
       'deck.emptyMC':      'คลิกเพื่อเพิ่มการ์ดหลัก',
       'deck.emptyMain':    'เพิ่มการ์ดจากคลัง',
       'deck.emptyScene':   'เพิ่มการ์ดฉากจากคลัง',
@@ -331,31 +326,30 @@
       'sim.noDeck':        'ยังไม่ได้เลือกเด็ค',
       'sim.startGame':     'เริ่มเกม',
 
-      // sim.startPhase / mainPhase / contactPhase / endPhase — ❌ same, omitted (EN fallback)
-      // sim.toMain / toContact / toEnd — ❌ same, omitted (EN fallback)
-      // sim.back — ❌ same (✕ symbol), omitted
-      // sim.retirement — ❌ same (game term kept EN), omitted
-
-      'sim.tapScene':      'แตะฉาก +1✦',
+      // sim.startPhase / mainPhase / contactPhase / endPhase — ❌ same
+      // sim.toMain / toContact / toEnd — ❌ same
+      // sim.back (✕) — ❌ same
+      // sim.tapScene — ❌ same (kept EN: audit decision)
+      // sim.log — ❌ same (kept EN: audit decision)
 
       'sim.hand':          'มือ',
       'sim.actions':       'การกระทำ',
-      'sim.log':           'บันทึก',
       'sim.oppTab':        'ฝ่ายตรงข้าม',
 
       'sim.oppDeck':       'เด็ค OPP',
       'sim.oppScene':      'ฉาก OPP',
-      'sim.oppSceneArea':  'พื้นที่ฉาก OPP',
+      'sim.oppSceneArea':  'โซนฉาก OPP',
       'sim.oppRetire':     'Retire OPP',
       'sim.oppMC':         'การ์ดหลัก OPP',
-      'sim.oppStoryArea':  '🤖 พื้นที่เรื่องราว OPP',
-      'sim.advArea':       '⚔️ พื้นที่ผจญภัย',
+      'sim.oppStoryArea':  '🤖 โซนเรื่องราว OPP',
+      'sim.advArea':       '⚔️ โซนผจญภัย',
       'sim.you':           'เรา',
       'sim.opp':           'ฝ่ายตรงข้าม',
       'sim.mainChar':      'การ์ดหลัก',
-      'sim.storyArea':     'พื้นที่เรื่องราว',
+      'sim.storyArea':     'โซนเรื่องราว',
+      'sim.retirement':    'โซนพักผ่อน',
       'sim.sceneDeck':     'เด็คฉาก',
-      'sim.sceneArea':     'พื้นที่ฉาก',
+      'sim.sceneArea':     'โซนฉาก',
       'sim.mainDeck':      'เด็คหลัก',
     },
   };
