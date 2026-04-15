@@ -162,7 +162,7 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
     <!-- LEFT: filters + grid -->
     <div id="lib-panel">
       <div class="lib-filters">
-        <input class="lib-search" id="lib-search" placeholder="Search cards..." oninput="renderGrid()" data-i18n-ph="lib.search">
+        <input class="lib-search" id="lib-search" placeholder="Search cards..." oninput="renderGrid()" data-i18n-ph="common.search">
         <div class="filter-row">
           <div class="dd-wrap">
             <button class="dd-btn" id="lib-filter-type-btn" onclick="toggleDD('dd-type')">Type <span style="font-size:0.5rem">▼</span></button>
@@ -615,9 +615,9 @@ function _renderLibI18n(){
   if(ttl) ttl.textContent = _lt('lib.topbarTitle');
   // Search placeholder
   const srch = document.getElementById('lib-search');
-  if(srch) srch.placeholder = _lt('lib.search');
+  if(srch) srch.placeholder = _lt('common.search');
   // Filter buttons
-  const fbMap = {'lib-filter-type-btn':'lib.filterType','lib-filter-rarity-btn':'lib.filterRarity','lib-filter-set-btn':'lib.filterSet','lib-filter-race-btn':'lib.filterRace'};
+  const fbMap = {'lib-filter-type-btn':'common.filterType','lib-filter-rarity-btn':'common.filterRarity','lib-filter-set-btn':'common.filterSet','lib-filter-race-btn':'common.filterRace'};
   Object.entries(fbMap).forEach(([id,key])=>{
     const btn=document.getElementById(id);
     if(btn) btn.innerHTML=_lt(key)+' <span style="font-size:0.5rem">▼</span>';

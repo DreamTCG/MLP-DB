@@ -725,7 +725,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
     </div>
     <div style="padding:10px 10px 0;flex-shrink:0;">
       <div class="lib-search-bar">
-        <input class="lib-search-input" id="lib-search-d" placeholder="Search cards..." oninput="renderLibrary()" data-i18n-ph="deck.search">
+        <input class="lib-search-input" id="lib-search-d" placeholder="Search cards..." oninput="renderLibrary()" data-i18n-ph="common.search">
       </div>
       <!-- Filter row 1: Type + Color -->
       <div class="filter-row">
@@ -897,7 +897,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
   <div class="mob-page active" id="mob-page-lib">
     <div style="padding:8px 10px 0;flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);">
       <div class="lib-search-bar">
-        <input class="lib-search-input" id="lib-search-m" placeholder="Search cards..." oninput="renderLibrary()" data-i18n-ph="deck.search">
+        <input class="lib-search-input" id="lib-search-m" placeholder="Search cards..." oninput="renderLibrary()" data-i18n-ph="common.search">
       </div>
       <div class="filter-row" style="margin-bottom:6px;">
         <div class="dd-wrap">
@@ -3172,7 +3172,7 @@ function _renderDeckI18n() {
   const analysisTitle = document.querySelector('#panel-analysis .panel-title');
   if(analysisTitle) analysisTitle.textContent = _dt('deck.analysis');
   // Search + deck-name placeholders
-  ['lib-search-d','lib-search-m'].forEach(id=>{ const el=document.getElementById(id); if(el) el.placeholder=_dt('deck.search'); });
+  ['lib-search-d','lib-search-m'].forEach(id=>{ const el=document.getElementById(id); if(el) el.placeholder=_dt('common.search'); });
   ['deck-name','deck-name-m'].forEach(id=>{ const el=document.getElementById(id); if(el) el.placeholder=_dt('deck.deckName'); });
   // Import labels
   const ild=document.getElementById('imp-toggle-lbl-d'); if(ild) ild.textContent=_dt('deck.importData');
@@ -3185,8 +3185,8 @@ function _renderDeckI18n() {
   Object.entries(zoneMap).forEach(([id,key])=>{ const el=document.getElementById(id); if(el) el.textContent=_dt(key); });
   // Filter dropdown label spans
   const filterMap = {
-    'dd-type-d-lbl':'deck.filterType','dd-rarity-d-lbl':'deck.filterRarity','dd-set-d-lbl':'deck.filterSet','dd-race-d-lbl':'deck.filterRace',
-    'dd-type-m-lbl':'deck.filterType','dd-rarity-m-lbl':'deck.filterRarity','dd-set-m-lbl':'deck.filterSet','dd-race-m-lbl':'deck.filterRace',
+    'dd-type-d-lbl':'common.filterType','dd-rarity-d-lbl':'common.filterRarity','dd-set-d-lbl':'common.filterSet','dd-race-d-lbl':'common.filterRace',
+    'dd-type-m-lbl':'common.filterType','dd-rarity-m-lbl':'common.filterRarity','dd-set-m-lbl':'common.filterSet','dd-race-m-lbl':'common.filterRace',
   };
   Object.entries(filterMap).forEach(([id,key])=>{ const el=document.getElementById(id); if(el) el.textContent=_dt(key); });
   // Mobile nav buttons
