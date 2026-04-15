@@ -585,6 +585,8 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
 
   gtag('config', 'G-VR98SGEQLX');
 </script>
+<!-- i18n translations (must load before nav.js) -->
+<script src="../i18n/translations.js"></script>
 <!-- Shared navigation bar (handles dark/light theme toggle) -->
 <script src="../nav.js"></script>
 <script>
@@ -723,7 +725,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
     </div>
     <div style="padding:10px 10px 0;flex-shrink:0;">
       <div class="lib-search-bar">
-        <input class="lib-search-input" id="lib-search-d" placeholder="Search cards..." oninput="renderLibrary()">
+        <input class="lib-search-input" id="lib-search-d" placeholder="Search cards..." oninput="renderLibrary()" data-i18n-ph="common.search">
       </div>
       <!-- Filter row 1: Type + Color -->
       <div class="filter-row">
@@ -804,7 +806,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
     <!-- Deck header bar -->
     <div class="deck-hdr">
       <span style="font-family:var(--font-head);font-size:1rem;color:var(--purple-l);white-space:nowrap;">🃏 Deck</span>
-      <input class="deck-name-input" id="deck-name" placeholder="Deck name..." value="My Deck" oninput="scheduleAutoSave()">
+      <input class="deck-name-input" id="deck-name" placeholder="Deck name..." value="My Deck" oninput="scheduleAutoSave()" data-i18n-ph="deck.deckName">
       <div id="color-lock-indicator"></div>
       <button class="hdr-btn danger" onclick="clearDeck()">🗑 Clear</button>
       <button class="hdr-btn primary" onclick="snapshot()">📸 Snapshot</button>
@@ -815,7 +817,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
     <!-- Import bar -->
     <div class="import-wrap">
       <div class="import-toggle">
-        <span class="import-toggle-label">⚙️ Import / Data</span>
+        <span class="import-toggle-label" id="imp-toggle-lbl-d">⚙️ Import / Data</span>
         <button class="import-toggle-btn" id="imp-toggle-btn" onclick="toggleImportBar()">▼</button>
       </div>
       <div class="import-btns" id="imp-btns">
@@ -838,7 +840,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
       <!-- MC -->
       <div class="zone-section">
         <div class="zone-hdr">
-          <span class="zone-label" style="color:var(--mc-color);">⭐ Main Character</span>
+          <span class="zone-label" id="zone-lbl-mc-d" style="color:var(--mc-color);">⭐ Main Character</span>
           <span class="zone-chip warn" id="zc-mc">Empty</span>
         </div>
         <div id="mc-slot-d"></div>
@@ -846,7 +848,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
       <!-- Main Deck -->
       <div class="zone-section">
         <div class="zone-hdr">
-          <span class="zone-label">🃏 Main Deck</span>
+          <span class="zone-label" id="zone-lbl-main-d">🃏 Main Deck</span>
           <div style="display:flex;align-items:center;gap:6px;">
             <button id="main-sort-btn-d" onclick="toggleMainSort()"
               style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);
@@ -860,7 +862,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
       <!-- Scene -->
       <div class="zone-section">
         <div class="zone-hdr">
-          <span class="zone-label" style="color:var(--scene-color);">🎭 Scene Deck</span>
+          <span class="zone-label" id="zone-lbl-scene-d" style="color:var(--scene-color);">🎭 Scene Deck</span>
           <span class="zone-chip ok" id="zc-scene">Unlimited</span>
         </div>
         <div class="card-grid lg" id="scene-grid-d"></div>
@@ -868,7 +870,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
       <!-- Story -->
       <div class="zone-section">
         <div class="zone-hdr">
-          <span class="zone-label" style="color:var(--story-color);">📖 Story Deck</span>
+          <span class="zone-label" id="zone-lbl-story-d" style="color:var(--story-color);">📖 Story Deck</span>
           <span class="zone-chip warn" id="zc-story">0/4</span>
         </div>
         <div class="story-grid" id="story-grid-d"></div>
@@ -895,7 +897,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
   <div class="mob-page active" id="mob-page-lib">
     <div style="padding:8px 10px 0;flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);">
       <div class="lib-search-bar">
-        <input class="lib-search-input" id="lib-search-m" placeholder="Search cards..." oninput="renderLibrary()">
+        <input class="lib-search-input" id="lib-search-m" placeholder="Search cards..." oninput="renderLibrary()" data-i18n-ph="common.search">
       </div>
       <div class="filter-row" style="margin-bottom:6px;">
         <div class="dd-wrap">
@@ -973,14 +975,14 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
   <!-- PAGE: Deck -->
   <div class="mob-page" id="mob-page-deck">
     <div class="deck-hdr">
-      <input class="deck-name-input" id="deck-name-m" placeholder="Deck name..." value="My Deck" oninput="document.getElementById('deck-name').value=this.value">
+      <input class="deck-name-input" id="deck-name-m" placeholder="Deck name..." value="My Deck" oninput="document.getElementById('deck-name').value=this.value" data-i18n-ph="deck.deckName">
       <div id="color-lock-indicator-m"></div>
       <button class="hdr-btn danger" onclick="clearDeck()">🗑</button>
       <button class="hdr-btn primary" onclick="snapshot()">📸</button>
     </div>
     <div class="import-wrap">
       <div class="import-toggle">
-        <span class="import-toggle-label">⚙️ Import / Actions</span>
+        <span class="import-toggle-label" id="imp-toggle-lbl-m">⚙️ Import / Actions</span>
         <button class="import-toggle-btn" id="imp-toggle-btn-m" onclick="toggleImportBar()">▼</button>
       </div>
       <div class="import-btns" id="imp-btns-m">
@@ -1001,14 +1003,14 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
     <div id="mob-deck-content" style="flex:1;overflow-y:auto;padding:10px 10px 72px;">
       <div class="zone-section">
         <div class="zone-hdr">
-          <span class="zone-label" style="color:var(--mc-color);">⭐ Main Character</span>
+          <span class="zone-label" id="zone-lbl-mc-m" style="color:var(--mc-color);">⭐ Main Character</span>
           <span class="zone-chip warn" id="zc-mc-m">Empty</span>
         </div>
         <div id="mc-slot-m"></div>
       </div>
       <div class="zone-section">
         <div class="zone-hdr">
-          <span class="zone-label">🃏 Main Deck</span>
+          <span class="zone-label" id="zone-lbl-main-m">🃏 Main Deck</span>
           <div style="display:flex;align-items:center;gap:6px;">
             <button id="main-sort-btn-m" onclick="toggleMainSort()"
               style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);
@@ -1021,14 +1023,14 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
       </div>
       <div class="zone-section">
         <div class="zone-hdr">
-          <span class="zone-label" style="color:var(--scene-color);">🎭 Scene Deck</span>
+          <span class="zone-label" id="zone-lbl-scene-m" style="color:var(--scene-color);">🎭 Scene Deck</span>
           <span class="zone-chip ok" id="zc-scene-m">Unlimited</span>
         </div>
         <div class="card-grid" id="scene-grid-m"></div>
       </div>
       <div class="zone-section">
         <div class="zone-hdr">
-          <span class="zone-label" style="color:var(--story-color);">📖 Story Deck</span>
+          <span class="zone-label" id="zone-lbl-story-m" style="color:var(--story-color);">📖 Story Deck</span>
           <span class="zone-chip warn" id="zc-story-m">0/4</span>
         </div>
         <div class="story-grid" id="story-grid-m"></div>
@@ -1072,6 +1074,9 @@ const state = {
   library: [], sortAsc: false,
   mainSortMode: 'rarity' // 'rarity' | 'cost-asc' | 'cost-desc'
 };
+
+// ── i18n — delegates to centralized /i18n/translations.js via window.i18n ──
+function _dt(key){ return (window.i18n && window.i18n.t(key)) || key; }
 
 // ═══════════════════════════════════════════════════════
 // INDEXEDDB — local deck persistence
@@ -2191,7 +2196,7 @@ function renderMC() {
     if(!state.mc){
       el.innerHTML=`<div class="mc-slot" onclick="pickMC()">
         <div class="mc-img">⭐</div>
-        <div class="mc-info"><div class="mc-name" style="color:var(--dim)">Click to add Main Character</div></div>
+        <div class="mc-info"><div class="mc-name" style="color:var(--dim)">${_dt('deck.emptyMC')}</div></div>
       </div>`;
       return;
     }
@@ -2221,7 +2226,7 @@ function renderMain() {
   ['main-grid-d','main-grid-m'].forEach(id=>{
     const grid=$(id); if(!grid) return;
     grid.innerHTML='';
-    if(!sorted.length){grid.innerHTML='<div class="empty-zone" style="grid-column:1/-1"><div class="ei">🃏</div><p>Add cards from Library</p></div>';return;}
+    if(!sorted.length){grid.innerHTML=`<div class="empty-zone" style="grid-column:1/-1"><div class="ei">🃏</div><p>${_dt('deck.emptyMain')}</p></div>`;return;}
     sorted.forEach(card=>grid.appendChild(makeTile(card,'main')));
   });
 }
@@ -2230,7 +2235,7 @@ function renderScene() {
   ['scene-grid-d','scene-grid-m'].forEach(id=>{
     const grid=$(id); if(!grid) return;
     grid.innerHTML='';
-    if(!state.scene.length){grid.innerHTML='<div class="empty-zone" style="grid-column:1/-1"><div class="ei">🎭</div><p>Add Scene cards from Library</p></div>';return;}
+    if(!state.scene.length){grid.innerHTML=`<div class="empty-zone" style="grid-column:1/-1"><div class="ei">🎭</div><p>${_dt('deck.emptyScene')}</p></div>`;return;}
     state.scene.forEach(card=>grid.appendChild(makeTile(card,'scene')));
   });
 }
@@ -2275,12 +2280,12 @@ function updateSidebar() {
   const storyFilled=state.story.filter(Boolean).length;
   // Desktop chips
   const setChip=(id,text,cls)=>{const el=$(id);if(el){el.textContent=text;el.className=`zone-chip ${cls}`;}};
-  setChip('zc-mc',  state.mc?'✓ '+state.mc.name:'Empty', state.mc?'ok':'warn');
+  setChip('zc-mc',  state.mc?'✓ '+state.mc.name:_dt('deck.mcEmpty'), state.mc?'ok':'warn');
   setChip('zc-main',total===50?'✓ 50 cards':`${total}/50`, total===50?'ok':total>50?'err':'warn');
   setChip('zc-scene',`${state.scene.length} cards`,'ok');
   setChip('zc-story',storyFilled===4?'✓ Complete':`${storyFilled}/4`,storyFilled===4?'ok':'warn');
   // Mobile chips
-  setChip('zc-mc-m',  state.mc?'✓ '+state.mc.name:'Empty', state.mc?'ok':'warn');
+  setChip('zc-mc-m',  state.mc?'✓ '+state.mc.name:_dt('deck.mcEmpty'), state.mc?'ok':'warn');
   setChip('zc-main-m',total===50?'✓ 50 cards':`${total}/50`, total===50?'ok':total>50?'err':'warn');
   setChip('zc-scene-m',`${state.scene.length} cards`,'ok');
   setChip('zc-story-m',storyFilled===4?'✓ Complete':`${storyFilled}/4`,storyFilled===4?'ok':'warn');
@@ -3158,11 +3163,49 @@ function showFileProtocolBanner() {
 }
 
 // ═══════════════════════════════════════════════════════
+// i18n RENDER — updates all static UI strings
+// ═══════════════════════════════════════════════════════
+function _renderDeckI18n() {
+  // Panel titles
+  const libTitle = document.querySelector('#panel-lib .panel-title');
+  if(libTitle) libTitle.textContent = _dt('deck.library');
+  const analysisTitle = document.querySelector('#panel-analysis .panel-title');
+  if(analysisTitle) analysisTitle.textContent = _dt('deck.analysis');
+  // Search + deck-name placeholders
+  ['lib-search-d','lib-search-m'].forEach(id=>{ const el=document.getElementById(id); if(el) el.placeholder=_dt('common.search'); });
+  ['deck-name','deck-name-m'].forEach(id=>{ const el=document.getElementById(id); if(el) el.placeholder=_dt('deck.deckName'); });
+  // Import labels
+  const ild=document.getElementById('imp-toggle-lbl-d'); if(ild) ild.textContent=_dt('deck.importData');
+  const ilm=document.getElementById('imp-toggle-lbl-m'); if(ilm) ilm.textContent=_dt('deck.importActions');
+  // Zone labels
+  const zoneMap = {
+    'zone-lbl-mc-d':'deck.mainChar','zone-lbl-main-d':'deck.mainDeck','zone-lbl-scene-d':'deck.sceneDeck','zone-lbl-story-d':'deck.storyDeck',
+    'zone-lbl-mc-m':'deck.mainChar','zone-lbl-main-m':'deck.mainDeck','zone-lbl-scene-m':'deck.sceneDeck','zone-lbl-story-m':'deck.storyDeck',
+  };
+  Object.entries(zoneMap).forEach(([id,key])=>{ const el=document.getElementById(id); if(el) el.textContent=_dt(key); });
+  // Filter dropdown label spans
+  const filterMap = {
+    'dd-type-d-lbl':'common.filterType','dd-rarity-d-lbl':'common.filterRarity','dd-set-d-lbl':'common.filterSet','dd-race-d-lbl':'common.filterRace',
+    'dd-type-m-lbl':'common.filterType','dd-rarity-m-lbl':'common.filterRarity','dd-set-m-lbl':'common.filterSet','dd-race-m-lbl':'common.filterRace',
+  };
+  Object.entries(filterMap).forEach(([id,key])=>{ const el=document.getElementById(id); if(el) el.textContent=_dt(key); });
+  // Mobile nav buttons
+  const mnLib=document.getElementById('mnav-lib'); if(mnLib) mnLib.innerHTML=`<span class="nav-icon">📚</span>${_dt('deck.navLib')}`;
+  const mnDeck=document.getElementById('mnav-deck'); if(mnDeck) mnDeck.innerHTML=`<span class="nav-icon">🃏</span>${_dt('deck.navDeck')}`;
+  const mnAnal=document.getElementById('mnav-analysis'); if(mnAnal) mnAnal.innerHTML=`<span class="nav-icon">📊</span>${_dt('deck.navAnalysis')}`;
+  // Re-render zones (updates dynamic empty-state strings and MC chip)
+  renderMC(); renderMain(); renderScene(); renderStory();
+}
+
+window.addEventListener('mlp-lang-change', _renderDeckI18n);
+
+// ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', async () => {
   renderMC(); renderMain(); renderScene(); renderStory();
   renderLibrary(); updateSidebar();
+  _renderDeckI18n();
   await preloadAssets();
   // After library is ready, restore the most recently updated deck from IndexedDB
   try {

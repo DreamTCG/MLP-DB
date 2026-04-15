@@ -69,16 +69,49 @@
 
   /* ── CONFIG ────────────────────────────────────────────── */
   const NAV_LINKS = [
-    { label: 'หน้าหลัก',  icon: '🏠', href: BASE + '/',               match: [BASE + '/', BASE + '/index.html', BASE] },
-    { label: 'การ์ด',      icon: '🃏', href: BASE + '/library/',        match: [BASE + '/library/', BASE + '/library/index.html'] },
-    { label: 'จัดเด็ค',    icon: '🗂️', href: BASE + '/deckbuilder/',    match: [BASE + '/deckbuilder/', BASE + '/deckbuilder/index.html'] },
-    // { label: 'ทดสอบเด็ค', icon: '⚔️', href: BASE + '/battlesim/',   match: [BASE + '/battlesim/', BASE + '/battlesim/index.html'] },  // temporarily disabled
-    { label: 'วิธีเล่น',   icon: '📋', href: BASE + '/#rules',          match: [] },
+    { key: 'nav.home',        icon: '🏠', href: BASE + '/',            match: [BASE + '/', BASE + '/index.html', BASE] },
+    { key: 'nav.cards',       icon: '🃏', href: BASE + '/library/',     match: [BASE + '/library/', BASE + '/library/index.html'] },
+    { key: 'nav.deckbuilder', icon: '🗂️', href: BASE + '/deckbuilder/', match: [BASE + '/deckbuilder/', BASE + '/deckbuilder/index.html'] },
+    // { key: 'nav.battlesim', icon: '⚔️', href: BASE + '/battlesim/',  match: [BASE + '/battlesim/', BASE + '/battlesim/index.html'] },  // temporarily disabled
+    { key: 'nav.rules',       icon: '📋', href: BASE + '/#rules',       match: [] },
   ];
 
   const SITE_TITLE = 'DreamTCG';
   const SITE_LOGO  = '🦄';
   const LS_KEY     = 'mlp-theme';
+  const LS_LANG    = 'mlp-lang';
+
+  /* ── i18n DICTIONARY ────────────────────────────────────── */
+  // Reads from the centralized /i18n/translations.js file (window.MLP_I18N).
+  // That file must be loaded before nav.js via:
+  //   <script src="/i18n/translations.js"></script>
+  //   <script src="/nav.js"></script>
+  // If translations.js is missing (e.g. in a standalone embed), falls back to
+  // an empty object so t() gracefully returns the key string.
+  const _DICT = (typeof window.MLP_I18N !== 'undefined')
+    ? window.MLP_I18N
+    : { en: {}, th: {} };
+
+  let _lang = localStorage.getItem(LS_LANG) || 'en';
+
+  function t(key) {
+    return (_DICT[_lang] && _DICT[_lang][key]) || (_DICT.en && _DICT.en[key]) || key;
+  }
+
+  function setLang(lang) {
+    if (lang !== 'en' && lang !== 'th') return;
+    _lang = lang;
+    localStorage.setItem(LS_LANG, lang);
+    _rebuildNavStrings();
+    window.dispatchEvent(new CustomEvent('mlp-lang-change', { detail: { lang } }));
+  }
+
+  /* ── Expose i18n globally so pages can use it ─────────── */
+  window.i18n = {
+    get lang() { return _lang; },
+    t,
+    setLang,
+  };
 
   /* ── APPLY THEME EARLY (prevents flash-of-wrong-theme) ── */
   (function applyEarly() {
@@ -165,6 +198,20 @@
     }
     #mlp-theme-btn:hover { background: rgba(255,255,255,0.22); transform: rotate(15deg) scale(1.1); }
     #mlp-theme-btn:active { transform: scale(0.9); }
+
+    /* ── Language toggle ── */
+    #mlp-lang-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.12);
+      border: 1.5px solid rgba(255,255,255,0.25);
+      border-radius: 10px; cursor: pointer; font-size: 0.72rem; font-weight: 800;
+      transition: background 0.2s, transform 0.2s, border-color 0.2s;
+      flex-shrink: 0; color: #fff; letter-spacing: 0.5px;
+    }
+    #mlp-lang-btn:hover { background: rgba(255,255,255,0.22); transform: scale(1.08); border-color: rgba(255,255,255,0.45); }
+    #mlp-lang-btn:active { transform: scale(0.9); }
+    @media (max-width: 640px) { #mlp-lang-btn { width: 30px; height: 30px; font-size: 0.68rem; border-radius: 8px; } }
 
     .mlp-theme-label {
       font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.55);
@@ -398,11 +445,11 @@
     if (!btn) return;
     if (isDark()) {
       btn.textContent = '☀️';
-      btn.title = 'เปลี่ยนเป็น Light Mode';
+      btn.title = t('theme.toLight');
       if (label) label.textContent = 'Light';
     } else {
       btn.textContent = '🌙';
-      btn.title = 'เปลี่ยนเป็น Dark Mode';
+      btn.title = t('theme.toDark');
       if (label) label.textContent = 'Dark';
     }
   }
@@ -419,9 +466,7 @@
   function buildLinks(links) {
     return links.map(l => {
       const active = isActive(l) ? ' active' : '';
-      return `<a class="mlp-nav-link${active}" href="${l.href}">
-        <span class="mlp-nav-icon">${l.icon}</span>${l.label}
-      </a>`;
+      return `<a class="mlp-nav-link${active}" href="${l.href}" data-i18n-key="${l.key}"><span class="mlp-nav-icon">${l.icon}</span><span class="mlp-nav-text">${t(l.key)}</span></a>`;
     }).join('');
   }
 
@@ -438,16 +483,87 @@
           <div class="mlp-nav-right">
             <div id="mlp-auth-wrap"></div>
             <a id="mlp-feedback-btn" href="https://m.me/Kiettisak.v" target="_blank" rel="noopener" aria-label="Feedback" title="Feedback">💬</a>
+            <button id="mlp-lang-btn" aria-label="Toggle language">${t('lang.switchTo')}</button>
             <span class="mlp-theme-label" id="mlp-theme-label"></span>
             <button id="mlp-theme-btn" aria-label="Toggle dark mode"></button>
           </div>
-          <button class="mlp-nav-burger" id="mlp-burger" aria-label="เมนู">☰</button>
+          <button class="mlp-nav-burger" id="mlp-burger" aria-label="${t('nav.burger')}">☰</button>
         </div>
         <div class="mlp-nav-drawer" id="mlp-user-drawer"></div>
         <div class="mlp-nav-drawer" id="mlp-drawer">
           ${buildLinks(NAV_LINKS)}
         </div>
       </nav>`;
+  }
+
+  /* ── i18n REBUILD ───────────────────────────────────────── */
+  function _rebuildNavStrings() {
+    // Nav links (desktop + mobile drawer)
+    document.querySelectorAll('.mlp-nav-link[data-i18n-key]').forEach(el => {
+      const key = el.dataset.i18nKey;
+      const textSpan = el.querySelector('.mlp-nav-text');
+      if (textSpan) textSpan.textContent = t(key);
+    });
+    // Lang toggle button (shows the language you'll switch TO)
+    const lb = document.getElementById('mlp-lang-btn');
+    if (lb) lb.textContent = t('lang.switchTo');
+    // Theme button tooltip
+    updateBtn();
+    // Login / logout buttons
+    const loginBtn = document.getElementById('mlp-login-btn');
+    if (loginBtn) loginBtn.innerHTML = t('auth.login');
+    const logoutBtn = document.getElementById('mlp-user-logout');
+    if (logoutBtn) logoutBtn.innerHTML = t('auth.logout');
+    // Sync banner — update text node and close button title
+    const banner = document.getElementById('mlp-sync-banner');
+    if (banner) {
+      const closeBtn = document.getElementById('mlp-banner-close');
+      const textNode = [...banner.childNodes].find(n => n.nodeType === 3);
+      if (textNode) textNode.textContent = t('banner.text') + '\n      ';
+      if (closeBtn) closeBtn.title = t('banner.close');
+    }
+    // Login modal strings
+    _refreshLoginModalStrings();
+    // Burger aria-label
+    const burger = document.getElementById('mlp-burger');
+    if (burger) burger.setAttribute('aria-label', t('nav.burger'));
+  }
+
+  function _refreshLoginModalStrings() {
+    const title     = document.querySelector('.mlp-login-title');
+    const sub       = document.querySelector('.mlp-login-sub');
+    const tabLogin  = document.getElementById('mlp-tab-login');
+    const tabSignup = document.getElementById('mlp-tab-signup');
+    const submitBtn = document.getElementById('mlp-submit-btn');
+    const emailIn   = document.getElementById('mlp-email-input');
+    const pwIn      = document.getElementById('mlp-pw-input');
+    const cancelBtn = document.querySelector('.mlp-login-cancel');
+    const divider   = document.querySelector('.mlp-login-divider');
+    if (title)    title.textContent       = t('auth.title');
+    if (sub)      sub.textContent         = t('auth.subtitle');
+    if (tabLogin) tabLogin.textContent    = t('auth.tabLogin');
+    if (tabSignup)tabSignup.textContent   = t('auth.tabSignup');
+    if (submitBtn) {
+      const isSignup = tabSignup?.classList.contains('active');
+      submitBtn.textContent = t(isSignup ? 'auth.submitSignup' : 'auth.submitLogin');
+    }
+    if (emailIn)  emailIn.placeholder     = t('auth.email');
+    if (pwIn)     pwIn.placeholder        = t('auth.password');
+    if (cancelBtn)cancelBtn.textContent   = t('auth.cancel');
+    if (divider)  divider.textContent     = t('auth.or');
+    // OAuth button text nodes (buttons have data-oauth-key attribute)
+    document.querySelectorAll('.mlp-oauth-btn[data-oauth-key]').forEach(btn => {
+      const key = btn.dataset.oauthKey;
+      const textNode = [...btn.childNodes].find(n => n.nodeType === 3 && n.textContent.trim());
+      if (textNode) textNode.textContent = '\n          ' + t(key) + '\n        ';
+    });
+    // Privacy disclaimer
+    const privDiv = document.querySelector('#mlp-login-box > div[style*="margin-top:12px"]');
+    if (privDiv) {
+      privDiv.innerHTML = `${t('auth.privacyPre')}
+          <a href="/privacy/" target="_blank" style="color:var(--purple,#a78bfa);text-decoration:underline;">${t('auth.privacyLink')}</a>
+          ${t('auth.privacyPost')}`;
+    }
   }
 
   /* ── INJECT ──────────────────────────────────────────────── */
@@ -464,6 +580,9 @@
 
     document.getElementById('mlp-theme-btn')
       ?.addEventListener('click', () => setTheme(!isDark()));
+
+    document.getElementById('mlp-lang-btn')
+      ?.addEventListener('click', () => setLang(_lang === 'en' ? 'th' : 'en'));
 
     const burger = document.getElementById('mlp-burger');
     const drawer = document.getElementById('mlp-drawer');
@@ -519,7 +638,7 @@
 
     if (!user) {
       // Logged out: show login button, hide & clear account bar
-      wrap.innerHTML = '<button id="mlp-login-btn">🔑 เข้าสู่ระบบ</button>';
+      wrap.innerHTML = `<button id="mlp-login-btn">${t('auth.login')}</button>`;
       wrap.querySelector('#mlp-login-btn').addEventListener('click', _openLoginModal);
       if (ud) { ud.classList.remove('open'); ud.innerHTML = ''; }
       if (banner && !sessionStorage.getItem('mlp-banner-dismissed')) {
@@ -544,7 +663,7 @@
             👤 ${name}
           </div>
           <div class="mlp-user-actions">
-            <button id="mlp-user-logout">🚪 ออกจากระบบ</button>
+            <button id="mlp-user-logout">${t('auth.logout')}</button>
           </div>`;
         ud.querySelector('#mlp-user-logout').addEventListener('click', () => {
           ud.classList.remove('open');
@@ -570,7 +689,7 @@
 
   function _loginWith(provider) {
     const sb = window._supabase;
-    if (!sb) { alert('ระบบ Auth ยังไม่พร้อม กรุณารอสักครู่'); return; }
+    if (!sb) { alert(t('auth.notReady')); return; }
     _closeLoginModal();
     sb.auth.signInWithOAuth({
       provider,
@@ -578,7 +697,7 @@
     }).then(({ error }) => {
       if (error) {
         console.error('[auth] signInWithOAuth error:', error);
-        alert('เข้าสู่ระบบไม่สำเร็จ:\n' + error.message + '\n\n(ตรวจสอบว่าเปิดใช้งาน ' + provider + ' provider ใน Supabase Dashboard แล้ว)');
+        alert(t('auth.loginFailed') + error.message + '\n\n(ตรวจสอบว่าเปิดใช้งาน ' + provider + ' provider ใน Supabase Dashboard แล้ว)');
       }
     });
   }
@@ -593,12 +712,12 @@
     if (mode === 'signup') {
       loginTab.classList.remove('active');
       signupTab.classList.add('active');
-      submitBtn.textContent = 'สมัครสมาชิก';
+      submitBtn.textContent = t('auth.submitSignup');
       pwInput.autocomplete = 'new-password';
     } else {
       signupTab.classList.remove('active');
       loginTab.classList.add('active');
-      submitBtn.textContent = 'เข้าสู่ระบบ';
+      submitBtn.textContent = t('auth.submitLogin');
       pwInput.autocomplete = 'current-password';
     }
     if (errDiv) errDiv.textContent = '';
@@ -606,7 +725,7 @@
 
   function _submitEmailAuth() {
     const sb = window._supabase;
-    if (!sb) { alert('ระบบ Auth ยังไม่พร้อม กรุณารอสักครู่'); return; }
+    if (!sb) { alert(t('auth.notReady')); return; }
     const email = (document.getElementById('mlp-email-input') || {}).value || '';
     const password = (document.getElementById('mlp-pw-input') || {}).value || '';
     const errDiv = document.getElementById('mlp-auth-error');
@@ -614,7 +733,7 @@
     const isSignup = document.getElementById('mlp-tab-signup').classList.contains('active');
 
     if (!email || !password) {
-      if (errDiv) errDiv.textContent = 'กรุณากรอกอีเมลและรหัสผ่าน';
+      if (errDiv) errDiv.textContent = t('auth.errorEmpty');
       return;
     }
     if (errDiv) errDiv.textContent = '';
@@ -623,7 +742,7 @@
     const done = (err, msg) => {
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = isSignup ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
+        submitBtn.textContent = isSignup ? t('auth.submitSignup') : t('auth.submitLogin');
       }
       if (err && errDiv) errDiv.textContent = err;
       if (msg && errDiv) { errDiv.style.color = '#4ade80'; errDiv.textContent = msg; }
@@ -635,7 +754,7 @@
         if (data.session) {
           _closeLoginModal();
         } else {
-          done(null, 'กรุณาตรวจสอบอีเมลเพื่อยืนยันการสมัคร');
+          done(null, t('auth.signupOk'));
         }
       });
     } else {
@@ -661,30 +780,30 @@
     el.onclick = e => { if (e.target === el) _closeLoginModal(); };
     el.innerHTML = `
       <div id="mlp-login-box">
-        <div class="mlp-login-title">🦄 เข้าสู่ระบบ</div>
-        <div class="mlp-login-sub">ซิงก์เด็คของคุณไว้บน cloud</div>
+        <div class="mlp-login-title">${t('auth.title')}</div>
+        <div class="mlp-login-sub">${t('auth.subtitle')}</div>
         <div class="mlp-tab-row">
-          <button class="mlp-tab active" id="mlp-tab-login" onclick="_toggleAuthTab('login')">เข้าสู่ระบบ</button>
-          <button class="mlp-tab" id="mlp-tab-signup" onclick="_toggleAuthTab('signup')">สมัครสมาชิก</button>
+          <button class="mlp-tab active" id="mlp-tab-login" onclick="_toggleAuthTab('login')">${t('auth.tabLogin')}</button>
+          <button class="mlp-tab" id="mlp-tab-signup" onclick="_toggleAuthTab('signup')">${t('auth.tabSignup')}</button>
         </div>
-        <input id="mlp-email-input" class="mlp-login-input" type="email" placeholder="อีเมล" autocomplete="email" />
-        <input id="mlp-pw-input" class="mlp-login-input" type="password" placeholder="รหัสผ่าน" autocomplete="current-password" />
-        <button id="mlp-submit-btn" class="mlp-login-submit" onclick="_submitEmailAuth()">เข้าสู่ระบบ</button>
+        <input id="mlp-email-input" class="mlp-login-input" type="email" placeholder="${t('auth.email')}" autocomplete="email" />
+        <input id="mlp-pw-input" class="mlp-login-input" type="password" placeholder="${t('auth.password')}" autocomplete="current-password" />
+        <button id="mlp-submit-btn" class="mlp-login-submit" onclick="_submitEmailAuth()">${t('auth.submitLogin')}</button>
         <div id="mlp-auth-error" class="mlp-login-error"></div>
-        <div class="mlp-login-divider">หรือ</div>
-        <button class="mlp-oauth-btn" onclick="_loginWith('google')">
+        <div class="mlp-login-divider">${t('auth.or')}</div>
+        <button class="mlp-oauth-btn" onclick="_loginWith('google')" data-oauth-key="auth.loginGoogle">
           <span class="mlp-oauth-icon"><svg width="18" height="18" viewBox="0 0 24 24" style="display:block"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg></span>
-          เข้าสู่ระบบด้วย Google
+          ${t('auth.loginGoogle')}
         </button>
-        <button class="mlp-oauth-btn" onclick="_loginWith('twitter')">
+        <button class="mlp-oauth-btn" onclick="_loginWith('twitter')" data-oauth-key="auth.loginX">
           <span class="mlp-oauth-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display:block"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.259 5.622 5.905-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></span>
-          เข้าสู่ระบบด้วย X
+          ${t('auth.loginX')}
         </button>
-        <button class="mlp-login-cancel" onclick="_closeLoginModal()">ยกเลิก</button>
+        <button class="mlp-login-cancel" onclick="_closeLoginModal()">${t('auth.cancel')}</button>
         <div style="margin-top:12px;font-size:0.58rem;color:var(--dim,#6b5a9a);text-align:center;line-height:1.5;">
-          การเข้าสู่ระบบถือว่าคุณยอมรับ
-          <a href="/privacy/" target="_blank" style="color:var(--purple,#a78bfa);text-decoration:underline;">Privacy Policy</a>
-          ของเรา — ข้อมูลของคุณจะไม่ถูกนำไปใช้เพื่อผลประโยชน์เชิงพาณิชย์ใดๆ
+          ${t('auth.privacyPre')}
+          <a href="/privacy/" target="_blank" style="color:var(--purple,#a78bfa);text-decoration:underline;">${t('auth.privacyLink')}</a>
+          ${t('auth.privacyPost')}
         </div>
       </div>`;
     document.body.appendChild(el);
@@ -697,8 +816,8 @@
     el.id = 'mlp-sync-banner';
     el.style.display = 'none'; // shown by _updateAuthUI when logged out
     el.onclick = _openLoginModal;
-    el.innerHTML = `ล็อกอินเพื่อซิงก์เด็คของคุณไว้ออนไลน์ →
-      <button id="mlp-banner-close" onclick="_dismissBanner(event)" title="ปิด">✕</button>`;
+    el.innerHTML = `${t('banner.text')}
+      <button id="mlp-banner-close" onclick="_dismissBanner(event)" title="${t('banner.close')}">✕</button>`;
     // Insert after nav
     const nav = document.getElementById('mlp-nav');
     if (nav && nav.nextSibling) {
@@ -738,6 +857,8 @@
   window._dismissBanner   = _dismissBanner;
   window._toggleAuthTab   = _toggleAuthTab;
   window._submitEmailAuth = _submitEmailAuth;
+  // Expose setLang for external callers (pages can call window.i18n.setLang directly)
+  window._setLang         = setLang;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', inject);
