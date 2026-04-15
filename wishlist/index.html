@@ -44,27 +44,38 @@
     /* ── PAGE HEADER ── */
     #page-hdr {
       display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 10px;
+      flex-wrap: wrap; gap: 10px; padding-bottom: 4px;
+      border-bottom: 1px solid var(--border);
     }
     .page-title {
-      font-family: var(--font-head); font-size: 1.6rem; color: var(--purple-l);
+      font-family: var(--font-head); font-size: 1.5rem; color: var(--purple-l);
     }
-    .hdr-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .hdr-actions {
+      display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+    }
 
     /* ── BUTTONS ── */
     .btn {
       display: inline-flex; align-items: center; gap: 5px;
-      border: none; border-radius: 8px; padding: 7px 13px;
-      font-family: var(--font-body); font-weight: 800; font-size: 0.8rem;
+      border: none; border-radius: 8px; padding: 8px 14px;
+      font-family: var(--font-body); font-weight: 800; font-size: 0.78rem;
       cursor: pointer; white-space: nowrap; transition: opacity .15s, transform .1s;
+      line-height: 1;
     }
-    .btn:active { transform: scale(0.96); }
-    .btn-primary   { background: linear-gradient(135deg, var(--purple), var(--pink)); color: #fff; }
+    .btn:active { transform: scale(0.95); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--purple), var(--pink)); color: #fff;
+      box-shadow: 0 2px 8px rgba(124,58,237,.35);
+    }
+    .btn-primary:hover { opacity: .9; }
     .btn-secondary {
-      background: var(--surface2); border: 1px solid var(--border2);
-      color: var(--muted);
+      background: var(--surface); border: 1px solid var(--border2); color: var(--muted);
     }
-    .btn-secondary:hover { border-color: var(--purple); color: var(--purple); }
+    .btn-secondary:hover { border-color: var(--purple); color: var(--purple); background: var(--surface2); }
+    /* Icon-only compact buttons on small screens */
+    @media (max-width: 520px) {
+      .btn-icon-label { display: none; }
+    }
 
     /* ── STATS BAR ── */
     #stats-bar {
@@ -161,77 +172,89 @@
     /* Card image area */
     .wl-img-wrap {
       position: relative; aspect-ratio: 5/7;
-      background: var(--surface2);
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
+      background: var(--surface2); overflow: hidden;
     }
     .wl-img-wrap img {
-      width: 100%; height: 100%; object-fit: cover; display: block;
+      width: 100%; height: 100%; object-fit: cover; display: block; position: relative; z-index: 1;
     }
+    /* Placeholder — hidden by default, shown only when image fails */
     .wl-ph {
+      display: none; /* shown via JS on img error */
       font-size: 2.2rem; color: var(--dim);
-      display: flex; align-items: center; justify-content: center;
-      width: 100%; height: 100%; position: absolute; inset: 0;
+      align-items: center; justify-content: center;
+      width: 100%; height: 100%; position: absolute; inset: 0; z-index: 0;
     }
 
-    /* Done badge (top-right) */
-    .wl-done-badge {
-      display: none; position: absolute; top: 6px; right: 6px;
-      background: var(--green); color: #fff;
-      font-size: 0.58rem; font-weight: 800; border-radius: 20px;
-      padding: 2px 7px; z-index: 1;
-    }
-    .wl-tile.complete .wl-done-badge { display: block; }
-
-    /* Remove button (top-left, shows on hover) */
+    /* Remove button — top-left, fades in on tile hover */
     .wl-rm-btn {
-      position: absolute; top: 6px; left: 6px; z-index: 1;
-      background: rgba(0,0,0,.65); border: none; color: #f87171;
+      position: absolute; top: 6px; left: 6px; z-index: 3;
+      background: rgba(0,0,0,.7); border: none; color: #f87171;
       width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
-      font-size: 0.75rem; display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; display: flex; align-items: center; justify-content: center;
       opacity: 0; transition: opacity .15s;
     }
     .wl-tile:hover .wl-rm-btn { opacity: 1; }
 
+    /* Quantity badge — top-right, always visible */
+    .wl-qty-badge {
+      position: absolute; top: 6px; right: 6px; z-index: 3;
+      font-size: 0.68rem; font-weight: 900; line-height: 1;
+      background: rgba(0,0,0,.68); color: #fff; border-radius: 20px;
+      padding: 3px 8px; border: 1.5px solid rgba(255,255,255,.22);
+      backdrop-filter: blur(4px);
+    }
+    .wl-tile.complete .wl-qty-badge {
+      background: rgba(22,163,74,.85); border-color: rgba(74,222,128,.5);
+    }
+
+    /* Bottom progress strip on image */
+    .wl-img-bar {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+      height: 5px; background: rgba(255,255,255,.15);
+    }
+    .wl-img-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--purple), var(--pink));
+      transition: width .35s ease;
+    }
+    .wl-tile.complete .wl-img-bar-fill { background: #4ade80; }
+
     /* Info area */
     .wl-info {
-      padding: 8px 8px 7px; flex: 1;
-      display: flex; flex-direction: column; gap: 5px;
+      padding: 8px 8px 8px; flex: 1;
+      display: flex; flex-direction: column; gap: 6px;
     }
     .wl-name {
-      font-family: var(--font-head); font-size: 0.78rem;
+      font-family: var(--font-head); font-size: 0.8rem;
       color: var(--text); line-height: 1.2;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .wl-meta { font-size: 0.6rem; color: var(--dim); }
 
-    /* Quantity stepper row */
+    /* Quantity stepper rows */
+    .wl-qty-rows { display: flex; flex-direction: column; gap: 4px; }
     .wl-qty-row { display: flex; align-items: center; gap: 4px; }
-    .wl-qty-label { font-size: 0.6rem; color: var(--muted); flex: 0 0 38px; }
-    .wl-qty-ctrl  { display: flex; align-items: center; gap: 4px; flex: 1; }
+    .wl-qty-label {
+      font-size: 0.62rem; font-weight: 700; color: var(--muted);
+      flex: 0 0 34px; text-transform: uppercase; letter-spacing: .04em;
+    }
+    .wl-qty-ctrl { display: flex; align-items: center; gap: 4px; flex: 1; }
     .wl-btn {
-      width: 20px; height: 20px; border-radius: 4px; border: none;
-      cursor: pointer; font-size: 0.8rem; font-weight: 800;
+      width: 22px; height: 22px; border-radius: 5px; border: none;
+      cursor: pointer; font-size: 0.85rem; font-weight: 900;
       display: flex; align-items: center; justify-content: center;
-      transition: opacity .1s;
+      transition: opacity .1s, transform .1s;
     }
-    .wl-btn:disabled { opacity: 0.25; cursor: default; }
-    .wl-btn-minus { background: rgba(248,113,113,.2); color: #f87171; }
-    .wl-btn-plus  { background: rgba(74,222,128,.2);  color: #4ade80; }
+    .wl-btn:not(:disabled):active { transform: scale(.88); }
+    .wl-btn:disabled { opacity: 0.2; cursor: default; }
+    .wl-btn-minus { background: rgba(248,113,113,.18); color: #f87171; }
+    .wl-btn-plus  { background: rgba(74,222,128,.18);  color: #4ade80; }
+    .wl-btn-minus:not(:disabled):hover { background: rgba(248,113,113,.35); }
+    .wl-btn-plus:not(:disabled):hover  { background: rgba(74,222,128,.35); }
     .wl-qty-val {
-      font-size: 0.78rem; font-weight: 800; color: var(--text);
-      min-width: 16px; text-align: center;
+      font-size: 0.82rem; font-weight: 900; color: var(--text);
+      min-width: 18px; text-align: center;
     }
-
-    /* Progress bar */
-    .wl-progress-wrap { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
-    .wl-progress-bar  {
-      height: 100%; border-radius: 3px;
-      background: linear-gradient(90deg, var(--purple), var(--pink));
-      transition: width .35s ease;
-    }
-    .wl-tile.complete .wl-progress-bar { background: var(--green); }
-    .wl-fraction { font-size: 0.6rem; color: var(--dim); text-align: right; }
 
     /* ── MODALS ── */
     .modal-overlay {
@@ -463,10 +486,10 @@
     <div id="page-hdr">
       <h1 class="page-title">🎴 My Wishlist</h1>
       <div class="hdr-actions">
-        <button class="btn btn-primary"   onclick="openSearchModal()">➕ Add Card</button>
-        <button class="btn btn-secondary" onclick="openIOModal()">📋 Import/Export</button>
-        <button class="btn btn-secondary" onclick="copyShareURL()">🔗 Share</button>
-        <button class="btn btn-secondary" onclick="exportPNG()">📸 Export PNG</button>
+        <button class="btn btn-primary"   onclick="openSearchModal()">➕ <span class="btn-icon-label">Add Card</span></button>
+        <button class="btn btn-secondary" onclick="openIOModal()">📋 <span class="btn-icon-label">Import/Export</span></button>
+        <button class="btn btn-secondary" onclick="copyShareURL()">🔗 <span class="btn-icon-label">Share</span></button>
+        <button class="btn btn-secondary" onclick="exportPNG()">📸 <span class="btn-icon-label">Export PNG</span></button>
       </div>
     </div>
 
@@ -760,22 +783,35 @@
     const imgWrap = document.createElement('div');
     imgWrap.className = 'wl-img-wrap';
 
-    const img = document.createElement('img');
-    img.alt = card.name; img.loading = 'lazy';
+    // Placeholder (hidden; only shown on img error)
     const ph = document.createElement('div');
     ph.className = 'wl-ph'; ph.textContent = '🃏';
+
+    const img = document.createElement('img');
+    img.alt = card.name; img.loading = 'lazy';
     img.src = card.imageUrl;
-    img.onerror = () => { img.style.display = 'none'; };
+    img.onerror = () => { img.style.display = 'none'; ph.style.display = 'flex'; };
 
-    const doneBadge = document.createElement('div');
-    doneBadge.className = 'wl-done-badge'; doneBadge.textContent = '✓ Done';
-
+    // Remove button — top-left
     const rmBtn = document.createElement('button');
-    rmBtn.className = 'wl-rm-btn'; rmBtn.title = 'Remove';
+    rmBtn.className = 'wl-rm-btn'; rmBtn.title = 'Remove from wishlist';
     rmBtn.innerHTML = '✕';
     rmBtn.onclick = e => { e.stopPropagation(); removeCard(item.id); };
 
-    imgWrap.append(ph, img, doneBadge, rmBtn);
+    // Quantity badge — top-right (owned/needed or ✓)
+    const qtyBadge = document.createElement('div');
+    qtyBadge.className = 'wl-qty-badge';
+    qtyBadge.textContent = done ? '✓ Done' : `${item.owned} / ${item.needed}`;
+
+    // Bottom progress strip on image
+    const imgBar = document.createElement('div');
+    imgBar.className = 'wl-img-bar';
+    const imgBarFill = document.createElement('div');
+    imgBarFill.className = 'wl-img-bar-fill';
+    imgBarFill.style.width = pct + '%';
+    imgBar.appendChild(imgBarFill);
+
+    imgWrap.append(ph, img, rmBtn, qtyBadge, imgBar);
 
     // — Info area —
     const info = document.createElement('div');
@@ -789,47 +825,31 @@
     meta.className = 'wl-meta';
     meta.innerHTML = `${card.id} · <span style="color:${rarCol};font-weight:800;">${card.rarity}</span>`;
 
-    // Progress bar
-    const progWrap = document.createElement('div');
-    progWrap.className = 'wl-progress-wrap';
-    const progBar = document.createElement('div');
-    progBar.className = 'wl-progress-bar';
-    progBar.style.width = pct + '%';
-    progWrap.appendChild(progBar);
-
-    const fraction = document.createElement('div');
-    fraction.className = 'wl-fraction';
-    fraction.textContent = `${item.owned} / ${item.needed}`;
-
-    // Needed stepper
-    const neededRow = makeQtyRow(
-      'Need:', item.needed,
-      () => adjustNeeded(item.id, -1),
-      () => adjustNeeded(item.id, +1),
-      item.needed <= 1, item.needed >= 4
+    // Stepper rows
+    const rows = document.createElement('div');
+    rows.className = 'wl-qty-rows';
+    rows.append(
+      makeQtyRow('Need', item.needed,
+        () => adjustNeeded(item.id, -1), () => adjustNeeded(item.id, +1),
+        item.needed <= 1, item.needed >= 4),
+      makeQtyRow('Own', item.owned,
+        () => adjustOwned(item.id, -1), () => adjustOwned(item.id, +1),
+        item.owned <= 0, item.owned >= item.needed)
     );
 
-    // Owned stepper
-    const ownedRow = makeQtyRow(
-      'Own:', item.owned,
-      () => adjustOwned(item.id, -1),
-      () => adjustOwned(item.id, +1),
-      item.owned <= 0, item.owned >= item.needed
-    );
-
-    info.append(name, meta, progWrap, fraction, neededRow, ownedRow);
+    info.append(name, meta, rows);
     tile.append(imgWrap, info);
     return tile;
   }
 
   function makeQtyRow(label, value, onMinus, onPlus, disableMinus, disablePlus) {
-    const row  = document.createElement('div');  row.className  = 'wl-qty-row';
-    const lbl  = document.createElement('span'); lbl.className  = 'wl-qty-label'; lbl.textContent = label;
-    const ctrl = document.createElement('div');  ctrl.className = 'wl-qty-ctrl';
+    const row   = document.createElement('div');    row.className   = 'wl-qty-row';
+    const lbl   = document.createElement('span');   lbl.className   = 'wl-qty-label'; lbl.textContent = label;
+    const ctrl  = document.createElement('div');    ctrl.className  = 'wl-qty-ctrl';
     const minus = document.createElement('button'); minus.className = 'wl-btn wl-btn-minus';
     minus.textContent = '−'; minus.disabled = disableMinus; minus.onclick = onMinus;
-    const val  = document.createElement('span'); val.className  = 'wl-qty-val'; val.textContent = value;
-    const plus = document.createElement('button'); plus.className = 'wl-btn wl-btn-plus';
+    const val   = document.createElement('span');   val.className   = 'wl-qty-val'; val.textContent = value;
+    const plus  = document.createElement('button'); plus.className  = 'wl-btn wl-btn-plus';
     plus.textContent = '+'; plus.disabled = disablePlus; plus.onclick = onPlus;
     ctrl.append(minus, val, plus);
     row.append(lbl, ctrl);
@@ -1089,19 +1109,23 @@
 
     const tilesHTML = items.map(w => {
       const barPct = Math.round((w.owned / w.needed) * 100);
-      const barCol = w.owned >= w.needed ? '#16a34a' : '#7c3aed';
+      const done   = w.owned >= w.needed;
+      const barCol = done ? '#16a34a' : '#7c3aed';
       const rarCol = RARITY_COLORS[w._card.rarity] || '#9ca3af';
+      const badgeBg  = done ? 'rgba(22,163,74,.88)'  : 'rgba(0,0,0,.68)';
+      const badgeTxt = done ? '✓ Done' : `${w.owned} / ${w.needed}`;
       return `<div style="display:flex;flex-direction:column;gap:4px;">
         <div style="aspect-ratio:5/7;border-radius:6px;overflow:hidden;background:#ede8f8;border:1px solid #d4c8f0;position:relative;">
-          <img src="${w._card.imageUrl}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none'">
-          ${w.owned >= w.needed ? `<div style="position:absolute;top:4px;right:4px;background:#16a34a;color:#fff;font-size:0.4rem;font-weight:800;border-radius:8px;padding:1px 5px;">✓</div>` : ''}
+          <img src="${w._card.imageUrl}" style="width:100%;height:100%;object-fit:cover;display:block;position:relative;z-index:1;" onerror="this.style.display='none'">
+          <!-- Quantity badge top-right -->
+          <div style="position:absolute;top:4px;right:4px;z-index:2;background:${badgeBg};color:#fff;font-size:0.38rem;font-weight:900;border-radius:20px;padding:2px 6px;border:1px solid rgba(255,255,255,.25);">${badgeTxt}</div>
+          <!-- Bottom progress strip -->
+          <div style="position:absolute;bottom:0;left:0;right:0;z-index:2;height:5px;background:rgba(255,255,255,.15);">
+            <div style="height:100%;width:${barPct}%;background:${barCol};"></div>
+          </div>
         </div>
         <div style="font-size:0.4rem;font-weight:700;color:#1e1040;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${w._card.name}">${w._card.name}</div>
         <div style="font-size:0.34rem;color:#a090c8;">${w.id} · <span style="color:${rarCol};font-weight:800;">${w._card.rarity}</span></div>
-        <div style="height:3px;background:#e8e0f8;border-radius:2px;overflow:hidden;">
-          <div style="height:100%;width:${barPct}%;background:${barCol};"></div>
-        </div>
-        <div style="font-size:0.34rem;color:#6b52a8;text-align:center;">${w.owned}/${w.needed}</div>
       </div>`;
     }).join('');
 
