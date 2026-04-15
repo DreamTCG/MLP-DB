@@ -110,9 +110,9 @@
       'lib.filterRarity':  'Rarity',                        // ✅ translate
       'lib.filterSet':     'Set',                           // ✅ translate
       'lib.filterRace':    'Race',                          // ✅ translate
-      'lib.sortDesc':      '↓ Sort',                        // ✅ translate
-      'lib.sortAsc':       '↑ Sort',                        // ✅ translate
-      'lib.altAll':        'All',                         // ⚠️ review — ※ is alt-art symbol; label may be fine in EN
+      'lib.sortDesc':      '↓',                             // ✅ translate
+      'lib.sortAsc':       '↑',                             // ✅ translate
+      'lib.altAll':        'All',                            // ⚠️ review — ※ is alt-art symbol; label may be fine in EN
       'lib.altNo':         'No ※',                          // ⚠️ review
       'lib.altOnly':       '※ Only',                        // ⚠️ review
       'lib.noCards':       'No cards found',                // ✅ translate
@@ -235,7 +235,7 @@
       'auth.login':       '🔑 เข้าสู่ระบบ',
       'auth.logout':      '🚪 ออกจากระบบ',
       'auth.title':       '🦄 เข้าสู่ระบบ',
-      'auth.subtitle':    'ซิงก์เด็คของคุณไว้บน cloud',
+      'auth.subtitle':    'Sync เด็คของคุณไว้บน cloud',
       'auth.tabLogin':    'เข้าสู่ระบบ',
       'auth.tabSignup':   'สมัครสมาชิก',
       'auth.email':       'อีเมล',
@@ -289,8 +289,8 @@
       'lib.filterRarity':  'Rarity',
       'lib.filterSet':     'Set',
       'lib.filterRace':    'Race',
-      'lib.sortDesc':      '↓ เรียง',
-      'lib.sortAsc':       '↑ เรียง',
+      'lib.sortDesc':      '↓',
+      'lib.sortAsc':       '↑',
       'lib.altAll':        'All',
       'lib.altNo':         'No ※',
       'lib.altOnly':       '※ Only',
@@ -346,28 +346,28 @@
       'sim.toContact':     'Contact Phase →',               // ⚠️ review
       'sim.toEnd':         'End Phase →',                   // ⚠️ review
 
-      'sim.tapScene':      'แตะฉาก +1✦',
+      'sim.tapScene':      'Tap Scene +1✦',
       'sim.back':          '✕',                             // ❌ same — symbol
 
       'sim.hand':          'มือ',
       'sim.actions':       'การกระทำ',
-      'sim.log':           'บันทึก',
+      'sim.log':           'Log',
       'sim.oppTab':        'ฝ่ายตรงข้าม',
 
       'sim.oppDeck':       'เด็ค OPP',
       'sim.oppScene':      'ฉาก OPP',
-      'sim.oppSceneArea':  'พื้นที่ฉาก OPP',
+      'sim.oppSceneArea':  'โซนฉาก OPP',
       'sim.oppRetire':     'Retire OPP',                    // ⚠️ review — "Retire" kept EN
       'sim.oppMC':         'การ์ดหลัก OPP',
-      'sim.oppStoryArea':  '🤖 พื้นที่เรื่องราว OPP',
-      'sim.advArea':       '⚔️ พื้นที่ผจญภัย',
+      'sim.oppStoryArea':  '🤖 โซนเรื่องราว OPP',
+      'sim.advArea':       '⚔️ โซนผจญภัย',
       'sim.you':           'เรา',
       'sim.opp':           'ฝ่ายตรงข้าม',
       'sim.mainChar':      'การ์ดหลัก',
-      'sim.storyArea':     'พื้นที่เรื่องราว',
-      'sim.retirement':    'Retirement',                    // ⚠️ review — game term kept EN
+      'sim.storyArea':     'โซนเรื่องราว',
+      'sim.retirement':    'โซนพักผ่อน',                    // ⚠️ review — game term kept EN
       'sim.sceneDeck':     'เด็คฉาก',
-      'sim.sceneArea':     'พื้นที่ฉาก',
+      'sim.sceneArea':     'โซนฉาก',
       'sim.mainDeck':      'เด็คหลัก',
     },
   };
