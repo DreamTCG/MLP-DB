@@ -85,9 +85,12 @@
     }
     .lib-search-input:focus { outline: none; border-color: var(--purple); }
     .lib-filter-row {
-      display: flex; gap: 5px; padding: 4px 8px 6px; flex-shrink: 0; flex-wrap: wrap;
+      display: flex; gap: 5px; padding: 4px 8px 6px; flex-shrink: 0;
+      flex-wrap: nowrap; align-items: center;
       border-bottom: 1px solid var(--border);
+      overflow-x: auto; scrollbar-width: none;
     }
+    .lib-filter-row::-webkit-scrollbar { display: none; }
     /* Library card grid — matches deck builder .card-grid pattern */
     .lib-grid {
       flex: 1; overflow-y: auto; padding: 6px;
@@ -173,6 +176,25 @@
       background: var(--surface); border: 1px solid var(--border2); color: var(--muted);
     }
     .btn-secondary:hover { border-color: var(--purple); color: var(--purple); background: var(--surface2); }
+    .btn-danger {
+      background: rgba(248,113,113,.15); border: 1px solid rgba(248,113,113,.4); color: #f87171;
+    }
+    .btn-danger:hover { background: rgba(248,113,113,.28); border-color: #f87171; }
+
+    /* ── SORT / RACE buttons (match deck builder) ── */
+    .sort-btn {
+      background: var(--surface2); border: 1px solid var(--border2);
+      color: var(--muted); border-radius: 8px; padding: 5px 9px;
+      font-size: 0.82rem; cursor: pointer; flex-shrink: 0;
+      font-family: var(--font-body);
+    }
+    .sort-btn:hover { border-color: var(--purple); color: var(--purple); }
+    .race-tab {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 4px;
+      padding: 2px 6px; font-size: 0.6rem; cursor: pointer; color: var(--muted);
+      flex: 1; font-family: var(--font-body); font-weight: 600;
+    }
+    .race-tab.active { background: var(--purple); color: #fff; border-color: var(--purple); }
 
     /* ── STATS BAR ── */
     #stats-bar, #stats-bar-m {
@@ -228,12 +250,15 @@
     .filter-pill:hover:not(.active) { border-color: var(--purple); color: var(--purple); }
 
     /* ── DROPDOWN ── */
-    .dd-wrap { position: relative; }
+    .dd-wrap { position: relative; flex: 1; min-width: 0; }
+    /* Toolbar dd-wraps should NOT flex:1 (they're in the wl toolbar, not lib filter row) */
+    #toolbar .dd-wrap, #toolbar-m .dd-wrap { flex: unset; }
     .dd-btn {
-      background: var(--surface); border: 1px solid var(--border2);
-      border-radius: 6px; padding: 4px 8px;
+      width: 100%; background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 6px; padding: 5px 9px;
       font-size: 0.68rem; font-family: var(--font-body); font-weight: 700;
-      color: var(--muted); cursor: pointer; white-space: nowrap;
+      color: var(--muted); cursor: pointer; white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis; display: flex; justify-content: space-between; align-items: center;
     }
     .dd-btn:hover { border-color: var(--purple); color: var(--purple); }
     .dd-menu {
@@ -544,38 +569,73 @@
       </div>
       <div class="lib-search-row">
         <input id="lib-search" class="lib-search-input"
-               placeholder="Search name or ID…"
-               oninput="onLibSearch()" autocomplete="off">
+               placeholder="Search cards…" oninput="renderLibGrid()" autocomplete="off">
       </div>
       <div class="lib-filter-row">
         <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('lib-dd-type'); event.stopPropagation()">
-            <span id="lib-type-lbl">Type</span> ▼
-          </button>
-          <div class="dd-menu" id="lib-dd-type">
-            <label class="dd-item"><input type="checkbox" value="Character"      onchange="applyLibFilters()"> Character</label>
-            <label class="dd-item"><input type="checkbox" value="Event"          onchange="applyLibFilters()"> Event</label>
-            <label class="dd-item"><input type="checkbox" value="Item"           onchange="applyLibFilters()"> Item</label>
-            <label class="dd-item"><input type="checkbox" value="Scene"          onchange="applyLibFilters()"> Scene</label>
-            <label class="dd-item"><input type="checkbox" value="Story"          onchange="applyLibFilters()"> Story</label>
-            <label class="dd-item"><input type="checkbox" value="Main Character" onchange="applyLibFilters()"> Main Char</label>
+          <button class="dd-btn" onclick="toggleDD('wl-dd-type-d')"><span id="wl-dd-type-d-lbl">Type</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-type-d">
+            <label class="dd-item"><input type="checkbox" value="Character"      onchange="syncLibFilters('wl-dd-type-d')"> Character</label>
+            <label class="dd-item"><input type="checkbox" value="Event"          onchange="syncLibFilters('wl-dd-type-d')"> Event</label>
+            <label class="dd-item"><input type="checkbox" value="Item"           onchange="syncLibFilters('wl-dd-type-d')"> Item</label>
+            <label class="dd-item"><input type="checkbox" value="Scene"          onchange="syncLibFilters('wl-dd-type-d')"> Scene</label>
+            <label class="dd-item"><input type="checkbox" value="Main Character" onchange="syncLibFilters('wl-dd-type-d')"> Main Char</label>
+            <label class="dd-item"><input type="checkbox" value="Story"          onchange="syncLibFilters('wl-dd-type-d')"> Story</label>
           </div>
         </div>
         <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('lib-dd-rarity'); event.stopPropagation()">
-            <span id="lib-rarity-lbl">Rarity</span> ▼
-          </button>
-          <div class="dd-menu" id="lib-dd-rarity">
-            <label class="dd-item"><input type="checkbox" value="CR"  onchange="applyLibFilters()"> CR</label>
-            <label class="dd-item"><input type="checkbox" value="GR"  onchange="applyLibFilters()"> GR</label>
-            <label class="dd-item"><input type="checkbox" value="SR"  onchange="applyLibFilters()"> SR</label>
-            <label class="dd-item"><input type="checkbox" value="RR"  onchange="applyLibFilters()"> RR</label>
-            <label class="dd-item"><input type="checkbox" value="ER"  onchange="applyLibFilters()"> ER</label>
-            <label class="dd-item"><input type="checkbox" value="SPR" onchange="applyLibFilters()"> SPR</label>
-            <label class="dd-item"><input type="checkbox" value="U"   onchange="applyLibFilters()"> U</label>
-            <label class="dd-item"><input type="checkbox" value="C"   onchange="applyLibFilters()"> C</label>
+          <button class="dd-btn" onclick="toggleDD('wl-dd-rarity-d')"><span id="wl-dd-rarity-d-lbl">Rarity</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-rarity-d">
+            <label class="dd-item"><input type="checkbox" value="CR"  onchange="syncLibFilters('wl-dd-rarity-d')"> CR</label>
+            <label class="dd-item"><input type="checkbox" value="GR"  onchange="syncLibFilters('wl-dd-rarity-d')"> GR</label>
+            <label class="dd-item"><input type="checkbox" value="SR"  onchange="syncLibFilters('wl-dd-rarity-d')"> SR</label>
+            <label class="dd-item"><input type="checkbox" value="U"   onchange="syncLibFilters('wl-dd-rarity-d')"> U</label>
+            <label class="dd-item"><input type="checkbox" value="C"   onchange="syncLibFilters('wl-dd-rarity-d')"> C</label>
+            <label class="dd-item"><input type="checkbox" value="RR"  onchange="syncLibFilters('wl-dd-rarity-d')"> RR</label>
+            <label class="dd-item"><input type="checkbox" value="ER"  onchange="syncLibFilters('wl-dd-rarity-d')"> ER</label>
+            <label class="dd-item"><input type="checkbox" value="SPR" onchange="syncLibFilters('wl-dd-rarity-d')"> SPR</label>
+            <label class="dd-item"><input type="checkbox" value="※CR"  onchange="syncLibFilters('wl-dd-rarity-d')"> ※ CR</label>
+            <label class="dd-item"><input type="checkbox" value="※GR"  onchange="syncLibFilters('wl-dd-rarity-d')"> ※ GR</label>
+            <label class="dd-item"><input type="checkbox" value="※SR"  onchange="syncLibFilters('wl-dd-rarity-d')"> ※ SR</label>
+            <label class="dd-item"><input type="checkbox" value="※RR"  onchange="syncLibFilters('wl-dd-rarity-d')"> ※ RR</label>
+            <label class="dd-item"><input type="checkbox" value="※ER"  onchange="syncLibFilters('wl-dd-rarity-d')"> ※ ER</label>
+            <label class="dd-item"><input type="checkbox" value="※SPR" onchange="syncLibFilters('wl-dd-rarity-d')"> ※ SPR</label>
           </div>
         </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('wl-dd-set-d')"><span id="wl-dd-set-d-lbl">Set</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-set-d"></div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('wl-dd-race-d')"><span id="wl-dd-race-d-lbl">Race</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-race-d" style="min-width:130px;">
+            <div style="display:flex;gap:3px;margin-bottom:5px;">
+              <button class="race-tab active" id="wl-race-tab-pony-d" onclick="setLibRaceTab('pony')">🐴 Pony</button>
+              <button class="race-tab" id="wl-race-tab-pet-d" onclick="setLibRaceTab('pet')">🐾 Pet</button>
+            </div>
+            <div id="wl-race-pony-d">
+              <label class="dd-item"><input type="checkbox" value="Unicorn"    onchange="syncLibFilters('wl-dd-race-d')"> Unicorn</label>
+              <label class="dd-item"><input type="checkbox" value="Pegasus"    onchange="syncLibFilters('wl-dd-race-d')"> Pegasus</label>
+              <label class="dd-item"><input type="checkbox" value="Earth Pony" onchange="syncLibFilters('wl-dd-race-d')"> Earth Pony</label>
+              <label class="dd-item"><input type="checkbox" value="Alicorn"    onchange="syncLibFilters('wl-dd-race-d')"> Alicorn</label>
+              <label class="dd-item"><input type="checkbox" value="Race:Other" onchange="syncLibFilters('wl-dd-race-d')"> Other</label>
+            </div>
+            <div id="wl-race-pet-d" style="display:none">
+              <label class="dd-item"><input type="checkbox" value="Dragon"    onchange="syncLibFilters('wl-dd-race-d')"> Dragon</label>
+              <label class="dd-item"><input type="checkbox" value="Crocodile" onchange="syncLibFilters('wl-dd-race-d')"> Crocodile</label>
+              <label class="dd-item"><input type="checkbox" value="Turtle"    onchange="syncLibFilters('wl-dd-race-d')"> Turtle</label>
+              <label class="dd-item"><input type="checkbox" value="Rabbit"    onchange="syncLibFilters('wl-dd-race-d')"> Rabbit</label>
+              <label class="dd-item"><input type="checkbox" value="Dog"       onchange="syncLibFilters('wl-dd-race-d')"> Dog</label>
+              <label class="dd-item"><input type="checkbox" value="Cat"       onchange="syncLibFilters('wl-dd-race-d')"> Cat</label>
+              <label class="dd-item"><input type="checkbox" value="Owl"       onchange="syncLibFilters('wl-dd-race-d')"> Owl</label>
+              <label class="dd-item"><input type="checkbox" value="Phoenix"   onchange="syncLibFilters('wl-dd-race-d')"> Phoenix</label>
+              <label class="dd-item"><input type="checkbox" value="Pet:Other" onchange="syncLibFilters('wl-dd-race-d')"> Other</label>
+            </div>
+          </div>
+        </div>
+        <button class="sort-btn" id="wl-sort-btn-d" onclick="toggleLibSort()" title="Toggle sort order">↓</button>
+        <button class="sort-btn" onclick="clearLibFilters()" title="Clear all filters" style="font-size:0.65rem;">✕</button>
+        <button class="sort-btn" id="wl-alt-btn-d" onclick="toggleLibAltFilter()" title="Toggle alt rarity" style="font-size:0.62rem;min-width:42px;">All</button>
       </div>
       <div id="lib-grid" class="lib-grid"></div>
     </div><!-- /#panel-lib -->
@@ -589,6 +649,7 @@
           <button class="btn btn-secondary" onclick="openIOModal()">📋 <span class="btn-lbl">Import/Export</span></button>
           <button class="btn btn-secondary" onclick="copyShareURL()">🔗 <span class="btn-lbl">Share</span></button>
           <button class="btn btn-secondary" onclick="exportPNG()">📸 <span class="btn-lbl">PNG</span></button>
+          <button class="btn btn-danger"    onclick="clearWishlist()">🗑 <span class="btn-lbl">Clear</span></button>
         </div>
       </div>
       <!-- Stats -->
@@ -663,38 +724,73 @@
       </div>
       <div class="lib-search-row">
         <input id="lib-search-m" class="lib-search-input"
-               placeholder="Search name or ID…"
-               oninput="onLibSearchM()" autocomplete="off">
+               placeholder="Search cards…" oninput="renderLibGrid()" autocomplete="off">
       </div>
       <div class="lib-filter-row">
         <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('lib-dd-type-m'); event.stopPropagation()">
-            <span id="lib-type-lbl-m">Type</span> ▼
-          </button>
-          <div class="dd-menu" id="lib-dd-type-m">
-            <label class="dd-item"><input type="checkbox" value="Character"      onchange="applyLibFiltersM()"> Character</label>
-            <label class="dd-item"><input type="checkbox" value="Event"          onchange="applyLibFiltersM()"> Event</label>
-            <label class="dd-item"><input type="checkbox" value="Item"           onchange="applyLibFiltersM()"> Item</label>
-            <label class="dd-item"><input type="checkbox" value="Scene"          onchange="applyLibFiltersM()"> Scene</label>
-            <label class="dd-item"><input type="checkbox" value="Story"          onchange="applyLibFiltersM()"> Story</label>
-            <label class="dd-item"><input type="checkbox" value="Main Character" onchange="applyLibFiltersM()"> Main Char</label>
+          <button class="dd-btn" onclick="toggleDD('wl-dd-type-m')"><span id="wl-dd-type-m-lbl">Type</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-type-m">
+            <label class="dd-item"><input type="checkbox" value="Character"      onchange="syncLibFilters('wl-dd-type-m')"> Character</label>
+            <label class="dd-item"><input type="checkbox" value="Event"          onchange="syncLibFilters('wl-dd-type-m')"> Event</label>
+            <label class="dd-item"><input type="checkbox" value="Item"           onchange="syncLibFilters('wl-dd-type-m')"> Item</label>
+            <label class="dd-item"><input type="checkbox" value="Scene"          onchange="syncLibFilters('wl-dd-type-m')"> Scene</label>
+            <label class="dd-item"><input type="checkbox" value="Main Character" onchange="syncLibFilters('wl-dd-type-m')"> Main Char</label>
+            <label class="dd-item"><input type="checkbox" value="Story"          onchange="syncLibFilters('wl-dd-type-m')"> Story</label>
           </div>
         </div>
         <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('lib-dd-rarity-m'); event.stopPropagation()">
-            <span id="lib-rarity-lbl-m">Rarity</span> ▼
-          </button>
-          <div class="dd-menu" id="lib-dd-rarity-m">
-            <label class="dd-item"><input type="checkbox" value="CR"  onchange="applyLibFiltersM()"> CR</label>
-            <label class="dd-item"><input type="checkbox" value="GR"  onchange="applyLibFiltersM()"> GR</label>
-            <label class="dd-item"><input type="checkbox" value="SR"  onchange="applyLibFiltersM()"> SR</label>
-            <label class="dd-item"><input type="checkbox" value="RR"  onchange="applyLibFiltersM()"> RR</label>
-            <label class="dd-item"><input type="checkbox" value="ER"  onchange="applyLibFiltersM()"> ER</label>
-            <label class="dd-item"><input type="checkbox" value="SPR" onchange="applyLibFiltersM()"> SPR</label>
-            <label class="dd-item"><input type="checkbox" value="U"   onchange="applyLibFiltersM()"> U</label>
-            <label class="dd-item"><input type="checkbox" value="C"   onchange="applyLibFiltersM()"> C</label>
+          <button class="dd-btn" onclick="toggleDD('wl-dd-rarity-m')"><span id="wl-dd-rarity-m-lbl">Rarity</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-rarity-m">
+            <label class="dd-item"><input type="checkbox" value="CR"  onchange="syncLibFilters('wl-dd-rarity-m')"> CR</label>
+            <label class="dd-item"><input type="checkbox" value="GR"  onchange="syncLibFilters('wl-dd-rarity-m')"> GR</label>
+            <label class="dd-item"><input type="checkbox" value="SR"  onchange="syncLibFilters('wl-dd-rarity-m')"> SR</label>
+            <label class="dd-item"><input type="checkbox" value="U"   onchange="syncLibFilters('wl-dd-rarity-m')"> U</label>
+            <label class="dd-item"><input type="checkbox" value="C"   onchange="syncLibFilters('wl-dd-rarity-m')"> C</label>
+            <label class="dd-item"><input type="checkbox" value="RR"  onchange="syncLibFilters('wl-dd-rarity-m')"> RR</label>
+            <label class="dd-item"><input type="checkbox" value="ER"  onchange="syncLibFilters('wl-dd-rarity-m')"> ER</label>
+            <label class="dd-item"><input type="checkbox" value="SPR" onchange="syncLibFilters('wl-dd-rarity-m')"> SPR</label>
+            <label class="dd-item"><input type="checkbox" value="※CR"  onchange="syncLibFilters('wl-dd-rarity-m')"> ※ CR</label>
+            <label class="dd-item"><input type="checkbox" value="※GR"  onchange="syncLibFilters('wl-dd-rarity-m')"> ※ GR</label>
+            <label class="dd-item"><input type="checkbox" value="※SR"  onchange="syncLibFilters('wl-dd-rarity-m')"> ※ SR</label>
+            <label class="dd-item"><input type="checkbox" value="※RR"  onchange="syncLibFilters('wl-dd-rarity-m')"> ※ RR</label>
+            <label class="dd-item"><input type="checkbox" value="※ER"  onchange="syncLibFilters('wl-dd-rarity-m')"> ※ ER</label>
+            <label class="dd-item"><input type="checkbox" value="※SPR" onchange="syncLibFilters('wl-dd-rarity-m')"> ※ SPR</label>
           </div>
         </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('wl-dd-set-m')"><span id="wl-dd-set-m-lbl">Set</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-set-m"></div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('wl-dd-race-m')"><span id="wl-dd-race-m-lbl">Race</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-race-m" style="min-width:130px;">
+            <div style="display:flex;gap:3px;margin-bottom:5px;">
+              <button class="race-tab active" id="wl-race-tab-pony-m" onclick="setLibRaceTab('pony')">🐴 Pony</button>
+              <button class="race-tab" id="wl-race-tab-pet-m" onclick="setLibRaceTab('pet')">🐾 Pet</button>
+            </div>
+            <div id="wl-race-pony-m">
+              <label class="dd-item"><input type="checkbox" value="Unicorn"    onchange="syncLibFilters('wl-dd-race-m')"> Unicorn</label>
+              <label class="dd-item"><input type="checkbox" value="Pegasus"    onchange="syncLibFilters('wl-dd-race-m')"> Pegasus</label>
+              <label class="dd-item"><input type="checkbox" value="Earth Pony" onchange="syncLibFilters('wl-dd-race-m')"> Earth Pony</label>
+              <label class="dd-item"><input type="checkbox" value="Alicorn"    onchange="syncLibFilters('wl-dd-race-m')"> Alicorn</label>
+              <label class="dd-item"><input type="checkbox" value="Race:Other" onchange="syncLibFilters('wl-dd-race-m')"> Other</label>
+            </div>
+            <div id="wl-race-pet-m" style="display:none">
+              <label class="dd-item"><input type="checkbox" value="Dragon"    onchange="syncLibFilters('wl-dd-race-m')"> Dragon</label>
+              <label class="dd-item"><input type="checkbox" value="Crocodile" onchange="syncLibFilters('wl-dd-race-m')"> Crocodile</label>
+              <label class="dd-item"><input type="checkbox" value="Turtle"    onchange="syncLibFilters('wl-dd-race-m')"> Turtle</label>
+              <label class="dd-item"><input type="checkbox" value="Rabbit"    onchange="syncLibFilters('wl-dd-race-m')"> Rabbit</label>
+              <label class="dd-item"><input type="checkbox" value="Dog"       onchange="syncLibFilters('wl-dd-race-m')"> Dog</label>
+              <label class="dd-item"><input type="checkbox" value="Cat"       onchange="syncLibFilters('wl-dd-race-m')"> Cat</label>
+              <label class="dd-item"><input type="checkbox" value="Owl"       onchange="syncLibFilters('wl-dd-race-m')"> Owl</label>
+              <label class="dd-item"><input type="checkbox" value="Phoenix"   onchange="syncLibFilters('wl-dd-race-m')"> Phoenix</label>
+              <label class="dd-item"><input type="checkbox" value="Pet:Other" onchange="syncLibFilters('wl-dd-race-m')"> Other</label>
+            </div>
+          </div>
+        </div>
+        <button class="sort-btn" id="wl-sort-btn-m" onclick="toggleLibSort()" title="Toggle sort">↓</button>
+        <button class="sort-btn" onclick="clearLibFilters()" title="Clear all filters" style="font-size:0.65rem;">✕</button>
+        <button class="sort-btn" id="wl-alt-btn-m" onclick="toggleLibAltFilter()" title="Toggle alt rarity" style="font-size:0.62rem;min-width:42px;">All</button>
       </div>
       <div id="lib-grid-m" class="lib-grid"></div>
     </div><!-- /#mob-page-lib -->
@@ -709,9 +805,10 @@
           <button id="pill-all-m"      class="filter-pill active" onclick="setStatusFilter('all')">All</button>
           <button id="pill-needed-m"   class="filter-pill"        onclick="setStatusFilter('needed')">Needed</button>
           <button id="pill-complete-m" class="filter-pill"        onclick="setStatusFilter('complete')">Done</button>
-          <button class="btn btn-secondary" onclick="openIOModal()"  style="padding:5px 9px;">📋</button>
+          <button class="btn btn-secondary" onclick="openIOModal()"   style="padding:5px 9px;">📋</button>
           <button class="btn btn-secondary" onclick="copyShareURL()" style="padding:5px 9px;">🔗</button>
           <button class="btn btn-secondary" onclick="exportPNG()"    style="padding:5px 9px;">📸</button>
+          <button class="btn btn-danger"    onclick="clearWishlist()" style="padding:5px 9px;">🗑</button>
         </div>
         <!-- Row 2: Filter dropdowns + sort -->
         <div class="tb-row">
@@ -804,10 +901,15 @@
   let filterRarities = [];
   let sortMode       = 'newest'; // 'newest' | 'id' | 'pct'
 
-  // Library panel filter state
-  let libSearch      = '';
-  let libFilterTypes    = [];
-  let libFilterRarities = [];
+  // Library panel sort/alt state
+  let libSortAsc = false;
+  let libAltMode = 'all'; // 'all' | 'no-alt' | 'alt-only'
+
+  const ALT_RARITIES_SET = new Set(['※CR','※GR','※SR','※RR','※ER','※SPR']);
+  const RARITY_RANK = { CR:1, GR:2, SR:3, RR:4, ER:5, SPR:6, U:7, C:8,
+    '※CR':1,'※GR':2,'※SR':3,'※RR':4,'※ER':5,'※SPR':6 };
+  const _PONY_RACES = ['Unicorn','Pegasus','Earth Pony','Alicorn'];
+  const _PET_RACES  = ['Dragon','Crocodile','Turtle','Rabbit','Dog','Cat','Owl','Phoenix'];
 
   // ═══════════════════════════════════════════════════════
   // UTILITIES
@@ -1108,7 +1210,7 @@
   }
 
   // ═══════════════════════════════════════════════════════
-  // LIBRARY PANEL
+  // LIBRARY PANEL — filters match deck builder
   // ═══════════════════════════════════════════════════════
 
   function switchPage(page) {
@@ -1118,68 +1220,165 @@
     });
   }
 
-  function onLibSearch() {
-    libSearch = $('lib-search')?.value || '';
-    $('lib-search-m') && ($('lib-search-m').value = libSearch);
-    renderLibGrid();
-  }
-
-  function onLibSearchM() {
-    libSearch = $('lib-search-m')?.value || '';
-    $('lib-search') && ($('lib-search').value = libSearch);
-    renderLibGrid();
-  }
-
-  function applyLibFilters() {
-    libFilterTypes    = getChecked('lib-dd-type');
-    libFilterRarities = getChecked('lib-dd-rarity');
-    // Sync to mobile checkboxes
-    syncCheckboxes('lib-dd-type',   'lib-dd-type-m',   libFilterTypes);
-    syncCheckboxes('lib-dd-rarity', 'lib-dd-rarity-m', libFilterRarities);
-    updateLibFilterLabels();
-    renderLibGrid();
-  }
-
-  function applyLibFiltersM() {
-    libFilterTypes    = getChecked('lib-dd-type-m');
-    libFilterRarities = getChecked('lib-dd-rarity-m');
-    // Sync to desktop checkboxes
-    syncCheckboxes('lib-dd-type-m',   'lib-dd-type',   libFilterTypes);
-    syncCheckboxes('lib-dd-rarity-m', 'lib-dd-rarity', libFilterRarities);
-    updateLibFilterLabels();
-    renderLibGrid();
-  }
-
-  function syncCheckboxes(fromId, toId, values) {
-    const menu = $(toId);
-    if (!menu) return;
-    menu.querySelectorAll('input[type=checkbox]').forEach(cb => {
-      cb.checked = values.includes(cb.value);
+  // Sync desktop ↔ mobile checkboxes (same pattern as deck builder syncFilters)
+  function syncLibFilters(changedId) {
+    const pairs = [
+      ['wl-dd-type-d',   'wl-dd-type-m'],
+      ['wl-dd-rarity-d', 'wl-dd-rarity-m'],
+      ['wl-dd-set-d',    'wl-dd-set-m'],
+      ['wl-dd-race-d',   'wl-dd-race-m'],
+    ];
+    pairs.forEach(([d, m]) => {
+      const other = changedId === d ? m : changedId === m ? d : null;
+      if (!other) return;
+      const src = document.querySelectorAll('#' + changedId + ' input[type=checkbox]');
+      const dst = document.querySelectorAll('#' + other    + ' input[type=checkbox]');
+      src.forEach((s, i) => { if (dst[i]) dst[i].checked = s.checked; });
     });
+    updateLibFilterLabels();
+    renderLibGrid();
   }
 
   function updateLibFilterLabels() {
-    const tl = libFilterTypes.length    ? libFilterTypes.length    + ' sel' : 'Type';
-    const rl = libFilterRarities.length ? libFilterRarities.length + ' sel' : 'Rarity';
-    ['lib-type-lbl','lib-type-lbl-m'].forEach(id => { const el = $(id); if (el) el.textContent = tl; });
-    ['lib-rarity-lbl','lib-rarity-lbl-m'].forEach(id => { const el = $(id); if (el) el.textContent = rl; });
+    const pairs = [
+      { d:'wl-dd-type-d',   dl:'wl-dd-type-d-lbl',   ml:'wl-dd-type-m-lbl',   def:'Type'   },
+      { d:'wl-dd-rarity-d', dl:'wl-dd-rarity-d-lbl', ml:'wl-dd-rarity-m-lbl', def:'Rarity' },
+      { d:'wl-dd-set-d',    dl:'wl-dd-set-d-lbl',    ml:'wl-dd-set-m-lbl',    def:'Set'    },
+      { d:'wl-dd-race-d',   dl:'wl-dd-race-d-lbl',   ml:'wl-dd-race-m-lbl',   def:'Race'   },
+    ];
+    pairs.forEach(({ d, dl, ml, def }) => {
+      const vals = getChecked(d);
+      const lbl  = vals.length ? vals.join(', ') : def;
+      const elD = $(dl); if (elD) elD.textContent = lbl;
+      const elM = $(ml); if (elM) elM.textContent = lbl;
+    });
+  }
+
+  function toggleLibSort() {
+    libSortAsc = !libSortAsc;
+    const lbl = libSortAsc ? '↑' : '↓';
+    [$('wl-sort-btn-d'), $('wl-sort-btn-m')].forEach(el => { if (el) el.textContent = lbl; });
+    renderLibGrid();
+  }
+
+  function toggleLibAltFilter() {
+    if (libAltMode === 'all')       libAltMode = 'no-alt';
+    else if (libAltMode === 'no-alt') libAltMode = 'alt-only';
+    else                            libAltMode = 'all';
+    const lbl = { all:'All', 'no-alt':'No ※', 'alt-only':'※ Only' }[libAltMode];
+    [$('wl-alt-btn-d'), $('wl-alt-btn-m')].forEach(el => { if (el) el.textContent = lbl; });
+    renderLibGrid();
+  }
+
+  function clearLibFilters() {
+    ['wl-dd-type-d','wl-dd-type-m','wl-dd-rarity-d','wl-dd-rarity-m',
+     'wl-dd-set-d','wl-dd-set-m','wl-dd-race-d','wl-dd-race-m'].forEach(id => {
+      const el = $(id); if (!el) return;
+      el.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+    });
+    [$('lib-search'), $('lib-search-m')].forEach(el => { if (el) el.value = ''; });
+    libAltMode = 'all'; libSortAsc = false;
+    [$('wl-alt-btn-d'),$('wl-alt-btn-m')].forEach(el => { if (el) el.textContent = 'All'; });
+    [$('wl-sort-btn-d'),$('wl-sort-btn-m')].forEach(el => { if (el) el.textContent = '↓'; });
+    updateLibFilterLabels();
+    renderLibGrid();
+  }
+
+  function setLibRaceTab(tab) {
+    ['d','m'].forEach(sfx => {
+      const pony = $('wl-race-pony-' + sfx);
+      const pet  = $('wl-race-pet-'  + sfx);
+      const pb   = $('wl-race-tab-pony-' + sfx);
+      const xb   = $('wl-race-tab-pet-'  + sfx);
+      if (pony) pony.style.display = tab === 'pony' ? '' : 'none';
+      if (pet)  pet.style.display  = tab === 'pet'  ? '' : 'none';
+      if (pb)   pb.classList.toggle('active', tab === 'pony');
+      if (xb)   xb.classList.toggle('active', tab === 'pet');
+    });
+  }
+
+  function buildLibSetDropdowns() {
+    const sets = [...new Set(library.map(c => c.deck).filter(Boolean))].sort((a, b) => {
+      const base = s => s.replace(/[A-Z]$/, '');
+      const sub  = s => s.match(/[A-Z]$/) ? s.slice(-1) : '';
+      if (base(a) !== base(b)) return a.localeCompare(b);
+      return sub(a).localeCompare(sub(b));
+    });
+    ['wl-dd-set-d','wl-dd-set-m'].forEach(id => {
+      const menu = $(id); if (!menu) return;
+      const checked = new Set([...menu.querySelectorAll('input:checked')].map(el => el.value));
+      menu.innerHTML = sets.map(s =>
+        `<label class="dd-item"><input type="checkbox" value="${s}"${checked.has(s)?' checked':''} onchange="syncLibFilters('${id}')"> ${s}</label>`
+      ).join('');
+    });
+    updateLibFilterLabels();
+  }
+
+  function sortLibCards(cards) {
+    const getNum = id => { const m = (id||'').match(/([A-Z]+)(\d+)$/i); return m ? parseInt(m[2]) : 0; };
+    const getDeck = c => c.deck || (c.id||'').split('-')[0] || '';
+    return [...cards].sort((a, b) => {
+      const dc = getDeck(a).localeCompare(getDeck(b));
+      if (dc !== 0) return libSortAsc ? -dc : dc;
+      const ra = RARITY_RANK[a.rarity] ?? 99, rb = RARITY_RANK[b.rarity] ?? 99;
+      const rd = libSortAsc ? rb - ra : ra - rb;
+      if (rd !== 0) return rd;
+      const diff = getNum(a.id) - getNum(b.id);
+      return libSortAsc ? -diff : diff;
+    });
   }
 
   function renderLibGrid() {
-    const q   = libSearch.toLowerCase().trim();
+    // Read search from whichever input is active/has content
+    const qD = ($('lib-search')?.value   || '').toLowerCase().trim();
+    const qM = ($('lib-search-m')?.value || '').toLowerCase().trim();
+    const q  = qD || qM;
+
+    // Read filters from desktop dropdowns (kept in sync with mobile via syncLibFilters)
+    const fTypes    = getChecked('wl-dd-type-d');
+    const fRarities = getChecked('wl-dd-rarity-d');
+    const fSets     = getChecked('wl-dd-set-d');
+    const fRaces    = getChecked('wl-dd-race-d');
+
     const inWL = new Set(wishlist.map(w => w.id));
 
     let cards = library;
-    if (q)                     cards = cards.filter(c => c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q));
-    if (libFilterTypes.length)    cards = cards.filter(c => libFilterTypes.includes(c.type));
-    if (libFilterRarities.length) cards = cards.filter(c => libFilterRarities.includes(c.rarity));
 
-    const total   = cards.length;
-    const visible = cards;  // show all cards, no slice limit
+    // Search filter
+    if (q) cards = cards.filter(c =>
+      c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q));
+
+    // Type filter
+    if (fTypes.length) cards = cards.filter(c => fTypes.includes(c.type));
+
+    // Rarity filter
+    if (fRarities.length) cards = cards.filter(c => fRarities.includes(c.rarity));
+
+    // Set filter
+    if (fSets.length) cards = cards.filter(c => fSets.includes(c.deck));
+
+    // Race/subtype filter (matches deck builder logic)
+    if (fRaces.length) {
+      cards = cards.filter(c => {
+        const subs = c.subtype || [];
+        return fRaces.some(r => {
+          if (r === 'Race:Other') return c.type === 'Character' && !subs.some(s => _PONY_RACES.includes(s));
+          if (r === 'Pet:Other')  return c.type === 'Character' && !subs.some(s => _PET_RACES.includes(s)) && !subs.some(s => _PONY_RACES.includes(s));
+          return subs.includes(r);
+        });
+      });
+    }
+
+    // Alt-rarity filter
+    if (libAltMode === 'no-alt')   cards = cards.filter(c => !ALT_RARITIES_SET.has(c.rarity));
+    if (libAltMode === 'alt-only') cards = cards.filter(c =>  ALT_RARITIES_SET.has(c.rarity));
+
+    // Sort
+    const sorted = sortLibCards(cards);
 
     // Update count labels
     ['lib-count','lib-count-m'].forEach(id => {
-      const el = $(id); if (el) el.textContent = total + ' cards';
+      const el = $(id); if (el) el.textContent = sorted.length + ' cards';
     });
 
     ['lib-grid', 'lib-grid-m'].forEach(gridId => {
@@ -1187,14 +1386,14 @@
       if (!container) return;
       container.innerHTML = '';
 
-      if (visible.length === 0) {
+      if (sorted.length === 0) {
         const msg = document.createElement('div');
         msg.className = 'lib-more'; msg.textContent = 'No cards found.';
         container.appendChild(msg);
         return;
       }
 
-      visible.forEach(card => {
+      sorted.forEach(card => {
         const inList = inWL.has(card.id);
 
         // Outer tile — flex-column, no aspect-ratio (matches .card-tile)
@@ -1229,7 +1428,6 @@
         };
         container.appendChild(el);
       });
-
     });
   }
 
@@ -1484,6 +1682,25 @@
   }
 
   // ═══════════════════════════════════════════════════════
+  // CLEAR WISHLIST
+  // ═══════════════════════════════════════════════════════
+  function clearWishlist() {
+    if (!wishlist.length) { toast('Wishlist is already empty', 'warn'); return; }
+    if (!confirm(`Clear all ${wishlist.length} card${wishlist.length !== 1 ? 's' : ''} from your wishlist?`)) return;
+    wishlist = [];
+    saveWishlist();
+    render();
+    toast('🗑 Wishlist cleared', 'ok');
+  }
+
+  // Helper used by applyWLFilters to sync wishlist toolbar checkboxes d↔m
+  function syncCheckboxes(srcId, dstId, vals) {
+    document.querySelectorAll('#' + dstId + ' input[type=checkbox]').forEach(cb => {
+      cb.checked = vals.includes(cb.value);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════
   // GLOBAL EVENT LISTENERS
   // ═══════════════════════════════════════════════════════
   document.addEventListener('click', () => {
@@ -1503,7 +1720,8 @@
 
     await loadLibrary();
 
-    loadInjected(); // consume any deck-builder inject
+    buildLibSetDropdowns(); // populate Set filter dropdowns
+    loadInjected();         // consume any deck-builder inject
     loadFromURL();  // parse ?cards= URL param
 
     render(); // full render with library data
