@@ -1029,7 +1029,7 @@
   function adjustNeeded(id, delta) {
     const item = wishlist.find(w => w.id === id);
     if (!item) return;
-    item.needed = Math.max(1, Math.min(4, item.needed + delta));
+    item.needed = Math.max(1, item.needed + delta);
     item.owned  = Math.min(item.owned, item.needed);
     saveWishlist();
     render();
@@ -1171,7 +1171,7 @@
     rows.append(
       makeQtyRow('Need', item.needed,
         () => adjustNeeded(item.id, -1), () => adjustNeeded(item.id, +1),
-        item.needed <= 1, item.needed >= 4),
+        item.needed <= 1, false),
       makeQtyRow('Own', item.owned,
         () => adjustOwned(item.id, -1), () => adjustOwned(item.id, +1),
         item.owned <= 0, item.owned >= item.needed)
@@ -1468,7 +1468,7 @@
         if (wishlist.find(w => w.id === e.id)) return;
         wishlist.push({
           id: e.id,
-          needed: Math.max(1, Math.min(4, e.needed || 1)),
+          needed: Math.max(1, e.needed || 1),
           owned:  Math.max(0, e.owned || 0),
           addedAt: new Date().toISOString()
         });
@@ -1552,7 +1552,7 @@
       const id = parts[0];
       if (!id) { skipped++; return; }
       if (!library.find(c => c.id === id)) { skipped++; return; }
-      const needed = Math.max(1, Math.min(4, parseInt(parts[1]) || 1));
+      const needed = Math.max(1, parseInt(parts[1]) || 1);
       const owned  = Math.max(0, Math.min(needed, parseInt(parts[2]) || 0));
       const existing = wishlist.find(w => w.id === id);
       if (existing) { existing.needed = needed; existing.owned = owned; }
@@ -1600,7 +1600,7 @@
         if (!id || !library.find(c => c.id === id)) return;
         if (wishlist.find(w => w.id === id)) return;
         wishlist.push({
-          id, needed: Math.max(1, Math.min(4, +n || 1)),
+          id, needed: Math.max(1, +n || 1),
           owned: Math.max(0, +o || 0), addedAt: new Date().toISOString()
         });
       });
