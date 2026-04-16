@@ -286,7 +286,6 @@
       grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
       gap: 10px;
       align-content: start;
-      align-items: start;   /* tiles size to content, not stretched to row height */
       scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
     }
 
@@ -338,12 +337,12 @@
       .tb-row .dd-wrap:last-child { margin-left: auto; }
     }
 
-    /* ── CARD TILE ── */
+    /* ── CARD TILE ── block layout: image sits on top, info flows below naturally */
     .wl-tile {
       background: var(--surface); border: 1.5px solid var(--border2);
       border-radius: var(--radius-lg); overflow: hidden;
-      display: flex; flex-direction: column;
-      transition: border-color .15s, box-shadow .15s, transform .15s;
+      display: block;
+      transition: border-color .15s, box-shadow .15s;
       position: relative;
     }
     .wl-tile:hover {
@@ -352,10 +351,10 @@
     }
     .wl-tile.complete { border-color: var(--green); }
 
-    /* Card image area */
+    /* Card image area — block, full tile width, height from aspect-ratio */
     .wl-img-wrap {
       position: relative; aspect-ratio: 5/7;
-      flex-shrink: 0;           /* prevent height collapse inside flex column */
+      width: 100%; display: block;
       background: var(--surface2); overflow: hidden;
     }
     .wl-img-wrap img {
