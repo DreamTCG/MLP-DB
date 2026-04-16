@@ -286,6 +286,7 @@
       grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
       gap: 10px;
       align-content: start;
+      align-items: start;   /* tiles size to content, not stretched to row height */
       scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
     }
 
@@ -402,9 +403,9 @@
     }
     .wl-tile.complete .wl-img-bar-fill { background: #4ade80; }
 
-    /* Info area */
+    /* Info area — height determined by content, not stretched */
     .wl-info {
-      padding: 8px 8px 8px; flex: 1;
+      padding: 8px 8px 8px;
       display: flex; flex-direction: column; gap: 6px;
     }
     .wl-name {
