@@ -1175,7 +1175,7 @@
     if (libFilterRarities.length) cards = cards.filter(c => libFilterRarities.includes(c.rarity));
 
     const total   = cards.length;
-    const visible = cards.slice(0, 150);
+    const visible = cards;  // show all cards, no slice limit
 
     // Update count labels
     ['lib-count','lib-count-m'].forEach(id => {
@@ -1230,12 +1230,6 @@
         container.appendChild(el);
       });
 
-      if (total > 150) {
-        const more = document.createElement('div');
-        more.className = 'lib-more';
-        more.textContent = '+' + (total - 150) + ' more — refine search';
-        container.appendChild(more);
-      }
     });
   }
 
@@ -1411,20 +1405,23 @@
     const pct  = totalNeeded > 0 ? Math.round((totalOwned / totalNeeded) * 100) : 0;
     const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-    const tilesHTML = items.map(w => {
+    // Only export cards that still need collecting (exclude completed)
+    const exportItems = items.filter(w => w.owned < w.needed);
+
+    const tilesHTML = exportItems.map(w => {
       const barPct = Math.round((w.owned / w.needed) * 100);
-      const done   = w.owned >= w.needed;
-      const barCol = done ? '#16a34a' : '#7c3aed';
       const rarCol = RARITY_COLORS[w._card.rarity] || '#9ca3af';
-      const badgeBg  = done ? 'rgba(22,163,74,.88)'  : 'rgba(0,0,0,.68)';
-      const badgeTxt = done ? '✓ Done' : `${w.owned} / ${w.needed}`;
+      // Badge color: red = 0 owned, yellow = partial
+      const badgeBg  = w.owned === 0 ? 'rgba(220,38,38,.92)' : 'rgba(202,138,4,.92)';
+      const badgeTxt = `${w.owned} / ${w.needed}`;
+      const barCol   = w.owned === 0 ? '#dc2626' : '#ca8a04';
       return `<div style="display:flex;flex-direction:column;gap:4px;">
         <div style="aspect-ratio:5/7;border-radius:6px;overflow:hidden;background:#ede8f8;border:1px solid #d4c8f0;position:relative;">
           <img src="${w._card.imageUrl}" style="width:100%;height:100%;object-fit:cover;display:block;position:relative;z-index:1;" onerror="this.style.display='none'">
-          <!-- Quantity badge top-right -->
-          <div style="position:absolute;top:4px;right:4px;z-index:2;background:${badgeBg};color:#fff;font-size:0.38rem;font-weight:900;border-radius:20px;padding:2px 6px;border:1px solid rgba(255,255,255,.25);">${badgeTxt}</div>
+          <!-- Quantity badge top-right — 2.5× larger, colored -->
+          <div style="position:absolute;top:5px;right:5px;z-index:2;background:${badgeBg};color:#fff;font-size:0.95rem;font-weight:900;border-radius:20px;padding:5px 14px;border:1.5px solid rgba(255,255,255,.35);line-height:1;">${badgeTxt}</div>
           <!-- Bottom progress strip -->
-          <div style="position:absolute;bottom:0;left:0;right:0;z-index:2;height:5px;background:rgba(255,255,255,.15);">
+          <div style="position:absolute;bottom:0;left:0;right:0;z-index:2;height:6px;background:rgba(255,255,255,.15);">
             <div style="height:100%;width:${barPct}%;background:${barCol};"></div>
           </div>
         </div>
@@ -1432,6 +1429,8 @@
         <div style="font-size:0.34rem;color:#a090c8;">${w.id} · <span style="color:${rarCol};font-weight:800;">${w._card.rarity}</span></div>
       </div>`;
     }).join('');
+
+    if (!exportItems.length) { toast('All cards already collected! 🎉', 'ok'); return; }
 
     const snapHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
@@ -1442,7 +1441,7 @@
   <div style="padding:16px ${PAD}px 12px;border-bottom:1px solid #e8e0f8;display:flex;align-items:center;justify-content:space-between;">
     <div>
       <div style="font-family:'Fredoka One',cursive;font-size:1.5rem;color:#1e1040;">🎴 My MLP TCG Wishlist</div>
-      <div style="font-size:0.55rem;color:#9580c8;margin-top:4px;">${items.length} cards · ${totalOwned}/${totalNeeded} owned · ${pct}% complete · ${date}</div>
+      <div style="font-size:0.55rem;color:#9580c8;margin-top:4px;">${exportItems.length} cards still needed · ${totalOwned}/${totalNeeded} owned · ${pct}% complete · ${date}</div>
     </div>
     <div style="font-family:'Fredoka One',cursive;font-size:0.62rem;color:#c4b5fd;text-align:right;line-height:1.8;">🌈 DreamTCG</div>
   </div>
