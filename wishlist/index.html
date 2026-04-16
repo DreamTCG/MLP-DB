@@ -283,10 +283,11 @@
     #wishlist-grid, #wishlist-grid-m {
       flex: 1; min-height: 0; overflow-y: auto; padding: 10px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fill, 140px); /* fixed column width */
+      grid-auto-rows: 296px;                           /* fixed row height    */
       gap: 10px;
+      justify-content: start;
       align-content: start;
-      align-items: start;   /* tiles size from own aspect-ratio, never stretched */
       scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
     }
 
@@ -322,8 +323,9 @@
     @media (max-width: 899px) {
       /* lib-grid already uses auto-fill minmax(72px,1fr) — no override needed */
       #wishlist-grid-m {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 5px; padding: 6px;
+        grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+        grid-auto-rows: 244px;                 /* fixed row height */
+        gap: 6px; padding: 6px;
       }
     }
 
@@ -338,9 +340,11 @@
       .tb-row .dd-wrap:last-child { margin-left: auto; }
     }
 
-    /* ── CARD TILE ── plain block; image + info stack naturally */
+    /* ── CARD TILE ── fills fixed grid row; flex-column splits image / info */
     .wl-tile {
-      display: block; position: relative;
+      height: 100%;                 /* fill the fixed grid-auto-rows height */
+      display: flex; flex-direction: column;
+      position: relative;
       background: var(--surface); border: 1.5px solid var(--border2);
       border-radius: var(--radius-lg); overflow: hidden;
       transition: border-color .15s, box-shadow .15s;
@@ -351,10 +355,9 @@
     }
     .wl-tile.complete { border-color: var(--green); }
 
-    /* Image — padding-bottom:140% locks 5:7 ratio from element's own width.
-       No flex, no aspect-ratio, no grid row dependency — always correct. */
+    /* Image — 70 % of the fixed tile height; no aspect-ratio, no padding trick */
     .wl-img-wrap {
-      width: 100%; padding-bottom: 140%;
+      flex: 0 0 70%;                /* 70 % of 296px = 207px  (≈ 5:7 at 140px wide) */
       position: relative; overflow: hidden;
       background: var(--surface2);
     }
@@ -404,10 +407,11 @@
     }
     .wl-tile.complete .wl-img-bar-fill { background: #4ade80; }
 
-    /* Info area — natural block below image, always fully visible */
+    /* Info area — remaining 30 % of fixed tile height */
     .wl-info {
-      padding: 7px 8px 8px;
-      display: flex; flex-direction: column; gap: 5px;
+      flex: 1; min-height: 0; overflow: hidden;
+      padding: 6px 8px 6px;
+      display: flex; flex-direction: column; gap: 4px;
     }
     .wl-name {
       font-family: var(--font-head); font-size: 0.8rem;
