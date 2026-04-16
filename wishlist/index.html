@@ -284,7 +284,7 @@
       flex: 1; min-height: 0; overflow-y: auto; padding: 10px;
       display: grid;
       grid-template-columns: repeat(auto-fill, 140px); /* fixed column width */
-      grid-auto-rows: 296px;                           /* fixed row height    */
+      grid-auto-rows: 320px;                           /* fixed row height    */
       gap: 10px;
       justify-content: start;
       align-content: start;
@@ -323,8 +323,8 @@
     @media (max-width: 899px) {
       /* lib-grid already uses auto-fill minmax(72px,1fr) — no override needed */
       #wishlist-grid-m {
-        grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
-        grid-auto-rows: 244px;                 /* fixed row height */
+        grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
+        grid-auto-rows: 260px;                 /* fixed row height */
         gap: 6px; padding: 6px;
       }
     }
