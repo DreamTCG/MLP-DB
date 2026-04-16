@@ -283,9 +283,10 @@
     #wishlist-grid, #wishlist-grid-m {
       flex: 1; min-height: 0; overflow-y: auto; padding: 10px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
       gap: 10px;
       align-content: start;
+      align-items: start;   /* tiles size from own aspect-ratio, never stretched */
       scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
     }
 
@@ -337,11 +338,12 @@
       .tb-row .dd-wrap:last-child { margin-left: auto; }
     }
 
-    /* ── CARD TILE ── block layout: image sits on top, info flows below naturally */
+    /* ── CARD TILE ── fixed 1:2 aspect ratio locks proportion on every screen size */
     .wl-tile {
+      aspect-ratio: 1/2;          /* total tile = width × 2  */
       background: var(--surface); border: 1.5px solid var(--border2);
       border-radius: var(--radius-lg); overflow: hidden;
-      display: block;
+      display: flex; flex-direction: column;
       transition: border-color .15s, box-shadow .15s;
       position: relative;
     }
@@ -351,17 +353,16 @@
     }
     .wl-tile.complete { border-color: var(--green); }
 
-    /* Card image area — padding-top trick: height = 140% of own width (5:7 ratio).
-       No aspect-ratio, no circular grid sizing dependency. */
+    /* Card image — 5:7 ratio, flex-shrink:0 so it never collapses.
+       Tile's own aspect-ratio gives a definite height so this resolves correctly. */
     .wl-img-wrap {
-      position: relative;
-      width: 100%; padding-top: 140%;   /* 7/5 = 1.4 → always correct height */
-      display: block; overflow: hidden;
+      flex-shrink: 0; aspect-ratio: 5/7;
+      position: relative; overflow: hidden;
       background: var(--surface2);
     }
     .wl-img-wrap img {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1;
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      position: relative; z-index: 1;
     }
     /* Placeholder — hidden by default, shown only when image fails */
     .wl-ph {
@@ -405,10 +406,11 @@
     }
     .wl-tile.complete .wl-img-bar-fill { background: #4ade80; }
 
-    /* Info area — height determined by content, not stretched */
+    /* Info area — fills remaining tile height after image */
     .wl-info {
-      padding: 8px 8px 8px;
-      display: flex; flex-direction: column; gap: 6px;
+      flex: 1; min-height: 0; overflow: hidden;
+      padding: 6px 8px 6px;
+      display: flex; flex-direction: column; gap: 4px;
     }
     .wl-name {
       font-family: var(--font-head); font-size: 0.8rem;
