@@ -351,14 +351,17 @@
     }
     .wl-tile.complete { border-color: var(--green); }
 
-    /* Card image area — block, full tile width, height from aspect-ratio */
+    /* Card image area — padding-top trick: height = 140% of own width (5:7 ratio).
+       No aspect-ratio, no circular grid sizing dependency. */
     .wl-img-wrap {
-      position: relative; aspect-ratio: 5/7;
-      width: 100%; display: block;
-      background: var(--surface2); overflow: hidden;
+      position: relative;
+      width: 100%; padding-top: 140%;   /* 7/5 = 1.4 → always correct height */
+      display: block; overflow: hidden;
+      background: var(--surface2);
     }
     .wl-img-wrap img {
-      width: 100%; height: 100%; object-fit: cover; display: block; position: relative; z-index: 1;
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1;
     }
     /* Placeholder — hidden by default, shown only when image fails */
     .wl-ph {
