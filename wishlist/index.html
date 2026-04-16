@@ -29,36 +29,122 @@
 
     /* ── RESET ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { font-family: var(--font-body); background: var(--bg); color: var(--text); }
+    html, body { font-family: var(--font-body); background: var(--bg); color: var(--text); height: 100%; }
 
-    /* ── PAGE LAYOUT ── */
-    #page-wrap {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: calc(var(--nav-h, 56px) + 16px) 14px 60px;
+    /* ════════════════════════════════════════════
+       DESKTOP 2-PANEL LAYOUT
+       ════════════════════════════════════════════ */
+    #app {
       display: flex;
-      flex-direction: column;
-      gap: 12px;
+      height: calc(100dvh - var(--nav-h, 56px));
+      overflow: hidden;
+    }
+    /* Left: Library panel */
+    #panel-lib {
+      width: 300px; flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      background: var(--surface);
+    }
+    /* Right: Wishlist panel */
+    #panel-wl {
+      flex: 1; min-width: 0;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    /* Hide mobile on desktop */
+    #mob-pages, #mobile-nav { display: none; }
+
+    /* ════════════════════════════════════════════
+       PANEL SHARED CHROME
+       ════════════════════════════════════════════ */
+    .panel-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 12px 8px; flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .panel-title {
+      font-family: var(--font-head); font-size: 1rem; color: var(--text);
+    }
+    .lib-count-lbl {
+      font-size: 0.62rem; color: var(--dim);
     }
 
-    /* ── PAGE HEADER ── */
-    #page-hdr {
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 10px; padding-bottom: 4px;
+    /* ════════════════════════════════════════════
+       LIBRARY PANEL INTERNALS
+       ════════════════════════════════════════════ */
+    .lib-search-row {
+      padding: 8px 8px 4px; flex-shrink: 0;
+    }
+    .lib-search-input {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 8px; padding: 7px 10px; color: var(--text);
+      font-family: var(--font-body); font-size: 0.8rem;
+    }
+    .lib-search-input:focus { outline: none; border-color: var(--purple); }
+    .lib-filter-row {
+      display: flex; gap: 5px; padding: 4px 8px 6px; flex-shrink: 0; flex-wrap: wrap;
       border-bottom: 1px solid var(--border);
     }
-    .page-title {
-      font-family: var(--font-head); font-size: 1.5rem; color: var(--purple-l);
+    /* Library card grid */
+    .lib-grid {
+      flex: 1; overflow-y: auto; padding: 8px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+      scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
+      align-content: start;
     }
-    .hdr-actions {
-      display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+    /* Library card thumbnail */
+    .lib-card {
+      position: relative; border-radius: 6px; overflow: hidden;
+      cursor: pointer; aspect-ratio: 5/7; background: var(--surface2);
+      border: 2px solid transparent;
+      transition: border-color .12s, transform .1s, box-shadow .12s;
+    }
+    .lib-card:hover { border-color: var(--purple-l); transform: scale(1.04); box-shadow: 0 3px 10px rgba(124,58,237,.22); }
+    .lib-card.in-wl { border-color: var(--green); }
+    .lib-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lib-ph {
+      display: none; position: absolute; inset: 0;
+      align-items: center; justify-content: center;
+      font-size: 1.3rem; color: var(--dim); background: var(--surface2);
+    }
+    .lib-check {
+      position: absolute; top: 3px; right: 3px; z-index: 2;
+      background: var(--green); color: #fff; border-radius: 50%;
+      width: 16px; height: 16px; font-size: 0.52rem; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,.35);
+    }
+    .lib-more {
+      grid-column: 1/-1; text-align: center; padding: 10px 0;
+      font-size: 0.68rem; color: var(--dim); font-style: italic;
+    }
+
+    /* ════════════════════════════════════════════
+       WISHLIST PANEL INTERNALS
+       ════════════════════════════════════════════ */
+    /* Header: title + action buttons */
+    .wl-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 6px;
+      padding: 8px 12px; flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .wl-title {
+      font-family: var(--font-head); font-size: 1.1rem; color: var(--purple-l);
+    }
+    .wl-actions {
+      display: flex; gap: 5px; flex-wrap: wrap; align-items: center;
     }
 
     /* ── BUTTONS ── */
     .btn {
       display: inline-flex; align-items: center; gap: 5px;
-      border: none; border-radius: 8px; padding: 8px 14px;
-      font-family: var(--font-body); font-weight: 800; font-size: 0.78rem;
+      border: none; border-radius: 8px; padding: 7px 12px;
+      font-family: var(--font-body); font-weight: 800; font-size: 0.76rem;
       cursor: pointer; white-space: nowrap; transition: opacity .15s, transform .1s;
       line-height: 1;
     }
@@ -72,49 +158,51 @@
       background: var(--surface); border: 1px solid var(--border2); color: var(--muted);
     }
     .btn-secondary:hover { border-color: var(--purple); color: var(--purple); background: var(--surface2); }
-    /* Icon-only compact buttons on small screens */
-    @media (max-width: 520px) {
-      .btn-icon-label { display: none; }
-    }
 
     /* ── STATS BAR ── */
-    #stats-bar {
-      display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch;
+    #stats-bar, #stats-bar-m {
+      display: flex; gap: 6px; flex-wrap: wrap; align-items: stretch;
+      padding: 7px 10px; flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
     }
     .stat-chip {
-      background: var(--surface); border: 1px solid var(--border2);
-      border-radius: var(--radius); padding: 8px 14px;
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 6px 12px;
       display: flex; flex-direction: column; align-items: center;
-      min-width: 76px;
+      min-width: 66px;
     }
     .stat-chip .sv {
-      font-family: var(--font-head); font-size: 1.15rem; font-weight: 800;
+      font-family: var(--font-head); font-size: 1.05rem; font-weight: 800;
       color: var(--text); line-height: 1.1;
     }
     .stat-chip .sl {
-      font-size: 0.58rem; text-transform: uppercase;
-      letter-spacing: 0.08em; color: var(--dim); margin-top: 3px;
+      font-size: 0.56rem; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--dim); margin-top: 2px;
     }
     .stat-chip.complete-chip .sv { color: var(--green); }
     .rarity-chip-row {
       display: flex; gap: 4px; flex-wrap: wrap; align-items: center;
     }
     .rarity-chip {
-      font-size: 0.6rem; font-weight: 800; padding: 2px 7px;
+      font-size: 0.58rem; font-weight: 800; padding: 2px 6px;
       border-radius: 20px; border: 1px solid; white-space: nowrap;
     }
 
     /* ── TOOLBAR ── */
-    #toolbar {
-      display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+    #toolbar, #toolbar-m {
+      display: flex; gap: 5px; align-items: center; flex-wrap: wrap;
+      padding: 6px 10px; flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
     }
     .toolbar-sep {
-      width: 1px; height: 22px; background: var(--border2); margin: 0 2px;
+      width: 1px; height: 20px; background: var(--border2); margin: 0 2px;
     }
     .filter-pill {
-      background: var(--surface2); border: 1px solid var(--border2);
-      border-radius: 20px; padding: 5px 14px;
-      font-size: 0.72rem; font-weight: 800; color: var(--muted);
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 20px; padding: 4px 12px;
+      font-size: 0.7rem; font-weight: 800; color: var(--muted);
       cursor: pointer; transition: all .15s;
     }
     .filter-pill.active { background: var(--purple); border-color: var(--purple); color: #fff; }
@@ -123,9 +211,9 @@
     /* ── DROPDOWN ── */
     .dd-wrap { position: relative; }
     .dd-btn {
-      background: var(--surface2); border: 1px solid var(--border2);
-      border-radius: 6px; padding: 5px 9px;
-      font-size: 0.7rem; font-family: var(--font-body); font-weight: 700;
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 6px; padding: 4px 8px;
+      font-size: 0.68rem; font-family: var(--font-body); font-weight: 700;
       color: var(--muted); cursor: pointer; white-space: nowrap;
     }
     .dd-btn:hover { border-color: var(--purple); color: var(--purple); }
@@ -148,10 +236,51 @@
     .sort-opt:hover { background: var(--surface2); color: var(--purple); font-weight: 700; }
 
     /* ── WISHLIST GRID ── */
-    #wishlist-grid {
+    #wishlist-grid, #wishlist-grid-m {
+      flex: 1; overflow-y: auto; padding: 10px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 10px;
+      align-content: start;
+      scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
+    }
+
+    /* ════════════════════════════════════════════
+       MOBILE LAYOUT
+       ════════════════════════════════════════════ */
+    @media (max-width: 899px) {
+      #app { display: none !important; }
+      #mob-pages {
+        display: flex; flex-direction: column;
+        height: calc(100dvh - var(--nav-h, 56px));
+        padding-bottom: 52px; /* room for mobile-nav */
+      }
+      #mobile-nav {
+        display: flex; position: fixed; bottom: 0; left: 0; right: 0;
+        height: 52px; background: var(--surface);
+        border-top: 1px solid var(--border); z-index: 500;
+      }
+      .mnav-btn {
+        flex: 1; display: flex; flex-direction: column; align-items: center;
+        justify-content: center; gap: 2px; background: none; border: none;
+        cursor: pointer; color: var(--muted); font-family: var(--font-body);
+        transition: color .15s;
+      }
+      .mnav-btn.active { color: var(--purple); }
+      .mnav-btn:hover { color: var(--purple); }
+      .mnav-icon { font-size: 1.15rem; line-height: 1; }
+      .mnav-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+    }
+    .mob-page { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+    .mob-page.active { display: flex; }
+
+    /* Mobile lib grid: 4 columns */
+    @media (max-width: 899px) {
+      .lib-grid { grid-template-columns: repeat(4, 1fr); gap: 5px; }
+      #wishlist-grid-m { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    }
+    @media (max-width: 480px) {
+      .lib-grid { grid-template-columns: repeat(3, 1fr); gap: 4px; }
     }
 
     /* ── CARD TILE ── */
@@ -294,52 +423,6 @@
       flex-wrap: wrap; flex-shrink: 0; border-top: 1px solid var(--border);
     }
 
-    /* ── SEARCH MODAL INNER ── */
-    .modal-filter-row {
-      display: flex; gap: 6px; align-items: center;
-      padding: 8px 16px; flex-shrink: 0; flex-wrap: wrap;
-    }
-    .search-count { font-size: 0.65rem; color: var(--dim); margin-left: auto; }
-    .search-input {
-      display: block; width: calc(100% - 32px); margin: 10px 16px 0;
-      background: var(--surface2); border: 1px solid var(--border2);
-      border-radius: 8px; padding: 8px 12px; color: var(--text);
-      font-family: var(--font-body); font-size: 0.85rem; flex-shrink: 0;
-    }
-    .search-input:focus { outline: none; border-color: var(--purple); }
-    .search-results {
-      flex: 1; overflow-y: auto; padding: 4px 10px 10px;
-      display: flex; flex-direction: column; gap: 3px;
-      scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
-    }
-
-    /* Search result item */
-    .sri {
-      display: flex; align-items: center; gap: 10px;
-      padding: 7px 8px; border-radius: 8px; cursor: pointer;
-      border: 1.5px solid transparent; transition: background .12s, border-color .12s;
-    }
-    .sri:hover { background: var(--surface2); }
-    .sri.in-list { border-color: var(--purple); background: rgba(124,58,237,.08); }
-    .sri.in-list:hover { background: rgba(124,58,237,.15); }
-    .sri-img {
-      width: 34px; height: 47px; border-radius: 5px; overflow: hidden;
-      background: var(--surface2); flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center; font-size: 1rem;
-    }
-    .sri-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .sri-info { flex: 1; min-width: 0; }
-    .sri-name {
-      font-size: 0.78rem; font-weight: 700; color: var(--text);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .sri-meta { font-size: 0.62rem; color: var(--dim); margin-top: 2px; }
-    .sri-badge {
-      font-size: 0.58rem; font-weight: 800;
-      background: rgba(124,58,237,.14); color: var(--purple-l);
-      border-radius: 4px; padding: 2px 6px; flex-shrink: 0;
-    }
-
     /* ── IO TEXTAREA ── */
     .io-textarea {
       flex: 1; margin: 6px 16px; resize: vertical;
@@ -376,16 +459,10 @@
     .empty-msg  { font-family: var(--font-head); font-size: 1.1rem; color: var(--muted); }
     .empty-sub  { font-size: 0.82rem; color: var(--dim); }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 600px) {
-      #wishlist-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .hdr-actions .btn { padding: 6px 9px; font-size: 0.72rem; }
-      .page-title { font-size: 1.3rem; }
-      .stat-chip { min-width: 62px; padding: 7px 10px; }
-      .stat-chip .sv { font-size: 1rem; }
-    }
-    @media (max-width: 380px) {
-      #wishlist-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    /* ── RESPONSIVE TILES ── */
+    @media (max-width: 480px) {
+      .stat-chip { min-width: 58px; padding: 5px 8px; }
+      .stat-chip .sv { font-size: 0.95rem; }
       .wl-info { padding: 6px 6px 5px; }
     }
   </style>
@@ -406,55 +483,6 @@
 
   <!-- ── Toast notifications ── -->
   <div class="toast-wrap" id="toasts"></div>
-
-  <!-- ════════════════════════════════════════════════════════
-       SEARCH MODAL — Add cards to wishlist
-       ════════════════════════════════════════════════════════ -->
-  <div class="modal-overlay" id="search-modal" onclick="closeSearchModal()">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <span class="modal-title">➕ Add Cards to Wishlist</span>
-        <button class="modal-close" onclick="closeSearchModal()">✕</button>
-      </div>
-
-      <!-- Search input -->
-      <input id="search-input" class="search-input"
-             placeholder="Search by name or ID..."
-             oninput="renderSearchResults()" autocomplete="off">
-
-      <!-- Filter row inside modal -->
-      <div class="modal-filter-row">
-        <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('sm-type'); event.stopPropagation()">Type ▼</button>
-          <div class="dd-menu" id="sm-type">
-            <label class="dd-item"><input type="checkbox" value="Character"      onchange="renderSearchResults()"> Character</label>
-            <label class="dd-item"><input type="checkbox" value="Event"          onchange="renderSearchResults()"> Event</label>
-            <label class="dd-item"><input type="checkbox" value="Item"           onchange="renderSearchResults()"> Item</label>
-            <label class="dd-item"><input type="checkbox" value="Scene"          onchange="renderSearchResults()"> Scene</label>
-            <label class="dd-item"><input type="checkbox" value="Story"          onchange="renderSearchResults()"> Story</label>
-            <label class="dd-item"><input type="checkbox" value="Main Character" onchange="renderSearchResults()"> Main Char</label>
-          </div>
-        </div>
-        <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('sm-rarity'); event.stopPropagation()">Rarity ▼</button>
-          <div class="dd-menu" id="sm-rarity">
-            <label class="dd-item"><input type="checkbox" value="CR"  onchange="renderSearchResults()"> CR</label>
-            <label class="dd-item"><input type="checkbox" value="GR"  onchange="renderSearchResults()"> GR</label>
-            <label class="dd-item"><input type="checkbox" value="SR"  onchange="renderSearchResults()"> SR</label>
-            <label class="dd-item"><input type="checkbox" value="RR"  onchange="renderSearchResults()"> RR</label>
-            <label class="dd-item"><input type="checkbox" value="ER"  onchange="renderSearchResults()"> ER</label>
-            <label class="dd-item"><input type="checkbox" value="SPR" onchange="renderSearchResults()"> SPR</label>
-            <label class="dd-item"><input type="checkbox" value="U"   onchange="renderSearchResults()"> U</label>
-            <label class="dd-item"><input type="checkbox" value="C"   onchange="renderSearchResults()"> C</label>
-          </div>
-        </div>
-        <span id="search-count" class="search-count"></span>
-      </div>
-
-      <!-- Scrollable results -->
-      <div id="search-results" class="search-results"></div>
-    </div>
-  </div>
 
   <!-- ════════════════════════════════════════════════════════
        IO MODAL — Import / Export text
@@ -478,94 +506,249 @@
   </div>
 
   <!-- ════════════════════════════════════════════════════════
-       MAIN PAGE
+       DESKTOP — 2-panel layout (#app)
        ════════════════════════════════════════════════════════ -->
-  <div id="page-wrap">
+  <div id="app">
 
-    <!-- ── Page header ── -->
-    <div id="page-hdr">
-      <h1 class="page-title">🎴 My Wishlist</h1>
-      <div class="hdr-actions">
-        <button class="btn btn-primary"   onclick="openSearchModal()">➕ <span class="btn-icon-label">Add Card</span></button>
-        <button class="btn btn-secondary" onclick="openIOModal()">📋 <span class="btn-icon-label">Import/Export</span></button>
-        <button class="btn btn-secondary" onclick="copyShareURL()">🔗 <span class="btn-icon-label">Share</span></button>
-        <button class="btn btn-secondary" onclick="exportPNG()">📸 <span class="btn-icon-label">Export PNG</span></button>
+    <!-- ── LEFT: Library panel ── -->
+    <div id="panel-lib">
+      <div class="panel-hdr">
+        <span class="panel-title">📚 Library</span>
+        <span id="lib-count" class="lib-count-lbl"></span>
       </div>
-    </div>
-
-    <!-- ── Stats dashboard ── -->
-    <div id="stats-bar">
-      <!-- Populated by renderStats() -->
-    </div>
-
-    <!-- ── Toolbar: filters + sort ── -->
-    <div id="toolbar">
-      <!-- Status pills -->
-      <button id="pill-all"      class="filter-pill active" onclick="setStatusFilter('all')">All</button>
-      <button id="pill-needed"   class="filter-pill"        onclick="setStatusFilter('needed')">Needed</button>
-      <button id="pill-complete" class="filter-pill"        onclick="setStatusFilter('complete')">Completed</button>
-
-      <div class="toolbar-sep"></div>
-
-      <!-- Type filter -->
-      <div class="dd-wrap">
-        <button class="dd-btn" onclick="toggleDD('dd-wl-type'); event.stopPropagation()">
-          <span id="dd-wl-type-lbl">Type</span> ▼
-        </button>
-        <div class="dd-menu" id="dd-wl-type">
-          <label class="dd-item"><input type="checkbox" value="Character"      onchange="applyFilters()"> Character</label>
-          <label class="dd-item"><input type="checkbox" value="Event"          onchange="applyFilters()"> Event</label>
-          <label class="dd-item"><input type="checkbox" value="Item"           onchange="applyFilters()"> Item</label>
-          <label class="dd-item"><input type="checkbox" value="Scene"          onchange="applyFilters()"> Scene</label>
-          <label class="dd-item"><input type="checkbox" value="Story"          onchange="applyFilters()"> Story</label>
-          <label class="dd-item"><input type="checkbox" value="Main Character" onchange="applyFilters()"> Main Char</label>
+      <div class="lib-search-row">
+        <input id="lib-search" class="lib-search-input"
+               placeholder="Search name or ID…"
+               oninput="onLibSearch()" autocomplete="off">
+      </div>
+      <div class="lib-filter-row">
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('lib-dd-type'); event.stopPropagation()">
+            <span id="lib-type-lbl">Type</span> ▼
+          </button>
+          <div class="dd-menu" id="lib-dd-type">
+            <label class="dd-item"><input type="checkbox" value="Character"      onchange="applyLibFilters()"> Character</label>
+            <label class="dd-item"><input type="checkbox" value="Event"          onchange="applyLibFilters()"> Event</label>
+            <label class="dd-item"><input type="checkbox" value="Item"           onchange="applyLibFilters()"> Item</label>
+            <label class="dd-item"><input type="checkbox" value="Scene"          onchange="applyLibFilters()"> Scene</label>
+            <label class="dd-item"><input type="checkbox" value="Story"          onchange="applyLibFilters()"> Story</label>
+            <label class="dd-item"><input type="checkbox" value="Main Character" onchange="applyLibFilters()"> Main Char</label>
+          </div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('lib-dd-rarity'); event.stopPropagation()">
+            <span id="lib-rarity-lbl">Rarity</span> ▼
+          </button>
+          <div class="dd-menu" id="lib-dd-rarity">
+            <label class="dd-item"><input type="checkbox" value="CR"  onchange="applyLibFilters()"> CR</label>
+            <label class="dd-item"><input type="checkbox" value="GR"  onchange="applyLibFilters()"> GR</label>
+            <label class="dd-item"><input type="checkbox" value="SR"  onchange="applyLibFilters()"> SR</label>
+            <label class="dd-item"><input type="checkbox" value="RR"  onchange="applyLibFilters()"> RR</label>
+            <label class="dd-item"><input type="checkbox" value="ER"  onchange="applyLibFilters()"> ER</label>
+            <label class="dd-item"><input type="checkbox" value="SPR" onchange="applyLibFilters()"> SPR</label>
+            <label class="dd-item"><input type="checkbox" value="U"   onchange="applyLibFilters()"> U</label>
+            <label class="dd-item"><input type="checkbox" value="C"   onchange="applyLibFilters()"> C</label>
+          </div>
         </div>
       </div>
+      <div id="lib-grid" class="lib-grid"></div>
+    </div><!-- /#panel-lib -->
 
-      <!-- Rarity filter -->
-      <div class="dd-wrap">
-        <button class="dd-btn" onclick="toggleDD('dd-wl-rarity'); event.stopPropagation()">
-          <span id="dd-wl-rarity-lbl">Rarity</span> ▼
-        </button>
-        <div class="dd-menu" id="dd-wl-rarity">
-          <label class="dd-item"><input type="checkbox" value="CR"  onchange="applyFilters()"> CR</label>
-          <label class="dd-item"><input type="checkbox" value="GR"  onchange="applyFilters()"> GR</label>
-          <label class="dd-item"><input type="checkbox" value="SR"  onchange="applyFilters()"> SR</label>
-          <label class="dd-item"><input type="checkbox" value="RR"  onchange="applyFilters()"> RR</label>
-          <label class="dd-item"><input type="checkbox" value="ER"  onchange="applyFilters()"> ER</label>
-          <label class="dd-item"><input type="checkbox" value="SPR" onchange="applyFilters()"> SPR</label>
-          <label class="dd-item"><input type="checkbox" value="U"   onchange="applyFilters()"> U</label>
-          <label class="dd-item"><input type="checkbox" value="C"   onchange="applyFilters()"> C</label>
+    <!-- ── RIGHT: Wishlist panel ── -->
+    <div id="panel-wl">
+      <!-- Header: title + action buttons (flex-wrap → 1-2 rows) -->
+      <div class="wl-hdr">
+        <h1 class="wl-title">⭐ My Wishlist</h1>
+        <div class="wl-actions">
+          <button class="btn btn-secondary" onclick="openIOModal()">📋 <span class="btn-lbl">Import/Export</span></button>
+          <button class="btn btn-secondary" onclick="copyShareURL()">🔗 <span class="btn-lbl">Share</span></button>
+          <button class="btn btn-secondary" onclick="exportPNG()">📸 <span class="btn-lbl">PNG</span></button>
         </div>
       </div>
+      <!-- Stats -->
+      <div id="stats-bar"></div>
+      <!-- Toolbar: status pills + type/rarity/sort -->
+      <div id="toolbar">
+        <button id="pill-all"      class="filter-pill active" onclick="setStatusFilter('all')">All</button>
+        <button id="pill-needed"   class="filter-pill"        onclick="setStatusFilter('needed')">Needed</button>
+        <button id="pill-complete" class="filter-pill"        onclick="setStatusFilter('complete')">Done</button>
+        <div class="toolbar-sep"></div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('dd-wl-type'); event.stopPropagation()">
+            <span id="dd-wl-type-lbl">Type</span> ▼
+          </button>
+          <div class="dd-menu" id="dd-wl-type">
+            <label class="dd-item"><input type="checkbox" value="Character"      onchange="applyWLFilters('d')"> Character</label>
+            <label class="dd-item"><input type="checkbox" value="Event"          onchange="applyWLFilters('d')"> Event</label>
+            <label class="dd-item"><input type="checkbox" value="Item"           onchange="applyWLFilters('d')"> Item</label>
+            <label class="dd-item"><input type="checkbox" value="Scene"          onchange="applyWLFilters('d')"> Scene</label>
+            <label class="dd-item"><input type="checkbox" value="Story"          onchange="applyWLFilters('d')"> Story</label>
+            <label class="dd-item"><input type="checkbox" value="Main Character" onchange="applyWLFilters('d')"> Main Char</label>
+          </div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('dd-wl-rarity'); event.stopPropagation()">
+            <span id="dd-wl-rarity-lbl">Rarity</span> ▼
+          </button>
+          <div class="dd-menu" id="dd-wl-rarity">
+            <label class="dd-item"><input type="checkbox" value="CR"  onchange="applyWLFilters('d')"> CR</label>
+            <label class="dd-item"><input type="checkbox" value="GR"  onchange="applyWLFilters('d')"> GR</label>
+            <label class="dd-item"><input type="checkbox" value="SR"  onchange="applyWLFilters('d')"> SR</label>
+            <label class="dd-item"><input type="checkbox" value="RR"  onchange="applyWLFilters('d')"> RR</label>
+            <label class="dd-item"><input type="checkbox" value="ER"  onchange="applyWLFilters('d')"> ER</label>
+            <label class="dd-item"><input type="checkbox" value="SPR" onchange="applyWLFilters('d')"> SPR</label>
+            <label class="dd-item"><input type="checkbox" value="U"   onchange="applyWLFilters('d')"> U</label>
+            <label class="dd-item"><input type="checkbox" value="C"   onchange="applyWLFilters('d')"> C</label>
+          </div>
+        </div>
+        <div class="dd-wrap" style="margin-left:auto;">
+          <button class="dd-btn" onclick="toggleDD('dd-wl-sort'); event.stopPropagation()">
+            <span id="dd-sort-lbl">Sort: Newest</span> ▼
+          </button>
+          <div class="dd-menu" id="dd-wl-sort">
+            <div class="dd-item sort-opt" onclick="setSortMode('newest')">Newest Added</div>
+            <div class="dd-item sort-opt" onclick="setSortMode('id')">Card ID</div>
+            <div class="dd-item sort-opt" onclick="setSortMode('pct')">Completion %</div>
+          </div>
+        </div>
+      </div><!-- /#toolbar -->
+      <!-- Grid -->
+      <div id="wishlist-grid"></div>
+      <!-- Empty state -->
+      <div id="empty-state" style="display:none;">
+        <div class="empty-icon">🎴</div>
+        <p class="empty-msg">Your wishlist is empty.</p>
+        <p class="empty-sub">Click any card in the Library to add it.</p>
+      </div>
+    </div><!-- /#panel-wl -->
 
-      <!-- Sort -->
-      <div class="dd-wrap" style="margin-left:auto;">
-        <button class="dd-btn" onclick="toggleDD('dd-wl-sort'); event.stopPropagation()">
-          <span id="dd-sort-lbl">Sort: Newest</span> ▼
-        </button>
-        <div class="dd-menu" id="dd-wl-sort">
-          <div class="dd-item sort-opt" onclick="setSortMode('newest')">Newest Added</div>
-          <div class="dd-item sort-opt" onclick="setSortMode('id')">Card ID</div>
-          <div class="dd-item sort-opt" onclick="setSortMode('pct')">Completion %</div>
+  </div><!-- /#app -->
+
+  <!-- ════════════════════════════════════════════════════════
+       MOBILE — tab pages
+       ════════════════════════════════════════════════════════ -->
+  <div id="mob-pages">
+
+    <!-- Tab 1: Library -->
+    <div id="mob-page-lib" class="mob-page active">
+      <div class="panel-hdr">
+        <span class="panel-title">📚 Library</span>
+        <span id="lib-count-m" class="lib-count-lbl"></span>
+      </div>
+      <div class="lib-search-row">
+        <input id="lib-search-m" class="lib-search-input"
+               placeholder="Search name or ID…"
+               oninput="onLibSearchM()" autocomplete="off">
+      </div>
+      <div class="lib-filter-row">
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('lib-dd-type-m'); event.stopPropagation()">
+            <span id="lib-type-lbl-m">Type</span> ▼
+          </button>
+          <div class="dd-menu" id="lib-dd-type-m">
+            <label class="dd-item"><input type="checkbox" value="Character"      onchange="applyLibFiltersM()"> Character</label>
+            <label class="dd-item"><input type="checkbox" value="Event"          onchange="applyLibFiltersM()"> Event</label>
+            <label class="dd-item"><input type="checkbox" value="Item"           onchange="applyLibFiltersM()"> Item</label>
+            <label class="dd-item"><input type="checkbox" value="Scene"          onchange="applyLibFiltersM()"> Scene</label>
+            <label class="dd-item"><input type="checkbox" value="Story"          onchange="applyLibFiltersM()"> Story</label>
+            <label class="dd-item"><input type="checkbox" value="Main Character" onchange="applyLibFiltersM()"> Main Char</label>
+          </div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('lib-dd-rarity-m'); event.stopPropagation()">
+            <span id="lib-rarity-lbl-m">Rarity</span> ▼
+          </button>
+          <div class="dd-menu" id="lib-dd-rarity-m">
+            <label class="dd-item"><input type="checkbox" value="CR"  onchange="applyLibFiltersM()"> CR</label>
+            <label class="dd-item"><input type="checkbox" value="GR"  onchange="applyLibFiltersM()"> GR</label>
+            <label class="dd-item"><input type="checkbox" value="SR"  onchange="applyLibFiltersM()"> SR</label>
+            <label class="dd-item"><input type="checkbox" value="RR"  onchange="applyLibFiltersM()"> RR</label>
+            <label class="dd-item"><input type="checkbox" value="ER"  onchange="applyLibFiltersM()"> ER</label>
+            <label class="dd-item"><input type="checkbox" value="SPR" onchange="applyLibFiltersM()"> SPR</label>
+            <label class="dd-item"><input type="checkbox" value="U"   onchange="applyLibFiltersM()"> U</label>
+            <label class="dd-item"><input type="checkbox" value="C"   onchange="applyLibFiltersM()"> C</label>
+          </div>
         </div>
       </div>
-    </div>
+      <div id="lib-grid-m" class="lib-grid"></div>
+    </div><!-- /#mob-page-lib -->
 
-    <!-- ── Wishlist card grid ── -->
-    <div id="wishlist-grid">
-      <!-- Populated by renderGrid() -->
-    </div>
+    <!-- Tab 2: Wishlist -->
+    <div id="mob-page-wl" class="mob-page">
+      <div class="wl-hdr">
+        <h1 class="wl-title">⭐ Wishlist</h1>
+        <div class="wl-actions">
+          <button class="btn btn-secondary" onclick="openIOModal()">📋</button>
+          <button class="btn btn-secondary" onclick="copyShareURL()">🔗</button>
+          <button class="btn btn-secondary" onclick="exportPNG()">📸</button>
+        </div>
+      </div>
+      <div id="stats-bar-m"></div>
+      <div id="toolbar-m">
+        <button id="pill-all-m"      class="filter-pill active" onclick="setStatusFilter('all')">All</button>
+        <button id="pill-needed-m"   class="filter-pill"        onclick="setStatusFilter('needed')">Needed</button>
+        <button id="pill-complete-m" class="filter-pill"        onclick="setStatusFilter('complete')">Done</button>
+        <div class="toolbar-sep"></div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('dd-wl-type-m'); event.stopPropagation()">
+            <span id="dd-wl-type-lbl-m">Type</span> ▼
+          </button>
+          <div class="dd-menu" id="dd-wl-type-m">
+            <label class="dd-item"><input type="checkbox" value="Character"      onchange="applyWLFilters('m')"> Character</label>
+            <label class="dd-item"><input type="checkbox" value="Event"          onchange="applyWLFilters('m')"> Event</label>
+            <label class="dd-item"><input type="checkbox" value="Item"           onchange="applyWLFilters('m')"> Item</label>
+            <label class="dd-item"><input type="checkbox" value="Scene"          onchange="applyWLFilters('m')"> Scene</label>
+            <label class="dd-item"><input type="checkbox" value="Story"          onchange="applyWLFilters('m')"> Story</label>
+            <label class="dd-item"><input type="checkbox" value="Main Character" onchange="applyWLFilters('m')"> Main Char</label>
+          </div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('dd-wl-rarity-m'); event.stopPropagation()">
+            <span id="dd-wl-rarity-lbl-m">Rarity</span> ▼
+          </button>
+          <div class="dd-menu" id="dd-wl-rarity-m">
+            <label class="dd-item"><input type="checkbox" value="CR"  onchange="applyWLFilters('m')"> CR</label>
+            <label class="dd-item"><input type="checkbox" value="GR"  onchange="applyWLFilters('m')"> GR</label>
+            <label class="dd-item"><input type="checkbox" value="SR"  onchange="applyWLFilters('m')"> SR</label>
+            <label class="dd-item"><input type="checkbox" value="RR"  onchange="applyWLFilters('m')"> RR</label>
+            <label class="dd-item"><input type="checkbox" value="ER"  onchange="applyWLFilters('m')"> ER</label>
+            <label class="dd-item"><input type="checkbox" value="SPR" onchange="applyWLFilters('m')"> SPR</label>
+            <label class="dd-item"><input type="checkbox" value="U"   onchange="applyWLFilters('m')"> U</label>
+            <label class="dd-item"><input type="checkbox" value="C"   onchange="applyWLFilters('m')"> C</label>
+          </div>
+        </div>
+        <div class="dd-wrap" style="margin-left:auto;">
+          <button class="dd-btn" onclick="toggleDD('dd-wl-sort-m'); event.stopPropagation()">
+            <span id="dd-sort-lbl-m">Sort: Newest</span> ▼
+          </button>
+          <div class="dd-menu" id="dd-wl-sort-m">
+            <div class="dd-item sort-opt" onclick="setSortMode('newest')">Newest Added</div>
+            <div class="dd-item sort-opt" onclick="setSortMode('id')">Card ID</div>
+            <div class="dd-item sort-opt" onclick="setSortMode('pct')">Completion %</div>
+          </div>
+        </div>
+      </div><!-- /#toolbar-m -->
+      <div id="wishlist-grid-m"></div>
+      <div id="empty-state-m" style="display:none;">
+        <div class="empty-icon">🎴</div>
+        <p class="empty-msg">Your wishlist is empty.</p>
+        <p class="empty-sub">Go to Library tab to add cards.</p>
+      </div>
+    </div><!-- /#mob-page-wl -->
 
-    <!-- ── Empty state ── -->
-    <div id="empty-state" style="display:none;">
-      <div class="empty-icon">🎴</div>
-      <p class="empty-msg">Your wishlist is empty.</p>
-      <p class="empty-sub">Search for cards to start tracking what you need.</p>
-      <button class="btn btn-primary" onclick="openSearchModal()">➕ Add Cards</button>
-    </div>
+  </div><!-- /#mob-pages -->
 
-  </div><!-- /#page-wrap -->
+  <!-- ── Mobile bottom nav ── -->
+  <div id="mobile-nav">
+    <button id="mnav-lib" class="mnav-btn active" onclick="switchPage('lib')">
+      <span class="mnav-icon">📚</span>
+      <span class="mnav-label">Library</span>
+    </button>
+    <button id="mnav-wl" class="mnav-btn" onclick="switchPage('wl')">
+      <span class="mnav-icon">⭐</span>
+      <span class="mnav-label">Wishlist</span>
+    </button>
+  </div>
 
   <script>
   // ═══════════════════════════════════════════════════════
@@ -588,11 +771,16 @@
   let library  = [];   // all cards from MLP-DB.json
   let wishlist = [];   // [{id, needed, owned, addedAt}]
 
-  // UI state
+  // Wishlist filter state
   let filterStatus   = 'all';   // 'all' | 'needed' | 'complete'
   let filterTypes    = [];
   let filterRarities = [];
   let sortMode       = 'newest'; // 'newest' | 'id' | 'pct'
+
+  // Library panel filter state
+  let libSearch      = '';
+  let libFilterTypes    = [];
+  let libFilterRarities = [];
 
   // ═══════════════════════════════════════════════════════
   // UTILITIES
@@ -747,7 +935,7 @@
         return `<span class="rarity-chip" style="color:${col};border-color:${col}44;background:${col}11;">${r}: ${rarityCount[r]}</span>`;
       }).join('');
 
-    $('stats-bar').innerHTML = `
+    const html = `
       <div class="stat-chip">
         <span class="sv">${totalCards}</span>
         <span class="sl">Cards</span>
@@ -764,8 +952,9 @@
         <span class="sv">${pct}%</span>
         <span class="sl">Complete</span>
       </div>
-      ${rarityChips ? `<div class="stat-chip" style="flex-direction:row;flex-wrap:wrap;gap:4px;min-width:auto;padding:8px 12px;align-items:center;"><div class="rarity-chip-row">${rarityChips}</div></div>` : ''}
+      ${rarityChips ? `<div class="stat-chip" style="flex-direction:row;flex-wrap:wrap;gap:4px;min-width:auto;padding:6px 10px;align-items:center;"><div class="rarity-chip-row">${rarityChips}</div></div>` : ''}
     `;
+    ['stats-bar', 'stats-bar-m'].forEach(id => { const el = $(id); if (el) el.innerHTML = html; });
   }
 
   // ═══════════════════════════════════════════════════════
@@ -860,90 +1049,159 @@
   // RENDER — GRID
   // ═══════════════════════════════════════════════════════
   function renderGrid() {
-    const grid  = $('wishlist-grid');
-    const empty = $('empty-state');
-    grid.innerHTML = '';
+    const pairs = [
+      ['wishlist-grid', 'empty-state'],
+      ['wishlist-grid-m', 'empty-state-m']
+    ];
+    pairs.forEach(([gridId, emptyId]) => {
+      const grid  = $(gridId);
+      const empty = $(emptyId);
+      if (!grid) return;
+      grid.innerHTML = '';
 
-    if (wishlist.length === 0) {
-      empty.style.display = '';
-      return;
-    }
-    empty.style.display = 'none';
+      if (wishlist.length === 0) {
+        if (empty) empty.style.display = '';
+        return;
+      }
+      if (empty) empty.style.display = 'none';
 
-    const items = getFilteredSorted();
-    if (items.length === 0) {
-      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--dim);font-size:0.85rem;">No cards match the current filters.</div>';
-      return;
-    }
-    items.forEach(item => grid.appendChild(makeTile(item)));
+      const items = getFilteredSorted();
+      if (items.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--dim);font-size:0.85rem;">No cards match the current filters.</div>';
+        return;
+      }
+      items.forEach(item => grid.appendChild(makeTile(item)));
+    });
   }
 
   function render() {
     renderStats();
     renderGrid();
+    renderLibGrid();
   }
 
   // ═══════════════════════════════════════════════════════
-  // SEARCH MODAL
+  // LIBRARY PANEL
   // ═══════════════════════════════════════════════════════
-  function openSearchModal() {
-    $('search-modal').classList.add('open');
-    renderSearchResults();
-    setTimeout(() => $('search-input').focus(), 60);
+
+  function switchPage(page) {
+    ['lib', 'wl'].forEach(p => {
+      $('mob-page-' + p)?.classList.toggle('active', p === page);
+      $('mnav-' + p)?.classList.toggle('active', p === page);
+    });
   }
 
-  function closeSearchModal() {
-    $('search-modal').classList.remove('open');
-    $('search-input').value = '';
+  function onLibSearch() {
+    libSearch = $('lib-search')?.value || '';
+    $('lib-search-m') && ($('lib-search-m').value = libSearch);
+    renderLibGrid();
   }
 
-  function renderSearchResults() {
-    const q        = $('search-input').value.toLowerCase().trim();
-    const types    = getChecked('sm-type');
-    const rarities = getChecked('sm-rarity');
-    const inWL     = new Set(wishlist.map(w => w.id));
+  function onLibSearchM() {
+    libSearch = $('lib-search-m')?.value || '';
+    $('lib-search') && ($('lib-search').value = libSearch);
+    renderLibGrid();
+  }
+
+  function applyLibFilters() {
+    libFilterTypes    = getChecked('lib-dd-type');
+    libFilterRarities = getChecked('lib-dd-rarity');
+    // Sync to mobile checkboxes
+    syncCheckboxes('lib-dd-type',   'lib-dd-type-m',   libFilterTypes);
+    syncCheckboxes('lib-dd-rarity', 'lib-dd-rarity-m', libFilterRarities);
+    updateLibFilterLabels();
+    renderLibGrid();
+  }
+
+  function applyLibFiltersM() {
+    libFilterTypes    = getChecked('lib-dd-type-m');
+    libFilterRarities = getChecked('lib-dd-rarity-m');
+    // Sync to desktop checkboxes
+    syncCheckboxes('lib-dd-type-m',   'lib-dd-type',   libFilterTypes);
+    syncCheckboxes('lib-dd-rarity-m', 'lib-dd-rarity', libFilterRarities);
+    updateLibFilterLabels();
+    renderLibGrid();
+  }
+
+  function syncCheckboxes(fromId, toId, values) {
+    const menu = $(toId);
+    if (!menu) return;
+    menu.querySelectorAll('input[type=checkbox]').forEach(cb => {
+      cb.checked = values.includes(cb.value);
+    });
+  }
+
+  function updateLibFilterLabels() {
+    const tl = libFilterTypes.length    ? libFilterTypes.length    + ' sel' : 'Type';
+    const rl = libFilterRarities.length ? libFilterRarities.length + ' sel' : 'Rarity';
+    ['lib-type-lbl','lib-type-lbl-m'].forEach(id => { const el = $(id); if (el) el.textContent = tl; });
+    ['lib-rarity-lbl','lib-rarity-lbl-m'].forEach(id => { const el = $(id); if (el) el.textContent = rl; });
+  }
+
+  function renderLibGrid() {
+    const q   = libSearch.toLowerCase().trim();
+    const inWL = new Set(wishlist.map(w => w.id));
 
     let cards = library;
-    if (q)             cards = cards.filter(c => c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q));
-    if (types.length)    cards = cards.filter(c => types.includes(c.type));
-    if (rarities.length) cards = cards.filter(c => rarities.includes(c.rarity));
+    if (q)                     cards = cards.filter(c => c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q));
+    if (libFilterTypes.length)    cards = cards.filter(c => libFilterTypes.includes(c.type));
+    if (libFilterRarities.length) cards = cards.filter(c => libFilterRarities.includes(c.rarity));
 
-    $('search-count').textContent = cards.length + ' cards';
-    const visible = cards.slice(0, 100);
-    const container = $('search-results');
-    container.innerHTML = '';
+    const total   = cards.length;
+    const visible = cards.slice(0, 150);
 
-    if (visible.length === 0) {
-      container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--dim);font-size:0.8rem;">No cards found.</div>';
-      return;
-    }
+    // Update count labels
+    ['lib-count','lib-count-m'].forEach(id => {
+      const el = $(id); if (el) el.textContent = total + ' cards';
+    });
 
-    visible.forEach(card => {
-      const inList = inWL.has(card.id);
-      const item   = document.createElement('div');
-      item.className = 'sri' + (inList ? ' in-list' : '');
+    ['lib-grid', 'lib-grid-m'].forEach(gridId => {
+      const container = $(gridId);
+      if (!container) return;
+      container.innerHTML = '';
 
-      const imgWrap = document.createElement('div'); imgWrap.className = 'sri-img';
-      const img = document.createElement('img');
-      img.src = card.imageUrl; img.alt = card.name;
-      img.onerror = () => { img.style.display = 'none'; imgWrap.textContent = '🃏'; };
-      imgWrap.appendChild(img);
+      if (visible.length === 0) {
+        const msg = document.createElement('div');
+        msg.className = 'lib-more'; msg.textContent = 'No cards found.';
+        container.appendChild(msg);
+        return;
+      }
 
-      const info = document.createElement('div'); info.className = 'sri-info';
-      const rarCol = RARITY_COLORS[card.rarity] || '#9ca3af';
-      info.innerHTML = `<div class="sri-name">${card.name}</div>
-        <div class="sri-meta">${card.id} · <span style="color:${rarCol};font-weight:800;">${card.rarity}</span> · ${card.type}</div>`;
+      visible.forEach(card => {
+        const inList = inWL.has(card.id);
+        const el     = document.createElement('div');
+        el.className = 'lib-card' + (inList ? ' in-wl' : '');
+        el.title     = card.name + ' (' + card.id + ') · ' + card.rarity;
 
-      const badge = document.createElement('div');
-      if (inList) { badge.className = 'sri-badge'; badge.textContent = '✓ Added'; }
+        const ph = document.createElement('div');
+        ph.className = 'lib-ph'; ph.textContent = '🃏';
 
-      item.append(imgWrap, info, badge);
-      item.onclick = () => {
-        if (inList) removeCard(card.id);
-        else        addCard(card.id);
-        renderSearchResults();
-      };
-      container.appendChild(item);
+        const img = document.createElement('img');
+        img.src = card.imageUrl; img.alt = card.name; img.loading = 'lazy';
+        img.onerror = () => { img.style.display = 'none'; ph.style.display = 'flex'; };
+
+        el.append(ph, img);
+
+        if (inList) {
+          const chk = document.createElement('div');
+          chk.className = 'lib-check'; chk.textContent = '✓';
+          el.appendChild(chk);
+        }
+
+        el.onclick = () => {
+          if (inWL.has(card.id)) removeCard(card.id);
+          else                   addCard(card.id);
+          // renderLibGrid() is called by addCard/removeCard → render()
+        };
+        container.appendChild(el);
+      });
+
+      if (total > 150) {
+        const more = document.createElement('div');
+        more.className = 'lib-more';
+        more.textContent = '+' + (total - 150) + ' more — refine search';
+        container.appendChild(more);
+      }
     });
   }
 
@@ -981,25 +1239,37 @@
   function setStatusFilter(status) {
     filterStatus = status;
     ['all','needed','complete'].forEach(s => {
-      $('pill-' + s).classList.toggle('active', s === status);
+      $('pill-' + s)?.classList.toggle('active', s === status);
+      $('pill-' + s + '-m')?.classList.toggle('active', s === status);
     });
     renderGrid();
   }
 
-  function applyFilters() {
-    filterTypes    = getChecked('dd-wl-type');
-    filterRarities = getChecked('dd-wl-rarity');
-    const typeLbl   = filterTypes.length    ? filterTypes.length + ' selected'    : 'Type';
-    const rarityLbl = filterRarities.length ? filterRarities.length + ' selected' : 'Rarity';
-    $('dd-wl-type-lbl').textContent   = typeLbl;
-    $('dd-wl-rarity-lbl').textContent = rarityLbl;
+  // source: 'd' = desktop, 'm' = mobile
+  function applyWLFilters(source) {
+    if (source === 'd') {
+      filterTypes    = getChecked('dd-wl-type');
+      filterRarities = getChecked('dd-wl-rarity');
+      syncCheckboxes('dd-wl-type',   'dd-wl-type-m',   filterTypes);
+      syncCheckboxes('dd-wl-rarity', 'dd-wl-rarity-m', filterRarities);
+    } else {
+      filterTypes    = getChecked('dd-wl-type-m');
+      filterRarities = getChecked('dd-wl-rarity-m');
+      syncCheckboxes('dd-wl-type-m',   'dd-wl-type',   filterTypes);
+      syncCheckboxes('dd-wl-rarity-m', 'dd-wl-rarity', filterRarities);
+    }
+    const tl = filterTypes.length    ? filterTypes.length    + ' sel' : 'Type';
+    const rl = filterRarities.length ? filterRarities.length + ' sel' : 'Rarity';
+    ['dd-wl-type-lbl','dd-wl-type-lbl-m'].forEach(id => { const el = $(id); if (el) el.textContent = tl; });
+    ['dd-wl-rarity-lbl','dd-wl-rarity-lbl-m'].forEach(id => { const el = $(id); if (el) el.textContent = rl; });
     renderGrid();
   }
 
   function setSortMode(mode) {
     sortMode = mode;
     const labels = { newest: 'Sort: Newest', id: 'Sort: ID', pct: 'Sort: Complete %' };
-    $('dd-sort-lbl').textContent = labels[mode] || 'Sort';
+    const lbl = labels[mode] || 'Sort';
+    ['dd-sort-lbl','dd-sort-lbl-m'].forEach(id => { const el = $(id); if (el) el.textContent = lbl; });
     toggleDD('');
     renderGrid();
   }
@@ -1188,7 +1458,7 @@
   });
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeSearchModal(); closeIOModal(); }
+    if (e.key === 'Escape') { closeIOModal(); toggleDD(''); }
   });
 
   // ═══════════════════════════════════════════════════════
