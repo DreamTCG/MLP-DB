@@ -320,7 +320,10 @@
 
     @media (max-width: 899px) {
       /* lib-grid already uses auto-fill minmax(72px,1fr) — no override needed */
-      #wishlist-grid-m { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      #wishlist-grid-m {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px; padding: 6px;
+      }
     }
 
     /* Mobile toolbar: 2 explicit rows */
@@ -345,7 +348,6 @@
     .wl-tile:hover {
       border-color: var(--purple-l);
       box-shadow: 0 4px 18px rgba(124,58,237,.18);
-      transform: translateY(-2px);
     }
     .wl-tile.complete { border-color: var(--green); }
 
@@ -515,7 +517,20 @@
     @media (max-width: 480px) {
       .stat-chip { min-width: 58px; padding: 5px 8px; }
       .stat-chip .sv { font-size: 0.95rem; }
-      .wl-info { padding: 6px 6px 5px; }
+    }
+
+    /* Compact tile for mobile 3-column */
+    @media (max-width: 899px) {
+      .wl-tile { border-radius: var(--radius); }
+      .wl-rm-btn  { width: 18px; height: 18px; font-size: 0.6rem; top: 3px; left: 3px; }
+      .wl-qty-badge { font-size: 0.55rem; padding: 2px 5px; top: 3px; right: 3px; }
+      .wl-info    { padding: 5px 5px 4px; gap: 3px; }
+      .wl-name    { font-size: 0.65rem; }
+      .wl-meta    { font-size: 0.5rem; }
+      .wl-qty-rows { gap: 2px; }
+      .wl-qty-label { font-size: 0.52rem; flex: 0 0 24px; }
+      .wl-qty-val { font-size: 0.72rem; min-width: 14px; }
+      .wl-btn     { width: 18px; height: 18px; font-size: 0.78rem; }
     }
   </style>
   <script src="../i18n/translations.js"></script>
