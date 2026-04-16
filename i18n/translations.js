@@ -44,6 +44,7 @@
       'nav.cards':        'Cards',                             // ✅ translate
       'nav.deckbuilder':  'Deck Builder',                      // ✅ translate
       'nav.rules':        'Rules',                             // ✅ translate
+      'nav.wishlist':     'Wishlist',                          // ✅ translate
       'nav.burger':       'Menu',                              // ✅ translate
 
       // ── LANGUAGE TOGGLE (nav.js) ────────────────────────────
@@ -223,6 +224,7 @@
       'nav.cards':        'การ์ด',
       'nav.deckbuilder':  'จัดเด็ค',
       'nav.rules':        'วิธีเล่น',
+      'nav.wishlist':     'วิชลิสต์',
       'nav.burger':       'เมนู',
 
       // ── LANGUAGE TOGGLE ─────────────────────────────────────

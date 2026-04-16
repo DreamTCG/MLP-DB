@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MLP TCG Wishlist | DreamTCG</title>
+  <meta name="description" content="Track the MLP TCG cards you want and own with the DreamTCG Wishlist tracker.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    /* ── TOKENS ── */
+    :root {
+      --bg:#f5f0ff; --surface:#ffffff; --surface2:#ede8f8;
+      --border:#d4c8f0; --border2:#b8a8e0;
+      --text:#1e1040; --muted:#6b52a8; --dim:#a090c8;
+      --purple:#7c3aed; --purple-l:#a78bfa; --pink:#db2777;
+      --gold:#d97706; --green:#16a34a;
+      --font-head:'Fredoka One',cursive; --font-body:'Nunito',sans-serif;
+      --radius:10px; --radius-lg:16px;
+    }
+    body.dark-mode {
+      --bg:#0f0820; --surface:#1a1035; --surface2:#231548;
+      --border:#2d1f5e; --border2:#3d2a7a;
+      --text:#e8e0ff; --muted:#9580c8; --dim:#5a4a8a;
+      --purple:#7c3aed; --purple-l:#a78bfa; --pink:#ec4899;
+      --gold:#fbbf24; --green:#4ade80;
+    }
+
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { font-family: var(--font-body); background: var(--bg); color: var(--text); height: 100%; }
+
+    /* ════════════════════════════════════════════
+       DESKTOP 2-PANEL LAYOUT
+       ════════════════════════════════════════════ */
+    #app {
+      display: flex;
+      height: calc(100dvh - var(--nav-h, 56px));
+      overflow: hidden;
+    }
+    /* Left: Library panel */
+    #panel-lib {
+      width: 300px; flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow: hidden; min-height: 0;
+      background: var(--surface);
+    }
+    /* Right: Wishlist panel */
+    #panel-wl {
+      flex: 1; min-width: 0; min-height: 0;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    /* Hide mobile on desktop */
+    #mob-pages, #mobile-nav { display: none; }
+
+    /* ════════════════════════════════════════════
+       PANEL SHARED CHROME
+       ════════════════════════════════════════════ */
+    .panel-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 12px 8px; flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .panel-title {
+      font-family: var(--font-head); font-size: 1rem; color: var(--text);
+    }
+    .lib-count-lbl {
+      font-size: 0.62rem; color: var(--dim);
+    }
+
+    /* ════════════════════════════════════════════
+       LIBRARY PANEL INTERNALS
+       ════════════════════════════════════════════ */
+    .lib-search-row {
+      padding: 8px 8px 4px; flex-shrink: 0;
+    }
+    .lib-search-input {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 8px; padding: 7px 10px; color: var(--text);
+      font-family: var(--font-body); font-size: 0.8rem;
+    }
+    .lib-search-input:focus { outline: none; border-color: var(--purple); }
+    .lib-filter-row {
+      display: flex; gap: 5px; padding: 4px 8px 6px; flex-shrink: 0;
+      flex-wrap: nowrap; align-items: center;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .lib-filter-row::-webkit-scrollbar { display: none; }
+    /* Library card grid — matches deck builder .card-grid pattern */
+    .lib-grid {
+      flex: 1; overflow-y: auto; padding: 6px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 6px;
+      scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
+      align-content: start;
+    }
+    /* Card tile — flex-column, NO aspect-ratio here (matches .card-tile) */
+    .lib-card {
+      display: flex; flex-direction: column;
+      border-radius: var(--radius); overflow: visible;
+      cursor: pointer; background: var(--surface2);
+      border: 1.5px solid var(--border2);
+      transition: border-color .12s;
+    }
+    .lib-card:hover { border-color: var(--purple-l); }
+    .lib-card.in-wl { border-color: var(--green); }
+    /* Image wrapper — aspect-ratio lives HERE, flex-shrink:0 (matches .card-tile-img) */
+    .lib-img-wrap {
+      position: relative;
+      aspect-ratio: 5/7;
+      flex-shrink: 0;
+      overflow: hidden;
+      border-radius: calc(var(--radius) - 1.5px) calc(var(--radius) - 1.5px) 0 0;
+      background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lib-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* Placeholder — hidden by default */
+    .lib-ph {
+      display: none; position: absolute; inset: 0;
+      align-items: center; justify-content: center;
+      font-size: 1.3rem; color: var(--dim);
+    }
+    /* Check badge for cards already in wishlist */
+    .lib-check {
+      position: absolute; top: 3px; right: 3px; z-index: 2;
+      background: var(--green); color: #fff; border-radius: 50%;
+      width: 16px; height: 16px; font-size: 0.52rem; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,.35);
+    }
+    .lib-more {
+      grid-column: 1/-1; text-align: center; padding: 10px 0;
+      font-size: 0.68rem; color: var(--dim); font-style: italic;
+    }
+
+    /* ════════════════════════════════════════════
+       WISHLIST PANEL INTERNALS
+       ════════════════════════════════════════════ */
+    /* Header: title + action buttons */
+    .wl-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 6px;
+      padding: 8px 12px; flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .wl-title {
+      font-family: var(--font-head); font-size: 1.1rem; color: var(--purple-l);
+    }
+    .wl-actions {
+      display: flex; gap: 5px; flex-wrap: wrap; align-items: center;
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      border: none; border-radius: 8px; padding: 7px 12px;
+      font-family: var(--font-body); font-weight: 800; font-size: 0.76rem;
+      cursor: pointer; white-space: nowrap; transition: opacity .15s, transform .1s;
+      line-height: 1;
+    }
+    .btn:active { transform: scale(0.95); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--purple), var(--pink)); color: #fff;
+      box-shadow: 0 2px 8px rgba(124,58,237,.35);
+    }
+    .btn-primary:hover { opacity: .9; }
+    .btn-secondary {
+      background: var(--surface); border: 1px solid var(--border2); color: var(--muted);
+    }
+    .btn-secondary:hover { border-color: var(--purple); color: var(--purple); background: var(--surface2); }
+    .btn-danger {
+      background: rgba(248,113,113,.15); border: 1px solid rgba(248,113,113,.4); color: #f87171;
+    }
+    .btn-danger:hover { background: rgba(248,113,113,.28); border-color: #f87171; }
+
+    /* ── SORT / RACE buttons (match deck builder) ── */
+    .sort-btn {
+      background: var(--surface2); border: 1px solid var(--border2);
+      color: var(--muted); border-radius: 8px; padding: 5px 9px;
+      font-size: 0.82rem; cursor: pointer; flex-shrink: 0;
+      font-family: var(--font-body);
+    }
+    .sort-btn:hover { border-color: var(--purple); color: var(--purple); }
+    .race-tab {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 4px;
+      padding: 2px 6px; font-size: 0.6rem; cursor: pointer; color: var(--muted);
+      flex: 1; font-family: var(--font-body); font-weight: 600;
+    }
+    .race-tab.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+
+    /* ── STATS BAR ── */
+    #stats-bar, #stats-bar-m {
+      display: flex; gap: 6px; flex-wrap: wrap; align-items: stretch;
+      padding: 7px 10px; flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .stat-chip {
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 6px 12px;
+      display: flex; flex-direction: column; align-items: center;
+      min-width: 66px;
+    }
+    .stat-chip .sv {
+      font-family: var(--font-head); font-size: 1.05rem; font-weight: 800;
+      color: var(--text); line-height: 1.1;
+    }
+    .stat-chip .sl {
+      font-size: 0.56rem; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--dim); margin-top: 2px;
+    }
+    .stat-chip.complete-chip .sv { color: var(--green); }
+    .rarity-chip-row {
+      display: flex; gap: 4px; flex-wrap: wrap; align-items: center;
+    }
+    .rarity-chip {
+      font-size: 0.58rem; font-weight: 800; padding: 2px 6px;
+      border-radius: 20px; border: 1px solid; white-space: nowrap;
+    }
+
+    /* ── TOOLBAR ── */
+    #toolbar, #toolbar-m {
+      display: flex; gap: 5px; align-items: center; flex-wrap: wrap;
+      padding: 6px 10px; flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .toolbar-sep {
+      width: 1px; height: 20px; background: var(--border2); margin: 0 2px;
+    }
+    /* Used inside mobile #toolbar-m for explicit 2-row layout */
+    .tb-row {
+      display: flex; align-items: center; gap: 5px;
+    }
+    .filter-pill {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 20px; padding: 4px 12px;
+      font-size: 0.7rem; font-weight: 800; color: var(--muted);
+      cursor: pointer; transition: all .15s;
+    }
+    .filter-pill.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+    .filter-pill:hover:not(.active) { border-color: var(--purple); color: var(--purple); }
+
+    /* ── DROPDOWN ── */
+    .dd-wrap { position: relative; flex: 1; min-width: 0; }
+    /* Toolbar dd-wraps should NOT flex:1 (they're in the wl toolbar, not lib filter row) */
+    #toolbar .dd-wrap, #toolbar-m .dd-wrap { flex: unset; }
+    .dd-btn {
+      width: 100%; background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 6px; padding: 5px 9px;
+      font-size: 0.68rem; font-family: var(--font-body); font-weight: 700;
+      color: var(--muted); cursor: pointer; white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis; display: flex; justify-content: space-between; align-items: center;
+    }
+    .dd-btn:hover { border-color: var(--purple); color: var(--purple); }
+    .dd-menu {
+      display: none; position: absolute; top: calc(100% + 4px); left: 0; z-index: 300;
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 8px; padding: 6px; min-width: 120px;
+      max-height: 240px; overflow-y: auto;
+      box-shadow: 0 6px 20px rgba(0,0,0,.18);
+    }
+    .dd-menu.open { display: block; }
+    .dd-item {
+      display: flex; align-items: center; gap: 7px;
+      padding: 4px 6px; border-radius: 5px; cursor: pointer;
+      font-size: 0.72rem; color: var(--text); white-space: nowrap;
+    }
+    .dd-item:hover { background: var(--surface2); }
+    .dd-item input[type=checkbox] { accent-color: var(--purple); width: 13px; height: 13px; }
+    .sort-opt { justify-content: flex-start; }
+    .sort-opt:hover { background: var(--surface2); color: var(--purple); font-weight: 700; }
+
+    /* ── WISHLIST GRID ── */
+    #wishlist-grid, #wishlist-grid-m {
+      flex: 1; min-height: 0; overflow-y: auto; padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 140px); /* fixed column width */
+      grid-auto-rows: 320px;                           /* fixed row height    */
+      gap: 10px;
+      justify-content: start;
+      align-content: start;
+      scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
+    }
+
+    /* ════════════════════════════════════════════
+       MOBILE LAYOUT
+       ════════════════════════════════════════════ */
+    @media (max-width: 899px) {
+      #app { display: none !important; }
+      #mob-pages {
+        display: flex; flex-direction: column;
+        height: calc(100dvh - var(--nav-h, 56px));
+        padding-bottom: 52px; /* room for mobile-nav */
+      }
+      #mobile-nav {
+        display: flex; position: fixed; bottom: 0; left: 0; right: 0;
+        height: 52px; background: var(--surface);
+        border-top: 1px solid var(--border); z-index: 500;
+      }
+      .mnav-btn {
+        flex: 1; display: flex; flex-direction: column; align-items: center;
+        justify-content: center; gap: 2px; background: none; border: none;
+        cursor: pointer; color: var(--muted); font-family: var(--font-body);
+        transition: color .15s;
+      }
+      .mnav-btn.active { color: var(--purple); }
+      .mnav-btn:hover { color: var(--purple); }
+      .mnav-icon { font-size: 1.15rem; line-height: 1; }
+      .mnav-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+    }
+    .mob-page { display: none; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
+    .mob-page.active { display: flex; }
+
+    @media (max-width: 899px) {
+      /* lib-grid already uses auto-fill minmax(72px,1fr) — no override needed */
+      #wishlist-grid-m {
+        grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
+        grid-auto-rows: 260px;                 /* fixed row height */
+        gap: 6px; padding: 6px;
+      }
+    }
+
+    /* Mobile toolbar: 2 explicit rows */
+    @media (max-width: 899px) {
+      #toolbar-m {
+        flex-direction: column; gap: 5px; padding: 6px 10px;
+      }
+      .tb-row {
+        display: flex; align-items: center; gap: 5px; width: 100%;
+      }
+      .tb-row .dd-wrap:last-child { margin-left: auto; }
+    }
+
+    /* ── CARD TILE ── fills fixed grid row; flex-column splits image / info */
+    .wl-tile {
+      height: 100%;                 /* fill the fixed grid-auto-rows height */
+      display: flex; flex-direction: column;
+      position: relative;
+      background: var(--surface); border: 1.5px solid var(--border2);
+      border-radius: var(--radius-lg); overflow: hidden;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .wl-tile:hover {
+      border-color: var(--purple-l);
+      box-shadow: 0 4px 18px rgba(124,58,237,.18);
+    }
+    .wl-tile.complete { border-color: var(--green); }
+
+    /* Image — 70 % of the fixed tile height; no aspect-ratio, no padding trick */
+    .wl-img-wrap {
+      flex: 0 0 70%;                /* 70 % of 296px = 207px  (≈ 5:7 at 140px wide) */
+      position: relative; overflow: hidden;
+      background: var(--surface2);
+    }
+    .wl-img-wrap img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1;
+    }
+    /* Placeholder — hidden by default, shown only when image fails */
+    .wl-ph {
+      display: none; /* shown via JS on img error */
+      font-size: 2.2rem; color: var(--dim);
+      align-items: center; justify-content: center;
+      width: 100%; height: 100%; position: absolute; inset: 0; z-index: 0;
+    }
+
+    /* Remove button — top-left, always visible */
+    .wl-rm-btn {
+      position: absolute; top: 6px; left: 6px; z-index: 3;
+      background: rgba(0,0,0,.7); border: none; color: #f87171;
+      width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+      font-size: 0.72rem; display: flex; align-items: center; justify-content: center;
+      opacity: 1;
+    }
+    .wl-rm-btn:hover { background: rgba(220,38,38,.85); }
+
+    /* Quantity badge — top-right, always visible */
+    .wl-qty-badge {
+      position: absolute; top: 6px; right: 6px; z-index: 3;
+      font-size: 0.68rem; font-weight: 900; line-height: 1;
+      background: rgba(0,0,0,.68); color: #fff; border-radius: 20px;
+      padding: 3px 8px; border: 1.5px solid rgba(255,255,255,.22);
+      backdrop-filter: blur(4px);
+    }
+    .wl-tile.complete .wl-qty-badge {
+      background: rgba(22,163,74,.85); border-color: rgba(74,222,128,.5);
+    }
+
+    /* Bottom progress strip on image */
+    .wl-img-bar {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+      height: 5px; background: rgba(255,255,255,.15);
+    }
+    .wl-img-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--purple), var(--pink));
+      transition: width .35s ease;
+    }
+    .wl-tile.complete .wl-img-bar-fill { background: #4ade80; }
+
+    /* Info area — remaining 30 % of fixed tile height */
+    .wl-info {
+      flex: 1; min-height: 0; overflow: hidden;
+      padding: 6px 8px 6px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .wl-name {
+      font-family: var(--font-head); font-size: 0.8rem;
+      color: var(--text); line-height: 1.2;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .wl-meta { font-size: 0.6rem; color: var(--dim); }
+
+    /* Quantity stepper rows */
+    .wl-qty-rows { display: flex; flex-direction: column; gap: 4px; }
+    .wl-qty-row { display: flex; align-items: center; gap: 4px; }
+    .wl-qty-label {
+      font-size: 0.62rem; font-weight: 700; color: var(--muted);
+      flex: 0 0 34px; text-transform: uppercase; letter-spacing: .04em;
+    }
+    .wl-qty-ctrl { display: flex; align-items: center; gap: 4px; flex: 1; }
+    .wl-btn {
+      width: 22px; height: 22px; border-radius: 5px; border: none;
+      cursor: pointer; font-size: 0.85rem; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity .1s, transform .1s;
+    }
+    .wl-btn:not(:disabled):active { transform: scale(.88); }
+    .wl-btn:disabled { opacity: 0.2; cursor: default; }
+    .wl-btn-minus { background: rgba(248,113,113,.18); color: #f87171; }
+    .wl-btn-plus  { background: rgba(74,222,128,.18);  color: #4ade80; }
+    .wl-btn-minus:not(:disabled):hover { background: rgba(248,113,113,.35); }
+    .wl-btn-plus:not(:disabled):hover  { background: rgba(74,222,128,.35); }
+    .wl-qty-val {
+      font-size: 0.82rem; font-weight: 900; color: var(--text);
+      min-width: 18px; text-align: center;
+    }
+
+    /* ── MODALS ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 600;
+      background: rgba(0,0,0,.72);
+      align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: var(--radius-lg); width: 100%; max-width: 500px;
+      max-height: 85vh; display: flex; flex-direction: column;
+      overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,.35);
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px 10px; flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-title {
+      font-family: var(--font-head); font-size: 1.05rem; color: var(--text);
+    }
+    .modal-close {
+      background: none; border: none; color: var(--dim);
+      font-size: 1rem; cursor: pointer; padding: 2px 6px; border-radius: 4px;
+    }
+    .modal-close:hover { background: var(--surface2); color: var(--text); }
+    .modal-hint {
+      padding: 8px 16px 4px; font-size: 0.72rem; color: var(--dim); flex-shrink: 0;
+    }
+    .modal-hint code {
+      background: var(--surface2); border-radius: 4px; padding: 1px 5px;
+      font-size: 0.7rem; color: var(--purple-l);
+    }
+    .modal-actions {
+      display: flex; gap: 7px; padding: 10px 16px 14px;
+      flex-wrap: wrap; flex-shrink: 0; border-top: 1px solid var(--border);
+    }
+
+    /* ── IO TEXTAREA ── */
+    .io-textarea {
+      flex: 1; margin: 6px 16px; resize: vertical;
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 8px; color: var(--text);
+      font-family: monospace; font-size: 0.74rem; padding: 10px; min-height: 160px;
+    }
+    .io-textarea:focus { outline: none; border-color: var(--purple); }
+
+    /* ── TOASTS ── */
+    .toast-wrap {
+      position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%);
+      z-index: 1000; display: flex; flex-direction: column;
+      gap: 5px; align-items: center; pointer-events: none;
+    }
+    .toast {
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 20px; padding: 7px 16px;
+      font-size: 0.78rem; font-weight: 700; color: var(--text);
+      opacity: 0; transform: translateY(8px);
+      transition: opacity .22s, transform .22s; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.t-ok   { border-color: #4ade8055; color: var(--green); }
+    .toast.t-warn { border-color: #fbbf2455; color: var(--gold); }
+    .toast.t-err  { border-color: #f8717155; color: #f87171; }
+
+    /* ── EMPTY STATE ── */
+    #empty-state {
+      text-align: center; padding: 70px 24px; color: var(--muted);
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    .empty-icon { font-size: 3.5rem; }
+    .empty-msg  { font-family: var(--font-head); font-size: 1.1rem; color: var(--muted); }
+    .empty-sub  { font-size: 0.82rem; color: var(--dim); }
+
+    /* ── RESPONSIVE TILES ── */
+    @media (max-width: 480px) {
+      .stat-chip { min-width: 58px; padding: 5px 8px; }
+      .stat-chip .sv { font-size: 0.95rem; }
+    }
+
+    /* Compact tile for mobile 3-column */
+    @media (max-width: 899px) {
+      .wl-tile { border-radius: var(--radius); }
+      .wl-rm-btn  { width: 18px; height: 18px; font-size: 0.6rem; top: 3px; left: 3px; }
+      .wl-qty-badge { font-size: 0.55rem; padding: 2px 5px; top: 3px; right: 3px; }
+      .wl-info    { padding: 5px 5px 4px; gap: 3px; }
+      .wl-name    { font-size: 0.65rem; }
+      .wl-meta    { font-size: 0.5rem; }
+      .wl-qty-rows { gap: 2px; }
+      .wl-qty-label { font-size: 0.52rem; flex: 0 0 24px; }
+      .wl-qty-val { font-size: 0.72rem; min-width: 14px; }
+      .wl-btn     { width: 18px; height: 18px; font-size: 0.78rem; }
+    }
+  </style>
+  <script src="../i18n/translations.js"></script>
+  <script src="../nav.js"></script>
+  <script>
+    /* Dark-mode bridge: nav.js sets html.dark, this page uses body.dark-mode */
+    (function () {
+      function syncDark(dark) { document.body.classList.toggle('dark-mode', dark); }
+      document.addEventListener('DOMContentLoaded', function () {
+        syncDark(document.documentElement.classList.contains('dark'));
+      });
+      window.addEventListener('mlp-theme-change', function (e) { syncDark(e.detail.dark); });
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- ── Toast notifications ── -->
+  <div class="toast-wrap" id="toasts"></div>
+
+  <!-- ════════════════════════════════════════════════════════
+       IO MODAL — Import / Export text
+       ════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="io-modal" onclick="closeIOModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <span class="modal-title">📋 Import / Export</span>
+        <button class="modal-close" onclick="closeIOModal()">✕</button>
+      </div>
+      <p class="modal-hint">Format: <code>ID | Needed | Owned</code> (one per line, # for comments)</p>
+      <textarea id="io-text" class="io-textarea" rows="12"
+                placeholder="BP01-C01 | 4 | 2&#10;BP01-C02 | 3 | 1"></textarea>
+      <div class="modal-actions">
+        <button class="btn btn-primary"   onclick="doImport()">✅ Import</button>
+        <button class="btn btn-secondary" onclick="doExportText()">📤 Fill from wishlist</button>
+        <button class="btn btn-secondary" onclick="copyIOText()">📋 Copy</button>
+        <button class="btn btn-secondary" onclick="closeIOModal()">✕ Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       DESKTOP — 2-panel layout (#app)
+       ════════════════════════════════════════════════════════ -->
+  <div id="app">
+
+    <!-- ── LEFT: Library panel ── -->
+    <div id="panel-lib">
+      <div class="panel-hdr">
+        <span class="panel-title">📚 Library</span>
+        <span id="lib-count" class="lib-count-lbl"></span>
+      </div>
+      <div class="lib-search-row">
+        <input id="lib-search" class="lib-search-input"
+               placeholder="Search cards…" oninput="renderLibGrid()" autocomplete="off">
+      </div>
+      <div class="lib-filter-row">
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('wl-dd-type-d')"><span id="wl-dd-type-d-lbl">Type</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-type-d">
+            <label class="dd-item"><input type="checkbox" value="Character"      onchange="syncLibFilters('wl-dd-type-d')"> Character</label>
+            <label class="dd-item"><input type="checkbox" value="Event"          onchange="syncLibFilters('wl-dd-type-d')"> Event</label>
+            <label class="dd-item"><input type="checkbox" value="Item"           onchange="syncLibFilters('wl-dd-type-d')"> Item</label>
+            <label class="dd-item"><input type="checkbox" value="Scene"          onchange="syncLibFilters('wl-dd-type-d')"> Scene</label>
+            <label class="dd-item"><input type="checkbox" value="Main Character" onchange="syncLibFilters('wl-dd-type-d')"> Main Char</label>
+            <label class="dd-item"><input type="checkbox" value="Story"          onchange="syncLibFilters('wl-dd-type-d')"> Story</label>
+          </div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('wl-dd-rarity-d')"><span id="wl-dd-rarity-d-lbl">Rarity</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-rarity-d">
+            <label class="dd-item"><input type="checkbox" value="CR"  onchange="syncLibFilters('wl-dd-rarity-d')"> CR</label>
+            <label class="dd-item"><input type="checkbox" value="GR"  onchange="syncLibFilters('wl-dd-rarity-d')"> GR</label>
+            <label class="dd-item"><input type="checkbox" value="SR"  onchange="syncLibFilters('wl-dd-rarity-d')"> SR</label>
+            <label class="dd-item"><input type="checkbox" value="U"   onchange="syncLibFilters('wl-dd-rarity-d')"> U</label>
+            <label class="dd-item"><input type="checkbox" value="C"   onchange="syncLibFilters('wl-dd-rarity-d')"> C</label>
+            <label class="dd-item"><input type="checkbox" value="RR"  onchange="syncLibFilters('wl-dd-rarity-d')"> RR</label>
+            <label class="dd-item"><input type="checkbox" value="ER"  onchange="syncLibFilters('wl-dd-rarity-d')"> ER</label>
+            <label class="dd-item"><input type="checkbox" value="SPR" onchange="syncLibFilters('wl-dd-rarity-d')"> SPR</label>
+            <label class="dd-item"><input type="checkbox" value="※CR"  onchange="syncLibFilters('wl-dd-rarity-d')"> ※ CR</label>
+            <label class="dd-item"><input type="checkbox" value="※GR"  onchange="syncLibFilters('wl-dd-rarity-d')"> ※ GR</label>
+            <label class="dd-item"><input type="checkbox" value="※SR"  onchange="syncLibFilters('wl-dd-rarity-d')"> ※ SR</label>
+            <label class="dd-item"><input type="checkbox" value="※RR"  onchange="syncLibFilters('wl-dd-rarity-d')"> ※ RR</label>
+            <label class="dd-item"><input type="checkbox" value="※ER"  onchange="syncLibFilters('wl-dd-rarity-d')"> ※ ER</label>
+            <label class="dd-item"><input type="checkbox" value="※SPR" onchange="syncLibFilters('wl-dd-rarity-d')"> ※ SPR</label>
+          </div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('wl-dd-set-d')"><span id="wl-dd-set-d-lbl">Set</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-set-d"></div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('wl-dd-race-d')"><span id="wl-dd-race-d-lbl">Race</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-race-d" style="min-width:130px;">
+            <div style="display:flex;gap:3px;margin-bottom:5px;">
+              <button class="race-tab active" id="wl-race-tab-pony-d" onclick="setLibRaceTab('pony')">🐴 Pony</button>
+              <button class="race-tab" id="wl-race-tab-pet-d" onclick="setLibRaceTab('pet')">🐾 Pet</button>
+            </div>
+            <div id="wl-race-pony-d">
+              <label class="dd-item"><input type="checkbox" value="Unicorn"    onchange="syncLibFilters('wl-dd-race-d')"> Unicorn</label>
+              <label class="dd-item"><input type="checkbox" value="Pegasus"    onchange="syncLibFilters('wl-dd-race-d')"> Pegasus</label>
+              <label class="dd-item"><input type="checkbox" value="Earth Pony" onchange="syncLibFilters('wl-dd-race-d')"> Earth Pony</label>
+              <label class="dd-item"><input type="checkbox" value="Alicorn"    onchange="syncLibFilters('wl-dd-race-d')"> Alicorn</label>
+              <label class="dd-item"><input type="checkbox" value="Race:Other" onchange="syncLibFilters('wl-dd-race-d')"> Other</label>
+            </div>
+            <div id="wl-race-pet-d" style="display:none">
+              <label class="dd-item"><input type="checkbox" value="Dragon"    onchange="syncLibFilters('wl-dd-race-d')"> Dragon</label>
+              <label class="dd-item"><input type="checkbox" value="Crocodile" onchange="syncLibFilters('wl-dd-race-d')"> Crocodile</label>
+              <label class="dd-item"><input type="checkbox" value="Turtle"    onchange="syncLibFilters('wl-dd-race-d')"> Turtle</label>
+              <label class="dd-item"><input type="checkbox" value="Rabbit"    onchange="syncLibFilters('wl-dd-race-d')"> Rabbit</label>
+              <label class="dd-item"><input type="checkbox" value="Dog"       onchange="syncLibFilters('wl-dd-race-d')"> Dog</label>
+              <label class="dd-item"><input type="checkbox" value="Cat"       onchange="syncLibFilters('wl-dd-race-d')"> Cat</label>
+              <label class="dd-item"><input type="checkbox" value="Owl"       onchange="syncLibFilters('wl-dd-race-d')"> Owl</label>
+              <label class="dd-item"><input type="checkbox" value="Phoenix"   onchange="syncLibFilters('wl-dd-race-d')"> Phoenix</label>
+              <label class="dd-item"><input type="checkbox" value="Pet:Other" onchange="syncLibFilters('wl-dd-race-d')"> Other</label>
+            </div>
+          </div>
+        </div>
+        <button class="sort-btn" id="wl-sort-btn-d" onclick="toggleLibSort()" title="Toggle sort order">↓</button>
+        <button class="sort-btn" onclick="clearLibFilters()" title="Clear all filters" style="font-size:0.65rem;">✕</button>
+        <button class="sort-btn" id="wl-alt-btn-d" onclick="toggleLibAltFilter()" title="Toggle alt rarity" style="font-size:0.62rem;min-width:42px;">All</button>
+      </div>
+      <div id="lib-grid" class="lib-grid"></div>
+    </div><!-- /#panel-lib -->
+
+    <!-- ── RIGHT: Wishlist panel ── -->
+    <div id="panel-wl">
+      <!-- Header: title + action buttons (flex-wrap → 1-2 rows) -->
+      <div class="wl-hdr">
+        <h1 class="wl-title">⭐ My Wishlist</h1>
+        <div class="wl-actions">
+          <button class="btn btn-secondary" onclick="openIOModal()">📋 <span class="btn-lbl">Import/Export</span></button>
+          <button class="btn btn-secondary" onclick="copyShareURL()">🔗 <span class="btn-lbl">Share</span></button>
+          <button class="btn btn-secondary" onclick="exportPNG()">📸 <span class="btn-lbl">PNG</span></button>
+          <button class="btn btn-danger"    onclick="clearWishlist()">🗑 <span class="btn-lbl">Clear</span></button>
+        </div>
+      </div>
+      <!-- Stats -->
+      <div id="stats-bar"></div>
+      <!-- Toolbar: status pills + type/rarity/sort -->
+      <div id="toolbar">
+        <button id="pill-all"      class="filter-pill active" onclick="setStatusFilter('all')">All</button>
+        <button id="pill-needed"   class="filter-pill"        onclick="setStatusFilter('needed')">Needed</button>
+        <button id="pill-complete" class="filter-pill"        onclick="setStatusFilter('complete')">Done</button>
+        <div class="toolbar-sep"></div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('dd-wl-type'); event.stopPropagation()">
+            <span id="dd-wl-type-lbl">Type</span> ▼
+          </button>
+          <div class="dd-menu" id="dd-wl-type">
+            <label class="dd-item"><input type="checkbox" value="Character"      onchange="applyWLFilters('d')"> Character</label>
+            <label class="dd-item"><input type="checkbox" value="Event"          onchange="applyWLFilters('d')"> Event</label>
+            <label class="dd-item"><input type="checkbox" value="Item"           onchange="applyWLFilters('d')"> Item</label>
+            <label class="dd-item"><input type="checkbox" value="Scene"          onchange="applyWLFilters('d')"> Scene</label>
+            <label class="dd-item"><input type="checkbox" value="Story"          onchange="applyWLFilters('d')"> Story</label>
+            <label class="dd-item"><input type="checkbox" value="Main Character" onchange="applyWLFilters('d')"> Main Char</label>
+          </div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('dd-wl-rarity'); event.stopPropagation()">
+            <span id="dd-wl-rarity-lbl">Rarity</span> ▼
+          </button>
+          <div class="dd-menu" id="dd-wl-rarity">
+            <label class="dd-item"><input type="checkbox" value="CR"  onchange="applyWLFilters('d')"> CR</label>
+            <label class="dd-item"><input type="checkbox" value="GR"  onchange="applyWLFilters('d')"> GR</label>
+            <label class="dd-item"><input type="checkbox" value="SR"  onchange="applyWLFilters('d')"> SR</label>
+            <label class="dd-item"><input type="checkbox" value="RR"  onchange="applyWLFilters('d')"> RR</label>
+            <label class="dd-item"><input type="checkbox" value="ER"  onchange="applyWLFilters('d')"> ER</label>
+            <label class="dd-item"><input type="checkbox" value="SPR" onchange="applyWLFilters('d')"> SPR</label>
+            <label class="dd-item"><input type="checkbox" value="U"   onchange="applyWLFilters('d')"> U</label>
+            <label class="dd-item"><input type="checkbox" value="C"   onchange="applyWLFilters('d')"> C</label>
+          </div>
+        </div>
+        <div class="dd-wrap" style="margin-left:auto;">
+          <button class="dd-btn" onclick="toggleDD('dd-wl-sort'); event.stopPropagation()">
+            <span id="dd-sort-lbl">Sort: Newest</span> ▼
+          </button>
+          <div class="dd-menu" id="dd-wl-sort">
+            <div class="dd-item sort-opt" onclick="setSortMode('newest')">Newest Added</div>
+            <div class="dd-item sort-opt" onclick="setSortMode('id')">Card ID</div>
+            <div class="dd-item sort-opt" onclick="setSortMode('pct')">Completion %</div>
+          </div>
+        </div>
+      </div><!-- /#toolbar -->
+      <!-- Grid -->
+      <div id="wishlist-grid"></div>
+      <!-- Empty state -->
+      <div id="empty-state" style="display:none;">
+        <div class="empty-icon">🌈</div>
+        <p class="empty-msg">Your wishlist is empty.</p>
+        <p class="empty-sub">Click any card in the Library to add it.</p>
+      </div>
+    </div><!-- /#panel-wl -->
+
+  </div><!-- /#app -->
+
+  <!-- ════════════════════════════════════════════════════════
+       MOBILE — tab pages
+       ════════════════════════════════════════════════════════ -->
+  <div id="mob-pages">
+
+    <!-- Tab 1: Library -->
+    <div id="mob-page-lib" class="mob-page active">
+      <div class="panel-hdr">
+        <span class="panel-title">📚 Library</span>
+        <span id="lib-count-m" class="lib-count-lbl"></span>
+      </div>
+      <div class="lib-search-row">
+        <input id="lib-search-m" class="lib-search-input"
+               placeholder="Search cards…" oninput="renderLibGrid()" autocomplete="off">
+      </div>
+      <div class="lib-filter-row">
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('wl-dd-type-m')"><span id="wl-dd-type-m-lbl">Type</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-type-m">
+            <label class="dd-item"><input type="checkbox" value="Character"      onchange="syncLibFilters('wl-dd-type-m')"> Character</label>
+            <label class="dd-item"><input type="checkbox" value="Event"          onchange="syncLibFilters('wl-dd-type-m')"> Event</label>
+            <label class="dd-item"><input type="checkbox" value="Item"           onchange="syncLibFilters('wl-dd-type-m')"> Item</label>
+            <label class="dd-item"><input type="checkbox" value="Scene"          onchange="syncLibFilters('wl-dd-type-m')"> Scene</label>
+            <label class="dd-item"><input type="checkbox" value="Main Character" onchange="syncLibFilters('wl-dd-type-m')"> Main Char</label>
+            <label class="dd-item"><input type="checkbox" value="Story"          onchange="syncLibFilters('wl-dd-type-m')"> Story</label>
+          </div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('wl-dd-rarity-m')"><span id="wl-dd-rarity-m-lbl">Rarity</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-rarity-m">
+            <label class="dd-item"><input type="checkbox" value="CR"  onchange="syncLibFilters('wl-dd-rarity-m')"> CR</label>
+            <label class="dd-item"><input type="checkbox" value="GR"  onchange="syncLibFilters('wl-dd-rarity-m')"> GR</label>
+            <label class="dd-item"><input type="checkbox" value="SR"  onchange="syncLibFilters('wl-dd-rarity-m')"> SR</label>
+            <label class="dd-item"><input type="checkbox" value="U"   onchange="syncLibFilters('wl-dd-rarity-m')"> U</label>
+            <label class="dd-item"><input type="checkbox" value="C"   onchange="syncLibFilters('wl-dd-rarity-m')"> C</label>
+            <label class="dd-item"><input type="checkbox" value="RR"  onchange="syncLibFilters('wl-dd-rarity-m')"> RR</label>
+            <label class="dd-item"><input type="checkbox" value="ER"  onchange="syncLibFilters('wl-dd-rarity-m')"> ER</label>
+            <label class="dd-item"><input type="checkbox" value="SPR" onchange="syncLibFilters('wl-dd-rarity-m')"> SPR</label>
+            <label class="dd-item"><input type="checkbox" value="※CR"  onchange="syncLibFilters('wl-dd-rarity-m')"> ※ CR</label>
+            <label class="dd-item"><input type="checkbox" value="※GR"  onchange="syncLibFilters('wl-dd-rarity-m')"> ※ GR</label>
+            <label class="dd-item"><input type="checkbox" value="※SR"  onchange="syncLibFilters('wl-dd-rarity-m')"> ※ SR</label>
+            <label class="dd-item"><input type="checkbox" value="※RR"  onchange="syncLibFilters('wl-dd-rarity-m')"> ※ RR</label>
+            <label class="dd-item"><input type="checkbox" value="※ER"  onchange="syncLibFilters('wl-dd-rarity-m')"> ※ ER</label>
+            <label class="dd-item"><input type="checkbox" value="※SPR" onchange="syncLibFilters('wl-dd-rarity-m')"> ※ SPR</label>
+          </div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('wl-dd-set-m')"><span id="wl-dd-set-m-lbl">Set</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-set-m"></div>
+        </div>
+        <div class="dd-wrap">
+          <button class="dd-btn" onclick="toggleDD('wl-dd-race-m')"><span id="wl-dd-race-m-lbl">Race</span><span style="font-size:0.55rem">▼</span></button>
+          <div class="dd-menu" id="wl-dd-race-m" style="min-width:130px;">
+            <div style="display:flex;gap:3px;margin-bottom:5px;">
+              <button class="race-tab active" id="wl-race-tab-pony-m" onclick="setLibRaceTab('pony')">🐴 Pony</button>
+              <button class="race-tab" id="wl-race-tab-pet-m" onclick="setLibRaceTab('pet')">🐾 Pet</button>
+            </div>
+            <div id="wl-race-pony-m">
+              <label class="dd-item"><input type="checkbox" value="Unicorn"    onchange="syncLibFilters('wl-dd-race-m')"> Unicorn</label>
+              <label class="dd-item"><input type="checkbox" value="Pegasus"    onchange="syncLibFilters('wl-dd-race-m')"> Pegasus</label>
+              <label class="dd-item"><input type="checkbox" value="Earth Pony" onchange="syncLibFilters('wl-dd-race-m')"> Earth Pony</label>
+              <label class="dd-item"><input type="checkbox" value="Alicorn"    onchange="syncLibFilters('wl-dd-race-m')"> Alicorn</label>
+              <label class="dd-item"><input type="checkbox" value="Race:Other" onchange="syncLibFilters('wl-dd-race-m')"> Other</label>
+            </div>
+            <div id="wl-race-pet-m" style="display:none">
+              <label class="dd-item"><input type="checkbox" value="Dragon"    onchange="syncLibFilters('wl-dd-race-m')"> Dragon</label>
+              <label class="dd-item"><input type="checkbox" value="Crocodile" onchange="syncLibFilters('wl-dd-race-m')"> Crocodile</label>
+              <label class="dd-item"><input type="checkbox" value="Turtle"    onchange="syncLibFilters('wl-dd-race-m')"> Turtle</label>
+              <label class="dd-item"><input type="checkbox" value="Rabbit"    onchange="syncLibFilters('wl-dd-race-m')"> Rabbit</label>
+              <label class="dd-item"><input type="checkbox" value="Dog"       onchange="syncLibFilters('wl-dd-race-m')"> Dog</label>
+              <label class="dd-item"><input type="checkbox" value="Cat"       onchange="syncLibFilters('wl-dd-race-m')"> Cat</label>
+              <label class="dd-item"><input type="checkbox" value="Owl"       onchange="syncLibFilters('wl-dd-race-m')"> Owl</label>
+              <label class="dd-item"><input type="checkbox" value="Phoenix"   onchange="syncLibFilters('wl-dd-race-m')"> Phoenix</label>
+              <label class="dd-item"><input type="checkbox" value="Pet:Other" onchange="syncLibFilters('wl-dd-race-m')"> Other</label>
+            </div>
+          </div>
+        </div>
+        <button class="sort-btn" id="wl-sort-btn-m" onclick="toggleLibSort()" title="Toggle sort">↓</button>
+        <button class="sort-btn" onclick="clearLibFilters()" title="Clear all filters" style="font-size:0.65rem;">✕</button>
+        <button class="sort-btn" id="wl-alt-btn-m" onclick="toggleLibAltFilter()" title="Toggle alt rarity" style="font-size:0.62rem;min-width:42px;">All</button>
+      </div>
+      <div id="lib-grid-m" class="lib-grid"></div>
+    </div><!-- /#mob-page-lib -->
+
+    <!-- Tab 2: Wishlist -->
+    <div id="mob-page-wl" class="mob-page">
+      <div id="stats-bar-m"></div>
+      <!-- Mobile toolbar: 2 rows -->
+      <div id="toolbar-m">
+        <!-- Row 1: Status pills + action buttons -->
+        <div class="tb-row">
+          <button id="pill-all-m"      class="filter-pill active" onclick="setStatusFilter('all')">All</button>
+          <button id="pill-needed-m"   class="filter-pill"        onclick="setStatusFilter('needed')">Needed</button>
+          <button id="pill-complete-m" class="filter-pill"        onclick="setStatusFilter('complete')">Done</button>
+          <button class="btn btn-secondary" onclick="openIOModal()"   style="padding:5px 9px;">📋</button>
+          <button class="btn btn-secondary" onclick="copyShareURL()" style="padding:5px 9px;">🔗</button>
+          <button class="btn btn-secondary" onclick="exportPNG()"    style="padding:5px 9px;">📸</button>
+          <button class="btn btn-danger"    onclick="clearWishlist()" style="padding:5px 9px;">🗑</button>
+        </div>
+        <!-- Row 2: Filter dropdowns + sort -->
+        <div class="tb-row">
+          <div class="dd-wrap">
+            <button class="dd-btn" onclick="toggleDD('dd-wl-type-m'); event.stopPropagation()">
+              <span id="dd-wl-type-lbl-m">Type</span> ▼
+            </button>
+            <div class="dd-menu" id="dd-wl-type-m">
+              <label class="dd-item"><input type="checkbox" value="Character"      onchange="applyWLFilters('m')"> Character</label>
+              <label class="dd-item"><input type="checkbox" value="Event"          onchange="applyWLFilters('m')"> Event</label>
+              <label class="dd-item"><input type="checkbox" value="Item"           onchange="applyWLFilters('m')"> Item</label>
+              <label class="dd-item"><input type="checkbox" value="Scene"          onchange="applyWLFilters('m')"> Scene</label>
+              <label class="dd-item"><input type="checkbox" value="Story"          onchange="applyWLFilters('m')"> Story</label>
+              <label class="dd-item"><input type="checkbox" value="Main Character" onchange="applyWLFilters('m')"> Main Char</label>
+            </div>
+          </div>
+          <div class="dd-wrap">
+            <button class="dd-btn" onclick="toggleDD('dd-wl-rarity-m'); event.stopPropagation()">
+              <span id="dd-wl-rarity-lbl-m">Rarity</span> ▼
+            </button>
+            <div class="dd-menu" id="dd-wl-rarity-m">
+              <label class="dd-item"><input type="checkbox" value="CR"  onchange="applyWLFilters('m')"> CR</label>
+              <label class="dd-item"><input type="checkbox" value="GR"  onchange="applyWLFilters('m')"> GR</label>
+              <label class="dd-item"><input type="checkbox" value="SR"  onchange="applyWLFilters('m')"> SR</label>
+              <label class="dd-item"><input type="checkbox" value="RR"  onchange="applyWLFilters('m')"> RR</label>
+              <label class="dd-item"><input type="checkbox" value="ER"  onchange="applyWLFilters('m')"> ER</label>
+              <label class="dd-item"><input type="checkbox" value="SPR" onchange="applyWLFilters('m')"> SPR</label>
+              <label class="dd-item"><input type="checkbox" value="U"   onchange="applyWLFilters('m')"> U</label>
+              <label class="dd-item"><input type="checkbox" value="C"   onchange="applyWLFilters('m')"> C</label>
+            </div>
+          </div>
+          <div class="dd-wrap">
+            <button class="dd-btn" onclick="toggleDD('dd-wl-sort-m'); event.stopPropagation()">
+              <span id="dd-sort-lbl-m">Sort: Newest</span> ▼
+            </button>
+            <div class="dd-menu" id="dd-wl-sort-m">
+              <div class="dd-item sort-opt" onclick="setSortMode('newest')">Newest Added</div>
+              <div class="dd-item sort-opt" onclick="setSortMode('id')">Card ID</div>
+              <div class="dd-item sort-opt" onclick="setSortMode('pct')">Completion %</div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /#toolbar-m -->
+      <div id="wishlist-grid-m"></div>
+      <div id="empty-state-m" style="display:none;">
+        <div class="empty-icon">🌈</div>
+        <p class="empty-msg">Your wishlist is empty.</p>
+        <p class="empty-sub">Go to Library tab to add cards.</p>
+      </div>
+    </div><!-- /#mob-page-wl -->
+
+  </div><!-- /#mob-pages -->
+
+  <!-- ── Mobile bottom nav ── -->
+  <div id="mobile-nav">
+    <button id="mnav-lib" class="mnav-btn active" onclick="switchPage('lib')">
+      <span class="mnav-icon">📚</span>
+      <span class="mnav-label">Library</span>
+    </button>
+    <button id="mnav-wl" class="mnav-btn" onclick="switchPage('wl')">
+      <span class="mnav-icon">⭐</span>
+      <span class="mnav-label">Wishlist</span>
+    </button>
+  </div>
+
+  <script>
+  // ═══════════════════════════════════════════════════════
+  // STATE
+  // ═══════════════════════════════════════════════════════
+  const BASE_URLS = [
+    '..',
+    'https://raw.githubusercontent.com/auac131/MLP-DB/main',
+    'https://raw.githubusercontent.com/auac131/MLP-DB/master'
+  ];
+  const LS_KEY = 'mlp-wishlist';
+  const LS_INJECT = 'mlp-wishlist-inject';
+
+  const RARITY_COLORS = {
+    CR:'#a78bfa', GR:'#fbbf24', SR:'#34d399', RR:'#f472b6',
+    ER:'#38bdf8', SPR:'#fb923c', U:'#60a5fa', C:'#9ca3af'
+  };
+  const RARITY_ORDER = ['CR','GR','SR','RR','ER','SPR','U','C'];
+
+  let library  = [];   // all cards from MLP-DB.json
+  let wishlist = [];   // [{id, needed, owned, addedAt}]
+
+  // Wishlist filter state
+  let filterStatus   = 'all';   // 'all' | 'needed' | 'complete'
+  let filterTypes    = [];
+  let filterRarities = [];
+  let sortMode       = 'newest'; // 'newest' | 'id' | 'pct'
+
+  // Library panel sort/alt state
+  let libSortAsc = false;
+  let libAltMode = 'all'; // 'all' | 'no-alt' | 'alt-only'
+
+  const ALT_RARITIES_SET = new Set(['※CR','※GR','※SR','※RR','※ER','※SPR']);
+  const RARITY_RANK = { CR:1, GR:2, SR:3, RR:4, ER:5, SPR:6, U:7, C:8,
+    '※CR':1,'※GR':2,'※SR':3,'※RR':4,'※ER':5,'※SPR':6 };
+  const _PONY_RACES = ['Unicorn','Pegasus','Earth Pony','Alicorn'];
+  const _PET_RACES  = ['Dragon','Crocodile','Turtle','Rabbit','Dog','Cat','Owl','Phoenix'];
+
+  // ═══════════════════════════════════════════════════════
+  // UTILITIES
+  // ═══════════════════════════════════════════════════════
+  function $(id) { return document.getElementById(id); }
+
+  function toast(msg, type = 'ok') {
+    const wrap = $('toasts');
+    const el = document.createElement('div');
+    el.className = `toast t-${type}`;
+    el.textContent = msg;
+    wrap.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => {
+      el.classList.remove('show');
+      setTimeout(() => el.remove(), 300);
+    }, 2800);
+  }
+
+  function getChecked(menuId) {
+    return Array.from(document.querySelectorAll(`#${menuId} input:checked`))
+      .map(el => el.value);
+  }
+
+  function toggleDD(id) {
+    document.querySelectorAll('.dd-menu.open').forEach(el => {
+      if (el.id !== id) el.classList.remove('open');
+    });
+    if (id) document.getElementById(id)?.classList.toggle('open');
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // PERSISTENCE
+  // ═══════════════════════════════════════════════════════
+  function saveWishlist() {
+    localStorage.setItem(LS_KEY, JSON.stringify({ cards: wishlist }));
+  }
+
+  function loadWishlist() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (raw) wishlist = JSON.parse(raw).cards || [];
+    } catch (e) { wishlist = []; }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // DATA LOADING
+  // ═══════════════════════════════════════════════════════
+  async function loadLibrary() {
+    for (const base of BASE_URLS) {
+      try {
+        const res = await fetch(base + '/MLP-DB.json');
+        if (!res.ok) continue;
+        const data = await res.json();
+        const raw = Array.isArray(data) ? data : (data.cards || []);
+        library = raw.map(c => ({
+          id:      c.id,
+          name:    c.name,
+          type:    c.type || 'Character',
+          subtype: c.subtype || [],
+          color:   c.color || '',
+          cost:    c.cost ?? null,
+          power:   c.power ?? null,
+          rarity:  c.rarity || 'C',
+          deck:    c.deck || '',
+          ability: c.ability || '',
+          imageUrl: base + '/cards/' + c.id + '.jpg'
+        }));
+        return true;
+      } catch (e) { console.warn('Load failed:', base, e.message); }
+    }
+    toast('⚠ Could not load card data', 'err');
+    return false;
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // WISHLIST CRUD
+  // ═══════════════════════════════════════════════════════
+  function addCard(id) {
+    if (wishlist.find(w => w.id === id)) {
+      toast('Already in wishlist', 'warn'); return;
+    }
+    wishlist.unshift({ id, needed: 1, owned: 0, addedAt: new Date().toISOString() });
+    saveWishlist();
+    render();
+    toast('Added to wishlist ✓', 'ok');
+  }
+
+  function removeCard(id) {
+    wishlist = wishlist.filter(w => w.id !== id);
+    saveWishlist();
+    render();
+  }
+
+  function adjustNeeded(id, delta) {
+    const item = wishlist.find(w => w.id === id);
+    if (!item) return;
+    item.needed = Math.max(1, Math.min(4, item.needed + delta));
+    item.owned  = Math.min(item.owned, item.needed);
+    saveWishlist();
+    render();
+  }
+
+  function adjustOwned(id, delta) {
+    const item = wishlist.find(w => w.id === id);
+    if (!item) return;
+    item.owned = Math.max(0, Math.min(item.needed, item.owned + delta));
+    saveWishlist();
+    render();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // FILTERING & SORTING
+  // ═══════════════════════════════════════════════════════
+  function getFilteredSorted() {
+    let items = wishlist
+      .map(w => ({ ...w, _card: library.find(c => c.id === w.id) }))
+      .filter(w => w._card);
+
+    if (filterStatus === 'needed')   items = items.filter(w => w.owned < w.needed);
+    if (filterStatus === 'complete') items = items.filter(w => w.owned >= w.needed);
+    if (filterTypes.length)    items = items.filter(w => filterTypes.includes(w._card.type));
+    if (filterRarities.length) items = items.filter(w => filterRarities.includes(w._card.rarity));
+
+    if (sortMode === 'newest') items.sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
+    if (sortMode === 'id')     items.sort((a, b) => a.id.localeCompare(b.id));
+    if (sortMode === 'pct')    items.sort((a, b) => (b.owned / b.needed) - (a.owned / a.needed));
+
+    return items;
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // RENDER — STATS BAR
+  // ═══════════════════════════════════════════════════════
+  function renderStats() {
+    const totalCards  = wishlist.length;
+    const totalNeeded = wishlist.reduce((s, w) => s + w.needed, 0);
+    const totalOwned  = wishlist.reduce((s, w) => s + w.owned,  0);
+    const pct = totalNeeded > 0 ? Math.round((totalOwned / totalNeeded) * 100) : 0;
+
+    const rarityCount = {};
+    wishlist.forEach(w => {
+      const card = library.find(c => c.id === w.id);
+      if (!card) return;
+      rarityCount[card.rarity] = (rarityCount[card.rarity] || 0) + 1;
+    });
+
+    const rarityChips = RARITY_ORDER
+      .filter(r => rarityCount[r])
+      .map(r => {
+        const col = RARITY_COLORS[r] || '#9ca3af';
+        return `<span class="rarity-chip" style="color:${col};border-color:${col}44;background:${col}11;">${r}: ${rarityCount[r]}</span>`;
+      }).join('');
+
+    const html = `
+      <div class="stat-chip">
+        <span class="sv">${totalCards}</span>
+        <span class="sl">Cards</span>
+      </div>
+      <div class="stat-chip">
+        <span class="sv">${totalNeeded}</span>
+        <span class="sl">Needed</span>
+      </div>
+      <div class="stat-chip">
+        <span class="sv">${totalOwned}</span>
+        <span class="sl">Owned</span>
+      </div>
+      <div class="stat-chip ${pct === 100 ? 'complete-chip' : ''}">
+        <span class="sv">${pct}%</span>
+        <span class="sl">Complete</span>
+      </div>
+      ${rarityChips ? `<div class="stat-chip" style="flex-direction:row;flex-wrap:wrap;gap:4px;min-width:auto;padding:6px 10px;align-items:center;"><div class="rarity-chip-row">${rarityChips}</div></div>` : ''}
+    `;
+    ['stats-bar', 'stats-bar-m'].forEach(id => { const el = $(id); if (el) el.innerHTML = html; });
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // RENDER — CARD TILE
+  // ═══════════════════════════════════════════════════════
+  function makeTile(item) {
+    const card = item._card;
+    const pct  = item.needed > 0 ? Math.round((item.owned / item.needed) * 100) : 0;
+    const done = item.owned >= item.needed;
+
+    const tile = document.createElement('div');
+    tile.className = 'wl-tile' + (done ? ' complete' : '');
+
+    // — Image wrap —
+    const imgWrap = document.createElement('div');
+    imgWrap.className = 'wl-img-wrap';
+
+    // Placeholder (hidden; only shown on img error)
+    const ph = document.createElement('div');
+    ph.className = 'wl-ph'; ph.textContent = '🃏';
+
+    const img = document.createElement('img');
+    img.alt = card.name; img.loading = 'lazy';
+    img.src = card.imageUrl;
+    img.onerror = () => { img.style.display = 'none'; ph.style.display = 'flex'; };
+
+    // Remove button — top-left
+    const rmBtn = document.createElement('button');
+    rmBtn.className = 'wl-rm-btn'; rmBtn.title = 'Remove from wishlist';
+    rmBtn.innerHTML = '✕';
+    rmBtn.onclick = e => { e.stopPropagation(); removeCard(item.id); };
+
+    // Quantity badge — top-right (owned/needed or ✓)
+    const qtyBadge = document.createElement('div');
+    qtyBadge.className = 'wl-qty-badge';
+    qtyBadge.textContent = done ? '✓ Done' : `${item.owned} / ${item.needed}`;
+
+    // Bottom progress strip on image
+    const imgBar = document.createElement('div');
+    imgBar.className = 'wl-img-bar';
+    const imgBarFill = document.createElement('div');
+    imgBarFill.className = 'wl-img-bar-fill';
+    imgBarFill.style.width = pct + '%';
+    imgBar.appendChild(imgBarFill);
+
+    imgWrap.append(ph, img, rmBtn, qtyBadge, imgBar);
+
+    // — Info area —
+    const info = document.createElement('div');
+    info.className = 'wl-info';
+
+    const name = document.createElement('div');
+    name.className = 'wl-name'; name.title = card.name; name.textContent = card.name;
+
+    const rarCol = RARITY_COLORS[card.rarity] || '#9ca3af';
+    const meta = document.createElement('div');
+    meta.className = 'wl-meta';
+    meta.innerHTML = `${card.id} · <span style="color:${rarCol};font-weight:800;">${card.rarity}</span>`;
+
+    // Stepper rows
+    const rows = document.createElement('div');
+    rows.className = 'wl-qty-rows';
+    rows.append(
+      makeQtyRow('Need', item.needed,
+        () => adjustNeeded(item.id, -1), () => adjustNeeded(item.id, +1),
+        item.needed <= 1, item.needed >= 4),
+      makeQtyRow('Own', item.owned,
+        () => adjustOwned(item.id, -1), () => adjustOwned(item.id, +1),
+        item.owned <= 0, item.owned >= item.needed)
+    );
+
+    info.append(name, meta, rows);
+    tile.append(imgWrap, info);
+    return tile;
+  }
+
+  function makeQtyRow(label, value, onMinus, onPlus, disableMinus, disablePlus) {
+    const row   = document.createElement('div');    row.className   = 'wl-qty-row';
+    const lbl   = document.createElement('span');   lbl.className   = 'wl-qty-label'; lbl.textContent = label;
+    const ctrl  = document.createElement('div');    ctrl.className  = 'wl-qty-ctrl';
+    const minus = document.createElement('button'); minus.className = 'wl-btn wl-btn-minus';
+    minus.textContent = '−'; minus.disabled = disableMinus; minus.onclick = onMinus;
+    const val   = document.createElement('span');   val.className   = 'wl-qty-val'; val.textContent = value;
+    const plus  = document.createElement('button'); plus.className  = 'wl-btn wl-btn-plus';
+    plus.textContent = '+'; plus.disabled = disablePlus; plus.onclick = onPlus;
+    ctrl.append(minus, val, plus);
+    row.append(lbl, ctrl);
+    return row;
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // RENDER — GRID
+  // ═══════════════════════════════════════════════════════
+  function renderGrid() {
+    const pairs = [
+      ['wishlist-grid', 'empty-state'],
+      ['wishlist-grid-m', 'empty-state-m']
+    ];
+    pairs.forEach(([gridId, emptyId]) => {
+      const grid  = $(gridId);
+      const empty = $(emptyId);
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      if (wishlist.length === 0) {
+        if (empty) empty.style.display = '';
+        return;
+      }
+      if (empty) empty.style.display = 'none';
+
+      const items = getFilteredSorted();
+      if (items.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--dim);font-size:0.85rem;">No cards match the current filters.</div>';
+        return;
+      }
+      items.forEach(item => grid.appendChild(makeTile(item)));
+    });
+  }
+
+  function render() {
+    renderStats();
+    renderGrid();
+    renderLibGrid();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // LIBRARY PANEL — filters match deck builder
+  // ═══════════════════════════════════════════════════════
+
+  function switchPage(page) {
+    ['lib', 'wl'].forEach(p => {
+      $('mob-page-' + p)?.classList.toggle('active', p === page);
+      $('mnav-' + p)?.classList.toggle('active', p === page);
+    });
+  }
+
+  // Sync desktop ↔ mobile checkboxes (same pattern as deck builder syncFilters)
+  function syncLibFilters(changedId) {
+    const pairs = [
+      ['wl-dd-type-d',   'wl-dd-type-m'],
+      ['wl-dd-rarity-d', 'wl-dd-rarity-m'],
+      ['wl-dd-set-d',    'wl-dd-set-m'],
+      ['wl-dd-race-d',   'wl-dd-race-m'],
+    ];
+    pairs.forEach(([d, m]) => {
+      const other = changedId === d ? m : changedId === m ? d : null;
+      if (!other) return;
+      const src = document.querySelectorAll('#' + changedId + ' input[type=checkbox]');
+      const dst = document.querySelectorAll('#' + other    + ' input[type=checkbox]');
+      src.forEach((s, i) => { if (dst[i]) dst[i].checked = s.checked; });
+    });
+    updateLibFilterLabels();
+    renderLibGrid();
+  }
+
+  function updateLibFilterLabels() {
+    const pairs = [
+      { d:'wl-dd-type-d',   dl:'wl-dd-type-d-lbl',   ml:'wl-dd-type-m-lbl',   def:'Type'   },
+      { d:'wl-dd-rarity-d', dl:'wl-dd-rarity-d-lbl', ml:'wl-dd-rarity-m-lbl', def:'Rarity' },
+      { d:'wl-dd-set-d',    dl:'wl-dd-set-d-lbl',    ml:'wl-dd-set-m-lbl',    def:'Set'    },
+      { d:'wl-dd-race-d',   dl:'wl-dd-race-d-lbl',   ml:'wl-dd-race-m-lbl',   def:'Race'   },
+    ];
+    pairs.forEach(({ d, dl, ml, def }) => {
+      const vals = getChecked(d);
+      const lbl  = vals.length ? vals.join(', ') : def;
+      const elD = $(dl); if (elD) elD.textContent = lbl;
+      const elM = $(ml); if (elM) elM.textContent = lbl;
+    });
+  }
+
+  function toggleLibSort() {
+    libSortAsc = !libSortAsc;
+    const lbl = libSortAsc ? '↑' : '↓';
+    [$('wl-sort-btn-d'), $('wl-sort-btn-m')].forEach(el => { if (el) el.textContent = lbl; });
+    renderLibGrid();
+  }
+
+  function toggleLibAltFilter() {
+    if (libAltMode === 'all')       libAltMode = 'no-alt';
+    else if (libAltMode === 'no-alt') libAltMode = 'alt-only';
+    else                            libAltMode = 'all';
+    const lbl = { all:'All', 'no-alt':'No ※', 'alt-only':'※ Only' }[libAltMode];
+    [$('wl-alt-btn-d'), $('wl-alt-btn-m')].forEach(el => { if (el) el.textContent = lbl; });
+    renderLibGrid();
+  }
+
+  function clearLibFilters() {
+    ['wl-dd-type-d','wl-dd-type-m','wl-dd-rarity-d','wl-dd-rarity-m',
+     'wl-dd-set-d','wl-dd-set-m','wl-dd-race-d','wl-dd-race-m'].forEach(id => {
+      const el = $(id); if (!el) return;
+      el.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+    });
+    [$('lib-search'), $('lib-search-m')].forEach(el => { if (el) el.value = ''; });
+    libAltMode = 'all'; libSortAsc = false;
+    [$('wl-alt-btn-d'),$('wl-alt-btn-m')].forEach(el => { if (el) el.textContent = 'All'; });
+    [$('wl-sort-btn-d'),$('wl-sort-btn-m')].forEach(el => { if (el) el.textContent = '↓'; });
+    updateLibFilterLabels();
+    renderLibGrid();
+  }
+
+  function setLibRaceTab(tab) {
+    ['d','m'].forEach(sfx => {
+      const pony = $('wl-race-pony-' + sfx);
+      const pet  = $('wl-race-pet-'  + sfx);
+      const pb   = $('wl-race-tab-pony-' + sfx);
+      const xb   = $('wl-race-tab-pet-'  + sfx);
+      if (pony) pony.style.display = tab === 'pony' ? '' : 'none';
+      if (pet)  pet.style.display  = tab === 'pet'  ? '' : 'none';
+      if (pb)   pb.classList.toggle('active', tab === 'pony');
+      if (xb)   xb.classList.toggle('active', tab === 'pet');
+    });
+  }
+
+  function buildLibSetDropdowns() {
+    const sets = [...new Set(library.map(c => c.deck).filter(Boolean))].sort((a, b) => {
+      const base = s => s.replace(/[A-Z]$/, '');
+      const sub  = s => s.match(/[A-Z]$/) ? s.slice(-1) : '';
+      if (base(a) !== base(b)) return a.localeCompare(b);
+      return sub(a).localeCompare(sub(b));
+    });
+    ['wl-dd-set-d','wl-dd-set-m'].forEach(id => {
+      const menu = $(id); if (!menu) return;
+      const checked = new Set([...menu.querySelectorAll('input:checked')].map(el => el.value));
+      menu.innerHTML = sets.map(s =>
+        `<label class="dd-item"><input type="checkbox" value="${s}"${checked.has(s)?' checked':''} onchange="syncLibFilters('${id}')"> ${s}</label>`
+      ).join('');
+    });
+    updateLibFilterLabels();
+  }
+
+  function sortLibCards(cards) {
+    const getNum = id => { const m = (id||'').match(/([A-Z]+)(\d+)$/i); return m ? parseInt(m[2]) : 0; };
+    const getDeck = c => c.deck || (c.id||'').split('-')[0] || '';
+    return [...cards].sort((a, b) => {
+      const dc = getDeck(a).localeCompare(getDeck(b));
+      if (dc !== 0) return libSortAsc ? -dc : dc;
+      const ra = RARITY_RANK[a.rarity] ?? 99, rb = RARITY_RANK[b.rarity] ?? 99;
+      const rd = libSortAsc ? rb - ra : ra - rb;
+      if (rd !== 0) return rd;
+      const diff = getNum(a.id) - getNum(b.id);
+      return libSortAsc ? -diff : diff;
+    });
+  }
+
+  function renderLibGrid() {
+    // Read search from whichever input is active/has content
+    const qD = ($('lib-search')?.value   || '').toLowerCase().trim();
+    const qM = ($('lib-search-m')?.value || '').toLowerCase().trim();
+    const q  = qD || qM;
+
+    // Read filters from desktop dropdowns (kept in sync with mobile via syncLibFilters)
+    const fTypes    = getChecked('wl-dd-type-d');
+    const fRarities = getChecked('wl-dd-rarity-d');
+    const fSets     = getChecked('wl-dd-set-d');
+    const fRaces    = getChecked('wl-dd-race-d');
+
+    const inWL = new Set(wishlist.map(w => w.id));
+
+    let cards = library;
+
+    // Search filter
+    if (q) cards = cards.filter(c =>
+      c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q));
+
+    // Type filter
+    if (fTypes.length) cards = cards.filter(c => fTypes.includes(c.type));
+
+    // Rarity filter
+    if (fRarities.length) cards = cards.filter(c => fRarities.includes(c.rarity));
+
+    // Set filter
+    if (fSets.length) cards = cards.filter(c => fSets.includes(c.deck));
+
+    // Race/subtype filter (matches deck builder logic)
+    if (fRaces.length) {
+      cards = cards.filter(c => {
+        const subs = c.subtype || [];
+        return fRaces.some(r => {
+          if (r === 'Race:Other') return c.type === 'Character' && !subs.some(s => _PONY_RACES.includes(s));
+          if (r === 'Pet:Other')  return c.type === 'Character' && !subs.some(s => _PET_RACES.includes(s)) && !subs.some(s => _PONY_RACES.includes(s));
+          return subs.includes(r);
+        });
+      });
+    }
+
+    // Alt-rarity filter
+    if (libAltMode === 'no-alt')   cards = cards.filter(c => !ALT_RARITIES_SET.has(c.rarity));
+    if (libAltMode === 'alt-only') cards = cards.filter(c =>  ALT_RARITIES_SET.has(c.rarity));
+
+    // Sort
+    const sorted = sortLibCards(cards);
+
+    // Update count labels
+    ['lib-count','lib-count-m'].forEach(id => {
+      const el = $(id); if (el) el.textContent = sorted.length + ' cards';
+    });
+
+    ['lib-grid', 'lib-grid-m'].forEach(gridId => {
+      const container = $(gridId);
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (sorted.length === 0) {
+        const msg = document.createElement('div');
+        msg.className = 'lib-more'; msg.textContent = 'No cards found.';
+        container.appendChild(msg);
+        return;
+      }
+
+      sorted.forEach(card => {
+        const inList = inWL.has(card.id);
+
+        // Outer tile — flex-column, no aspect-ratio (matches .card-tile)
+        const el = document.createElement('div');
+        el.className = 'lib-card' + (inList ? ' in-wl' : '');
+        el.title     = card.name + ' (' + card.id + ') · ' + card.rarity;
+
+        // Image wrapper — aspect-ratio:5/7 lives here (matches .card-tile-img)
+        const imgWrap = document.createElement('div');
+        imgWrap.className = 'lib-img-wrap';
+
+        const ph = document.createElement('div');
+        ph.className = 'lib-ph'; ph.textContent = '🃏';
+
+        const img = document.createElement('img');
+        img.src = card.imageUrl; img.alt = card.name; img.loading = 'lazy';
+        img.onerror = () => { img.style.display = 'none'; ph.style.display = 'flex'; };
+
+        imgWrap.append(ph, img);
+
+        if (inList) {
+          const chk = document.createElement('div');
+          chk.className = 'lib-check'; chk.textContent = '✓';
+          imgWrap.appendChild(chk);
+        }
+
+        el.appendChild(imgWrap);
+
+        el.onclick = () => {
+          if (inWL.has(card.id)) removeCard(card.id);
+          else                   addCard(card.id);
+        };
+        container.appendChild(el);
+      });
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // DECK BUILDER INJECT (localStorage bridge)
+  // ═══════════════════════════════════════════════════════
+  function loadInjected() {
+    const raw = localStorage.getItem(LS_INJECT);
+    if (!raw) return;
+    localStorage.removeItem(LS_INJECT);
+    try {
+      const entries = JSON.parse(raw);
+      let added = 0;
+      entries.forEach(e => {
+        if (!library.find(c => c.id === e.id)) return;
+        if (wishlist.find(w => w.id === e.id)) return;
+        wishlist.push({
+          id: e.id,
+          needed: Math.max(1, Math.min(4, e.needed || 1)),
+          owned:  Math.max(0, e.owned || 0),
+          addedAt: new Date().toISOString()
+        });
+        added++;
+      });
+      if (added) {
+        saveWishlist();
+        toast(`📥 Added ${added} cards from Deck Builder`, 'ok');
+      }
+    } catch (e) { console.warn('Inject parse failed:', e); }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // FILTERS & SORT
+  // ═══════════════════════════════════════════════════════
+  function setStatusFilter(status) {
+    filterStatus = status;
+    ['all','needed','complete'].forEach(s => {
+      $('pill-' + s)?.classList.toggle('active', s === status);
+      $('pill-' + s + '-m')?.classList.toggle('active', s === status);
+    });
+    renderGrid();
+  }
+
+  // source: 'd' = desktop, 'm' = mobile
+  function applyWLFilters(source) {
+    if (source === 'd') {
+      filterTypes    = getChecked('dd-wl-type');
+      filterRarities = getChecked('dd-wl-rarity');
+      syncCheckboxes('dd-wl-type',   'dd-wl-type-m',   filterTypes);
+      syncCheckboxes('dd-wl-rarity', 'dd-wl-rarity-m', filterRarities);
+    } else {
+      filterTypes    = getChecked('dd-wl-type-m');
+      filterRarities = getChecked('dd-wl-rarity-m');
+      syncCheckboxes('dd-wl-type-m',   'dd-wl-type',   filterTypes);
+      syncCheckboxes('dd-wl-rarity-m', 'dd-wl-rarity', filterRarities);
+    }
+    const tl = filterTypes.length    ? filterTypes.length    + ' sel' : 'Type';
+    const rl = filterRarities.length ? filterRarities.length + ' sel' : 'Rarity';
+    ['dd-wl-type-lbl','dd-wl-type-lbl-m'].forEach(id => { const el = $(id); if (el) el.textContent = tl; });
+    ['dd-wl-rarity-lbl','dd-wl-rarity-lbl-m'].forEach(id => { const el = $(id); if (el) el.textContent = rl; });
+    renderGrid();
+  }
+
+  function setSortMode(mode) {
+    sortMode = mode;
+    const labels = { newest: 'Sort: Newest', id: 'Sort: ID', pct: 'Sort: Complete %' };
+    const lbl = labels[mode] || 'Sort';
+    ['dd-sort-lbl','dd-sort-lbl-m'].forEach(id => { const el = $(id); if (el) el.textContent = lbl; });
+    toggleDD('');
+    renderGrid();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // IO MODAL — Import / Export Text
+  // ═══════════════════════════════════════════════════════
+  function openIOModal() {
+    $('io-modal').classList.add('open');
+    $('io-text').value = '';
+  }
+
+  function closeIOModal() { $('io-modal').classList.remove('open'); }
+
+  function doExportText() {
+    const lines = ['# MLP TCG Wishlist Export', '# Format: ID | Needed | Owned', ''];
+    wishlist.forEach(w => {
+      const card = library.find(c => c.id === w.id);
+      lines.push(`${w.id} | ${w.needed} | ${w.owned}${card ? '  # ' + card.name : ''}`);
+    });
+    $('io-text').value = lines.join('\n');
+  }
+
+  function doImport() {
+    const lines = $('io-text').value.split('\n')
+      .map(l => l.trim())
+      .filter(l => l && !l.startsWith('#'));
+
+    let imported = 0, skipped = 0;
+    lines.forEach(line => {
+      const parts = line.split('|').map(p => p.trim().split('#')[0].trim());
+      const id = parts[0];
+      if (!id) { skipped++; return; }
+      if (!library.find(c => c.id === id)) { skipped++; return; }
+      const needed = Math.max(1, Math.min(4, parseInt(parts[1]) || 1));
+      const owned  = Math.max(0, Math.min(needed, parseInt(parts[2]) || 0));
+      const existing = wishlist.find(w => w.id === id);
+      if (existing) { existing.needed = needed; existing.owned = owned; }
+      else { wishlist.push({ id, needed, owned, addedAt: new Date().toISOString() }); }
+      imported++;
+    });
+
+    saveWishlist();
+    render();
+    toast(`✅ Imported ${imported}${skipped ? `, ${skipped} skipped` : ''}`, 'ok');
+    closeIOModal();
+  }
+
+  function copyIOText() {
+    const text = $('io-text').value;
+    if (!text.trim()) { toast('Nothing to copy', 'warn'); return; }
+    navigator.clipboard.writeText(text)
+      .then(() => toast('📋 Copied!', 'ok'))
+      .catch(() => toast('Copy failed', 'err'));
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // SHARE URL
+  // ═══════════════════════════════════════════════════════
+  function copyShareURL() {
+    if (!wishlist.length) { toast('Wishlist is empty', 'warn'); return; }
+    const param = wishlist.map(w => `${w.id}:${w.needed}:${w.owned}`).join(',');
+    const url   = location.href.split('?')[0] + '?cards=' + encodeURIComponent(param);
+    navigator.clipboard.writeText(url)
+      .then(() => toast('🔗 Share URL copied!', 'ok'))
+      .catch(() => {
+        const inp = document.createElement('input');
+        inp.value = url; document.body.appendChild(inp);
+        inp.select(); document.execCommand('copy'); inp.remove();
+        toast('🔗 Share URL copied!', 'ok');
+      });
+  }
+
+  function loadFromURL() {
+    const raw = new URLSearchParams(location.search).get('cards');
+    if (!raw) return;
+    try {
+      decodeURIComponent(raw).split(',').forEach(seg => {
+        const [id, n, o] = seg.trim().split(':');
+        if (!id || !library.find(c => c.id === id)) return;
+        if (wishlist.find(w => w.id === id)) return;
+        wishlist.push({
+          id, needed: Math.max(1, Math.min(4, +n || 1)),
+          owned: Math.max(0, +o || 0), addedAt: new Date().toISOString()
+        });
+      });
+      saveWishlist();
+    } catch (e) { console.warn('URL parse failed:', e); }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // EXPORT PNG (html2canvas, iframe approach)
+  // ═══════════════════════════════════════════════════════
+  function exportPNG() {
+    if (!wishlist.length) { toast('Wishlist is empty', 'warn'); return; }
+    toast('📸 Building PNG…', 'ok');
+
+    const CW = 900, SCALE = 2, PAD = 24;
+    const items = wishlist
+      .map(w => ({ ...w, _card: library.find(c => c.id === w.id) }))
+      .filter(w => w._card);
+
+    const totalNeeded = items.reduce((s, w) => s + w.needed, 0);
+    const totalOwned  = items.reduce((s, w) => s + w.owned, 0);
+    const pct  = totalNeeded > 0 ? Math.round((totalOwned / totalNeeded) * 100) : 0;
+    const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    // Only export cards that still need collecting (exclude completed)
+    const exportItems = items.filter(w => w.owned < w.needed);
+
+    const tilesHTML = exportItems.map(w => {
+      const barPct = Math.round((w.owned / w.needed) * 100);
+      const rarCol = RARITY_COLORS[w._card.rarity] || '#9ca3af';
+      // Badge color: red = 0 owned, yellow = partial
+      const badgeBg  = w.owned === 0 ? 'rgba(220,38,38,.92)' : 'rgba(202,138,4,.92)';
+      const badgeTxt = `${w.owned} / ${w.needed}`;
+      const barCol   = w.owned === 0 ? '#dc2626' : '#ca8a04';
+      return `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="aspect-ratio:5/7;border-radius:6px;overflow:hidden;background:#ede8f8;border:1px solid #d4c8f0;position:relative;">
+          <img src="${w._card.imageUrl}" style="width:100%;height:100%;object-fit:cover;display:block;position:relative;z-index:1;" onerror="this.style.display='none'">
+          <!-- Quantity badge top-right — 2.5× larger, colored -->
+          <div style="position:absolute;top:5px;right:5px;z-index:2;background:${badgeBg};color:#fff;font-size:0.95rem;font-weight:900;border-radius:20px;padding:5px 14px;border:1.5px solid rgba(255,255,255,.35);line-height:1;">${badgeTxt}</div>
+          <!-- Bottom progress strip -->
+          <div style="position:absolute;bottom:0;left:0;right:0;z-index:2;height:6px;background:rgba(255,255,255,.15);">
+            <div style="height:100%;width:${barPct}%;background:${barCol};"></div>
+          </div>
+        </div>
+        <div style="font-size:0.4rem;font-weight:700;color:#1e1040;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${w._card.name}">${w._card.name}</div>
+        <div style="font-size:0.34rem;color:#a090c8;">${w.id} · <span style="color:${rarCol};font-weight:800;">${w._card.rarity}</span></div>
+      </div>`;
+    }).join('');
+
+    if (!exportItems.length) { toast('All cards already collected! 🎉', 'ok'); return; }
+
+    const snapHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{background:#fff;}</style>
+</head><body>
+<div style="width:${CW}px;background:#fff;font-family:'Nunito',sans-serif;">
+  <div style="height:5px;background:linear-gradient(90deg,#7c3aed,#db2777,#f59e0b,#db2777,#7c3aed);"></div>
+  <div style="padding:16px ${PAD}px 12px;border-bottom:1px solid #e8e0f8;display:flex;align-items:center;justify-content:space-between;">
+    <div>
+      <div style="font-family:'Fredoka One',cursive;font-size:1.5rem;color:#1e1040;">🌈 My MLP TCG Wishlist</div>
+      <div style="font-size:0.55rem;color:#9580c8;margin-top:4px;">${exportItems.length} cards still needed · ${totalOwned}/${totalNeeded} owned · ${pct}% complete · ${date}</div>
+    </div>
+    <div style="font-family:'Fredoka One',cursive;font-size:0.62rem;color:#c4b5fd;text-align:right;line-height:1.8;">🌈 DreamTCG</div>
+  </div>
+  <div style="padding:14px ${PAD}px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+    ${tilesHTML}
+  </div>
+  <div style="padding:8px ${PAD}px 14px;border-top:1px solid #e8e0f8;font-size:0.36rem;color:#c4b5fd;">Fan-made tool · Not affiliated with Hasbro or KAYOU</div>
+</div>
+</body></html>`;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = `position:fixed;left:-9999px;top:0;width:${CW}px;height:2000px;border:none;visibility:hidden;`;
+    document.body.appendChild(iframe);
+    iframe.onload = () => {
+      setTimeout(() => {
+        const root = iframe.contentDocument.body.firstElementChild;
+        const h    = root.scrollHeight;
+        iframe.style.height = h + 'px';
+        html2canvas(root, {
+          backgroundColor: null, scale: SCALE,
+          useCORS: true, allowTaint: true, logging: false,
+          width: CW, height: h, windowWidth: CW, windowHeight: h
+        }).then(canvas => {
+          document.body.removeChild(iframe);
+          const a = document.createElement('a');
+          a.href = canvas.toDataURL('image/png');
+          a.download = 'mlp_wishlist_' + Date.now() + '.png';
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          toast('✅ PNG saved!', 'ok');
+        }).catch(err => {
+          document.body.removeChild(iframe);
+          toast('Export failed', 'err');
+          console.error(err);
+        });
+      }, 700);
+    };
+    iframe.contentDocument.open();
+    iframe.contentDocument.write(snapHTML);
+    iframe.contentDocument.close();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // CLEAR WISHLIST
+  // ═══════════════════════════════════════════════════════
+  function clearWishlist() {
+    if (!wishlist.length) { toast('Wishlist is already empty', 'warn'); return; }
+    if (!confirm(`Clear all ${wishlist.length} card${wishlist.length !== 1 ? 's' : ''} from your wishlist?`)) return;
+    wishlist = [];
+    saveWishlist();
+    render();
+    toast('🗑 Wishlist cleared', 'ok');
+  }
+
+  // Helper used by applyWLFilters to sync wishlist toolbar checkboxes d↔m
+  function syncCheckboxes(srcId, dstId, vals) {
+    document.querySelectorAll('#' + dstId + ' input[type=checkbox]').forEach(cb => {
+      cb.checked = vals.includes(cb.value);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // GLOBAL EVENT LISTENERS
+  // ═══════════════════════════════════════════════════════
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dd-menu.open').forEach(el => el.classList.remove('open'));
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeIOModal(); toggleDD(''); }
+  });
+
+  // ═══════════════════════════════════════════════════════
+  // INIT
+  // ═══════════════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', async () => {
+    loadWishlist();
+    render(); // show what we have before library loads
+
+    await loadLibrary();
+
+    buildLibSetDropdowns(); // populate Set filter dropdowns
+    loadInjected();         // consume any deck-builder inject
+    loadFromURL();  // parse ?cards= URL param
+
+    render(); // full render with library data
+  });
+  </script>
+
+</body>
+</html>
