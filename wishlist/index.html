@@ -44,7 +44,7 @@
       width: 300px; flex-shrink: 0;
       border-right: 1px solid var(--border);
       display: flex; flex-direction: column;
-      overflow: hidden; min-height: 0;
+      overflow: visible; min-height: 0;
       background: var(--surface);
     }
     /* Right: Wishlist panel */
@@ -88,9 +88,8 @@
       display: flex; gap: 5px; padding: 4px 8px 6px; flex-shrink: 0;
       flex-wrap: nowrap; align-items: center;
       border-bottom: 1px solid var(--border);
-      overflow-x: auto; scrollbar-width: none;
+      overflow: visible; position: relative; z-index: 10;
     }
-    .lib-filter-row::-webkit-scrollbar { display: none; }
     /* Library card grid — matches deck builder .card-grid pattern */
     .lib-grid {
       flex: 1; overflow-y: auto; padding: 6px;
@@ -317,7 +316,7 @@
       .mnav-icon { font-size: 1.15rem; line-height: 1; }
       .mnav-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
     }
-    .mob-page { display: none; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
+    .mob-page { display: none; flex-direction: column; flex: 1; overflow: visible; min-height: 0; }
     .mob-page.active { display: flex; }
 
     @media (max-width: 899px) {
@@ -595,7 +594,7 @@
       </div>
       <div class="lib-filter-row">
         <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('wl-dd-type-d')"><span id="wl-dd-type-d-lbl">Type</span><span style="font-size:0.55rem">▼</span></button>
+          <button class="dd-btn" onclick="toggleDD('wl-dd-type-d'); event.stopPropagation()"><span id="wl-dd-type-d-lbl">Type</span><span style="font-size:0.55rem">▼</span></button>
           <div class="dd-menu" id="wl-dd-type-d">
             <label class="dd-item"><input type="checkbox" value="Character"      onchange="syncLibFilters('wl-dd-type-d')"> Character</label>
             <label class="dd-item"><input type="checkbox" value="Event"          onchange="syncLibFilters('wl-dd-type-d')"> Event</label>
@@ -606,7 +605,7 @@
           </div>
         </div>
         <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('wl-dd-rarity-d')"><span id="wl-dd-rarity-d-lbl">Rarity</span><span style="font-size:0.55rem">▼</span></button>
+          <button class="dd-btn" onclick="toggleDD('wl-dd-rarity-d'); event.stopPropagation()"><span id="wl-dd-rarity-d-lbl">Rarity</span><span style="font-size:0.55rem">▼</span></button>
           <div class="dd-menu" id="wl-dd-rarity-d">
             <label class="dd-item"><input type="checkbox" value="CR"  onchange="syncLibFilters('wl-dd-rarity-d')"> CR</label>
             <label class="dd-item"><input type="checkbox" value="GR"  onchange="syncLibFilters('wl-dd-rarity-d')"> GR</label>
@@ -625,11 +624,11 @@
           </div>
         </div>
         <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('wl-dd-set-d')"><span id="wl-dd-set-d-lbl">Set</span><span style="font-size:0.55rem">▼</span></button>
+          <button class="dd-btn" onclick="toggleDD('wl-dd-set-d'); event.stopPropagation()"><span id="wl-dd-set-d-lbl">Set</span><span style="font-size:0.55rem">▼</span></button>
           <div class="dd-menu" id="wl-dd-set-d"></div>
         </div>
         <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('wl-dd-race-d')"><span id="wl-dd-race-d-lbl">Race</span><span style="font-size:0.55rem">▼</span></button>
+          <button class="dd-btn" onclick="toggleDD('wl-dd-race-d'); event.stopPropagation()"><span id="wl-dd-race-d-lbl">Race</span><span style="font-size:0.55rem">▼</span></button>
           <div class="dd-menu" id="wl-dd-race-d" style="min-width:130px;">
             <div style="display:flex;gap:3px;margin-bottom:5px;">
               <button class="race-tab active" id="wl-race-tab-pony-d" onclick="setLibRaceTab('pony')">🐴 Pony</button>
@@ -750,7 +749,7 @@
       </div>
       <div class="lib-filter-row">
         <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('wl-dd-type-m')"><span id="wl-dd-type-m-lbl">Type</span><span style="font-size:0.55rem">▼</span></button>
+          <button class="dd-btn" onclick="toggleDD('wl-dd-type-m'); event.stopPropagation()"><span id="wl-dd-type-m-lbl">Type</span><span style="font-size:0.55rem">▼</span></button>
           <div class="dd-menu" id="wl-dd-type-m">
             <label class="dd-item"><input type="checkbox" value="Character"      onchange="syncLibFilters('wl-dd-type-m')"> Character</label>
             <label class="dd-item"><input type="checkbox" value="Event"          onchange="syncLibFilters('wl-dd-type-m')"> Event</label>
@@ -761,7 +760,7 @@
           </div>
         </div>
         <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('wl-dd-rarity-m')"><span id="wl-dd-rarity-m-lbl">Rarity</span><span style="font-size:0.55rem">▼</span></button>
+          <button class="dd-btn" onclick="toggleDD('wl-dd-rarity-m'); event.stopPropagation()"><span id="wl-dd-rarity-m-lbl">Rarity</span><span style="font-size:0.55rem">▼</span></button>
           <div class="dd-menu" id="wl-dd-rarity-m">
             <label class="dd-item"><input type="checkbox" value="CR"  onchange="syncLibFilters('wl-dd-rarity-m')"> CR</label>
             <label class="dd-item"><input type="checkbox" value="GR"  onchange="syncLibFilters('wl-dd-rarity-m')"> GR</label>
@@ -780,11 +779,11 @@
           </div>
         </div>
         <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('wl-dd-set-m')"><span id="wl-dd-set-m-lbl">Set</span><span style="font-size:0.55rem">▼</span></button>
+          <button class="dd-btn" onclick="toggleDD('wl-dd-set-m'); event.stopPropagation()"><span id="wl-dd-set-m-lbl">Set</span><span style="font-size:0.55rem">▼</span></button>
           <div class="dd-menu" id="wl-dd-set-m"></div>
         </div>
         <div class="dd-wrap">
-          <button class="dd-btn" onclick="toggleDD('wl-dd-race-m')"><span id="wl-dd-race-m-lbl">Race</span><span style="font-size:0.55rem">▼</span></button>
+          <button class="dd-btn" onclick="toggleDD('wl-dd-race-m'); event.stopPropagation()"><span id="wl-dd-race-m-lbl">Race</span><span style="font-size:0.55rem">▼</span></button>
           <div class="dd-menu" id="wl-dd-race-m" style="min-width:130px;">
             <div style="display:flex;gap:3px;margin-bottom:5px;">
               <button class="race-tab active" id="wl-race-tab-pony-m" onclick="setLibRaceTab('pony')">🐴 Pony</button>
@@ -1029,7 +1028,7 @@
   function adjustNeeded(id, delta) {
     const item = wishlist.find(w => w.id === id);
     if (!item) return;
-    item.needed = Math.max(1, Math.min(4, item.needed + delta));
+    item.needed = Math.max(1, item.needed + delta);
     item.owned  = Math.min(item.owned, item.needed);
     saveWishlist();
     render();
@@ -1171,7 +1170,7 @@
     rows.append(
       makeQtyRow('Need', item.needed,
         () => adjustNeeded(item.id, -1), () => adjustNeeded(item.id, +1),
-        item.needed <= 1, item.needed >= 4),
+        item.needed <= 1, false),
       makeQtyRow('Own', item.owned,
         () => adjustOwned(item.id, -1), () => adjustOwned(item.id, +1),
         item.owned <= 0, item.owned >= item.needed)
@@ -1468,7 +1467,7 @@
         if (wishlist.find(w => w.id === e.id)) return;
         wishlist.push({
           id: e.id,
-          needed: Math.max(1, Math.min(4, e.needed || 1)),
+          needed: Math.max(1, e.needed || 1),
           owned:  Math.max(0, e.owned || 0),
           addedAt: new Date().toISOString()
         });
@@ -1552,7 +1551,7 @@
       const id = parts[0];
       if (!id) { skipped++; return; }
       if (!library.find(c => c.id === id)) { skipped++; return; }
-      const needed = Math.max(1, Math.min(4, parseInt(parts[1]) || 1));
+      const needed = Math.max(1, parseInt(parts[1]) || 1);
       const owned  = Math.max(0, Math.min(needed, parseInt(parts[2]) || 0));
       const existing = wishlist.find(w => w.id === id);
       if (existing) { existing.needed = needed; existing.owned = owned; }
@@ -1600,7 +1599,7 @@
         if (!id || !library.find(c => c.id === id)) return;
         if (wishlist.find(w => w.id === id)) return;
         wishlist.push({
-          id, needed: Math.max(1, Math.min(4, +n || 1)),
+          id, needed: Math.max(1, +n || 1),
           owned: Math.max(0, +o || 0), addedAt: new Date().toISOString()
         });
       });
@@ -1728,6 +1727,8 @@
   document.addEventListener('click', () => {
     document.querySelectorAll('.dd-menu.open').forEach(el => el.classList.remove('open'));
   });
+  // Prevent clicks inside any dropdown from bubbling to the global handler above
+  document.querySelectorAll('.dd-menu').forEach(m => m.addEventListener('click', e => e.stopPropagation()));
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') { closeIOModal(); toggleDD(''); }
