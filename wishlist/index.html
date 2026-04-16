@@ -338,14 +338,12 @@
       .tb-row .dd-wrap:last-child { margin-left: auto; }
     }
 
-    /* ── CARD TILE ── fixed 1:2 aspect ratio locks proportion on every screen size */
+    /* ── CARD TILE ── plain block; image + info stack naturally */
     .wl-tile {
-      aspect-ratio: 1/2;          /* total tile = width × 2  */
+      display: block; position: relative;
       background: var(--surface); border: 1.5px solid var(--border2);
       border-radius: var(--radius-lg); overflow: hidden;
-      display: flex; flex-direction: column;
       transition: border-color .15s, box-shadow .15s;
-      position: relative;
     }
     .wl-tile:hover {
       border-color: var(--purple-l);
@@ -353,16 +351,16 @@
     }
     .wl-tile.complete { border-color: var(--green); }
 
-    /* Card image — 5:7 ratio, flex-shrink:0 so it never collapses.
-       Tile's own aspect-ratio gives a definite height so this resolves correctly. */
+    /* Image — padding-bottom:140% locks 5:7 ratio from element's own width.
+       No flex, no aspect-ratio, no grid row dependency — always correct. */
     .wl-img-wrap {
-      flex-shrink: 0; aspect-ratio: 5/7;
+      width: 100%; padding-bottom: 140%;
       position: relative; overflow: hidden;
       background: var(--surface2);
     }
     .wl-img-wrap img {
-      width: 100%; height: 100%; object-fit: cover; display: block;
-      position: relative; z-index: 1;
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1;
     }
     /* Placeholder — hidden by default, shown only when image fails */
     .wl-ph {
@@ -406,11 +404,10 @@
     }
     .wl-tile.complete .wl-img-bar-fill { background: #4ade80; }
 
-    /* Info area — fills remaining tile height after image */
+    /* Info area — natural block below image, always fully visible */
     .wl-info {
-      flex: 1; min-height: 0; overflow: hidden;
-      padding: 6px 8px 6px;
-      display: flex; flex-direction: column; gap: 4px;
+      padding: 7px 8px 8px;
+      display: flex; flex-direction: column; gap: 5px;
     }
     .wl-name {
       font-family: var(--font-head); font-size: 0.8rem;
