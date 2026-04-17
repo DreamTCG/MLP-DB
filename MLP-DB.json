@@ -938,23 +938,6 @@
     "story_title": null
   },
   {
-    "id": "BP01-CR10",
-    "name": "Applejack",
-    "type": "Character",
-    "subtype": [
-      "Earth Pony",
-      "Applejack"
-    ],
-    "cost": 6,
-    "power": 6,
-    "rarity": "CR",
-    "deck": "BP01",
-    "story_stage": null,
-    "ability": "Flip 2 of your Scenes face up.",
-    "ability_th": null,
-    "story_title": null
-  },
-  {
     "id": "BP01-CR11",
     "name": "Rainbow Dash",
     "type": "Character",
