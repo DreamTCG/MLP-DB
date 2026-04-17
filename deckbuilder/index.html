@@ -581,6 +581,34 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
   font-family: var(--font-body); font-size: 0.73rem; font-weight: 700;
   outline: none; min-width: 0;
 }
+
+/* ── Proxy Mode watermark & badge ── */
+.proxy-card{position:relative;}
+.proxy-card::after{
+  content:'PROXY';
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka One',cursive;
+  font-size:1.6rem;font-weight:900;
+  color:rgba(220,38,38,0.55);
+  transform:rotate(-30deg);
+  pointer-events:none;
+  text-shadow:0 1px 4px rgba(0,0,0,0.3);
+  letter-spacing:0.05em;
+}
+.proxy-badge{
+  font-size:0.62rem;font-weight:800;
+  background:rgba(168,85,247,0.15);color:#9333ea;
+  border:1px solid rgba(168,85,247,0.4);
+  border-radius:20px;padding:2px 8px;
+}
+.proxy-deck-warn{
+  position:absolute;top:2px;left:2px;
+  background:rgba(245,158,11,0.9);color:#fff;
+  border-radius:4px;padding:1px 4px;
+  font-size:0.55rem;font-weight:800;pointer-events:none;
+  line-height:1.4;
+}
 </style>
    <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-VR98SGEQLX"></script>
@@ -654,7 +682,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:0;">
         <div id="zm-img" style="width:min(220px,100%);aspect-ratio:5/7;border-radius:14px;
           overflow:hidden;background:var(--surface2);display:flex;align-items:center;
-          justify-content:center;font-size:3rem;
+          justify-content:center;font-size:3rem;position:relative;
           box-shadow:0 12px 36px rgba(0,0,0,0.6);"></div>
         <span id="zm-index" style="font-size:0.65rem;color:var(--dim);margin-top:6px;"></span>
       </div>
@@ -835,7 +863,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
           <div class="deck-dropdown" id="deck-dropdown" style="display:none;"></div>
         </div>
         <button class="imp-btn" onclick="openShareModal()">🔗 แชร์</button>
-        <button class="imp-btn" onclick="openExport()">📤 Export</button>
+        <button class="imp-btn" id="export-btn-d" onclick="openExport()">📤 Export</button>
         <button class="imp-btn" onclick="sendToWishlist()" title="Send deck cards to Wishlist tracker">⭐ Wishlist</button>
         <button class="imp-btn" onclick="importFromClipboard()">📋 Import Clipboard</button>
         <button class="imp-btn" onclick="testDraw()">🎴 Test Draw</button>
@@ -1001,7 +1029,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
           <div class="deck-dropdown" id="deck-dropdown-m" style="display:none;"></div>
         </div>
         <button class="imp-btn" onclick="openShareModal()">🔗 แชร์</button>
-        <button class="imp-btn" onclick="openExport()">📤 Export</button>
+        <button class="imp-btn" id="export-btn-m" onclick="openExport()">📤 Export</button>
         <button class="imp-btn" onclick="sendToWishlist()" title="Send deck cards to Wishlist tracker">⭐ Wishlist</button>
         <button class="imp-btn" onclick="importFromClipboard()">📋 Import Clipboard</button>
         <button class="imp-btn" onclick="testDraw()">🎴 Test Draw</button>
@@ -1082,6 +1110,10 @@ const state = {
   library: [], sortAsc: false,
   mainSortMode: 'rarity' // 'rarity' | 'cost-asc' | 'cost-desc'
 };
+
+let _officialSets = new Set();
+let _proxyMode = localStorage.getItem('mlp-proxy-mode') === 'true';
+function isProxy(card){ return _officialSets.size > 0 && !_officialSets.has(card.deck); }
 
 // ── i18n — delegates to centralized /i18n/translations.js via window.i18n ──
 function _dt(key){ return (window.i18n && window.i18n.t(key)) || key; }
@@ -1981,8 +2013,8 @@ function renderLibrary() {
   const rarities = getCheckedVals('dd-rarity-d');
   const sets     = getCheckedVals('dd-set-d');
   const raceVals = getCheckedVals('dd-race-d');
-
   let cards = state.library;
+  if(!_proxyMode) cards = cards.filter(c=>!isProxy(c));
   if (types.length)    cards = cards.filter(c=>types.includes(c.type));
   if (rarities.length) cards = cards.filter(c=>rarities.includes(c.rarity));
   if (sets.length)     cards = cards.filter(c=>sets.includes(c.deck));
@@ -2025,7 +2057,7 @@ function renderLibrary() {
       const el = document.createElement('div');
       el.className = 'card-tile';
       const imgWrap = document.createElement('div');
-      imgWrap.className = 'card-tile-img';
+      imgWrap.className = 'card-tile-img' + (isProxy(card) ? ' proxy-card' : '');
       if (card.imageUrl) {
         const img = document.createElement('img');
         img.src = card.imageUrl; img.alt = card.name; img.loading = 'lazy';
@@ -2164,13 +2196,19 @@ function makeTile(card, zone) {
   const el=document.createElement('div');
   el.className='card-tile';
   const imgWrap=document.createElement('div');
-  imgWrap.className='card-tile-img';
+  imgWrap.className='card-tile-img' + (isProxy(card) ? ' proxy-card' : '');
   if(card.imageUrl){
     const img=document.createElement('img');
     img.src=card.imageUrl; img.alt=card.name; img.loading='lazy';
     imgWrap.appendChild(img);
   } else {
     imgWrap.innerHTML=`<div class="card-ph">${typeIcon(card.type)}</div>`;
+  }
+  if(isProxy(card) && !_proxyMode){
+    const warn=document.createElement('div');
+    warn.className='proxy-deck-warn'; warn.textContent='⚠️ Proxy';
+    warn.title='Proxy Card — เปิด Proxy Mode เพื่อ export';
+    imgWrap.appendChild(warn);
   }
   if(card.qty>1){
     const badge=document.createElement('span');
@@ -2210,8 +2248,9 @@ function renderMC() {
     }
     const c=state.mc;
     const rc=COLOR_HEX[c.color]||'#9ca3af';
+    const mcProxyClass=isProxy(c)?' proxy-card':'';
     el.innerHTML=`<div class="mc-slot filled">
-      <div class="mc-img">${c.imageUrl?`<img src="${c.imageUrl}" alt="${c.name}">`:'⭐'}</div>
+      <div class="mc-img${mcProxyClass}">${c.imageUrl?`<img src="${c.imageUrl}" alt="${c.name}">`:'⭐'}</div>
       <div class="mc-info">
         <div class="mc-name">${c.name}</div>
         <div class="mc-meta">${c.rarity||''} · <span style="color:${rc}">${COLOR_ICON[c.color]||''} ${c.color||''}</span><br>${(c.subtype||[]).join(', ')}</div>
@@ -2269,8 +2308,9 @@ function renderStory() {
     state.story.forEach((card,i)=>{
       const slot=document.createElement('div');
       slot.className='story-slot';
+      const storyProxyClass = card && isProxy(card) ? ' proxy-card' : '';
       slot.innerHTML=`<div class="story-tier">Tier ${tiers[i]}</div>
-        <div class="story-img" onclick="storyUploadClick(${i})">
+        <div class="story-img${storyProxyClass}" onclick="storyUploadClick(${i})">
           ${card?(card.imageUrl?`<img src="${card.imageUrl}" alt="${card.name}">`:`<span style="font-size:0.7rem;color:var(--gold);padding:4px;text-align:center">${card.name}</span>`):'<span style="font-size:1.5rem">📜</span>'}
           ${card?`<button class="story-rm" onclick="event.stopPropagation();removeCard('story','${card.id}')">✕</button>`:''}
         </div>`;
@@ -2303,6 +2343,8 @@ function updateSidebar() {
   if(dn&&dnm&&document.activeElement!==dn&&document.activeElement!==dnm) dnm.value=dn.value;
   // Re-render analysis if desktop visible
   if(window.innerWidth>=900) renderAnalysis();
+  // Update export button state based on proxy cards in deck
+  _checkProxyExport();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2482,7 +2524,23 @@ function _parseAndLoadDeckText(text) {
   toast(skipped ? `📋 Imported ${added} entries (${skipped} not found)` : `📋 Imported ${added} entries`, skipped ? 'warn' : 'ok');
   _currentDeckId = null; scheduleAutoSave();
 }
+function _checkProxyExport() {
+  const allCards = [state.mc, ...state.main, ...state.scene, ...(state.story||[])].filter(Boolean);
+  const hasProxy = !_proxyMode && allCards.some(c=>isProxy(c));
+  ['export-btn-d','export-btn-m'].forEach(id=>{
+    const btn=document.getElementById(id); if(!btn) return;
+    btn.disabled=hasProxy;
+    btn.title=hasProxy?'เด็คมีการ์ด Proxy กรุณาเปิด Proxy Mode':'';
+    btn.style.opacity=hasProxy?'0.45':'';
+    btn.style.cursor=hasProxy?'not-allowed':'';
+  });
+}
+
 function openExport() {
+  const allCards = [state.mc, ...state.main, ...state.scene, ...(state.story||[])].filter(Boolean);
+  if(!_proxyMode && allCards.some(c=>isProxy(c))){
+    toast('❌ เด็คมีการ์ด Proxy กรุณาเปิด Proxy Mode','err'); return;
+  }
   const name=($('deck-name')||{}).value||'My Deck';
   let txt=`=== ${name} ===\n`;
   if(state.mc) txt+=`\n[Main Character]\n${state.mc.name} (${state.mc.id})\n`;
@@ -2597,8 +2655,10 @@ function _renderZoom(card) {
   }
   const RC={CR:'#a78bfa',GR:'#fbbf24',RR:'#f472b6',SR:'#34d399',U:'#60a5fa',C:'#9ca3af',SPR:'#fb923c',ER:'#38bdf8','※CR':'#d4a0ff','※GR':'#ffe066','※SR':'#6effc2','※RR':'#ff9de2','※ER':'#7ee8ff','※SPR':'#ffc57a'};
   $('zm-img').innerHTML=card.imageUrl?`<img src="${card.imageUrl}" style="width:100%;height:100%;object-fit:cover">`:`<span>${typeIcon(card.type)}</span>`;
+  $('zm-img').classList.toggle('proxy-card', isProxy(card));
   const rc=RC[card.rarity]||'var(--muted)';
-  $('zm-name').innerHTML=`${card.name}<div style="font-family:var(--font-body);font-size:0.62rem;color:var(--dim);margin-top:2px">${card.id}</div>`;
+  const zmProxyBadge=isProxy(card)?` <span class="proxy-badge">🔮 Not Official Release</span>`:'';
+  $('zm-name').innerHTML=`${card.name}${zmProxyBadge}<div style="font-family:var(--font-body);font-size:0.62rem;color:var(--dim);margin-top:2px">${card.id}</div>`;
   let meta='';
   if(card.type)   meta+=`<span class="type-pill ${typePill(card.type)}" style="font-size:0.7rem;padding:3px 9px">${card.type}</span>`;
   if(card.rarity) meta+=`<span style="background:${rc}22;color:${rc};border:1px solid ${rc}44;border-radius:6px;padding:3px 9px;font-size:0.7rem;font-weight:800" title="${RARITY_NAME[card.rarity]||card.rarity}">${card.rarity}</span>`;
@@ -3152,9 +3212,16 @@ async function preloadAssets() {
   ];
   for (const src of SOURCES) {
     try {
-      const res=await fetch(src.base+'/MLP-DB.json');
-      if(!res.ok) continue;
-      const data=await res.json();
+      const [cfgRes, cardsRes] = await Promise.all([
+        fetch('../sets_config.json').catch(()=>null),
+        fetch(src.base+'/MLP-DB.json')
+      ]);
+      if(cfgRes && cfgRes.ok){
+        const cfg = await cfgRes.json().catch(()=>null);
+        if(cfg && cfg.officialSets) _officialSets = new Set(cfg.officialSets);
+      }
+      if(!cardsRes.ok) continue;
+      const data=await cardsRes.json();
       const cards=parseCardData(data);
       cards.forEach(card=>{ card.imageUrl=src.base+'/cards/'+card.id+'.jpg'; });
       applyLibrary(cards,true);
@@ -3219,6 +3286,12 @@ function _renderDeckI18n() {
 }
 
 window.addEventListener('mlp-lang-change', _renderDeckI18n);
+window.addEventListener('mlp-proxy-change', function(e){
+  _proxyMode = e.detail.proxyMode;
+  renderLibrary();
+  renderMain(); renderScene(); renderStory(); renderMC();
+  _checkProxyExport();
+});
 
 // ═══════════════════════════════════════════════════════
 // INIT

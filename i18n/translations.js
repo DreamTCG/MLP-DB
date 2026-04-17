@@ -55,6 +55,12 @@
       'theme.toLight':    'Switch to Light Mode',              // ✅ translate
       'theme.toDark':     'Switch to Dark Mode',               // ✅ translate
 
+      // ── PROXY / FEEDBACK BUTTON (nav.js) ────────────────────
+      'nav.proxyOn':      'Proxy Mode ON — click to disable',  // ✅ translate
+      'nav.proxyOff':     'Proxy Mode OFF — click to enable',  // ✅ translate
+      'nav.proxyBanner':  '⚠️ Proxy Mode: showing unreleased cards — data may not be final', // ✅ translate
+      'nav.feedback':     'Send feedback',                     // ✅ translate
+
       // ── AUTH MODAL (nav.js) ──────────────────────────────────
       'auth.login':       '🔑 Login',                         // ✅ translate
       'auth.logout':      '🚪 Logout',                        // ✅ translate
@@ -233,6 +239,12 @@
       // ── THEME TOGGLE TOOLTIPS ────────────────────────────────
       'theme.toLight':    'เปลี่ยนเป็น Light Mode',
       'theme.toDark':     'เปลี่ยนเป็น Dark Mode',
+
+      // ── PROXY / FEEDBACK BUTTON ──────────────────────────────
+      'nav.proxyOn':      'Proxy Mode เปิดอยู่ — คลิกเพื่อปิด',
+      'nav.proxyOff':     'Proxy Mode ปิดอยู่ — คลิกเพื่อเปิด',
+      'nav.proxyBanner':  '⚠️ Proxy Mode: แสดงการ์ดที่ยังไม่ Official Release ข้อมูลที่แสดงอาจยังไม่ถูกต้องทั้งหมด',
+      'nav.feedback':     'ส่งข้อเสนอแนะ',
 
       // ── AUTH MODAL ───────────────────────────────────────────
       'auth.login':       '🔑 เข้าสู่ระบบ',
