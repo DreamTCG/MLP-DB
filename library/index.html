@@ -97,7 +97,7 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
 .related-section{border-top:1px solid var(--border);padding-top:12px;}
 .related-title{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:8px;}
 .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:5px;}
-.rel-card{cursor:pointer;border-radius:5px;overflow:hidden;border:1.5px solid transparent;transition:border-color .12s;}
+.rel-card{cursor:pointer;border-radius:5px;overflow:hidden;border:1.5px solid transparent;transition:border-color .12s;position:relative;}
 .rel-card:hover{border-color:var(--purple-l);}
 .rel-card img{width:100%;display:block;aspect-ratio:5/7;object-fit:cover;}
 .rel-card .card-ph{aspect-ratio:5/7;font-size:1rem;}
@@ -141,6 +141,28 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
   #mo-content .detail-card{gap:10px;}
   #mo-content .detail-img{width:90px;}
   #mo-content .detail-img .card-ph{height:126px;}
+}
+
+/* ── Proxy Mode watermark & badge ── */
+.proxy-card{position:relative;}
+.proxy-card::after{
+  content:'PROXY';
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka One',cursive;
+  font-size:1.6rem;font-weight:900;
+  color:rgba(220,38,38,0.55);
+  transform:rotate(-30deg);
+  pointer-events:none;
+  text-shadow:0 1px 4px rgba(0,0,0,0.3);
+  letter-spacing:0.05em;
+}
+.proxy-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  background:rgba(168,85,247,0.15);color:#9333ea;
+  border:1px solid rgba(168,85,247,0.4);
+  border-radius:20px;padding:2px 8px;
+  font-size:0.6rem;font-weight:800;
 }
 </style>
 <!-- i18n translations (must load before nav.js) -->
@@ -270,6 +292,9 @@ function _lt(key){ return (window.i18n && window.i18n.t(key)) || key; }
 
 let _library = [];
 let _selected = null;
+let _officialSets = new Set();
+let _proxyMode = localStorage.getItem('mlp-proxy-mode') === 'true';
+function isProxy(card){ return _officialSets.size > 0 && !_officialSets.has(card.deck); }
 let _lang = (window.i18n && window.i18n.lang) || 'en'; // 'en' | 'th' — synced with global i18n
 const FS_DEFAULT = 0.72; // rem
 const FS_STEP = 0.06;
@@ -356,6 +381,7 @@ function renderGrid(){
   const raceVals = getChecked('dd-race');
 
   let cards = _library;
+  if(!_proxyMode) cards = cards.filter(c=>!isProxy(c));
   if(types.length)    cards = cards.filter(c=>types.includes(c.type));
   if(rarities.length) cards = cards.filter(c=>rarities.includes(c.rarity));
   if(sets.length)     cards = cards.filter(c=>sets.includes(c.deck));
@@ -388,7 +414,7 @@ function renderGrid(){
   }
   cards.forEach(card=>{
     const el = document.createElement('div');
-    el.className = 'card-tile' + (_selected?.id===card.id?' selected':'');
+    el.className = 'card-tile' + (_selected?.id===card.id?' selected':'') + (isProxy(card)?' proxy-card':'');
     el.onclick = ()=>selectCard(card);
     if(card.imageUrl){
       el.innerHTML=`<img src="${card.imageUrl}" alt="${card.name}" loading="lazy">`;
@@ -428,6 +454,7 @@ function buildDetailHTML(card){
   const imgHTML = card.imageUrl
     ? `<img src="${card.imageUrl}" alt="${card.name}">`
     : `<div class="card-ph">${typeIcon(card.type)}</div>`;
+  const proxyBadge = isProxy(card) ? `<span class="proxy-badge">🔮 Not Official Release</span>` : '';
 
   const hasCost  = card.cost  != null;
   const hasPower = card.power != null;
@@ -464,9 +491,9 @@ function buildDetailHTML(card){
 
   return `
     <div class="detail-card">
-      <div class="detail-img">${imgHTML}</div>
+      <div class="detail-img${isProxy(card)?' proxy-card':''}">${imgHTML}</div>
       <div class="detail-info">
-        <div class="detail-name">${card.name}</div>
+        <div class="detail-name">${card.name}${proxyBadge?' '+proxyBadge:''}</div>
         <div class="detail-meta">
           <span class="meta-pill type">${card.type}</span>
           <span class="meta-pill rarity">${card.rarity}</span>
@@ -514,7 +541,7 @@ function buildRelatedHTML(card){
       <div class="related-title">${sec.title}</div>
       <div class="related-grid">
         ${sec.cards.map(c=>`
-          <div class="rel-card" onclick="selectCard(${JSON.stringify(c).replace(/</g,'\\u003c').replace(/"/g,'&quot;')})">
+          <div class="rel-card${isProxy(c)?' proxy-card':''}" onclick="selectCard(${JSON.stringify(c).replace(/</g,'\\u003c').replace(/"/g,'&quot;')})">
             ${c.imageUrl?`<img src="${c.imageUrl}" alt="${c.name}" loading="lazy">`:`<div class="card-ph">${typeIcon(c.type)}</div>`}
           </div>`).join('')}
       </div>
@@ -596,9 +623,16 @@ async function loadCards(){
   grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--dim);font-size:0.75rem;">⏳ ${_lt('lib.loading')}</div>`;
   for(const base of BASE_URLS){
     try{
-      const res = await fetch(base+'/MLP-DB.json');
-      if(!res.ok) continue;
-      const data = await res.json();
+      const [cfgRes, cardsRes] = await Promise.all([
+        fetch('../sets_config.json').catch(()=>null),
+        fetch(base+'/MLP-DB.json')
+      ]);
+      if(cfgRes && cfgRes.ok){
+        const cfg = await cfgRes.json().catch(()=>null);
+        if(cfg && cfg.officialSets) _officialSets = new Set(cfg.officialSets);
+      }
+      if(!cardsRes.ok) continue;
+      const data = await cardsRes.json();
       const raw = Array.isArray(data) ? data : (data.cards||[]);
       _library = raw.map((c,i)=>({
         id:c.id||`c${i}`, name:c.name||'?', type:c.type||'Character',
@@ -651,6 +685,11 @@ document.addEventListener('DOMContentLoaded', function(){
   _renderLibI18n();
 });
 window.addEventListener('mlp-lang-change', _onLangChange);
+window.addEventListener('mlp-proxy-change', function(e){
+  _proxyMode = e.detail.proxyMode;
+  renderGrid();
+  if(_selected){ const dc=document.getElementById('detail-content'); if(dc&&dc.style.display!=='none') dc.innerHTML=buildDetailHTML(_selected); }
+});
 
 loadCards();
 </script>

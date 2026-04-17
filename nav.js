@@ -81,6 +81,7 @@
   const SITE_LOGO  = '🦄';
   const LS_KEY     = 'mlp-theme';
   const LS_LANG    = 'mlp-lang';
+  const LS_PROXY   = 'mlp-proxy-mode';
 
   /* ── i18n DICTIONARY ────────────────────────────────────── */
   // Reads from the centralized /i18n/translations.js file (window.MLP_I18N).
@@ -94,6 +95,7 @@
     : { en: {}, th: {} };
 
   let _lang = localStorage.getItem(LS_LANG) || 'en';
+  let _proxyMode = localStorage.getItem(LS_PROXY) === 'true';
 
   function t(key) {
     return (_DICT[_lang] && _DICT[_lang][key]) || (_DICT.en && _DICT.en[key]) || key;
@@ -199,6 +201,39 @@
     }
     #mlp-theme-btn:hover { background: rgba(255,255,255,0.22); transform: rotate(15deg) scale(1.1); }
     #mlp-theme-btn:active { transform: scale(0.9); }
+
+    /* ── Proxy Mode toggle ── */
+    #mlp-proxy-btn {
+      display:flex; align-items:center; justify-content:center;
+      height:36px; padding:0 10px;
+      background:rgba(255,255,255,0.12);
+      border:1.5px solid rgba(255,255,255,0.25);
+      border-radius:10px; cursor:pointer; font-size:0.72rem; font-weight:800;
+      transition:background 0.2s, transform 0.2s, border-color 0.2s, box-shadow 0.25s;
+      flex-shrink:0; color:#fff; letter-spacing:0.3px; white-space:nowrap;
+    }
+    #mlp-proxy-btn:hover { background:rgba(255,255,255,0.22); border-color:rgba(255,255,255,0.45); }
+    #mlp-proxy-btn:active { transform:scale(0.92); }
+    #mlp-proxy-btn.proxy-on {
+      background:rgba(168,85,247,0.35); border-color:#a855f7;
+      box-shadow:0 0 10px rgba(168,85,247,0.55), 0 0 22px rgba(168,85,247,0.2);
+      color:#e9d5ff;
+    }
+    @media (max-width:640px) { #mlp-proxy-btn { height:30px; font-size:0.65rem; border-radius:8px; padding:0 7px; } }
+
+    /* ── Proxy banner (inside nav, expands nav height naturally) ── */
+    #mlp-proxy-banner {
+      background:linear-gradient(90deg,#581c87,#7c3aed,#581c87);
+      color:rgba(255,255,255,0.92); font-size:0.75rem; font-weight:700;
+      font-family:'Nunito','Prompt',sans-serif;
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      padding:7px 16px;
+    }
+    #mlp-proxy-banner-close {
+      background:none; border:none; color:rgba(255,255,255,0.7);
+      font-size:1rem; cursor:pointer; padding:0 2px; line-height:1; flex-shrink:0;
+    }
+    #mlp-proxy-banner-close:hover { color:#fff; }
 
     /* ── Language toggle ── */
     #mlp-lang-btn {
@@ -455,6 +490,26 @@
     }
   }
 
+  /* ── PROXY MODE ─────────────────────────────────────────── */
+  function _updateProxyBtn() {
+    const btn = document.getElementById('mlp-proxy-btn');
+    if (!btn) return;
+    btn.classList.toggle('proxy-on', _proxyMode);
+    btn.title = _proxyMode ? '🔮 Proxy Mode: ON — คลิกเพื่อปิด' : '🔮 Proxy Mode: OFF — คลิกเพื่อเปิด';
+  }
+
+  function _setProxyMode(on) {
+    _proxyMode = !!on;
+    localStorage.setItem(LS_PROXY, _proxyMode ? 'true' : 'false');
+    _updateProxyBtn();
+    const banner = document.getElementById('mlp-proxy-banner');
+    if (banner) {
+      banner.style.display = _proxyMode ? '' : 'none';
+      _syncNavHBanner();
+    }
+    window.dispatchEvent(new CustomEvent('mlp-proxy-change', { detail: { proxyMode: _proxyMode } }));
+  }
+
   /* ── BUILD HELPERS ───────────────────────────────────────── */
   function isActive(link) {
     const path = location.pathname;
@@ -487,12 +542,17 @@
             <button id="mlp-lang-btn" aria-label="Toggle language">${t('lang.switchTo')}</button>
             <span class="mlp-theme-label" id="mlp-theme-label"></span>
             <button id="mlp-theme-btn" aria-label="Toggle dark mode"></button>
+            <button id="mlp-proxy-btn" aria-label="Toggle proxy mode">🔮 Proxy</button>
           </div>
           <button class="mlp-nav-burger" id="mlp-burger" aria-label="${t('nav.burger')}">☰</button>
         </div>
         <div class="mlp-nav-drawer" id="mlp-user-drawer"></div>
         <div class="mlp-nav-drawer" id="mlp-drawer">
           ${buildLinks(NAV_LINKS)}
+        </div>
+        <div id="mlp-proxy-banner" style="display:none">
+          ⚠️ Proxy Mode: แสดงการ์ดที่ยังไม่ Official Release ข้อมูลที่แสดงอาจยังไม่ถูกต้องทั้งหมด
+          <button id="mlp-proxy-banner-close" title="ปิด">✕</button>
         </div>
       </nav>`;
   }
@@ -578,9 +638,24 @@
     document.body.insertBefore(wrapper.firstElementChild, document.body.firstChild);
 
     updateBtn();
+    _updateProxyBtn();
+    if (_proxyMode) {
+      const pb = document.getElementById('mlp-proxy-banner');
+      if (pb) pb.style.display = '';
+    }
 
     document.getElementById('mlp-theme-btn')
       ?.addEventListener('click', () => setTheme(!isDark()));
+
+    document.getElementById('mlp-proxy-btn')
+      ?.addEventListener('click', () => _setProxyMode(!_proxyMode));
+
+    document.getElementById('mlp-proxy-banner-close')
+      ?.addEventListener('click', e => {
+        e.stopPropagation();
+        const banner = document.getElementById('mlp-proxy-banner');
+        if (banner) { banner.style.display = 'none'; _syncNavHBanner(); }
+      });
 
     document.getElementById('mlp-lang-btn')
       ?.addEventListener('click', () => setLang(_lang === 'en' ? 'th' : 'en'));
@@ -860,6 +935,9 @@
   window._submitEmailAuth = _submitEmailAuth;
   // Expose setLang for external callers (pages can call window.i18n.setLang directly)
   window._setLang         = setLang;
+  // Expose proxy mode for external callers
+  window._setProxyMode    = _setProxyMode;
+  window.mlpProxy         = { get isOn() { return _proxyMode; } };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', inject);
