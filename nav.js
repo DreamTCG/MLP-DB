@@ -81,6 +81,7 @@
   const SITE_LOGO  = '🦄';
   const LS_KEY     = 'mlp-theme';
   const LS_LANG    = 'mlp-lang';
+  const LS_PROXY   = 'mlp-proxy-mode';
 
   /* ── i18n DICTIONARY ────────────────────────────────────── */
   // Reads from the centralized /i18n/translations.js file (window.MLP_I18N).
@@ -94,6 +95,7 @@
     : { en: {}, th: {} };
 
   let _lang = localStorage.getItem(LS_LANG) || 'en';
+  let _proxyMode = localStorage.getItem(LS_PROXY) === 'true';
 
   function t(key) {
     return (_DICT[_lang] && _DICT[_lang][key]) || (_DICT.en && _DICT.en[key]) || key;
@@ -171,21 +173,15 @@
 
     .mlp-nav-right { display:flex; align-items:center; gap:8px; margin-left:auto; flex-shrink:0; }
 
-    /* ── Feedback button ── */
-    #mlp-feedback-btn {
-      display: flex; align-items: center; justify-content: center;
-      width: 36px; height: 36px;
-      background: rgba(255,255,255,0.12);
-      border: 1.5px solid rgba(255,255,255,0.25);
-      border-radius: 10px; font-size: 1.05rem; text-decoration: none;
-      transition: background 0.2s, transform 0.2s, border-color 0.2s;
-      flex-shrink: 0; color: #fff; line-height: 1;
+    /* ── Feedback link (user drawer + mobile hamburger drawer) ── */
+    #mlp-user-drawer .mlp-feedback-link {
+      display:flex; align-items:center; justify-content:center;
+      width:30px; height:30px;
+      background:rgba(255,255,255,0.10); border:1.5px solid rgba(255,255,255,0.22);
+      border-radius:8px; font-size:0.9rem; text-decoration:none;
+      transition:background 0.2s; flex-shrink:0; color:rgba(255,255,255,0.8); line-height:1;
     }
-    #mlp-feedback-btn:hover { background: rgba(255,255,255,0.22); transform: scale(1.1); border-color: rgba(255,255,255,0.45); }
-    #mlp-feedback-btn:active { transform: scale(0.92); }
-    html.dark #mlp-feedback-btn { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.20); }
-    html.dark #mlp-feedback-btn:hover { background: rgba(255,255,255,0.20); }
-    @media (max-width: 640px) { #mlp-feedback-btn { width: 30px; height: 30px; font-size: 0.9rem; border-radius: 8px; } }
+    #mlp-user-drawer .mlp-feedback-link:hover { background:rgba(255,255,255,0.20); color:#fff; }
 
     /* ── Dark mode toggle ── */
     #mlp-theme-btn {
@@ -200,6 +196,39 @@
     #mlp-theme-btn:hover { background: rgba(255,255,255,0.22); transform: rotate(15deg) scale(1.1); }
     #mlp-theme-btn:active { transform: scale(0.9); }
 
+    /* ── Proxy Mode toggle ── */
+    #mlp-proxy-btn {
+      display:flex; align-items:center; justify-content:center;
+      width:36px; height:36px;
+      background:rgba(255,255,255,0.12);
+      border:1.5px solid rgba(255,255,255,0.25);
+      border-radius:10px; cursor:pointer; font-size:1.05rem;
+      transition:background 0.2s, transform 0.2s, border-color 0.2s, box-shadow 0.25s;
+      flex-shrink:0; color:#fff;
+    }
+    #mlp-proxy-btn:hover { background:rgba(255,255,255,0.22); border-color:rgba(255,255,255,0.45); }
+    #mlp-proxy-btn:active { transform:scale(0.92); }
+    #mlp-proxy-btn.proxy-on {
+      background:rgba(168,85,247,0.35); border-color:#a855f7;
+      box-shadow:0 0 10px rgba(168,85,247,0.55), 0 0 22px rgba(168,85,247,0.2);
+      color:#e9d5ff;
+    }
+    @media (max-width:640px) { #mlp-proxy-btn { width:30px; height:30px; font-size:0.9rem; border-radius:8px; } }
+
+    /* ── Proxy banner (inside nav, expands nav height naturally) ── */
+    #mlp-proxy-banner {
+      background:linear-gradient(90deg,#581c87,#7c3aed,#581c87);
+      color:rgba(255,255,255,0.92); font-size:0.75rem; font-weight:700;
+      font-family:'Nunito','Prompt',sans-serif;
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      padding:7px 16px;
+    }
+    #mlp-proxy-banner-close {
+      background:none; border:none; color:rgba(255,255,255,0.7);
+      font-size:1rem; cursor:pointer; padding:0 2px; line-height:1; flex-shrink:0;
+    }
+    #mlp-proxy-banner-close:hover { color:#fff; }
+
     /* ── Language toggle ── */
     #mlp-lang-btn {
       display: flex; align-items: center; justify-content: center;
@@ -213,12 +242,6 @@
     #mlp-lang-btn:hover { background: rgba(255,255,255,0.22); transform: scale(1.08); border-color: rgba(255,255,255,0.45); }
     #mlp-lang-btn:active { transform: scale(0.9); }
     @media (max-width: 640px) { #mlp-lang-btn { width: 30px; height: 30px; font-size: 0.68rem; border-radius: 8px; } }
-
-    .mlp-theme-label {
-      font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.55);
-      letter-spacing: 0.5px;
-    }
-    @media (max-width: 520px) { .mlp-theme-label { display:none; } }
 
     .mlp-nav-burger {
       display:none; background:none; border:none; color:#fff;
@@ -441,18 +464,35 @@
   }
 
   function updateBtn() {
-    const btn   = document.getElementById('mlp-theme-btn');
-    const label = document.getElementById('mlp-theme-label');
+    const btn = document.getElementById('mlp-theme-btn');
     if (!btn) return;
     if (isDark()) {
       btn.textContent = '☀️';
       btn.title = t('theme.toLight');
-      if (label) label.textContent = 'Light';
     } else {
       btn.textContent = '🌙';
       btn.title = t('theme.toDark');
-      if (label) label.textContent = 'Dark';
     }
+  }
+
+  /* ── PROXY MODE ─────────────────────────────────────────── */
+  function _updateProxyBtn() {
+    const btn = document.getElementById('mlp-proxy-btn');
+    if (!btn) return;
+    btn.classList.toggle('proxy-on', _proxyMode);
+    btn.title = _proxyMode ? t('nav.proxyOn') : t('nav.proxyOff');
+  }
+
+  function _setProxyMode(on) {
+    _proxyMode = !!on;
+    localStorage.setItem(LS_PROXY, _proxyMode ? 'true' : 'false');
+    _updateProxyBtn();
+    const banner = document.getElementById('mlp-proxy-banner');
+    if (banner) {
+      banner.style.display = _proxyMode ? '' : 'none';
+      _syncNavHBanner();
+    }
+    window.dispatchEvent(new CustomEvent('mlp-proxy-change', { detail: { proxyMode: _proxyMode } }));
   }
 
   /* ── BUILD HELPERS ───────────────────────────────────────── */
@@ -483,16 +523,20 @@
           <div class="mlp-nav-links">${buildLinks(NAV_LINKS)}</div>
           <div class="mlp-nav-right">
             <div id="mlp-auth-wrap"></div>
-            <a id="mlp-feedback-btn" href="https://m.me/Kiettisak.v" target="_blank" rel="noopener" aria-label="Feedback" title="Feedback">💬</a>
-            <button id="mlp-lang-btn" aria-label="Toggle language">${t('lang.switchTo')}</button>
-            <span class="mlp-theme-label" id="mlp-theme-label"></span>
+            <button id="mlp-lang-btn" aria-label="Toggle language" title="${t('lang.switchTo')}">🌐</button>
             <button id="mlp-theme-btn" aria-label="Toggle dark mode"></button>
+            <button id="mlp-proxy-btn" aria-label="Toggle proxy mode">🔮</button>
           </div>
           <button class="mlp-nav-burger" id="mlp-burger" aria-label="${t('nav.burger')}">☰</button>
         </div>
         <div class="mlp-nav-drawer" id="mlp-user-drawer"></div>
         <div class="mlp-nav-drawer" id="mlp-drawer">
           ${buildLinks(NAV_LINKS)}
+          <a class="mlp-nav-link mlp-feedback-link" href="https://m.me/Kiettisak.v" target="_blank" rel="noopener" id="mlp-feedback-drawer"><span class="mlp-nav-icon">💬</span><span class="mlp-nav-text">${t('nav.feedback')}</span></a>
+        </div>
+        <div id="mlp-proxy-banner" style="display:none">
+          ${t('nav.proxyBanner')}
+          <button id="mlp-proxy-banner-close" title="${t('banner.close')}">✕</button>
         </div>
       </nav>`;
   }
@@ -505,11 +549,26 @@
       const textSpan = el.querySelector('.mlp-nav-text');
       if (textSpan) textSpan.textContent = t(key);
     });
-    // Lang toggle button (shows the language you'll switch TO)
+    // Lang toggle button title (icon stays 🌐; title shows the language you'll switch TO)
     const lb = document.getElementById('mlp-lang-btn');
-    if (lb) lb.textContent = t('lang.switchTo');
+    if (lb) lb.title = t('lang.switchTo');
     // Theme button tooltip
     updateBtn();
+    // Proxy button tooltip
+    _updateProxyBtn();
+    // Proxy banner text + close button title
+    const proxyBanner = document.getElementById('mlp-proxy-banner');
+    if (proxyBanner) {
+      const pText = [...proxyBanner.childNodes].find(n => n.nodeType === 3);
+      if (pText) pText.textContent = '\n          ' + t('nav.proxyBanner') + '\n          ';
+      const proxyClose = document.getElementById('mlp-proxy-banner-close');
+      if (proxyClose) proxyClose.title = t('banner.close');
+    }
+    // Feedback links
+    const fbDrawer = document.getElementById('mlp-feedback-drawer');
+    if (fbDrawer) { const s = fbDrawer.querySelector('.mlp-nav-text'); if (s) s.textContent = t('nav.feedback'); }
+    const fbUser = document.getElementById('mlp-feedback-user');
+    if (fbUser) fbUser.title = t('nav.feedback');
     // Login / logout buttons
     const loginBtn = document.getElementById('mlp-login-btn');
     if (loginBtn) loginBtn.innerHTML = t('auth.login');
@@ -578,9 +637,24 @@
     document.body.insertBefore(wrapper.firstElementChild, document.body.firstChild);
 
     updateBtn();
+    _updateProxyBtn();
+    if (_proxyMode) {
+      const pb = document.getElementById('mlp-proxy-banner');
+      if (pb) pb.style.display = '';
+    }
 
     document.getElementById('mlp-theme-btn')
       ?.addEventListener('click', () => setTheme(!isDark()));
+
+    document.getElementById('mlp-proxy-btn')
+      ?.addEventListener('click', () => _setProxyMode(!_proxyMode));
+
+    document.getElementById('mlp-proxy-banner-close')
+      ?.addEventListener('click', e => {
+        e.stopPropagation();
+        const banner = document.getElementById('mlp-proxy-banner');
+        if (banner) { banner.style.display = 'none'; _syncNavHBanner(); }
+      });
 
     document.getElementById('mlp-lang-btn')
       ?.addEventListener('click', () => setLang(_lang === 'en' ? 'th' : 'en'));
@@ -664,6 +738,7 @@
             👤 ${name}
           </div>
           <div class="mlp-user-actions">
+            <a class="mlp-feedback-link" id="mlp-feedback-user" href="https://m.me/Kiettisak.v" target="_blank" rel="noopener" title="${t('nav.feedback')}">💬</a>
             <button id="mlp-user-logout">${t('auth.logout')}</button>
           </div>`;
         ud.querySelector('#mlp-user-logout').addEventListener('click', () => {
@@ -860,6 +935,9 @@
   window._submitEmailAuth = _submitEmailAuth;
   // Expose setLang for external callers (pages can call window.i18n.setLang directly)
   window._setLang         = setLang;
+  // Expose proxy mode for external callers
+  window._setProxyMode    = _setProxyMode;
+  window.mlpProxy         = { get isOn() { return _proxyMode; } };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', inject);
