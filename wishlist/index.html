@@ -915,6 +915,8 @@
 
   let library  = [];   // all cards from MLP-DB.json
   let wishlist = [];   // [{id, needed, owned, addedAt}]
+  let _officialSets = new Set();
+  function isProxy(card) { return _officialSets.size > 0 && !_officialSets.has(card.deck); }
 
   // Wishlist filter state
   let filterStatus   = 'all';   // 'all' | 'needed' | 'complete'
@@ -982,8 +984,15 @@
   async function loadLibrary() {
     for (const base of BASE_URLS) {
       try {
-        const res = await fetch(base + '/MLP-DB.json');
+        const [cfgRes, res] = await Promise.all([
+          fetch(base + '/sets_config.json').catch(() => null),
+          fetch(base + '/MLP-DB.json')
+        ]);
         if (!res.ok) continue;
+        if (cfgRes && cfgRes.ok) {
+          const cfg = await cfgRes.json().catch(() => null);
+          if (cfg && cfg.officialSets) _officialSets = new Set(cfg.officialSets);
+        }
         const data = await res.json();
         const raw = Array.isArray(data) ? data : (data.cards || []);
         library = raw.map(c => ({
@@ -1129,7 +1138,7 @@
     const img = document.createElement('img');
     img.alt = card.name; img.loading = 'lazy';
     img.src = card.imageUrl;
-    img.onerror = () => { img.style.display = 'none'; ph.style.display = 'flex'; };
+    img.onerror = () => { img.onerror = null; img.src = '../cards/back_main.jpg'; };
 
     // Remove button — top-left
     const rmBtn = document.createElement('button');
@@ -1319,7 +1328,7 @@
   }
 
   function buildLibSetDropdowns() {
-    const sets = [...new Set(library.map(c => c.deck).filter(Boolean))].sort((a, b) => {
+    const sets = [...new Set(library.filter(c => !isProxy(c)).map(c => c.deck).filter(Boolean))].sort((a, b) => {
       const base = s => s.replace(/[A-Z]$/, '');
       const sub  = s => s.match(/[A-Z]$/) ? s.slice(-1) : '';
       if (base(a) !== base(b)) return a.localeCompare(b);
@@ -1363,7 +1372,7 @@
 
     const inWL = new Set(wishlist.map(w => w.id));
 
-    let cards = library;
+    let cards = library.filter(c => !isProxy(c));
 
     // Search filter
     if (q) cards = cards.filter(c =>
@@ -1431,7 +1440,7 @@
 
         const img = document.createElement('img');
         img.src = card.imageUrl; img.alt = card.name; img.loading = 'lazy';
-        img.onerror = () => { img.style.display = 'none'; ph.style.display = 'flex'; };
+        img.onerror = () => { img.onerror = null; img.src = '../cards/back_main.jpg'; };
 
         imgWrap.append(ph, img);
 
