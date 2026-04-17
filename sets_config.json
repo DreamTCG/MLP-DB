@@ -1,4 +1,4 @@
 {
-  "officialSets": ["SD01", "BP01"],
+  "officialSets": ["SD01", "SD01A", "SD01B", "SD01C", "SD01D", "SD01E", "SD01F" , "BP01"],
   "comment": "Sets NOT listed here are treated as proxy/unreleased automatically"
 }
