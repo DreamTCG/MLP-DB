@@ -3203,7 +3203,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Your ｢Twilight Sparkle｣ gets +1 Inspiration until the end of this Contact.",
-    "ability_th": null,
+    "ability_th": "ตัวละคร 「Twilight Sparkle」 ของคุณได้รับค่าพลังจินตนาการ +1 จนจบการแลกเปลี่ยนจินตนาการครั้งนี้",
     "story_title": null
   },
   {
@@ -3217,7 +3217,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Your ｢Fluttershy｣ gets +1 Inspiration until the end of this Contact.",
-    "ability_th": null,
+    "ability_th": "ตัวละคร 「Fluttershy」 ของคุณได้รับค่าพลังจินตนาการ +1 จนจบการแลกเปลี่ยนจินตนาการครั้งนี้",
     "story_title": null
   },
   {
@@ -3231,7 +3231,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Your ｢Pinkie Pie｣ gets +1 Inspiration until the end of this Contact.",
-    "ability_th": null,
+    "ability_th": "ตัวละคร 「Pinkie Pie」 ของคุณได้รับค่าพลังจินตนาการ +1 จนจบการแลกเปลี่ยนจินตนาการครั้งนี้",
     "story_title": null
   },
   {
@@ -3245,7 +3245,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Your ｢Applejack｣ gets +1 Inspiration until the end of this Contact.",
-    "ability_th": null,
+    "ability_th": "ตัวละคร 「Applejack」 ของคุณได้รับค่าพลังจินตนาการ +1 จนจบการแลกเปลี่ยนจินตนาการครั้งนี้",
     "story_title": null
   },
   {
@@ -3259,7 +3259,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Your ｢Rainbow Dash｣ gets +1 Inspiration until the end of this Contact.",
-    "ability_th": null,
+    "ability_th": "ตัวละคร 「Rainbow Dash」 ของคุณได้รับค่าพลังจินตนาการ +1 จนจบการแลกเปลี่ยนจินตนาการครั้งนี้",
     "story_title": null
   },
   {
@@ -3273,7 +3273,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Your ｢Rarity｣ gets +1 Inspiration until the end of this Contact.",
-    "ability_th": null,
+    "ability_th": "ตัวละคร 「Rarity」 ของคุณได้รับค่าพลังจินตนาการ +1 จนจบการแลกเปลี่ยนจินตนาการครั้งนี้",
     "story_title": null
   },
   {
@@ -3290,7 +3290,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] If there are 3 or more Events in your Retirement Area, draw 2 cards.",
-    "ability_th": null,
+    "ability_th": "[Appear] ถ้ามีอีเวนต์ 3 ใบขึ้นไปในโซนพักผ่อนของคุณ ให้จั่วการ์ด 2 ใบ",
     "story_title": null
   },
   {
@@ -3307,7 +3307,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Adventure] All of your ｢Pet｣ Characters get +1 Inspiration in your Rival's turn.",
-    "ability_th": null,
+    "ability_th": "[Adventure] ตัวละคร 「Pet」 ทั้งหมดของคุณได้รับค่าพลังจินตนาการ +1 ในเทิร์นของฝ่ายตรงข้าม",
     "story_title": null
   },
   {
@@ -3324,7 +3324,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] The next Item you play gets -2 Cost of Force of Harmony.",
-    "ability_th": null,
+    "ability_th": "[Appear] ไอเทมถัดไปที่คุณเล่นมีค่าพลังมิตรภาพลดลง 2",
     "story_title": null
   },
   {
@@ -3341,7 +3341,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] Reveal the top 2 cards of your Deck, choose 1 ｢Earth Pony｣ from them, add it to Hand, move the rest to Retirement Area.",
-    "ability_th": null,
+    "ability_th": "[Appear] แสดงการ์ด 2 ใบบนสุดของเด็ค เลือก 「Earth Pony」 1 ตัวจากนั้น นำการ์ดนั้นขึ้นมือ แล้วนำที่เหลือไปยังโซนพักผ่อน",
     "story_title": null
   },
   {
@@ -3358,7 +3358,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Adventure] [Tap] Choose 1 ｢Pegasus｣ to move to an empty Adventure Area and to get +1 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "[Adventure] [Tap] เลือก 「Pegasus」 1 ตัว นำตัวละครนั้นไปยังโซนผจญภัยที่ว่าง และตัวละครนั้นได้รับค่าพลังจินตนาการ +1 จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -3375,7 +3375,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] If you have 3 or more Plan cards, this Character gets +3 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "[Appear] ถ้าคุณมีการ์ด Plan 3 ใบขึ้นไป ตัวละครนี้ได้รับค่าพลังจินตนาการ +3 จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -3392,7 +3392,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] If there are 2 or more Events in your Retirement Area, return 1 Event from your Retirement Area to your Hand.",
-    "ability_th": null,
+    "ability_th": "[Appear] ถ้ามีอีเวนต์ 2 ใบขึ้นไปในโซนพักผ่อนของคุณ นำอีเวนต์ 1 ใบจากโซนพักผ่อนของคุณขึ้นมือ",
     "story_title": null
   },
   {
@@ -3409,7 +3409,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Adventure] Whenever a ｢Pet｣ leaves the Adventure Area, this Character gets +1 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "[Adventure] เมื่อใดก็ตามที่ 「Pet」 ออกจากโซนผจญภัย ตัวละครนี้ได้รับค่าพลังจินตนาการ +1 จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -3426,7 +3426,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] If there is any Item in your Retirement Area, flip 1 Scene face up.",
-    "ability_th": null,
+    "ability_th": "[Appear] ถ้ามีไอเทมอยู่ในโซนพักผ่อนของคุณ หงายการ์ดฉากขึ้น 1 ใบ",
     "story_title": null
   },
   {
@@ -3443,7 +3443,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] Flip 1 Scene face up.",
-    "ability_th": null,
+    "ability_th": "[Appear] หงายการ์ดฉากขึ้น 1 ใบ",
     "story_title": null
   },
   {
@@ -3460,7 +3460,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] If there is any empty Adventure Area, choose 1 ｢Pegasus｣ to get +2 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "[Appear] ถ้ามีโซนผจญภัยที่ว่าง เลือก 「Pegasus」 1 ตัว ตัวละครนั้นได้รับค่าพลังจินตนาการ +2 จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -3477,7 +3477,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Farewell] Reveal the top 2 cards of your Deck, choose 1 ｢Unicorn｣ from them, add it to Hand, move the rest to Retirement Area.",
-    "ability_th": null,
+    "ability_th": "[Farewell] แสดงการ์ด 2 ใบบนสุดของเด็ค เลือก 「Unicorn」 1 ตัวจากนั้น นำการ์ดนั้นขึ้นมือ แล้วนำที่เหลือไปยังโซนพักผ่อน",
     "story_title": null
   },
   {
@@ -3970,7 +3970,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] This Character gets +2 Inspiration for each Event card in your Retirement Area until the end of turn.",
-    "ability_th": null,
+    "ability_th": "[Appear] ตัวละครนี้ได้รับค่าพลังจินตนาการ +2 สำหรับแต่ละอีเวนต์ในโซนพักผ่อนของคุณ จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -3987,7 +3987,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Adventure] [Tap] This Character gets +1 Inspiration until the end of turn. All of your ｢Pet｣ cards also get +1 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "[Adventure] [Tap] ตัวละครนี้ได้รับค่าพลังจินตนาการ +1 จนจบเทิร์น ตัวละคร 「Pet」 ทั้งหมดของคุณก็ได้รับค่าพลังจินตนาการ +1 จนจบเทิร์นเช่นกัน",
     "story_title": null
   },
   {
@@ -4004,7 +4004,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] Reveal the top 2 cards of your Deck, choose 1 Item from them, add it to Hand, move the rest to Retirement Area.",
-    "ability_th": null,
+    "ability_th": "[Appear] แสดงการ์ด 2 ใบบนสุดของเด็ค เลือกไอเทม 1 ใบจากนั้น นำการ์ดนั้นขึ้นมือ แล้วนำที่เหลือไปยังโซนพักผ่อน",
     "story_title": null
   },
   {
@@ -4021,7 +4021,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] If you have 5 or more Scenes, flip 1 Scene face up.",
-    "ability_th": null,
+    "ability_th": "[Appear] ถ้าคุณมีการ์ดฉาก 5 ใบขึ้นไป หงายการ์ดฉากขึ้น 1 ใบ",
     "story_title": null
   },
   {
@@ -4038,7 +4038,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Farewell] If there is no other character in your Adventure Area, choose 1 Character in Rival's Adventure Area with Inspiration 6 or more to Retire.",
-    "ability_th": null,
+    "ability_th": "[Farewell] ถ้าไม่มีตัวละครอื่นในโซนผจญภัยของคุณ เลือกตัวละคร 1 ตัวในโซนผจญภัยของฝ่ายตรงข้ามที่มีค่าพลังจินตนาการ 6 หรือมากกว่า นำออกจากสนาม",
     "story_title": null
   },
   {
@@ -4055,7 +4055,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] This Character gets +1 Inspiration until end of turn for each ｢Unicorn｣ in your Adventure Area.",
-    "ability_th": null,
+    "ability_th": "[Appear] ตัวละครนี้ได้รับค่าพลังจินตนาการ +1 สำหรับแต่ละ 「Unicorn」 ในโซนผจญภัยของคุณ จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -4072,7 +4072,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] If Rival has more Plans than you, turn 1 card from your Hand into a Plan.",
-    "ability_th": null,
+    "ability_th": "[Appear] ถ้าฝ่ายตรงข้ามมี Plan มากกว่าคุณ เปลี่ยนการ์ด 1 ใบจากมือเป็น Plan",
     "story_title": null
   },
   {
@@ -4090,7 +4090,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Farewell] Remove one of Rival's Plan cards.",
-    "ability_th": null,
+    "ability_th": "[Farewell] นำ Plan 1 ใบของฝ่ายตรงข้ามออก",
     "story_title": null
   },
   {
@@ -4107,7 +4107,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Adventure] This Character gets +1 Inspiration for each ｢Earth Pony｣ in your Adventure Area.",
-    "ability_th": null,
+    "ability_th": "[Adventure] ตัวละครนี้ได้รับค่าพลังจินตนาการ +1 สำหรับแต่ละ 「Earth Pony」 ในโซนผจญภัยของคุณ",
     "story_title": null
   },
   {
@@ -4124,7 +4124,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Adventure] This Character gets +1 Inspiration for each ｢Unicorn｣ in your Adventure Area.",
-    "ability_th": null,
+    "ability_th": "[Adventure] ตัวละครนี้ได้รับค่าพลังจินตนาการ +1 สำหรับแต่ละ 「Unicorn」 ในโซนผจญภัยของคุณ",
     "story_title": null
   },
   {
@@ -4141,7 +4141,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Adventure] This Character gets +1 Inspiration for each ｢Pegasus｣ in your Adventure Area.",
-    "ability_th": null,
+    "ability_th": "[Adventure] ตัวละครนี้ได้รับค่าพลังจินตนาการ +1 สำหรับแต่ละ 「Pegasus」 ในโซนผจญภัยของคุณ",
     "story_title": null
   },
   {
@@ -4158,7 +4158,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Farewell] Reveal the top 3 cards of your Scene Deck, choose 1 from them, place it face up in your Scene Area, move the rest to bottom of Scene Deck.",
-    "ability_th": null,
+    "ability_th": "[Farewell] แสดงการ์ดฉาก 3 ใบบนสุดของเด็คฉาก เลือก 1 ใบจากนั้น วางการ์ดนั้นหงายขึ้นในโซนฉากของคุณ แล้วนำที่เหลือไปยังด้านล่างเด็คฉาก",
     "story_title": null
   },
   {
@@ -4175,7 +4175,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Farewell] Move 1 ｢Phoenix｣ with Cost of Force of Harmony 5 or less from your Retirement Area to your Adventure Area.",
-    "ability_th": null,
+    "ability_th": "[Farewell] นำ 「Phoenix」 1 ตัวที่มีค่าพลังมิตรภาพ 5 หรือน้อยกว่าจากโซนพักผ่อนของคุณไปยังโซนผจญภัยของคุณ",
     "story_title": null
   },
   {
@@ -4192,7 +4192,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] If there is any other ｢Earth Pony｣ in your Adventure Area, flip 2 Scenes face up.",
-    "ability_th": null,
+    "ability_th": "[Appear] ถ้ามี 「Earth Pony」 อื่นในโซนผจญภัยของคุณ หงายการ์ดฉากขึ้น 2 ใบ",
     "story_title": null
   },
   {
@@ -4209,7 +4209,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "This Character gets -1 Cost of Force of Harmony for each of your Plans.",
-    "ability_th": null,
+    "ability_th": "ตัวละครนี้มีค่าพลังมิตรภาพลดลง 1 สำหรับแต่ละ Plan ของคุณ",
     "story_title": null
   },
   {
@@ -4243,7 +4243,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] If there is a ｢Pet｣ in your Retirement Area, all of your ｢Pegasus｣ get +2 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "[Appear] ถ้ามี 「Pet」 ในโซนพักผ่อนของคุณ ตัวละคร 「Pegasus」 ทั้งหมดของคุณได้รับค่าพลังจินตนาการ +2 จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -4277,7 +4277,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] Flip 1 of Rival's Scenes face down.",
-    "ability_th": null,
+    "ability_th": "[Appear] คว่ำการ์ดฉากของฝ่ายตรงข้ามลง 1 ใบ",
     "story_title": null
   },
   {
@@ -4311,7 +4311,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Pre-plan] Flip 1 of your Scenes face up.",
-    "ability_th": null,
+    "ability_th": "[Pre-plan] หงายการ์ดฉากของคุณขึ้น 1 ใบ",
     "story_title": null
   },
   {
@@ -4345,7 +4345,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Adventure] This Character gets +1 Inspiration for each empty Adventure Area you have.",
-    "ability_th": null,
+    "ability_th": "[Adventure] ตัวละครนี้ได้รับค่าพลังจินตนาการ +1 สำหรับแต่ละโซนผจญภัยที่ว่างของคุณ",
     "story_title": null
   },
   {
@@ -4379,7 +4379,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Adventure] Whenever you reveal a Plan, this Character gets +1 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "[Adventure] เมื่อใดก็ตามที่คุณแสดง Plan ตัวละครนี้ได้รับค่าพลังจินตนาการ +1 จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -4413,7 +4413,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "This Character gets -1 Cost of Force of Harmony for each of your Rival's Plans.",
-    "ability_th": null,
+    "ability_th": "ตัวละครนี้มีค่าพลังมิตรภาพลดลง 1 สำหรับแต่ละ Plan ของฝ่ายตรงข้าม",
     "story_title": null
   },
   {
@@ -4430,7 +4430,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "This Character gets -1 Cost of Force of Harmony for each ｢Sweetie Belle｣ and ｢Scootaloo｣ in your Adventure Area.",
-    "ability_th": null,
+    "ability_th": "ตัวละครนี้มีค่าพลังมิตรภาพลดลง 1 สำหรับแต่ละ 「Sweetie Belle」 และ 「Scootaloo」 ในโซนผจญภัยของคุณ",
     "story_title": null
   },
   {
@@ -4447,7 +4447,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "This Character gets -1 Cost of Force of Harmony for each ｢Apple Bloom｣ and ｢Scootaloo｣ in your Adventure Area.",
-    "ability_th": null,
+    "ability_th": "ตัวละครนี้มีค่าพลังมิตรภาพลดลง 1 สำหรับแต่ละ 「Apple Bloom」 และ 「Scootaloo」 ในโซนผจญภัยของคุณ",
     "story_title": null
   },
   {
@@ -4464,7 +4464,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "This Character gets -1 Cost of Force of Harmony for each ｢Apple Bloom｣ and ｢Sweetie Belle｣ in your Adventure Area.",
-    "ability_th": null,
+    "ability_th": "ตัวละครนี้มีค่าพลังมิตรภาพลดลง 1 สำหรับแต่ละ 「Apple Bloom」 และ 「Sweetie Belle」 ในโซนผจญภัยของคุณ",
     "story_title": null
   },
   {
@@ -4482,7 +4482,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Farewell] Send 1 random card from Rival's Hand to their Retirement Area.",
-    "ability_th": null,
+    "ability_th": "[Farewell] นำการ์ด 1 ใบสุ่มจากมือของฝ่ายตรงข้ามไปยังโซนพักผ่อนของพวกเขา",
     "story_title": null
   },
   {
@@ -4500,7 +4500,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] Return 1 of Rival's Scenes to the bottom of their Scene Deck, place 1 Scene face up from the top Rival's Scene Deck into Rival's Scene Area.",
-    "ability_th": null,
+    "ability_th": "[Appear] นำการ์ดฉาก 1 ใบของฝ่ายตรงข้ามไปยังด้านล่างเด็คฉากของพวกเขา วางการ์ดฉาก 1 ใบจากด้านบนเด็คฉากของฝ่ายตรงข้ามหงายขึ้นในโซนฉากของฝ่ายตรงข้าม",
     "story_title": null
   },
   {
