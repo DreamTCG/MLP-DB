@@ -3575,7 +3575,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "If there is any ｢Unicorn｣ in your Adventure Area, look at all of your Plans and return them their original locations.",
-    "ability_th": null,
+    "ability_th": "ถ้ามี 「Unicorn」 ในโซนผจญภัยของคุณ ดู Plan ทั้งหมดของคุณ แล้วนำกลับไปยังตำแหน่งเดิม",
     "story_title": null
   },
   {
@@ -3589,7 +3589,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "If there is any ｢Unicorn｣ in your Adventure Area, turn 1 card from your Hand into a Plan.",
-    "ability_th": null,
+    "ability_th": "ถ้ามี 「Unicorn」 ในโซนผจญภัยของคุณ เปลี่ยนการ์ด 1 ใบจากมือเป็น Plan",
     "story_title": null
   },
   {
@@ -3603,7 +3603,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "On this turn, your Rival's Pre-plan effects will not be activated, instead the Plans will be added to Rival's Hand.",
-    "ability_th": null,
+    "ability_th": "ในเทิร์นนี้ เอฟเฟกต์ [Pre-plan] ของฝ่ายตรงข้ามจะไม่ถูกเปิดใช้งาน แต่ Plan จะถูกนำขึ้นมือของฝ่ายตรงข้ามแทน",
     "story_title": null
   },
   {
@@ -3617,7 +3617,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "If you have 2 or more cards in your Hand (including this card)[verify], discard 1 card, all of Rival's Characters get -1 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "ถ้าคุณมีการ์ดในมือ 2 ใบขึ้นไป (รวมการ์ดนี้) ทิ้ง 1 ใบ ตัวละครทั้งหมดของฝ่ายตรงข้ามสูญเสียค่าพลังจินตนาการ -1 จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -3631,7 +3631,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Choose 1 ｢Pegasus｣ to move to an open Adventure Area and to get +1 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "เลือก 「Pegasus」 1 ตัว นำตัวละครนั้นไปยังโซนผจญภัยที่ว่าง และตัวละครนั้นได้รับค่าพลังจินตนาการ +1 จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -3645,7 +3645,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "If there is any ｢Pinkie Pie｣ in your Adventure Area, flip 2 of your Rival's Scene cards face down.",
-    "ability_th": null,
+    "ability_th": "ถ้ามี 「Pinkie Pie」 ในโซนผจญภัยของคุณ คว่ำการ์ดฉากของฝ่ายตรงข้ามลง 2 ใบ",
     "story_title": null
   },
   {
@@ -3659,7 +3659,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Choose 1 ｢Earth Pony｣ adorned with an Item to get +3 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "เลือก 「Earth Pony」 1 ตัวที่ติดตั้งไอเทม ตัวละครนั้นได้รับค่าพลังจินตนาการ +3 จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -3673,7 +3673,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Flip exactly[?] 2 of your Scenes face up.",
-    "ability_th": null,
+    "ability_th": "หงายการ์ดฉากของคุณขึ้น 2 ใบ",
     "story_title": null
   },
   {
@@ -3687,7 +3687,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "If there is any ｢Earth Pony｣ in your Retirement Area, place 1 Scene from your Scene Deck face down in your Scene Area.",
-    "ability_th": null,
+    "ability_th": "ถ้ามี 「Earth Pony」 ในโซนพักผ่อนของคุณ นำการ์ดฉาก 1 ใบจากเด็คฉากของคุณวางคว่ำลงในโซนฉากของคุณ",
     "story_title": null
   },
   {
@@ -3701,7 +3701,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Flip one of your Scenes face down, choose 1 Character to get +3 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "คว่ำการ์ดฉากของคุณลง 1 ใบ เลือกตัวละคร 1 ตัว ตัวละครนั้นได้รับค่าพลังจินตนาการ +3 จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -3715,7 +3715,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "If there is any ｢Rainbow Dash｣ in your Adventure Area, move 1 Character with Cost of Force of Harmony 2 or less from your Retirement Area to your Adventure Area.",
-    "ability_th": null,
+    "ability_th": "ถ้ามี 「Rainbow Dash」 ในโซนผจญภัยของคุณ นำตัวละคร 1 ตัวที่มีค่าพลังมิตรภาพ 2 หรือน้อยกว่าจากโซนพักผ่อนของคุณไปยังโซนผจญภัยของคุณ",
     "story_title": null
   },
   {
@@ -3729,7 +3729,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Reveal the top 5 cards of your Deck, choose 1 Item from them, add it to Hand, move the rest to the bottom of your Deck in any order.",
-    "ability_th": null,
+    "ability_th": "แสดงการ์ด 5 ใบบนสุดของเด็ค เลือกไอเทม 1 ใบจากนั้น นำการ์ดนั้นขึ้นมือ แล้วนำที่เหลือไปยังด้านล่างเด็คของคุณในลำดับใดก็ได้",
     "story_title": null
   },
   {
@@ -3743,7 +3743,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "If there is any ｢Rarity｣ in your Adventure Area, turn 1 Item card in your Retirement Area into a Plan.",
-    "ability_th": null,
+    "ability_th": "ถ้ามี 「Rarity」 ในโซนผจญภัยของคุณ เปลี่ยนไอเทม 1 ใบในโซนพักผ่อนเป็น Plan",
     "story_title": null
   },
   {
@@ -3757,7 +3757,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "If you have 3 or more face-up Scenes, choose 1 ｢Applejack｣ to get +3 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "ถ้าคุณมีการ์ดฉากที่หงายอยู่ 3 ใบขึ้นไป เลือก 「Applejack」 1 ตัว ตัวละครนั้นได้รับค่าพลังจินตนาการ +3 จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -3771,7 +3771,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Draw 1 card. If you have an untapped Scene card, draw 2 cards instead.",
-    "ability_th": null,
+    "ability_th": "จั่วการ์ด 1 ใบ ถ้าคุณมีการ์ดฉากสถานะตั้ง ให้จั่วการ์ด 2 ใบแทน",
     "story_title": null
   },
   {
@@ -3785,7 +3785,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "If there is any ｢Rainbow Dash｣ in your Retirement Area, choose 1 Character in your Adventure Area to get +2 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "ถ้ามี 「Rainbow Dash」 ในโซนพักผ่อนของคุณ เลือกตัวละคร 1 ตัวในโซนผจญภัยของคุณ ตัวละครนั้นได้รับค่าพลังจินตนาการ +2 จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -3799,7 +3799,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "If you have 2 or more Characters in your Adventure Area, draw 2 cards.",
-    "ability_th": null,
+    "ability_th": "ถ้าคุณมีตัวละคร 2 ตัวขึ้นไปในโซนผจญภัยของคุณ ให้จั่วการ์ด 2 ใบ",
     "story_title": null
   },
   {
@@ -3813,7 +3813,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "All ｢Pet｣ Characters get +1 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "ตัวละคร 「Pet」 ทั้งหมดได้รับค่าพลังจินตนาการ +1 จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -3827,7 +3827,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "All of your Characters get +1 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "ตัวละครทั้งหมดของคุณได้รับค่าพลังจินตนาการ +1 จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -3841,7 +3841,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Draw 1 card, then draw cards equal to the number of cards in your Retirement Area with the same name as the card you drew.",
-    "ability_th": null,
+    "ability_th": "จั่วการ์ด 1 ใบ จากนั้นจั่วการ์ดเพิ่มเท่ากับจำนวนการ์ดในโซนพักผ่อนของคุณที่มีชื่อเดียวกับการ์ดที่จั่วมา",
     "story_title": null
   },
   {
@@ -3855,7 +3855,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Choose 1 Character in your Adventure Area, it cannot leave the Adventure Area due to Contact until the end of turn. Choose 1 Character in your Adventure Area, it cannot leave the Adventure Area due to Contact until the end of turn.",
-    "ability_th": null,
+    "ability_th": "เลือกตัวละคร 1 ตัวในโซนผจญภัยของคุณ ตัวละครนั้นไม่สามารถออกจากโซนผจญภัยได้จากการแลกเปลี่ยนจินตนาการจนจบเทิร์น",
     "story_title": null
   },
   {
@@ -3869,7 +3869,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Adorned Character gets -1 Inspiration, all of your other Characters get +1 Inspiration.",
-    "ability_th": null,
+    "ability_th": "ตัวละครที่ติดตั้งไอเทมสูญเสียค่าพลังจินตนาการ -1 ตัวละครอื่นๆ ทั้งหมดของคุณได้รับค่าพลังจินตนาการ +1",
     "story_title": null
   },
   {
@@ -3883,7 +3883,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Adorned Character gains \" Move to an open Adventure Area.\"",
-    "ability_th": null,
+    "ability_th": "ตัวละครที่ติดตั้งไอเทมได้รับความสามารถ \"ย้ายไปยังโซนผจญภัยที่ว่าง\"",
     "story_title": null
   },
   {
@@ -3897,7 +3897,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Only adorn ｢Pinkie Pie｣. All of your Characters get +1 Inspiration.",
-    "ability_th": null,
+    "ability_th": "ติดตั้งได้เฉพาะ 「Pinkie Pie」 ตัวละครทั้งหมดของคุณได้รับค่าพลังจินตนาการ +1",
     "story_title": null
   },
   {
@@ -3911,7 +3911,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Adorned Character gets +1 Inspiration, then an additional +1 Inspiration for each card in your Retirement Area with the same name as adorned Character.",
-    "ability_th": null,
+    "ability_th": "ตัวละครที่ติดตั้งไอเทมได้รับค่าพลังจินตนาการ +1 และได้รับค่าพลังจินตนาการ +1 เพิ่มเติมสำหรับแต่ละการ์ดในโซนพักผ่อนของคุณที่มีชื่อเดียวกับตัวละครที่ติดตั้งไอเทม",
     "story_title": null
   },
   {
@@ -3925,7 +3925,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Adorned Character gains \" Send your adorned Item card to the Retirement Area to gain +2 Inspiration until the end of turn.\"",
-    "ability_th": null,
+    "ability_th": "ตัวละครที่ติดตั้งไอเทมได้รับความสามารถ \"นำไอเทมที่ติดตั้งไปยังโซนพักผ่อนเพื่อได้รับค่าพลังจินตนาการ +2 จนจบเทิร์น\"",
     "story_title": null
   },
   {
@@ -3939,7 +3939,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "Adorned Character gets +1 Inspiration. Adorn this Item to one of your Characters.",
-    "ability_th": null,
+    "ability_th": "ตัวละครที่ติดตั้งไอเทมได้รับค่าพลังจินตนาการ +1 ติดตั้งไอเทมนี้ไปยังตัวละครหนึ่งของคุณ",
     "story_title": null
   },
   {
@@ -3953,7 +3953,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "While you have an untapped Scene card, adorned Character gets +2 Inspiration.",
-    "ability_th": null,
+    "ability_th": "ขณะที่คุณมีการ์ดฉากสถานะตั้ง ตัวละครที่ติดตั้งไอเทมได้รับค่าพลังจินตนาการ +2",
     "story_title": null
   },
   {
