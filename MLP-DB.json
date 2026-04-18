@@ -2233,7 +2233,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Pre-plan] If there are 2 or move Events in the Retirement Area, move this card to the Adventure Area.",
-    "ability_th": null,
+    "ability_th": "[Pre-plan] ถ้ามีอีเวนต์ 2 ใบขึ้นไปในโซนพักผ่อน นำการ์ดนี้ไปยังโซนผจญภัย",
     "story_title": null
   },
   {
@@ -2267,7 +2267,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Pre-plan] If there are 2 or more ｢Pet｣ cards in the Retirement Area, move this card to the Adventure Area.",
-    "ability_th": null,
+    "ability_th": "[Pre-plan] ถ้ามีการ์ด 「Pet」 2 ใบขึ้นไปในโซนพักผ่อน นำการ์ดนี้ไปยังโซนผจญภัย",
     "story_title": null
   },
   {
@@ -2301,7 +2301,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Pre-plan] If any of your Scenes are face up, this Character gets +2 Inspiration in your turn.",
-    "ability_th": null,
+    "ability_th": "[Pre-plan] ถ้ามีการ์ดฉากของคุณที่หงายอยู่ ตัวละครนี้ได้รับค่าพลังจินตนาการ +2 ในเทิร์นของคุณ",
     "story_title": null
   },
   {
@@ -2335,7 +2335,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Pre-plan] If there is any untapped Scene in your Scene Area, move this card to the Adventure Area.",
-    "ability_th": null,
+    "ability_th": "[Pre-plan] ถ้ามีการ์ดฉากสถานะตั้งอยู่ในโซนฉากของคุณ นำการ์ดนี้ไปยังโซนผจญภัย",
     "story_title": null
   },
   {
@@ -2369,7 +2369,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Pre-plan] If there are 2 or more ｢Pegasus｣ cards in your Retirement Area, move this card to the Adventure Area.",
-    "ability_th": null,
+    "ability_th": "[Pre-plan] ถ้ามีการ์ด 「Pegasus」 2 ใบขึ้นไปในโซนพักผ่อนของคุณ นำการ์ดนี้ไปยังโซนผจญภัย",
     "story_title": null
   },
   {
@@ -2403,7 +2403,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Adventure] While you have any Plan card, this Character gets +2 Inspiration in your turn.",
-    "ability_th": null,
+    "ability_th": "[Adventure] ขณะที่คุณมีการ์ด Plan อยู่ ตัวละครนี้ได้รับค่าพลังจินตนาการ +2 ในเทิร์นของคุณ",
     "story_title": null
   },
   {
@@ -2437,7 +2437,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Farewell] If there is any ｢Spike｣ in your Retirement Area, turn the top card of your Deck into a Plan.",
-    "ability_th": null,
+    "ability_th": "[Farewell] ถ้ามี 「Spike」 ในโซนพักผ่อนของคุณ เปลี่ยนการ์ดบนสุดของเด็คเป็น Plan",
     "story_title": null
   },
   {
@@ -2471,7 +2471,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Adventure] This Character gets +1 Inspiration for each ｢Sweetie Belle｣ and ｢Scootaloo｣ in your Adventure Area.",
-    "ability_th": null,
+    "ability_th": "[Adventure] ตัวละครนี้ได้รับค่าพลังจินตนาการ +1 สำหรับแต่ละ 「Sweetie Belle」 และ 「Scootaloo」 ในโซนผจญภัยของคุณ",
     "story_title": null
   },
   {
@@ -2488,7 +2488,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Adventure] This Character gets +1 Inspiration for each ｢Apple Bloom｣ and ｢Scootaloo｣ in your Adventure Area.",
-    "ability_th": null,
+    "ability_th": "[Adventure] ตัวละครนี้ได้รับค่าพลังจินตนาการ +1 สำหรับแต่ละ 「Apple Bloom」 และ 「Scootaloo」 ในโซนผจญภัยของคุณ",
     "story_title": null
   },
   {
@@ -2505,7 +2505,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Adventure] This Character gets +1 Inspiration for each ｢Apple Bloom｣ and ｢Sweetie Belle｣ in your Adventure Area.",
-    "ability_th": null,
+    "ability_th": "[Adventure] ตัวละครนี้ได้รับค่าพลังจินตนาการ +1 สำหรับแต่ละ 「Apple Bloom」 และ 「Sweetie Belle」 ในโซนผจญภัยของคุณ",
     "story_title": null
   },
   {
@@ -2639,7 +2639,7 @@
     "deck": "BP02",
     "story_stage": "I",
     "ability": "When promoted to this stage, draw 1 card, discard 1 card.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ จั่วการ์ด 1 ใบ แล้วทิ้ง 1 ใบ",
     "story_title": "Lesson Zero",
     "story_subtitle": "Prolong to Crisis"
   },
@@ -2654,7 +2654,7 @@
     "deck": "BP02",
     "story_stage": "II",
     "ability": "When promoted to this stage, choose 1 ｢Unicorn｣ to get +2 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ เลือก 「Unicorn」 1 ตัว ตัวละครนั้นได้รับค่าพลังจินตนาการ +2 จนจบเทิร์น",
     "story_title": "Lesson Zero",
     "story_subtitle": "Anxious"
   },
@@ -2669,7 +2669,7 @@
     "deck": "BP02",
     "story_stage": "III",
     "ability": "When promoted to this stage, eveal the top 5 cards of your Deck, choose 1 ｢Unicorn｣ from them, add it to Hand, move the rest to the Retirement Area.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ แสดงการ์ด 5 ใบบนสุดของเด็ค เลือก 「Unicorn」 1 ตัวจากนั้น นำการ์ดนั้นขึ้นมือ แล้วนำที่เหลือไปยังโซนพักผ่อน",
     "story_title": "Lesson Zero",
     "story_subtitle": "The \"Ultimate\" Solution"
   },
@@ -2684,7 +2684,7 @@
     "deck": "BP02",
     "story_stage": "IV",
     "ability": "When promoted to this stage, you win the game.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ คุณชนะเกม",
     "story_title": "Lesson Zero",
     "story_subtitle": "Friendship Insights"
   },
@@ -2699,7 +2699,7 @@
     "deck": "BP02",
     "story_stage": "I",
     "ability": "When promoted to this stage, choose 1 Character in Rival's Adventure Area to get -1 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ เลือกตัวละคร 1 ตัวในโซนผจญภัยของฝ่ายตรงข้าม ตัวละครนั้นสูญเสียค่าพลังจินตนาการ -1 จนจบเทิร์น",
     "story_title": "Hurricane Fluttershy",
     "story_subtitle": "Claim Illnes"
   },
@@ -2714,7 +2714,7 @@
     "deck": "BP02",
     "story_stage": "II",
     "ability": "When promoted to the stage, move 1 ｢Pegasus｣ to an open Adventure Area.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ นำ 「Pegasus」 1 ตัวไปยังโซนผจญภัยที่ว่าง",
     "story_title": "Hurricane Fluttershy",
     "story_subtitle": "Flight Training"
   },
@@ -2729,7 +2729,7 @@
     "deck": "BP02",
     "story_stage": "III",
     "ability": "When promoted to this stage, draw 1 card for each Character in your Adventure Area.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ จั่วการ์ด 1 ใบสำหรับแต่ละตัวละครในโซนผจญภัยของคุณ",
     "story_title": "Hurricane Fluttershy",
     "story_subtitle": "Remarkable\" Progres"
   },
@@ -2744,7 +2744,7 @@
     "deck": "BP02",
     "story_stage": "IV",
     "ability": "When promoted to this stage, you win the game.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ คุณชนะเกม",
     "story_title": "Hurricane Fluttershy",
     "story_subtitle": "Ace Pilot"
   },
@@ -2759,7 +2759,7 @@
     "deck": "BP02",
     "story_stage": "I",
     "ability": "When promoted to this stage, flip 1 Scene face up.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ หงายการ์ดฉากขึ้น 1 ใบ",
     "story_title": "Baby Cakes",
     "story_subtitle": "Hand Over To Pinkie Pie"
   },
@@ -2774,7 +2774,7 @@
     "deck": "BP02",
     "story_stage": "II",
     "ability": "When promoted to this stage, if there is any ｢Earth Pony｣ in your Adventure Area, return 1 Item card from the Retirement Area to your Hand.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ ถ้ามี 「Earth Pony」 ในโซนผจญภัยของคุณ นำไอเทม 1 ใบจากโซนพักผ่อนขึ้นมือ",
     "story_title": "Baby Cakes",
     "story_subtitle": "Doing \"Smoothly\""
   },
@@ -2789,7 +2789,7 @@
     "deck": "BP02",
     "story_stage": "III",
     "ability": "When promoted to this stage, choose 1 Character adorned with an Item to get +3 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ เลือกตัวละคร 1 ตัวที่ติดตั้งไอเทม ตัวละครนั้นได้รับค่าพลังจินตนาการ +3 จนจบเทิร์น",
     "story_title": "Baby Cakes",
     "story_subtitle": "A Big Problem"
   },
@@ -2804,7 +2804,7 @@
     "deck": "BP02",
     "story_stage": "IV",
     "ability": "When promoted to this stage, you win the game.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ คุณชนะเกม",
     "story_title": "Baby Cakes",
     "story_subtitle": "Go To Sleep"
   },
@@ -2819,7 +2819,7 @@
     "deck": "BP02",
     "story_stage": "I",
     "ability": "When promoted to this stage, choose 1 Character to get +1 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ เลือกตัวละคร 1 ตัว ตัวละครนั้นได้รับค่าพลังจินตนาการ +1 จนจบเทิร์น",
     "story_title": "The Last Roundup",
     "story_subtitle": "A Cowboy's Journey"
   },
@@ -2834,7 +2834,7 @@
     "deck": "BP02",
     "story_stage": "II",
     "ability": "When promoted to this stage, if there is any ｢Earth Pony｣ in your Adventure Area, flip 1 Scene face up.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ ถ้ามี 「Earth Pony」 ในโซนผจญภัยของคุณ หงายการ์ดฉากขึ้น 1 ใบ",
     "story_title": "The Last Roundup",
     "story_subtitle": "Not Yet Success"
   },
@@ -2849,7 +2849,7 @@
     "deck": "BP02",
     "story_stage": "III",
     "ability": "When promoted to this stage, add 1 Scene.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ เพิ่มการ์ดฉาก 1 ใบ",
     "story_title": "The Last Roundup",
     "story_subtitle": "Remaining Silent"
   },
@@ -2864,7 +2864,7 @@
     "deck": "BP02",
     "story_stage": "IV",
     "ability": "When promoted to this stage, you win the game.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ คุณชนะเกม",
     "story_title": "The Last Roundup",
     "story_subtitle": "The Most Important Things"
   },
@@ -2879,7 +2879,7 @@
     "deck": "BP02",
     "story_stage": "I",
     "ability": "When promoted to this stage, choose 1 ｢Pet｣ to get +2 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ เลือก 「Pet」 1 ตัว ตัวละครนั้นได้รับค่าพลังจินตนาการ +2 จนจบเทิร์น",
     "story_title": "May the Best Pet Win!",
     "story_subtitle": "Pet Recommendation "
   },
@@ -2894,7 +2894,7 @@
     "deck": "BP02",
     "story_stage": "II",
     "ability": "When promoted to this stage, choose 1 ｢Pet｣ to move to an open Adventure Area and to get +1 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ เลือก 「Pet」 1 ตัว นำตัวละครนั้นไปยังโซนผจญภัยที่ว่าง และตัวละครนั้นได้รับค่าพลังจินตนาการ +1 จนจบเทิร์น",
     "story_title": "May the Best Pet Win!",
     "story_subtitle": "Pet Contest"
   },
@@ -2909,7 +2909,7 @@
     "deck": "BP02",
     "story_stage": "III",
     "ability": "When promoted to this stage, draw 2 cards.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ จั่วการ์ด 2 ใบ",
     "story_title": "May the Best Pet Win!",
     "story_subtitle": "Unexpected Accident"
   },
@@ -2924,7 +2924,7 @@
     "deck": "BP02",
     "story_stage": "IV",
     "ability": "When promoted to this stage, you win the game.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ คุณชนะเกม",
     "story_title": "May the Best Pet Win!",
     "story_subtitle": "Tank Rescue"
   },
@@ -2939,7 +2939,7 @@
     "deck": "BP02",
     "story_stage": "I",
     "ability": "When promoted to this stage, draw 1 card.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ จั่วการ์ด 1 ใบ",
     "story_title": "Sweet and Elite",
     "story_subtitle": "Newcomer"
   },
@@ -2954,7 +2954,7 @@
     "deck": "BP02",
     "story_stage": "II",
     "ability": "When promoted to this stage, look at your Plans, put them back in any order you want.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ ดู Plan ของคุณ แล้วเรียงกลับในลำดับใดก็ได้ตามต้องการ",
     "story_title": "Sweet and Elite",
     "story_subtitle": "Hot Hoof"
   },
@@ -2969,7 +2969,7 @@
     "deck": "BP02",
     "story_stage": "III",
     "ability": "When promoted to this stage, return 1 ｢Unicorn｣ from your Retirement Area to your Hand.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ นำ 「Unicorn」 1 ตัวจากโซนพักผ่อนของคุณขึ้นมือ",
     "story_title": "Sweet and Elite",
     "story_subtitle": "Two Parties Racing"
   },
@@ -2984,7 +2984,7 @@
     "deck": "BP02",
     "story_stage": "IV",
     "ability": "When promoted to this stage, you win the game.",
-    "ability_th": null,
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ คุณชนะเกม",
     "story_title": "Sweet and Elite",
     "story_subtitle": "Best Friends"
   },
@@ -3002,7 +3002,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] Reveal the top 3 cards of your Deck, add 1 to your Hand, send the rest to your Retirement Area.",
-    "ability_th": null,
+    "ability_th": "[Appear] แสดงการ์ด 3 ใบบนสุดของเด็ค นำ 1 ใบขึ้นมือ แล้วนำที่เหลือไปยังโซนพักผ่อนของคุณ",
     "story_title": null
   },
   {
@@ -3019,7 +3019,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Adventure] This Character gets +1 Inspiration for each ｢Pet｣ in your Adventure Area.",
-    "ability_th": null,
+    "ability_th": "[Adventure] ตัวละครนี้ได้รับค่าพลังจินตนาการ +1 สำหรับแต่ละ 「Pet」 ในโซนผจญภัยของคุณ",
     "story_title": null
   },
   {
@@ -3036,7 +3036,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear]  If there is an Item in your Adventure Area, flip 1 of your Rival's Scenes upside down.",
-    "ability_th": null,
+    "ability_th": "[Appear] ถ้ามีไอเทมอยู่ในโซนผจญภัยของคุณ คว่ำการ์ดฉากของฝ่ายตรงข้ามลง 1 ใบ",
     "story_title": null
   },
   {
@@ -3053,7 +3053,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear]  If there is an ｢Earth Pony｣ in your Retirement Area, flip 1 of your Scenes face up.",
-    "ability_th": null,
+    "ability_th": "[Appear] ถ้ามี 「Earth Pony」 ในโซนพักผ่อนของคุณ หงายการ์ดฉากของคุณขึ้น 1 ใบ",
     "story_title": null
   },
   {
@@ -3070,7 +3070,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Adventure] When this Character interrupts your Rival's Plan, choose 1 ｢Pegasus｣ to get +2 Inspiration until the end of turn.",
-    "ability_th": null,
+    "ability_th": "[Adventure] เมื่อตัวละครนี้ขัดขวาง Plan ของฝ่ายตรงข้าม เลือก 「Pegasus」 1 ตัว ตัวละครนั้นได้รับค่าพลังจินตนาการ +2 จนจบเทิร์น",
     "story_title": null
   },
   {
@@ -3087,7 +3087,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Pre-plan] If there are 3 or more ｢Unicorn｣ cards in your Retirement Area, choose 1 Character in Rival's Adventure Area to Retire.",
-    "ability_th": null,
+    "ability_th": "[Pre-plan] ถ้ามีการ์ด 「Unicorn」 3 ใบขึ้นไปในโซนพักผ่อนของคุณ เลือกตัวละคร 1 ตัวในโซนผจญภัยของฝ่ายตรงข้าม นำออกจากสนาม",
     "story_title": null
   },
   {
@@ -3104,7 +3104,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear]  If there are 4 or more Events in your Retirement Area, take the top card of your Deck, place it in your Story Area as a Plan.",
-    "ability_th": null,
+    "ability_th": "[Appear] ถ้ามีอีเวนต์ 4 ใบขึ้นไปในโซนพักผ่อนของคุณ นำการ์ดบนสุดของเด็ค วางไว้ในโซนเรื่องราวของคุณในฐานะ Plan",
     "story_title": null
   },
   {
@@ -3121,7 +3121,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear]  Reveal the top 3 cards of your Deck, choose 1 ｢Pet｣ from them, add it to Hand, move the rest to Retirement Area.",
-    "ability_th": null,
+    "ability_th": "[Appear] แสดงการ์ด 3 ใบบนสุดของเด็ค เลือก 「Pet」 1 ใบจากนั้น นำการ์ดนั้นขึ้นมือ แล้วนำที่เหลือไปยังโซนพักผ่อน",
     "story_title": null
   },
   {
@@ -3138,7 +3138,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear]  If there is an Item in your Adventure Area, flip 2 of your Rival's Scenes face down.",
-    "ability_th": null,
+    "ability_th": "[Appear] ถ้ามีไอเทมอยู่ในโซนผจญภัยของคุณ คว่ำการ์ดฉากของฝ่ายตรงข้ามลง 2 ใบ",
     "story_title": null
   },
   {
@@ -3155,7 +3155,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] Flip 2 of your Scenes face up.",
-    "ability_th": null,
+    "ability_th": "[Appear] หงายการ์ดฉากของคุณขึ้น 2 ใบ",
     "story_title": null
   },
   {
@@ -3172,7 +3172,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "When this Character moves, it gets +2 Inspiration until the end of turn. [Adventure] [Tap] Move this Character to an empty Adventure Area.",
-    "ability_th": null,
+    "ability_th": "เมื่อตัวละครนี้ย้ายที่ ได้รับค่าพลังจินตนาการ +2 จนจบเทิร์น [Adventure] [Tap] ย้ายตัวละครนี้ไปยังโซนผจญภัยที่ว่าง",
     "story_title": null
   },
   {
@@ -3189,7 +3189,7 @@
     "deck": "BP02",
     "story_stage": null,
     "ability": "[Appear] Look at 1 of your Plans.",
-    "ability_th": null,
+    "ability_th": "[Appear] ดู Plan ของคุณ 1 ใบ",
     "story_title": null
   },
   {
