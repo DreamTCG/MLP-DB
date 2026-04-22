@@ -41,7 +41,8 @@
 <script defer src="/_vercel/speed-insights/script.js"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
@@ -66,10 +67,13 @@
   --scene-color: #0284c7;
   --story-color: #b45309;
   --mc-color:    #db2777;
-  --font-head: 'Fredoka One', cursive;
-  --font-body: 'Nunito', sans-serif;
+  --font-head:    'Fredoka One', cursive;
+  --font-body:    'Nunito', sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
   --radius:   10px;
   --radius-lg:16px;
+  --shadow-btn: 0 3px 0 var(--border2);
 }
 
 /* ── Dark Mode ── */
@@ -230,7 +234,14 @@ html, body { height: 100%; font-family: var(--font-body); background: var(--bg);
   display: flex; flex-direction: column;
   transition: border-color 0.15s;
 }
-.card-tile:hover { border-color: var(--purple); }
+.card-tile {
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1), border-color .15s, box-shadow .15s;
+}
+.card-tile:hover {
+  border-color: var(--purple);
+  transform: translateY(-3px) rotate(-.5deg);
+  box-shadow: 0 8px 20px rgba(124,58,237,.18);
+}
 .card-tile-img {
   position: relative;
   border-radius: var(--radius) var(--radius) 0 0;
@@ -292,8 +303,29 @@ html, body { height: 100%; font-family: var(--font-body); background: var(--bg);
 .lib-search-bar { display:flex; gap:6px; margin-bottom:8px; }
 .lib-search-input {
   flex:1; background:var(--surface2); border:1px solid var(--border2);
-  border-radius:8px; padding:7px 11px; color:var(--text);
+  border-radius:10px; padding:8px 12px 8px 34px; color:var(--text);
   font-family:var(--font-body); font-size:0.82rem;
+  outline: 2px solid transparent;
+  outline-offset: 0;
+  box-shadow: var(--shadow-btn);
+  transition: outline-color .14s, box-shadow .14s;
+}
+.lib-search-input:focus {
+  outline-color: var(--purple-l);
+  box-shadow: 0 0 0 3px rgba(124,58,237,.15);
+}
+.lib-search-bar {
+  position: relative;
+}
+.lib-search-bar::before {
+  content: '';
+  position: absolute;
+  left: 11px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none' stroke='%23a090c8' stroke-width='1.8'%3E%3Ccircle cx='6' cy='6' r='4.5'/%3E%3Cpath d='M9.5 9.5L13 13'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 1;
 }
 .filter-row { display:flex; gap:6px; margin-bottom:6px; align-items:center; flex-wrap: nowrap; }
 /* dropdown */
@@ -348,6 +380,7 @@ html, body { height: 100%; font-family: var(--font-body); background: var(--bg);
   font-size:0.72rem; font-weight:800; letter-spacing:0.06em;
   text-transform:uppercase; color:var(--muted);
   display:flex; align-items:center; gap:5px;
+  font-family: var(--font-display);
 }
 .zone-chip {
   font-size:0.62rem; font-weight:800; padding:2px 8px;
@@ -396,16 +429,60 @@ html, body { height: 100%; font-family: var(--font-body); background: var(--bg);
 }
 .deck-name-input {
   flex:1; background:var(--surface2); border:1px solid var(--border2);
-  border-radius:8px; padding:5px 10px; color:var(--text);
-  font-family:var(--font-body); font-size:0.85rem; font-weight:700;
+  border-radius:10px; padding:5px 10px; color:var(--text);
+  font-family:var(--font-display); font-size:0.95rem; font-weight:700;
   min-width:0;
+  outline: 2px solid transparent; outline-offset: 0;
+  transition: outline-color .14s;
+}
+.deck-name-input:focus { outline-color: var(--purple-l); border-color: var(--purple-l); }
+
+/* ── Deck progress bar ── */
+.deck-progress-wrap {
+  padding: 4px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+}
+.deck-progress-bar {
+  flex: 1; height: 7px; background: var(--surface2);
+  border-radius: 4px; overflow: hidden;
+  border: 1px solid var(--border);
+}
+.deck-progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--purple), var(--pink));
+  border-radius: 4px;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 4px,
+    rgba(255,255,255,.18) 4px 6px
+  );
+  transition: width .35s cubic-bezier(.34,1.56,.64,1);
+}
+.deck-progress-label {
+  font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700;
+  color: var(--muted); white-space: nowrap;
+}
+
+/* ── Keyboard hint bar (bottom of deck panel) ── */
+.deck-kbd-bar {
+  padding: 7px 12px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  font-size: 0.62rem; color: var(--dim); font-weight: 600;
 }
 .hdr-btn {
   background:var(--surface2); border:1px solid var(--border2);
   color:var(--muted); border-radius:8px; padding:5px 10px;
   font-size:0.75rem; font-family:var(--font-body); font-weight:700;
   cursor:pointer; white-space:nowrap; flex-shrink:0;
+  box-shadow: var(--shadow-btn);
+  transition: transform .08s, box-shadow .08s;
 }
+.hdr-btn:active { transform:translateY(2px); box-shadow:none; }
 .hdr-btn.danger { color:#f87171; border-color:rgba(248,113,113,0.3); }
 .hdr-btn.primary { background:linear-gradient(135deg,var(--purple),var(--pink)); border:none; color:#fff; }
 /* import bar (collapsible) */
@@ -417,10 +494,13 @@ html, body { height: 100%; font-family: var(--font-body); background: var(--bg);
 .import-btns.open { display:flex; }
 .imp-btn {
   background:var(--surface2); border:1px solid var(--border2);
-  color:var(--muted); border-radius:6px; padding:4px 10px;
+  color:var(--muted); border-radius:8px; padding:5px 11px;
   font-size:0.7rem; font-family:var(--font-body); font-weight:700; cursor:pointer;
   white-space:nowrap;
+  box-shadow: var(--shadow-btn);
+  transition: transform .08s, box-shadow .08s;
 }
+.imp-btn:active { transform:translateY(2px); box-shadow:none; }
 
 /* ═══════════════════════════════════════════════════════
    ANALYSIS
@@ -455,7 +535,33 @@ html, body { height: 100%; font-family: var(--font-body); background: var(--bg);
   box-shadow:0 -12px 48px rgba(0,0,0,0.7);
   animation:slideUp 0.22s ease;
 }
-@keyframes slideUp { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
+@keyframes slideUp    { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
+@keyframes pb-pop     { from{transform:translateY(-8px) scale(.96);opacity:0} to{transform:none;opacity:1} }
+@keyframes pb-float-in{ from{transform:translateY(20px) scale(.96);opacity:0} to{transform:none;opacity:1} }
+@keyframes pb-spin-pop{ 0%{transform:rotate(-10deg) scale(.9);opacity:0} 60%{transform:rotate(2deg) scale(1.03);opacity:1} 100%{transform:rotate(0) scale(1);opacity:1} }
+@keyframes pb-shimmer { 0%,100%{transform:translateX(-100%)} 50%{transform:translateX(200%)} }
+@keyframes pb-press   { from{transform:translateY(0)} to{transform:translateY(2px)} }
+
+/* ── Utility: keyboard shortcut chip ── */
+.pb-kbd {
+  font-family: var(--font-mono);
+  font-size: 0.62rem; font-weight: 700;
+  background: var(--surface2); color: var(--muted);
+  padding: 1px 6px; border-radius: 5px;
+  box-shadow: 0 2px 0 var(--border2);
+  border: 1px solid var(--border);
+  letter-spacing: 0.5px;
+}
+/* ── Utility: mono number ── */
+.pb-mono {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+/* ── Utility: display serif ── */
+.pb-serif {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
 .zoom-close {
   position:absolute; top:14px; right:14px;
   background:var(--surface2); border:none; color:var(--muted);
@@ -504,10 +610,12 @@ html, body { height: 100%; font-family: var(--font-body); background: var(--bg);
 ═══════════════════════════════════════════════════════ */
 .modal-overlay { display:none; position:fixed; top:var(--nav-h,56px); left:0; right:0; bottom:0; z-index:400; background:rgba(0,0,0,0.75); align-items:center; justify-content:center; padding:16px; }
 .modal-overlay.open { display:flex; }
-.modal-box { background:var(--surface); border:1px solid var(--border2); border-radius:var(--radius-lg); padding:18px; width:100%; max-width:500px; }
-.modal-title { font-family:var(--font-head); font-size:1.05rem; margin-bottom:10px; }
+.modal-overlay.open .modal-box { animation: pb-float-in .22s cubic-bezier(.34,1.56,.64,1); }
+.modal-box { background:var(--surface); border:1px solid var(--border2); border-radius:var(--radius-lg); padding:20px; width:100%; max-width:500px; box-shadow: 0 8px 0 rgba(0,0,0,.22), 0 24px 60px rgba(0,0,0,.4); }
+.modal-title { font-family:var(--font-display); font-size:1.2rem; font-weight:700; letter-spacing:-.02em; margin-bottom:12px; }
 textarea { width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:8px; color:var(--text); font-family:monospace; font-size:0.72rem; padding:9px; resize:vertical; }
-.btn { display:inline-flex; align-items:center; gap:5px; border:none; border-radius:8px; padding:7px 13px; font-family:var(--font-body); font-weight:800; font-size:0.8rem; cursor:pointer; }
+.btn { display:inline-flex; align-items:center; gap:5px; border:none; border-radius:10px; padding:7px 13px; font-family:var(--font-body); font-weight:800; font-size:0.8rem; cursor:pointer; box-shadow:var(--shadow-btn); transition:transform .08s, box-shadow .08s; }
+.btn:active { transform:translateY(2px); box-shadow:none; }
 .btn-primary { background:linear-gradient(135deg,var(--purple),var(--pink)); color:#fff; }
 .btn-secondary { background:var(--surface2); border:1px solid var(--border2); color:var(--muted); }
 
@@ -839,7 +947,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
   <div id="panel-deck">
     <!-- Deck header bar -->
     <div class="deck-hdr">
-      <span style="font-family:var(--font-head);font-size:1rem;color:var(--purple-l);white-space:nowrap;">🃏 Deck</span>
+      <span style="font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--purple-l);white-space:nowrap;letter-spacing:-.02em;">🃏 Deck</span>
       <input class="deck-name-input" id="deck-name" placeholder="Deck name..." value="My Deck" oninput="scheduleAutoSave()" data-i18n-ph="deck.deckName">
       <div id="color-lock-indicator"></div>
       <button class="hdr-btn danger" onclick="clearDeck()">🗑 Clear</button>
@@ -847,6 +955,13 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
       <button id="analysis-toggle-btn" class="hdr-btn"
         onclick="toggleAnalysisPanel()"
         style="white-space:nowrap;">📊 Hide</button>
+    </div>
+    <!-- Progress bar -->
+    <div class="deck-progress-wrap" id="deck-progress-wrap">
+      <div class="deck-progress-bar">
+        <div class="deck-progress-fill" id="deck-progress-fill" style="width:0%"></div>
+      </div>
+      <span class="deck-progress-label" id="deck-progress-label">0 / 50</span>
     </div>
     <!-- Import bar -->
     <div class="import-wrap">
@@ -910,6 +1025,16 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         </div>
         <div class="story-grid" id="story-grid-d"></div>
       </div>
+    </div>
+    <!-- Keyboard hint bar -->
+    <div class="deck-kbd-bar">
+      <span class="pb-kbd">Ctrl</span><span class="pb-kbd">K</span> search
+      &nbsp;·&nbsp;
+      <span class="pb-kbd">N</span> new deck
+      &nbsp;·&nbsp;
+      <span class="pb-kbd">D</span> test draw
+      &nbsp;·&nbsp;
+      <span class="pb-kbd">Esc</span> close
     </div>
   </div>
 
@@ -1014,6 +1139,13 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
       <div id="color-lock-indicator-m"></div>
       <button class="hdr-btn danger" onclick="clearDeck()">🗑</button>
       <button class="hdr-btn primary" onclick="snapshot()">📸</button>
+    </div>
+    <!-- Progress bar (mobile) -->
+    <div class="deck-progress-wrap">
+      <div class="deck-progress-bar">
+        <div class="deck-progress-fill" id="deck-progress-fill-m" style="width:0%"></div>
+      </div>
+      <span class="deck-progress-label" id="deck-progress-label-m">0 / 50</span>
     </div>
     <div class="import-wrap">
       <div class="import-toggle">
@@ -2332,6 +2464,13 @@ function updateSidebar() {
   setChip('zc-scene-m',`${state.scene.length} cards`,'ok');
   setChip('zc-story-m',storyFilled===4?'✓ Complete':`${storyFilled}/4`,storyFilled===4?'ok':'warn');
 
+  // Progress bars (desktop + mobile)
+  const pct = Math.min(100, (total / 50) * 100) + '%';
+  const fill = $('deck-progress-fill'); if (fill) fill.style.width = pct;
+  const fillM = $('deck-progress-fill-m'); if (fillM) fillM.style.width = pct;
+  const lbl = $('deck-progress-label'); if (lbl) lbl.textContent = `${total} / 50`;
+  const lblM = $('deck-progress-label-m'); if (lblM) lblM.textContent = `${total} / 50`;
+
   // Deck name sync
   const dn=$('deck-name'); const dnm=$('deck-name-m');
   if(dn&&dnm&&document.activeElement!==dn&&document.activeElement!==dnm) dnm.value=dn.value;
@@ -2810,7 +2949,18 @@ function _applyZoomFont() {
     }
   },{passive:true});
 })();
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeZoom();closeExport();closeImportClipboard();closeDeleteModal();} });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeZoom(); closeExport(); closeImportClipboard(); closeDeleteModal(); }
+  // Global keyboard shortcuts (skip if typing in an input)
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    const search = document.getElementById('lib-search-d') || document.getElementById('lib-search-m');
+    if (search) { search.focus(); search.select(); }
+  }
+  if (e.key.toLowerCase() === 'n' && !e.ctrlKey && !e.metaKey) createNewDeck();
+  if (e.key.toLowerCase() === 'd' && !e.ctrlKey && !e.metaKey) testDraw();
+});
 
 // ═══════════════════════════════════════════════════════
 // IMPORT BAR TOGGLE
