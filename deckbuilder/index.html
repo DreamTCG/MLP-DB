@@ -394,16 +394,91 @@ html, body { height: 100%; font-family: var(--font-body); background: var(--bg);
   background:var(--surface2); border:2px dashed var(--border2);
   border-radius:var(--radius-lg); padding:12px;
   display:flex; align-items:center; gap:12px; cursor:pointer;
-  transition:border-color 0.15s;
+  transition:border-color 0.15s, box-shadow 0.15s;
 }
-.mc-slot:hover { border-color:var(--mc-color); }
+.mc-slot:hover { border-color:var(--mc-color); box-shadow:0 4px 14px rgba(219,39,119,.12); }
 .mc-slot.filled { border-style:solid; border-color:var(--mc-color); cursor:default; }
-.mc-img { width:64px; height:90px; border-radius:8px; overflow:hidden; flex-shrink:0; background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:1.8rem; }
+.mc-img { width:64px; height:90px; border-radius:10px; overflow:hidden; flex-shrink:0; background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:1.8rem; box-shadow:0 3px 8px rgba(0,0,0,.2); }
 .mc-img img { width:100%; height:100%; object-fit:cover; }
 .mc-info { flex:1; min-width:0; }
-.mc-name { font-family:var(--font-head); font-size:1rem; color:var(--mc-color); margin-bottom:4px; line-height:1.2; }
+.mc-name { font-family:var(--font-display); font-size:1rem; font-weight:700; color:var(--mc-color); margin-bottom:4px; line-height:1.2; }
 .mc-meta { font-size:0.68rem; color:var(--muted); line-height:1.6; }
-.mc-rm { background:rgba(248,113,113,0.15); border:none; color:#f87171; border-radius:6px; padding:3px 10px; font-size:0.72rem; font-family:var(--font-body); font-weight:800; cursor:pointer; flex-shrink:0; }
+.mc-stat { display:inline-flex; align-items:center; gap:3px; font-family:var(--font-mono); font-size:0.7rem; font-weight:700; background:var(--surface); border:1px solid var(--border2); border-radius:6px; padding:1px 7px; margin-right:4px; }
+.mc-rm { background:rgba(248,113,113,0.15); border:none; color:#f87171; border-radius:8px; padding:4px 10px; font-size:0.72rem; font-family:var(--font-body); font-weight:800; cursor:pointer; flex-shrink:0; box-shadow:0 2px 0 rgba(248,113,113,.15); transition:transform .08s, box-shadow .08s; }
+.mc-rm:active { transform:translateY(1px); box-shadow:none; }
+
+/* ── Deck row (Playboard-style list entry for main / scene) ── */
+.deck-row {
+  display:grid;
+  grid-template-columns: 18px 32px 1fr auto;
+  gap:8px; align-items:center;
+  padding:8px 10px;
+  border-radius:12px;
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  margin-bottom:5px;
+  cursor:pointer;
+  transition:transform .15s cubic-bezier(.34,1.56,.64,1), box-shadow .15s, border-color .15s;
+  box-shadow: 0 2px 0 var(--border2);
+}
+.deck-row:hover { border-color:var(--purple-l); box-shadow:0 4px 12px rgba(124,58,237,.1); }
+.deck-row.dragging {
+  transform:scale(1.015) rotate(-.3deg);
+  box-shadow:0 10px 24px rgba(0,0,0,.25), 0 0 0 2px var(--purple);
+  border-color:var(--purple);
+  opacity:.9;
+}
+.deck-row.drag-over { border-color:var(--purple-l); box-shadow:0 0 0 2px var(--purple-l); }
+.drag-drop-indicator {
+  height:3px; background:var(--purple-l); border-radius:2px;
+  margin:2px 0; box-shadow:0 0 6px var(--purple-l);
+  animation:pb-shimmer .8s linear infinite;
+}
+.deck-row-handle {
+  cursor:grab; color:var(--dim); display:flex; align-items:center; justify-content:center;
+  font-size:0.75rem; letter-spacing:-.1em; opacity:.5;
+  user-select:none;
+}
+.deck-row-handle:active { cursor:grabbing; }
+.deck-row-cost {
+  width:30px; height:30px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:700; font-size:0.9rem;
+  flex-shrink:0;
+}
+.deck-row-info { min-width:0; }
+.deck-row-name {
+  font-weight:700; font-size:0.82rem;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  color:var(--text);
+}
+.deck-row-sub {
+  font-size:0.62rem; color:var(--muted); margin-top:1px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.deck-list { display:flex; flex-direction:column; }
+
+/* ── Inline stepper ── */
+.pb-stepper {
+  display:inline-flex; align-items:center; gap:2px;
+  background:var(--surface2); padding:3px; border-radius:10px;
+  border:1px solid var(--border2);
+}
+.pb-stepper button {
+  border:none; background:transparent;
+  width:22px; height:22px; border-radius:8px;
+  font-size:1rem; font-weight:800; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  padding:0; transition:background .1s, transform .08s;
+  color:var(--text);
+}
+.pb-stepper button:disabled { opacity:.25; cursor:not-allowed; }
+.pb-stepper button:not(:disabled):active { transform:scale(.88); }
+.pb-stepper button:not(:disabled):hover { background:var(--surface); }
+.pb-stepper-val {
+  font-family:var(--font-mono); font-size:0.72rem; font-weight:700;
+  min-width:18px; text-align:center; color:var(--purple-l);
+}
 /* story grid */
 .story-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
 @media (max-width: 899px) { .story-grid { grid-template-columns:repeat(2,1fr); } }
@@ -731,6 +806,8 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
 <script src="../i18n/translations.js"></script>
 <!-- Shared navigation bar (handles dark/light theme toggle) -->
 <script src="../nav.js"></script>
+<!-- Deckbuilder modules (extracted for easier editing) -->
+<script src="db.js"></script>
 <script>
 // Bridge nav.js html.dark → body.dark-mode for this page's existing CSS
 (function(){
@@ -1007,7 +1084,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
             <span class="zone-chip warn" id="zc-main">0/50</span>
           </div>
         </div>
-        <div class="card-grid lg" id="main-grid-d"></div>
+        <div class="deck-list" id="main-grid-d"></div>
       </div>
       <!-- Scene -->
       <div class="zone-section">
@@ -1187,7 +1264,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
             <span class="zone-chip warn" id="zc-main-m">0/50</span>
           </div>
         </div>
-        <div class="card-grid" id="main-grid-m"></div>
+        <div class="deck-list" id="main-grid-m"></div>
       </div>
       <div class="zone-section">
         <div class="zone-hdr">
@@ -1233,6 +1310,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
   🌈 MLP Card Game Deck Builder · Idea by <strong>Kiattisak.V</strong> · Created by <strong>Claude Sonnet 4.6</strong>
 </div>
 
+<!-- db.js and state.js are loaded before this block (see <head>) -->
 <script>
 // ═══════════════════════════════════════════════════════
 // STATE
@@ -1250,84 +1328,10 @@ function isProxy(card){ return _officialSets.size > 0 && !_officialSets.has(card
 // ── i18n — delegates to centralized /i18n/translations.js via window.i18n ──
 function _dt(key){ return (window.i18n && window.i18n.t(key)) || key; }
 
-// ═══════════════════════════════════════════════════════
-// INDEXEDDB — local deck persistence
-// ═══════════════════════════════════════════════════════
-let _db = null;
+// IndexedDB functions are in db.js (loaded above).
+// state, auto-save, and deck ops live below.
 let _currentDeckId = null;
 let _autoSaveTimer = null;
-
-function _openDB() {
-  if (_db) return Promise.resolve(_db);
-  return new Promise((res, rej) => {
-    const req = indexedDB.open('dreamtcg', 1);
-    req.onupgradeneeded = e => {
-      const db = e.target.result;
-      const store = db.createObjectStore('decks', { keyPath: 'id' });
-      store.createIndex('name', 'name', { unique: true });
-      store.createIndex('updated_at', 'updated_at');
-    };
-    req.onsuccess = e => { _db = e.target.result; res(_db); };
-    req.onerror   = e => rej(e.target.error);
-  });
-}
-
-async function dbGetAllDecks() {
-  const db = await _openDB();
-  return new Promise((res, rej) => {
-    const req = db.transaction('decks', 'readonly').objectStore('decks').getAll();
-    req.onsuccess = () => res((req.result || []).sort((a, b) => a.name.localeCompare(b.name)));
-    req.onerror   = e => rej(e.target.error);
-  });
-}
-
-async function dbGetDeck(id) {
-  const db = await _openDB();
-  return new Promise((res, rej) => {
-    const req = db.transaction('decks', 'readonly').objectStore('decks').get(id);
-    req.onsuccess = () => res(req.result);
-    req.onerror   = e => rej(e.target.error);
-  });
-}
-
-async function dbSaveDeck(deck) {
-  const db = await _openDB();
-  const now = new Date().toISOString();
-  const rec = {
-    id:         deck.id || crypto.randomUUID(),
-    name:       (deck.name || 'My Deck').slice(0, 30),
-    cards_json: {
-      mc:    deck.mc ? { id: deck.mc.id, name: deck.mc.name } : null,
-      main:  (deck.main  || []).map(c => ({ id: c.id, name: c.name, qty: c.qty })),
-      scene: (deck.scene || []).map(c => ({ id: c.id, name: c.name, qty: c.qty })),
-      story: (deck.story || [null,null,null,null]).map(c => c ? { id: c.id, name: c.name } : null),
-    },
-    created_at: deck.created_at || now,
-    updated_at: now,
-  };
-  return new Promise((res, rej) => {
-    const req = db.transaction('decks', 'readwrite').objectStore('decks').put(rec);
-    req.onsuccess = () => res(rec);
-    req.onerror   = e => rej(e.target.error);
-  });
-}
-
-async function dbDeleteDeck(id) {
-  const db = await _openDB();
-  return new Promise((res, rej) => {
-    const req = db.transaction('decks', 'readwrite').objectStore('decks').delete(id);
-    req.onsuccess = () => res();
-    req.onerror   = e => rej(e.target.error);
-  });
-}
-
-async function dbRenameDeck(id, name) {
-  const rec = await dbGetDeck(id);
-  if (!rec) return;
-  rec.name = name.slice(0, 30);
-  rec.updated_at = new Date().toISOString();
-  return dbSaveDeck(rec);
-}
 
 function scheduleAutoSave() {
   clearTimeout(_autoSaveTimer);
@@ -2362,6 +2366,129 @@ function makeTile(card, zone) {
   return el;
 }
 
+// ── Inline stepper component ──
+function makeStepper(value, onInc, onDec, maxReached, minReached) {
+  const wrap = document.createElement('div');
+  wrap.className = 'pb-stepper';
+  wrap.onclick = e => e.stopPropagation();
+
+  const decBtn = document.createElement('button');
+  decBtn.textContent = '−'; decBtn.disabled = !!minReached;
+  decBtn.title = 'Remove one';
+  decBtn.addEventListener('click', e => { e.stopPropagation(); onDec(); });
+
+  const val = document.createElement('span');
+  val.className = 'pb-stepper-val'; val.textContent = value;
+
+  const incBtn = document.createElement('button');
+  incBtn.textContent = '+'; incBtn.disabled = !!maxReached;
+  incBtn.title = 'Add one';
+  incBtn.addEventListener('click', e => { e.stopPropagation(); onInc(); });
+
+  wrap.append(decBtn, val, incBtn);
+  return wrap;
+}
+
+// ── Deck row (Playboard-style list row) for main deck ──
+let _dragSrcIdx = null;
+
+function makeDeckRow(card, zone, idx, sortedArr) {
+  const colorHex = COLOR_HEX[card.color] || 'var(--purple-l)';
+  const mainTotal = state.main.reduce((s, c) => s + c.qty, 0);
+  const canPlus  = zone === 'main' ? (card.qty < 4 && mainTotal < 50) : true;
+  const canMinus = card.qty > 1;
+
+  const row = document.createElement('div');
+  row.className = 'deck-row';
+  row.dataset.cardId = card.id;
+  row.dataset.zone = zone;
+
+  // Drag handle
+  const handle = document.createElement('div');
+  handle.className = 'deck-row-handle';
+  handle.innerHTML = '&#x2807;'; // ⠷ braille dots
+  handle.title = 'Drag to reorder';
+
+  // Cost circle
+  const cost = document.createElement('div');
+  cost.className = 'deck-row-cost';
+  cost.style.background = colorHex + '28';
+  cost.style.border = `1.5px solid ${colorHex}55`;
+  cost.style.color = colorHex;
+  cost.textContent = card.cost ?? card.power ?? '–';
+
+  // Info
+  const info = document.createElement('div');
+  info.className = 'deck-row-info';
+  const name = document.createElement('div');
+  name.className = 'deck-row-name';
+  name.textContent = card.name;
+  const sub = document.createElement('div');
+  sub.className = 'deck-row-sub';
+  const parts = [];
+  if (card.type) parts.push(card.type);
+  if (card.rarity) parts.push(card.rarity);
+  if (card.color) parts.push(card.color);
+  sub.textContent = parts.join(' · ');
+  info.append(name, sub);
+
+  // Stepper
+  const stepper = makeStepper(
+    card.qty,
+    () => { changeQty(zone, card.id, 1);  },
+    () => { changeQty(zone, card.id, -1); },
+    !canPlus,
+    false
+  );
+
+  row.append(handle, cost, info, stepper);
+
+  // Click → zoom
+  row.addEventListener('click', () => {
+    const ctxCards = zone === 'main' ? sortedArr : state.scene;
+    openZoom(card, ctxCards, zone);
+  });
+
+  // Drag-to-reorder (main zone only)
+  if (zone === 'main') {
+    row.draggable = true;
+    row.addEventListener('dragstart', e => {
+      _dragSrcIdx = idx;
+      row.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', card.id); } catch {}
+    });
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      _dragSrcIdx = null;
+      // Remove all indicators
+      document.querySelectorAll('.drag-drop-indicator').forEach(el => el.remove());
+    });
+    row.addEventListener('dragover', e => {
+      if (_dragSrcIdx === null || _dragSrcIdx === idx) return;
+      e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+      row.classList.add('drag-over');
+    });
+    row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      if (_dragSrcIdx === null || _dragSrcIdx === idx) return;
+      // Reorder state.main
+      const moved = state.main.splice(_dragSrcIdx, 1)[0];
+      // Find target idx in unsorted state.main (the sorted idx maps differently)
+      // We use the card id from the sortedArr for simplicity:
+      const targetId = sortedArr[idx].id;
+      const targetRealIdx = state.main.findIndex(c => c.id === targetId);
+      state.main.splice(targetRealIdx >= 0 ? targetRealIdx : state.main.length, 0, moved);
+      _dragSrcIdx = null;
+      renderMain(); updateSidebar();
+    });
+  }
+
+  return row;
+}
+
 function renderMC() {
   ['mc-slot-d','mc-slot-m'].forEach(id=>{
     const el=$(id); if(!el) return;
@@ -2375,12 +2502,19 @@ function renderMC() {
     const c=state.mc;
     const rc=COLOR_HEX[c.color]||'#9ca3af';
     const mcProxyClass=isProxy(c)?' proxy-card':'';
+    // Stats chips
+    const statsHtml = [
+      c.hp   != null ? `<span class="mc-stat">❤️ ${c.hp}</span>`   : '',
+      c.atk  != null ? `<span class="mc-stat">⚔️ ${c.atk}</span>`  : '',
+      c.cost != null ? `<span class="mc-stat">⭐ ${c.cost}</span>` : '',
+    ].join('');
     el.innerHTML=`<div class="mc-slot filled">
       <div class="mc-img${mcProxyClass}"><img src="${c.imageUrl}" alt="${c.name}" onerror="this.onerror=null;this.src='../cards/back_main.jpg'"></div>
       <div class="mc-info">
         <div class="mc-name">${c.name}</div>
-        <div class="mc-meta">${c.rarity||''} · <span style="color:${rc}">${COLOR_ICON[c.color]||''} ${c.color||''}</span><br>${(c.subtype||[]).join(', ')}</div>
-        ${c.ability?`<div style="font-size:0.65rem;color:var(--muted);margin-top:4px;line-height:1.5">${c.ability}</div>`:''}
+        <div class="mc-meta">${c.rarity||''} · <span style="color:${rc}">${COLOR_ICON[c.color]||''} ${c.color||''}</span> · ${(c.subtype||[]).join(', ')}</div>
+        ${statsHtml ? `<div style="margin-top:6px;">${statsHtml}</div>` : ''}
+        ${c.ability?`<div style="font-size:0.65rem;color:var(--muted);margin-top:6px;line-height:1.55">${c.ability}</div>`:''}
       </div>
       <button class="mc-rm" onclick="removeCard('mc','${c.id}')">✕ Remove</button>
     </div>`;
@@ -2399,8 +2533,11 @@ function renderMain() {
   ['main-grid-d','main-grid-m'].forEach(id=>{
     const grid=$(id); if(!grid) return;
     grid.innerHTML='';
-    if(!sorted.length){grid.innerHTML=`<div class="empty-zone" style="grid-column:1/-1"><div class="ei">🃏</div><p>${_dt('deck.emptyMain')}</p></div>`;return;}
-    sorted.forEach(card=>grid.appendChild(makeTile(card,'main')));
+    if(!sorted.length){
+      grid.innerHTML=`<div class="empty-zone"><div class="ei">🃏</div><p>${_dt('deck.emptyMain')}</p></div>`;
+      return;
+    }
+    sorted.forEach((card, idx) => grid.appendChild(makeDeckRow(card, 'main', idx, sorted)));
   });
 }
 
