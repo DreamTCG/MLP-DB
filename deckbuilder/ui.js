@@ -14,14 +14,17 @@
       match: s => s.avgCost >= 4.0,
       desc: 'Big plays and late swings. Patience is your whole strategy.' },
     { key:'rainbow', name:'The Prism',      tag:'every color',
-      match: s => Object.keys(s.colorDist).length >= 4,
-      desc: 'You refuse to pick a lane. Splashy and unpredictable.' },
-    { key:'mono',    name:'The Purist',     tag:'mono-color loyalty',
-      match: s => Object.keys(s.colorDist).length === 1 && s.total >= 5,
-      desc: 'One color, one vision. Synergy over flexibility.' },
+      match: s => Object.keys(s.charNameDist).length > 4 || Object.keys(s.charRaceDist).length > 3,
+      desc: 'Many ponies, many faces. No one expects every angle you cover.' },
+    { key:'mono',    name:'The Purist',     tag:'mono-pony loyalty',
+      match: s => Object.values(s.charNameDist).some(v => v > 15),
+      desc: 'One pony, all-in. Maximum synergy with a single iconic character.' },
     { key:'events',  name:'The Conjurer',   tag:'event-heavy toolkit',
-      match: s => (s.typeDist['Event'] || 0) >= 8,
+      match: s => (s.typeDist['Event'] || 0) > 11,
       desc: "Tricks for every occasion. Your opponent never knows what's coming." },
+    { key:'dresser', name:'The Dresser',    tag:'adorn-item specialist',
+      match: s => s.adorns > 7,
+      desc: 'Fashion is power. Your ponies arrive fully equipped.' },
     { key:'scenes',  name:'The Architect',  tag:'scene-builder',
       match: s => (s.typeDist['Scene'] || 0) >= 6,
       desc: 'Control the board state. Every Scene you play shifts the math.' },
@@ -253,12 +256,25 @@
       });
     });
 
+    // Character-only name/race counts for Purist / Prism vibe checks
+    const charFlat = flat.filter(c => c.type === 'Character');
+    const charNameDist = {}, charRaceDist = {};
+    charFlat.forEach(c => {
+      (c.subtype || []).forEach(s => {
+        if (RACES.has(s)) charRaceDist[s] = (charRaceDist[s] || 0) + 1;
+        else charNameDist[s] = (charNameDist[s] || 0) + 1;
+      });
+    });
+
+    // Adorn item count for The Dresser vibe check
+    const adorns = flat.filter(c => c.type === 'Item' && (c.subtype || []).includes('Adorn')).length;
+
     const rarityOrder = ['CR','GR','SR','U','C','RR','ER','SPR','※CR','※GR','※SR','※RR','※ER','※SPR'];
     const raceItems   = Object.entries(raceDist).sort((a, b) => b[1] - a[1]).map(([label, val]) => ({ label, val }));
     const nameItems   = Object.entries(nameDist).sort((a, b) => b[1] - a[1]).map(([label, val]) => ({ label, val }));
 
     // Vibe read
-    const vibeStats = { total, chars: flatPower.length, avgCost, typeDist, colorDist };
+    const vibeStats = { total, chars: flatPower.length, avgCost, typeDist, charNameDist, charRaceDist, adorns };
     const vibe = readVibe(vibeStats);
 
     const html = `
@@ -269,7 +285,6 @@
       ${barChart('Power Distribution', powerDist, ['#ec4899','#f472b6','#f9a8d4','#fbbf24','#fb923c','#f87171','#ef4444','#dc2626','#b91c1c'], false, '8+')}
       ${horizBar('Rarity Breakdown', rarityOrder.filter(r => rarityDist[r]).map(r => ({ label: r, val: rarityDist[r] })), total, rarityColors())}
       ${donutChart('Card Type', typeDist, typeColors())}
-      ${colorChart('Color Mix', colorDist)}
       ${raceItems.length ? horizBar('Pony Race', raceItems, flat.length, raceColors()) : ''}
       ${nameItems.length ? subtypeNameChart('Character Tags', nameItems, flat.length) : ''}
     `;
