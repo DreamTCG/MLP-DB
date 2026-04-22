@@ -1155,6 +1155,10 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <div class="zone-hdr">
           <span class="zone-label" id="zone-lbl-main-d">🃏 Main Deck</span>
           <div style="display:flex;align-items:center;gap:6px;">
+            <button id="main-layout-btn-d" onclick="toggleMainLayout()"
+              style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);
+              border-radius:6px;padding:2px 8px;font-size:0.75rem;font-weight:800;
+              cursor:pointer;font-family:var(--font-body);" title="Toggle layout">☰</button>
             <button id="main-sort-btn-d" onclick="toggleMainSort()"
               style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);
               border-radius:6px;padding:2px 8px;font-size:0.62rem;font-weight:800;
@@ -1335,6 +1339,10 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
         <div class="zone-hdr">
           <span class="zone-label" id="zone-lbl-main-m">🃏 Main Deck</span>
           <div style="display:flex;align-items:center;gap:6px;">
+            <button id="main-layout-btn-m" onclick="toggleMainLayout()"
+              style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);
+              border-radius:6px;padding:2px 8px;font-size:0.75rem;font-weight:800;
+              cursor:pointer;font-family:var(--font-body);" title="Toggle layout">☰</button>
             <button id="main-sort-btn-m" onclick="toggleMainSort()"
               style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);
               border-radius:6px;padding:2px 8px;font-size:0.62rem;font-weight:800;
@@ -1403,6 +1411,7 @@ window.state = state;
 
 let _officialSets = new Set();
 var _proxyMode = localStorage.getItem('mlp-proxy-mode') === 'true'; // var → window._proxyMode
+var _mainDeckLayout = localStorage.getItem('mlp-deck-layout') || 'list';
 function isProxy(card){ return _officialSets.size > 0 && !_officialSets.has(card.deck); }
 
 // ── i18n — delegates to centralized /i18n/translations.js via window.i18n ──
@@ -2003,6 +2012,19 @@ function toggleMainSort() {
   renderMain();
 }
 
+function toggleMainLayout() {
+  _mainDeckLayout = _mainDeckLayout === 'list' ? 'tiles' : 'list';
+  localStorage.setItem('mlp-deck-layout', _mainDeckLayout);
+  _updateLayoutBtns();
+  renderMain();
+}
+function _updateLayoutBtns() {
+  const icon = _mainDeckLayout === 'list' ? '☰' : '⊞';
+  ['main-layout-btn-d', 'main-layout-btn-m'].forEach(id => {
+    const b = $(id); if (b) b.textContent = icon;
+  });
+}
+
 // ═══════════════════════════════════════════════════════
 // PARSE / APPLY LIBRARY
 // ═══════════════════════════════════════════════════════
@@ -2492,15 +2514,22 @@ function pickMC() {
 }
 
 function renderMain() {
-  const sorted=sortMainCards(state.main);
-  ['main-grid-d','main-grid-m'].forEach(id=>{
-    const grid=$(id); if(!grid) return;
-    grid.innerHTML='';
-    if(!sorted.length){
-      grid.innerHTML=`<div class="empty-zone"><div class="ei">🃏</div><p>${_dt('deck.emptyMain')}</p></div>`;
+  const sorted = sortMainCards(state.main);
+  ['main-grid-d', 'main-grid-m'].forEach(id => {
+    const grid = $(id); if (!grid) return;
+    grid.innerHTML = '';
+    if (!sorted.length) {
+      grid.className = 'deck-list';
+      grid.innerHTML = `<div class="empty-zone"><div class="ei">🃏</div><p>${_dt('deck.emptyMain')}</p></div>`;
       return;
     }
-    sorted.forEach((card, idx) => grid.appendChild(makeDeckRow(card, 'main', idx, sorted)));
+    if (_mainDeckLayout === 'tiles') {
+      grid.className = 'card-grid';
+      sorted.forEach(card => grid.appendChild(makeTile(card, 'main')));
+    } else {
+      grid.className = 'deck-list';
+      sorted.forEach((card, idx) => grid.appendChild(makeDeckRow(card, 'main', idx, sorted)));
+    }
   });
 }
 
@@ -3336,6 +3365,7 @@ window.addEventListener('mlp-proxy-change', function(e){
 document.addEventListener('DOMContentLoaded', async () => {
   renderMC(); renderMain(); renderScene(); renderStory();
   renderLibrary(); updateSidebar();
+  _updateLayoutBtns();
   _renderDeckI18n();
   await preloadAssets();
   // After library is ready, restore the most recently updated deck from IndexedDB
