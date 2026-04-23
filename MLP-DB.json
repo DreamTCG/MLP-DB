@@ -6254,8 +6254,8 @@
     "rarity": "C",
     "deck": "SD01C",
     "story_stage": "III",
-    "ability": "When promoted to this stage, choose 1 Event in your Retirement Area, add it to Hand.",
-    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ เลือกอีเวนต์ 1 ใบในโซนพักผ่อนของคุณ นำการ์ดนั้นขึ้นมือ",
+    "ability": "When promoted to this stage, choose 1 Item in your Retirement Area, add it to Hand.",
+    "ability_th": "เมื่อเลื่อนขึ้นมาถึงสเตจนี้ เลือกไอเทม 1 ใบในโซนพักผ่อนของคุณ นำการ์ดนั้นขึ้นมือ",
     "story_title": "Feeling Pinkie Keen",
     "story_subtitle": "Crisis Averted"
   },

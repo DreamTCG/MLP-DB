@@ -3,7 +3,7 @@
    Cache version: bump CACHE_NAME to force full refresh on deploy
    ============================================================ */
 
-const CACHE_NAME = 'dreamtcg-v2';
+const CACHE_NAME = 'dreamtcg-v3';
 
 // App shell files to pre-cache on install
 const APP_SHELL = [
@@ -16,10 +16,8 @@ const APP_SHELL = [
   '/library/index.html',
 ];
 
-// Never cache these — always network
+// Never cache these — always network (analytics beacons + live deck-share API)
 const NEVER_CACHE = [
-  '/MLP-DB.json',
-  '/cards/',
   '/_vercel/',
   '/api/',
 ];
@@ -95,7 +93,7 @@ self.addEventListener('fetch', event => {
   // Skip non-http(s) requests (chrome-extension://, etc.)
   if (!url.startsWith('http')) return;
 
-  // Never cache: cards, DB JSON, API, Vercel internals
+  // Never cache: API endpoints and Vercel analytics beacons
   if (shouldSkip(url)) return;
 
   // HTML navigation: network-first so deploys are visible immediately
@@ -117,6 +115,25 @@ self.addEventListener('fetch', event => {
             })
           )
         )
+    );
+    return;
+  }
+
+  // Card DB JSON: stale-while-revalidate so deck builder paints instantly
+  // from cache while the SW refreshes in the background.
+  if (new URL(url).pathname === '/MLP-DB.json') {
+    event.respondWith(
+      caches.open(CACHE_NAME).then(cache =>
+        cache.match(event.request).then(cached => {
+          const network = fetch(event.request)
+            .then(res => {
+              if (res.ok) cache.put(event.request, res.clone());
+              return res;
+            })
+            .catch(() => cached);
+          return cached || network;
+        })
+      )
     );
     return;
   }
