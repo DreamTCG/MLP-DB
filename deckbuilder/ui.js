@@ -8,7 +8,7 @@
   // ── Vibe archetypes (ported from Playboard design, adapted to MLP card structure) ──
   const VIBE_ARCHETYPES = [
     { key:'rush',    name:'The Rush',       tag:'aggressive tempo',
-      match: s => s.avgCost <= 2.0 && s.chars >= 8,
+      match: s => s.avgCost <= 2.4 && s.chars >= 8,
       desc: 'Low curve, fast bodies. You want the game to end before turn 6.' },
     { key:'control', name:'The Watchmaker', tag:'control & timing',
       match: s => s.avgCost >= 4.0,
@@ -20,10 +20,10 @@
       match: s => Object.values(s.charNameDist).some(v => v > 15),
       desc: 'One pony, all-in. Maximum synergy with a single iconic character.' },
     { key:'events',  name:'The Conjurer',   tag:'event-heavy toolkit',
-      match: s => (s.typeDist['Event'] || 0) > 11,
+      match: s => (s.typeDist['Event'] || 0) >= 12,
       desc: "Tricks for every occasion. Your opponent never knows what's coming." },
     { key:'dresser', name:'The Dresser',    tag:'adorn-item specialist',
-      match: s => s.adorns > 7,
+      match: s => s.adorns >= 6,
       desc: 'Fashion is power. Your ponies arrive fully equipped.' },
     { key:'scenes',  name:'The Architect',  tag:'scene-builder',
       match: s => (s.typeDist['Scene'] || 0) >= 6,
