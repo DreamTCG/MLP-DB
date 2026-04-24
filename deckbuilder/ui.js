@@ -14,7 +14,7 @@
       match: s => s.avgCost >= 4.0,
       desc: 'Big plays and late swings. Patience is your whole strategy.' },
     { key:'rainbow', name:'The Prism',      tag:'every color',
-      match: s => Object.keys(s.charNameDist).length > 4 || Object.keys(s.charRaceDist).length > 3,
+      match: s => Object.keys(s.charNameDist).length > 4 || Object.keys(s.charRaceDist).length >= 3,
       desc: 'Many ponies, many faces. No one expects every angle you cover.' },
     { key:'mono',    name:'The Purist',     tag:'mono-pony loyalty',
       match: s => Object.values(s.charNameDist).some(v => v > 15),
@@ -257,12 +257,20 @@
     });
 
     // Character-only name/race counts for Purist / Prism vibe checks
+    // Only the three main pony races count; non-pony races (Zebra, Griffin, etc.) are excluded.
+    // Pony names are only counted when the card carries at least one main pony race.
+    const MAIN_PONY_RACES = new Set(['Earth Pony', 'Pegasus', 'Unicorn']);
     const charFlat = flat.filter(c => c.type === 'Character');
     const charNameDist = {}, charRaceDist = {};
     charFlat.forEach(c => {
-      (c.subtype || []).forEach(s => {
-        if (RACES.has(s)) charRaceDist[s] = (charRaceDist[s] || 0) + 1;
-        else charNameDist[s] = (charNameDist[s] || 0) + 1;
+      const subtypes = c.subtype || [];
+      const hasPonyRace = subtypes.some(s => MAIN_PONY_RACES.has(s));
+      subtypes.forEach(s => {
+        if (MAIN_PONY_RACES.has(s)) {
+          charRaceDist[s] = (charRaceDist[s] || 0) + 1;
+        } else if (hasPonyRace) {
+          charNameDist[s] = (charNameDist[s] || 0) + 1;
+        }
       });
     });
 
