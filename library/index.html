@@ -416,7 +416,7 @@ function renderGrid(){
     const el = document.createElement('div');
     el.className = 'card-tile' + (_selected?.id===card.id?' selected':'') + (isProxy(card)?' proxy-card':'');
     el.onclick = ()=>selectCard(card);
-    el.innerHTML=`<img src="${card.imageUrl}" alt="${card.name}" loading="lazy" onerror="this.onerror=null;this.src='../cards/back_main.jpg'">`;
+    el.innerHTML=`<img src="${card.imageUrl}" alt="${card.name}" loading="lazy" onerror="this.onerror=null;this.src='../cards/back_main.webp'">`;
     grid.appendChild(el);
   });
 }
@@ -447,7 +447,7 @@ function selectCard(card){
 
 function buildDetailHTML(card){
   const colorHex = COLOR_MAP[card.color]||'var(--muted)';
-  const imgHTML = `<img src="${card.imageUrl}" alt="${card.name}" onerror="this.onerror=null;this.src='../cards/back_main.jpg'">`;
+  const imgHTML = `<img src="${card.imageUrl}" alt="${card.name}" onerror="this.onerror=null;this.src='../cards/back_main.webp'">`;
   const proxyBadge = isProxy(card) ? `<span class="proxy-badge">🔮 Not Official Release</span>` : '';
 
   const hasCost  = card.cost  != null;
@@ -536,7 +536,7 @@ function buildRelatedHTML(card){
       <div class="related-grid">
         ${sec.cards.map(c=>`
           <div class="rel-card${isProxy(c)?' proxy-card':''}" onclick="selectCard(${JSON.stringify(c).replace(/</g,'\\u003c').replace(/"/g,'&quot;')})">
-            <img src="${c.imageUrl}" alt="${c.name}" loading="lazy" onerror="this.onerror=null;this.src='../cards/back_main.jpg'">
+            <img src="${c.imageUrl}" alt="${c.name}" loading="lazy" onerror="this.onerror=null;this.src='../cards/back_main.webp'">
           </div>`).join('')}
       </div>
     </div>`).join('');
@@ -633,7 +633,7 @@ async function loadCards(){
         subtype:c.subtype||[], color:c.color||'', cost:c.cost??null, power:c.power??null,
         rarity:c.rarity||'C', deck:c.deck||(c.id||'').split('-')[0]||'',
         ability:c.ability||'', ability_th:c.ability_th||'',
-        imageUrl: base+'/cards/'+c.id+'.jpg',
+        imageUrl: base+'/cards/'+c.id+'.webp',
       }));
       buildSetDropdown();
       renderGrid();

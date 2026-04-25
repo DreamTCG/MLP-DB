@@ -1247,9 +1247,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Set deck back images (CARDS_BASE is available immediately)
   const mainBack=document.getElementById('main-deck-back');
-  if(mainBack){mainBack.src=CARDS_BASE+'back_main.jpg';mainBack.style.display='block';}
+  if(mainBack){mainBack.src=CARDS_BASE+'back_main.webp';mainBack.style.display='block';}
   const sceneBack=document.getElementById('scene-deck-back');
-  if(sceneBack){sceneBack.src=CARDS_BASE+'back_scene.jpg';sceneBack.style.display='block';}
+  if(sceneBack){sceneBack.src=CARDS_BASE+'back_scene.webp';sceneBack.style.display='block';}
 
   // Check for preloaded deck from main site
   try {
@@ -1641,7 +1641,7 @@ function showAdvCtxMenu(idx){
   const c=G.pAdv[idx];if(!c)return;
   const ab=c.ability||'';
   const hasTap=ab.includes('[Tap]');
-  const imgSrc=c.imageUrl||(c.id?CARDS_BASE+c.id+'.jpg':null);
+  const imgSrc=c.imageUrl||(c.id?CARDS_BASE+c.id+'.webp':null);
   showModal(c.name,
     `<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:4px">
       ${imgSrc?`<img src="${imgSrc}" style="width:56px;height:78px;object-fit:cover;object-position:top;border-radius:3px;flex-shrink:0" onerror="this.style.display='none'">`:''}
@@ -2181,7 +2181,7 @@ function mkCard(c,isP){
   const insp=isP?effInsp(c,G.phase==='main'):(c.power||0);
   const boosted=(c._boosted||0)>0||(c._item&&isP&&G.phase==='main');
   const st=(c.subtype||[]).map(s=>SICON[s]||'').filter(Boolean)[0]||TICON[c.type]||'?';
-  const artSrc=c.imageUrl||(c.id?CARDS_BASE+c.id+'.jpg':null);
+  const artSrc=c.imageUrl||(c.id?CARDS_BASE+c.id+'.webp':null);
   const ic=isOrange?'orange':(boosted?'boosted':'');
   const safe=JSON.stringify({...c,_item:c._item||null}).replace(/'/g,"&#39;").replace(/"/g,'&quot;');
   return`<div class="gcard ${tc}${isOrange?' orange':''}${tapped}"
@@ -2317,7 +2317,7 @@ function renderScene(){
     else if(s._tapped)        title='Tapped — ใช้ Harmony ไปแล้วเทิร์นนี้';
     else if(hasInspo)         title='คลิก Tap +1✦ | Contact Phase: ↩ Inspo Boost';
     else                      title='คลิก Tap +1✦';
-    const scImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
+    const scImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.webp':null);
     return`<div class="sc-card${tappedCls}${flippedCls}"
       onclick="sceneClick(event,${i})"
       oncontextmenu="sceneCtx(event,${i})"
@@ -2429,7 +2429,7 @@ function renderOppScene(){
     return;
   }
   el.innerHTML=G.oSceneArea.map((s,i)=>{
-    const scImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
+    const scImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.webp':null);
     const tappedCls=s._tapped?' tapped':'';
     const flippedCls=s._flipped?' flipped':'';
     return`<div class="sc-card${tappedCls}${flippedCls}" style="border-color:rgba(248,113,113,.5);cursor:default"
@@ -2471,7 +2471,7 @@ function renderStory(){
     const planHtml=plan
       ? `<div class="plan-over" onclick="peekPlan(${i},'player')" title="แผนการ (คว่ำ) — คลิกดูเฉพาะเรา">📋 Plan</div>`
       : '';
-    const sImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
+    const sImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.webp':null);
     return`<div class="s-slot" onmouseenter="showTTData(event,G.storyCards[${i}])" onmouseleave="hideTT()" 
       ontouchstart="ttStart(()=>showTTData(event,G.storyCards[${i}]))" ontouchend="ttEnd()" ontouchmove="ttCancel()"><div class="s-card ${done?'done':''} ${cur?'current':''}">
       <div class="s-phase">${s.story_stage}</div>
@@ -2489,7 +2489,7 @@ function renderStory(){
       const planHtml=plan
         ? `<div class="plan-over opp-plan-bar" title="แผนการ OPP (ซ่อน)">📋 Plan</div>`
         : '';
-      const osImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.jpg':null);
+      const osImgSrc=s.imageUrl||(s.id?CARDS_BASE+s.id+'.webp':null);
       return`<div class="s-slot" onmouseenter="showTTData(event,G.oStory[${i}])" onmouseleave="hideTT()" 
         ontouchstart="ttStart(()=>showTTData(event,G.oStory[${i}])" ontouchend="ttEnd()" ontouchmove="ttCancel()"><div class="s-card ${done?'done':''} ${cur?'current':''}"
         style="${cur?'border-color:rgba(248,113,113,.6);box-shadow:0 0 5px rgba(248,113,113,.2)':''}">
@@ -2523,11 +2523,11 @@ function renderCounts(){
   if(G.raw){
     document.getElementById('mc-name-lbl').textContent=G.raw.mc.name.split(' ')[0];
     const mcImg=document.getElementById('mc-img');
-    if(mcImg){const s=G.raw.mc.imageUrl||(G.raw.mc.id?CARDS_BASE+G.raw.mc.id+'.jpg':'');if(s){mcImg.src=s;mcImg.style.display='block';}}
+    if(mcImg){const s=G.raw.mc.imageUrl||(G.raw.mc.id?CARDS_BASE+G.raw.mc.id+'.webp':'');if(s){mcImg.src=s;mcImg.style.display='block';}}
   }
   if(G.botRaw){
     const oppMcImg=document.getElementById('opp-mc-img');
-    if(oppMcImg){const s=G.botRaw.mc.imageUrl||(G.botRaw.mc.id?CARDS_BASE+G.botRaw.mc.id+'.jpg':'');if(s){oppMcImg.src=s;oppMcImg.style.display='block';}}
+    if(oppMcImg){const s=G.botRaw.mc.imageUrl||(G.botRaw.mc.id?CARDS_BASE+G.botRaw.mc.id+'.webp':'');if(s){oppMcImg.src=s;oppMcImg.style.display='block';}}
   }
 }
 function updateHarmony(){document.getElementById('harmony-val').textContent=G.harmony;}
@@ -2648,7 +2648,7 @@ function _updateDiscardBtn(){
 // peekPlan: เจ้าของดูการ์ดแผนการของตัวเองได้ (โซนปิด — เห็นเฉพาะตัวเอง)
 function showPlanRevealModal(plan, slotIdx){
   window._revealedPlan=plan;
-  const imgSrc=plan.imageUrl||(plan.id?CARDS_BASE+plan.id+'.jpg':null);
+  const imgSrc=plan.imageUrl||(plan.id?CARDS_BASE+plan.id+'.webp':null);
   const ability=plan.ability_th||plan.ability||'';
   const hasPrePlan=ability.toLowerCase().includes('pre-plan');
   showModal('📋 แผนการถูกเปิดเผย!',
@@ -2713,7 +2713,7 @@ function showTTData(event,c){
   const insp=G.phase!=='setup'?effInsp(c,G.phase==='main'):(c.power??'—');
   const db=CARD_DB[c.id]||{};
   const ability=c.ability_th||c.ability||db.ability_th||db.ability||'';
-  const artSrc=c.imageUrl||(c.id?CARDS_BASE+c.id+'.jpg':null);
+  const artSrc=c.imageUrl||(c.id?CARDS_BASE+c.id+'.webp':null);
   tt.innerHTML=`
     ${artSrc?`<img class="tt-art" src="${artSrc}" alt="${c.name}" onerror="this.style.display='none'">`:''}
     <div class="ttn">${c.name} <span style="font-size:9px;color:var(--text3)">[${c.rarity||''}] ${c.id||''}</span></div>

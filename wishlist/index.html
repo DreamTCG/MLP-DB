@@ -1006,7 +1006,7 @@
           rarity:  c.rarity || 'C',
           deck:    c.deck || '',
           ability: c.ability || '',
-          imageUrl: base + '/cards/' + c.id + '.jpg'
+          imageUrl: base + '/cards/' + c.id + '.webp'
         }));
         return true;
       } catch (e) { console.warn('Load failed:', base, e.message); }
@@ -1138,7 +1138,7 @@
     const img = document.createElement('img');
     img.alt = card.name; img.loading = 'lazy';
     img.src = card.imageUrl;
-    img.onerror = () => { img.onerror = null; img.src = '../cards/back_main.jpg'; };
+    img.onerror = () => { img.onerror = null; img.src = '../cards/back_main.webp'; };
 
     // Remove button — top-left
     const rmBtn = document.createElement('button');
@@ -1440,7 +1440,7 @@
 
         const img = document.createElement('img');
         img.src = card.imageUrl; img.alt = card.name; img.loading = 'lazy';
-        img.onerror = () => { img.onerror = null; img.src = '../cards/back_main.jpg'; };
+        img.onerror = () => { img.onerror = null; img.src = '../cards/back_main.webp'; };
 
         imgWrap.append(ph, img);
 

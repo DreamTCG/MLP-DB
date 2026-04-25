@@ -2181,7 +2181,7 @@ function renderLibrary() {
       imgWrap.className = 'card-tile-img' + (isProxy(card) ? ' proxy-card' : '');
       const img = document.createElement('img');
       img.src = card.imageUrl; img.alt = card.name; img.loading = 'lazy';
-      img.onerror = () => { img.onerror = null; img.src = '../cards/back_main.jpg'; };
+      img.onerror = () => { img.onerror = null; img.src = '../cards/back_main.webp'; };
       imgWrap.appendChild(img);
       if (inDeck) {
         const badge = document.createElement('span');
@@ -2317,7 +2317,7 @@ function makeTile(card, zone) {
   imgWrap.className='card-tile-img' + (isProxy(card) ? ' proxy-card' : '');
   const img=document.createElement('img');
   img.src=card.imageUrl; img.alt=card.name; img.loading='lazy';
-  img.onerror=()=>{img.onerror=null;img.src='../cards/back_main.jpg';};
+  img.onerror=()=>{img.onerror=null;img.src='../cards/back_main.webp';};
   imgWrap.appendChild(img);
   if(isProxy(card) && !_proxyMode){
     const warn=document.createElement('div');
@@ -2494,7 +2494,7 @@ function renderMC() {
       c.cost != null ? `<span class="mc-stat">⭐ ${c.cost}</span>` : '',
     ].join('');
     el.innerHTML=`<div class="mc-slot filled">
-      <div class="mc-img${mcProxyClass}"><img src="${c.imageUrl}" alt="${c.name}" onerror="this.onerror=null;this.src='../cards/back_main.jpg'"></div>
+      <div class="mc-img${mcProxyClass}"><img src="${c.imageUrl}" alt="${c.name}" onerror="this.onerror=null;this.src='../cards/back_main.webp'"></div>
       <div class="mc-info">
         <div class="mc-name">${c.name}</div>
         <div class="mc-meta">${c.rarity||''} · <span style="color:${rc}">${COLOR_ICON[c.color]||''} ${c.color||''}</span> · ${(c.subtype||[]).join(', ')}</div>
@@ -2566,7 +2566,7 @@ function renderStory() {
       const storyProxyClass = card && isProxy(card) ? ' proxy-card' : '';
       slot.innerHTML=`<div class="story-tier">Tier ${tiers[i]}</div>
         <div class="story-img${storyProxyClass}" onclick="storyUploadClick(${i})">
-          ${card?`<img src="${card.imageUrl}" alt="${card.name}" onerror="this.onerror=null;this.src='../cards/back_main.jpg'">`:'<span style="font-size:1.5rem">📜</span>'}
+          ${card?`<img src="${card.imageUrl}" alt="${card.name}" onerror="this.onerror=null;this.src='../cards/back_main.webp'">`:'<span style="font-size:1.5rem">📜</span>'}
           ${card?`<button class="story-rm" onclick="event.stopPropagation();removeCard('story','${card.id}')">✕</button>`:''}
         </div>`;
       grid.appendChild(slot);
@@ -2871,7 +2871,7 @@ function _renderZoom(card) {
     zmImg.style.borderRadius = '14px';
   }
   const RC={CR:'#a78bfa',GR:'#fbbf24',RR:'#f472b6',SR:'#34d399',U:'#60a5fa',C:'#9ca3af',SPR:'#fb923c',ER:'#38bdf8','※CR':'#d4a0ff','※GR':'#ffe066','※SR':'#6effc2','※RR':'#ff9de2','※ER':'#7ee8ff','※SPR':'#ffc57a'};
-  $('zm-img').innerHTML=`<img src="${card.imageUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.onerror=null;this.src='../cards/back_main.jpg'">`;
+  $('zm-img').innerHTML=`<img src="${card.imageUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.onerror=null;this.src='../cards/back_main.webp'">`;
   $('zm-img').classList.toggle('proxy-card', isProxy(card));
   const rc=RC[card.rarity]||'var(--muted)';
   const zmProxyBadge=isProxy(card)?` <span class="proxy-badge">🔮 Not Official Release</span>`:'';
@@ -3289,7 +3289,7 @@ async function preloadAssets() {
       if(!cardsRes.ok) continue;
       const data=await cardsRes.json();
       const cards=parseCardData(data);
-      cards.forEach(card=>{ card.imageUrl=src.base+'/cards/'+card.id+'.jpg'; });
+      cards.forEach(card=>{ card.imageUrl=src.base+'/cards/'+card.id+'.webp'; });
       applyLibrary(cards,true);
       toast(`📚 ${cards.length} cards loaded`,'ok');
       return;
