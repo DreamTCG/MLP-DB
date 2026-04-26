@@ -15,14 +15,22 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const filename = req.query.filename || `deck_${Date.now()}.jpg`;
+  const rawFilename = req.query.filename || `deck_${Date.now()}.jpg`;
+  const filename = rawFilename.replace(/[^a-zA-Z0-9_.-]/g, '_').slice(0, 80);
 
+  const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
   const chunks = [];
-  await new Promise((resolve, reject) => {
-    req.on('data', chunk => chunks.push(chunk));
-    req.on('end', resolve);
-    req.on('error', reject);
-  });
+  let totalSize = 0;
+  try {
+    await new Promise((resolve, reject) => {
+      req.on('data', chunk => { totalSize += chunk.length; chunks.push(chunk); });
+      req.on('end', resolve);
+      req.on('error', reject);
+    });
+  } catch (e) {
+    return res.status(500).json({ error: 'Upload stream error' });
+  }
+  if (totalSize > MAX_BYTES) return res.status(413).json({ error: 'File too large (max 5 MB)' });
   const body = Buffer.concat(chunks);
 
   const blob = await put(`snapshots/${filename}`, body, {

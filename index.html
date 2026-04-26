@@ -350,9 +350,11 @@
     .card-wide { grid-column: 1; }
     .logo-title { font-size: 2.2rem; }
   }
+  .skip-link:focus { left: 1rem !important; }
 </style>
 </head>
 <body>
+<a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:1rem;z-index:10000;background:var(--purple,#5b21b6);color:#fff;padding:6px 14px;border-radius:6px;font-weight:700;text-decoration:none">Skip to content</a>
 <!-- i18n translations (must load before nav.js) -->
 <script src="./i18n/translations.js"></script>
 <!-- Shared navigation — loaded from root nav.js -->
@@ -367,7 +369,7 @@
 <!-- Floating sparkles -->
 <div class="sparkles" id="sparkles"></div>
 
-<div class="container">
+<main id="main-content" class="container">
 
   <!-- Logo -->
   <div class="logo-area">
@@ -378,12 +380,12 @@
 
   <!-- Pony row -->
   <div class="pony-row">
-    <span class="pony-emoji" style="--bd:2.1s;--bde:0s">🦄</span>
-    <span class="pony-emoji" style="--bd:2.4s;--bde:0.3s">🌈</span>
-    <span class="pony-emoji" style="--bd:2.0s;--bde:0.6s">🦋</span>
-    <span class="pony-emoji" style="--bd:2.6s;--bde:0.2s">✨</span>
-    <span class="pony-emoji" style="--bd:1.9s;--bde:0.5s">🍎</span>
-    <span class="pony-emoji" style="--bd:2.3s;--bde:0.1s">🎀</span>
+    <span class="pony-emoji" style="--bd:2.1s;--bde:0s" aria-hidden="true">🦄</span>
+    <span class="pony-emoji" style="--bd:2.4s;--bde:0.3s" aria-hidden="true">🌈</span>
+    <span class="pony-emoji" style="--bd:2.0s;--bde:0.6s" aria-hidden="true">🦋</span>
+    <span class="pony-emoji" style="--bd:2.6s;--bde:0.2s" aria-hidden="true">✨</span>
+    <span class="pony-emoji" style="--bd:1.9s;--bde:0.5s" aria-hidden="true">🍎</span>
+    <span class="pony-emoji" style="--bd:2.3s;--bde:0.1s" aria-hidden="true">🎀</span>
   </div>
 
   <!-- Nav cards -->
@@ -446,7 +448,7 @@
     <p style="margin-top:4px"><a href="https://dreamtcg.github.io/MLP-DB/" target="_blank">dreamtcg.github.io/MLP-DB</a></p>
   </div>
 
-</div>
+</main>
 
 <script>
 

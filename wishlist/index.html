@@ -84,6 +84,7 @@
       font-family: var(--font-body); font-size: 0.8rem;
     }
     .lib-search-input:focus { outline: none; border-color: var(--purple); }
+    .lib-search-input:focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; }
     .lib-filter-row {
       display: flex; gap: 5px; padding: 4px 8px 6px; flex-shrink: 0;
       flex-wrap: nowrap; align-items: center;
@@ -490,6 +491,7 @@
       font-family: monospace; font-size: 0.74rem; padding: 10px; min-height: 160px;
     }
     .io-textarea:focus { outline: none; border-color: var(--purple); }
+    .io-textarea:focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; }
 
     /* ── TOASTS ── */
     .toast-wrap {
@@ -552,6 +554,8 @@
   </script>
 </head>
 <body>
+<a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:1rem;z-index:10000;background:#5b21b6;color:#fff;padding:6px 14px;border-radius:6px;font-weight:700;text-decoration:none">Skip to content</a>
+<style>.skip-link:focus{left:1rem!important;}</style>
 
   <!-- ── Toast notifications ── -->
   <div class="toast-wrap" id="toasts"></div>
@@ -580,6 +584,7 @@
   <!-- ════════════════════════════════════════════════════════
        DESKTOP — 2-panel layout (#app)
        ════════════════════════════════════════════════════════ -->
+  <main id="main-content">
   <div id="app">
 
     <!-- ── LEFT: Library panel ── -->
@@ -1759,6 +1764,7 @@
     render(); // full render with library data
   });
   </script>
+  </main>
 
 </body>
 </html>

@@ -42,6 +42,8 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
 .lib-filters{padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .lib-search{width:100%;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);font-family:var(--font-body);font-size:0.75rem;margin-bottom:6px;}
 .lib-search:focus{outline:none;border-color:var(--purple);}
+.lib-search:focus-visible{outline:2px solid var(--purple);outline-offset:2px;}
+.skip-link:focus{left:1rem!important;}
 .filter-row{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
 .filter-row::-webkit-scrollbar{display:none;}
 .dd-wrap{position:relative;}
@@ -53,7 +55,7 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
 .dd-item:hover{background:var(--surface2);}
 .dd-item input{accent-color:var(--purple);width:12px;height:12px;cursor:pointer;}
 .race-tab{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:0.6rem;cursor:pointer;color:var(--muted);flex:1;font-family:var(--font-body);font-weight:600;}
-.race-tab.active{background:var(--purple);color:#fff;border-color:var(--purple);}
+.race-tab.active{background:var(--purple);color:#fff;border-color:var(--purple);font-weight:700;text-decoration:underline;}
 .sort-btn{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;font-size:0.75rem;cursor:pointer;color:var(--muted);flex-shrink:0;}
 .sort-btn:hover{border-color:var(--purple);}
 .lib-count{font-size:0.62rem;color:var(--dim);padding:2px 0;}
@@ -91,7 +93,7 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
 .detail-ability .ability-label{font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:4px;}
 .lang-toggle{display:flex;gap:4px;margin-bottom:8px;align-items:center;}
 .lang-btn{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:0.6rem;cursor:pointer;color:var(--muted);font-family:var(--font-body);}
-.lang-btn.active{background:var(--purple);color:#fff;border-color:var(--purple);}
+.lang-btn.active{background:var(--purple);color:#fff;border-color:var(--purple);font-weight:700;}
 .fs-btn{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:0.6rem;cursor:pointer;color:var(--muted);font-family:var(--font-body);line-height:1.4;}
 .lang-sep{width:1px;height:14px;background:var(--border);margin:0 2px;}
 .related-section{border-top:1px solid var(--border);padding-top:12px;}
@@ -181,16 +183,17 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
 </script>
 </head>
 <body>
+<a href="#main-content" class="skip-link" style="position:absolute;left:-9999px;top:1rem;z-index:10000;background:#5b21b6;color:#fff;padding:6px 14px;border-radius:6px;font-weight:700;text-decoration:none">Skip to content</a>
 <div id="app">
   <div class="topbar">
     <span class="topbar-title">📚 MLP Card Library</span>
     <span id="lib-count-lbl" style="font-size:0.65rem;color:var(--dim);"></span>
   </div>
-  <div id="main">
+  <main id="main-content">
     <!-- LEFT: filters + grid -->
     <div id="lib-panel">
       <div class="lib-filters">
-        <input class="lib-search" id="lib-search" placeholder="Search cards..." oninput="renderGrid()" data-i18n-ph="common.search">
+        <input class="lib-search" id="lib-search" placeholder="Search cards..." oninput="_debouncedRenderGrid()" data-i18n-ph="common.search">
         <div class="filter-row">
           <div class="dd-wrap">
             <button class="dd-btn" id="lib-filter-type-btn" onclick="toggleDD('dd-type')">Type <span style="font-size:0.5rem">▼</span></button>
@@ -265,7 +268,7 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
       </div>
       <div id="detail-content" style="display:none;"></div>
     </div>
-  </div>
+  </main>
 </div>
 
 <!-- Mobile bottom sheet -->
@@ -292,6 +295,8 @@ function _lt(key){ return (window.i18n && window.i18n.t(key)) || key; }
 
 let _library = [];
 let _selected = null;
+let _renderDebounceTimer = null;
+function _debouncedRenderGrid() { clearTimeout(_renderDebounceTimer); _renderDebounceTimer = setTimeout(renderGrid, 250); }
 let _officialSets = new Set();
 let _proxyMode = localStorage.getItem('mlp-proxy-mode') === 'true';
 function isProxy(card){ return _officialSets.size > 0 && !_officialSets.has(card.deck); }
