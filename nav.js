@@ -157,7 +157,7 @@
 
     .mlp-nav-link {
       display: flex; align-items: center; gap: 6px;
-      text-decoration: none; color: rgba(255,255,255,0.75);
+      text-decoration: none; color: rgba(255,255,255,0.95);
       font-size: 0.875rem; font-weight: 700;
       padding: 7px 13px; border-radius: 10px;
       transition: background 0.18s, color 0.18s, transform 0.15s;
@@ -448,6 +448,9 @@
       font-size:1rem; cursor:pointer; padding:0 2px; line-height:1; flex-shrink:0;
     }
     #mlp-banner-close:hover { color:#fff; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
   `;
 
   /* ── DARK MODE HELPERS ───────────────────────────────────── */
@@ -725,22 +728,45 @@
       const name    = (user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User').slice(0, 24);
       const avatar  = user.user_metadata?.avatar_url || '';
       const initial = name.charAt(0).toUpperCase();
-      const avatarHTML = avatar
-        ? `<img src="${avatar}" alt="${initial}" onerror="this.style.display='none';this.parentNode.textContent='${initial}'">`
-        : initial;
 
-      wrap.innerHTML = `<button id="mlp-user-btn"><span class="mlp-avatar">${avatarHTML}</span><span style="font-size:0.6rem;opacity:0.7;margin-left:4px;">▼</span></button>`;
+      function _makeAvatarEl(size) {
+        const span = document.createElement('span');
+        span.className = 'mlp-avatar';
+        if (size) { span.style.width = size; span.style.height = size; span.style.fontSize = '0.65rem'; }
+        if (avatar && /^https:\/\//.test(avatar)) {
+          const img = document.createElement('img');
+          img.src = avatar;
+          img.alt = initial;
+          img.onerror = () => { img.remove(); span.textContent = initial; };
+          span.appendChild(img);
+        } else {
+          span.textContent = initial;
+        }
+        return span;
+      }
+
+      wrap.innerHTML = '';
+      const userBtn = document.createElement('button');
+      userBtn.id = 'mlp-user-btn';
+      userBtn.appendChild(_makeAvatarEl(null));
+      const chevron = document.createElement('span');
+      chevron.style.cssText = 'font-size:0.6rem;opacity:0.7;margin-left:4px;';
+      chevron.textContent = '▼';
+      userBtn.appendChild(chevron);
+      wrap.appendChild(userBtn);
 
       if (ud) {
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'mlp-user-name';
+        nameDiv.appendChild(_makeAvatarEl('24px'));
+        nameDiv.appendChild(document.createTextNode(' 👤 ' + name));
         ud.innerHTML = `
-          <div class="mlp-user-name">
-            <span class="mlp-avatar" style="width:24px;height:24px;font-size:0.65rem;">${avatarHTML}</span>
-            👤 ${name}
-          </div>
           <div class="mlp-user-actions">
             <a class="mlp-feedback-link" id="mlp-feedback-user" href="https://m.me/Kiettisak.v" target="_blank" rel="noopener" title="${t('nav.feedback')}">💬</a>
             <button id="mlp-user-logout">${t('auth.logout')}</button>
           </div>`;
+        ud.insertBefore(nameDiv, ud.firstChild);
+
         ud.querySelector('#mlp-user-logout').addEventListener('click', () => {
           ud.classList.remove('open');
           _syncNavHBanner();

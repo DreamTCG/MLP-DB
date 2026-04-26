@@ -43,8 +43,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 <style>
 /* ═══════════════════════════════════════════════════════
    TOKENS
@@ -879,6 +879,8 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
 </script>
 </head>
 <body>
+<a href="#app" class="skip-link" style="position:absolute;left:-9999px;top:1rem;z-index:10000;background:#5b21b6;color:#fff;padding:6px 14px;border-radius:6px;font-weight:700;text-decoration:none">Skip to content</a>
+<style>.skip-link:focus{left:1rem!important;}</style>
 
 <!-- Toast -->
 <div class="toast-wrap" id="toasts"></div>
@@ -1011,7 +1013,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
 <!-- ═══════════════════════════════════════════════════
      DESKTOP APP (≥900px)
 ════════════════════════════════════════════════════ -->
-<div id="app">
+<div id="app" role="main">
 
   <!-- LEFT: Library -->
   <div id="panel-lib">
@@ -1427,7 +1429,10 @@ function scheduleAutoSave() {
   _autoSaveTimer = setTimeout(_autoSaveNow, 1000);
 }
 
+let _autoSaveInFlight = false;
 async function _autoSaveNow() {
+  if (_autoSaveInFlight) return;
+  _autoSaveInFlight = true;
   const name = (($('deck-name') || {}).value || 'My Deck').slice(0, 30);
   const deck = { id: _currentDeckId, name, mc: state.mc, main: state.main, scene: state.scene, story: state.story };
   try {
@@ -1435,11 +1440,16 @@ async function _autoSaveNow() {
     _currentDeckId = rec.id;
     if (typeof _refreshDeckDropdown === 'function') _refreshDeckDropdown();
     if (window._supabase && typeof cloudSaveDeck === 'function') {
-      cloudSaveDeck(rec).catch(e => console.warn('Cloud sync fail:', e));
+      cloudSaveDeck(rec).catch(e => {
+        console.warn('Cloud sync fail:', e);
+        toast('☁️ Cloud save failed — check your connection', 'warn');
+      });
     }
   } catch (err) {
     if (err.name === 'ConstraintError') toast('⚠ ชื่อเด็คซ้ำ', 'warn');
     else console.warn('Auto-save failed:', err);
+  } finally {
+    _autoSaveInFlight = false;
   }
 }
 
@@ -1577,7 +1587,7 @@ async function startRenameDeck(id, currentName, isMob) {
       toast('⚠ มีเด็คชื่อนี้อยู่แล้ว', 'warn'); input.focus(); return;
     }
     await dbRenameDeck(id, newName);
-    if (window._supabase && typeof cloudRenameDeck === 'function') cloudRenameDeck(id, newName).catch(() => {});
+    if (window._supabase && typeof cloudRenameDeck === 'function') cloudRenameDeck(id, newName);
     if (_currentDeckId === id) {
       $('deck-name').value = newName;
       if ($('deck-name-m')) $('deck-name-m').value = newName;
@@ -1687,10 +1697,13 @@ async function _saveCloudDeckToIDB(cd) {
   });
 }
 
-let _cloudSyncBusy = false;
+let _cloudSyncPromise = null;
 async function _syncFromCloud() {
-  if (_cloudSyncBusy) { console.log('[cloud] sync already running, skip'); return; }
-  _cloudSyncBusy = true;
+  if (_cloudSyncPromise) { console.log('[cloud] sync already running, joining'); return _cloudSyncPromise; }
+  _cloudSyncPromise = _doCloudSync().finally(() => { _cloudSyncPromise = null; });
+  return _cloudSyncPromise;
+}
+async function _doCloudSync() {
   try {
     console.log('[cloud] _syncFromCloud: start');
 
@@ -1729,8 +1742,6 @@ async function _syncFromCloud() {
   } catch (err) {
     console.error('[cloud] _syncFromCloud error:', err);
     toast('☁️ โหลดจาก cloud ไม่สำเร็จ: ' + err.message, 'warn');
-  } finally {
-    _cloudSyncBusy = false;
   }
 }
 
@@ -1741,7 +1752,7 @@ window._onLogout = async () => {
   // Cancel any pending auto-save
   clearTimeout(_autoSaveTimer);
   _currentDeckId = null;
-  _cloudSyncBusy = false;
+  _cloudSyncPromise = null;
 
   // Clear all decks from IndexedDB
   try {

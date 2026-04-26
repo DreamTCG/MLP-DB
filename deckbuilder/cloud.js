@@ -48,7 +48,10 @@
     const { data: { session } } = await sb.auth.getSession();
     if (!session) return;
     const { error } = await sb.from('decks').delete().eq('id', id);
-    if (error) console.error('[cloud] cloudDeleteDeck:', error.message);
+    if (error) {
+      console.error('[cloud] cloudDeleteDeck:', error.message);
+      if (typeof toast === 'function') toast('☁️ Cloud delete failed: ' + error.message, 'warn');
+    }
   }
 
   async function cloudRenameDeck(id, name) {
@@ -56,7 +59,10 @@
     const { data: { session } } = await sb.auth.getSession();
     if (!session) return;
     const { error } = await sb.from('decks').update({ name }).eq('id', id);
-    if (error) console.error('[cloud] cloudRenameDeck:', error.message);
+    if (error) {
+      console.error('[cloud] cloudRenameDeck:', error.message);
+      if (typeof toast === 'function') toast('☁️ Cloud rename failed: ' + error.message, 'warn');
+    }
   }
 
   Object.assign(window, { cloudGetAllDecks, cloudSaveDeck, cloudDeleteDeck, cloudRenameDeck });

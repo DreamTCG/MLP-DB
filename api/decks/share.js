@@ -5,19 +5,17 @@
  */
 
 import { Redis } from '@upstash/redis';
+import { randomBytes } from 'crypto';
 
 const redis = new Redis({
   url:   process.env.KV_REST_API_URL,
   token: process.env.KV_REST_API_TOKEN,
 });
 
-function nanoid8() {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  let id = '';
-  for (let i = 0; i < 8; i++) {
-    id += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return id;
+const ALLOWED_ORIGINS = ['https://mlptcg.vercel.app'];
+
+function nanoid12() {
+  return randomBytes(9).toString('base64url').slice(0, 12);
 }
 
 export default async function handler(req, res) {
@@ -36,7 +34,7 @@ export default async function handler(req, res) {
   let id;
   let attempts = 0;
   do {
-    id = nanoid8();
+    id = nanoid12();
     const existing = await redis.get(`deck:${id}`);
     if (!existing) break;
     attempts++;
@@ -51,7 +49,9 @@ export default async function handler(req, res) {
 
   await redis.set(`deck:${id}`, JSON.stringify(payload));
 
-  const origin = req.headers.origin || 'https://mlptcg.vercel.app';
+  const origin = ALLOWED_ORIGINS.includes(req.headers.origin)
+    ? req.headers.origin
+    : 'https://mlptcg.vercel.app';
   const url = `${origin}/deck/${id}`;
 
   return res.status(200).json({ url, id });
