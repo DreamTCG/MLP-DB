@@ -44,7 +44,7 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
 .lib-search:focus{outline:none;border-color:var(--purple);}
 .lib-search:focus-visible{outline:2px solid var(--purple);outline-offset:2px;}
 .skip-link:focus{left:1rem!important;}
-.filter-row{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.filter-row{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;}
 .filter-row::-webkit-scrollbar{display:none;}
 .dd-wrap{position:relative;}
 .dd-btn{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:4px 8px;font-size:0.65rem;font-family:var(--font-body);font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;}
@@ -311,19 +311,42 @@ let _altMode = 'all'; // 'all' | 'no-alt' | 'alt-only'
 const COLOR_MAP = {Purple:'#a78bfa',Pink:'#f472b6',Yellow:'#fbbf24',Orange:'#fb923c',Blue:'#60a5fa',White:'#e2e8f0'};
 
 function getChecked(id){return Array.from(document.querySelectorAll(`#${id} input:checked`)).map(e=>e.value);}
+// Portal-based dropdown: moves menu to <body> so it always escapes any
+// compositing or stacking context (fixes iOS -webkit-overflow-scrolling
+// and Android overflow-x:auto layer issues).
+let _ddPortal = null; // { menu, parent }
+
+function _closeDDPortal(){
+  if(!_ddPortal) return;
+  _ddPortal.menu.classList.remove('open');
+  _ddPortal.parent.appendChild(_ddPortal.menu);
+  _ddPortal = null;
+}
+
 function toggleDD(id){
-  const wasOpen = document.getElementById(id)?.classList.contains('open');
-  document.querySelectorAll('.dd-menu.open').forEach(m=>m.classList.remove('open'));
-  if(wasOpen) return;
   const menu = document.getElementById(id);
-  if(!menu) return;
+  const alreadyOpen = _ddPortal && _ddPortal.menu === menu;
+  _closeDDPortal();
+  if(alreadyOpen || !menu) return;
   const btn = menu.previousElementSibling;
   const rect = btn.getBoundingClientRect();
+  const vw = window.innerWidth;
+  // Clamp so the menu doesn't overflow the right edge on narrow phones
+  const approxW = Math.max(menu.offsetWidth || 0, 120);
+  const left = Math.min(rect.left, vw - approxW - 8);
   menu.style.top  = (rect.bottom + 4) + 'px';
-  menu.style.left = rect.left + 'px';
+  menu.style.left = Math.max(4, left) + 'px';
+  const originalParent = menu.parentElement;
+  document.body.appendChild(menu);
+  _ddPortal = { menu, parent: originalParent };
   menu.classList.add('open');
 }
-document.addEventListener('click',e=>{if(!e.target.closest('.dd-wrap'))document.querySelectorAll('.dd-menu.open').forEach(m=>m.classList.remove('open'));});
+
+document.addEventListener('click', e => {
+  if(!_ddPortal) return;
+  // Close if click is outside both the trigger button row and the open menu
+  if(!e.target.closest('.dd-wrap') && !e.target.closest('.dd-menu')) _closeDDPortal();
+});
 
 function setRaceTab(tab){
   document.getElementById('race-pony').style.display = tab==='pony' ? '' : 'none';
