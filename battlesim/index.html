@@ -1198,7 +1198,7 @@ function dismissPreloadBanner() {
   _preloadDeckData = null;
 }
 function goBackToDeckBuilder() {
-  if(confirm('กลับไปยัง Deck Builder ใช่ไหม?\n(เด็คที่โหลดไว้จะถูกรีเซ็ต)')) {
+  if(confirm(_st('sim.toast.backConfirm'))) {
     window.location.href = '../';
   }
 }

@@ -159,6 +159,81 @@
       'deck.navDeck':      'Deck',                             // ✅ translate
       'deck.navAnalysis':  'Analysis',                         // ✅ translate
 
+      // Analysis panel toggle
+      'deck.analysis.show': '📊 Show',                         // ✅ translate
+      'deck.analysis.hide': '📊 Hide',                         // ✅ translate
+
+      // ── DECK BUILDER TOASTS / CONFIRMS (deckbuilder/index.html) ─
+      // %1, %2 … are positional placeholders replaced by _fmt()
+
+      // Deck management
+      'deck.toast.deckSaved':       '💾 Deck saved',                         // ✅ translate
+      'deck.toast.deckLoaded':      '📂 Deck loaded',                        // ✅ translate
+      'deck.toast.loadFailed':      '❌ Load failed',                         // ✅ translate
+      'deck.toast.cleared':         '🗑 Deck cleared',                        // ✅ translate
+      'deck.toast.clearConfirm':    'Clear entire deck?',                     // ✅ translate
+      'deck.toast.newDeck':         '✨ New deck created',                    // ✅ translate
+      'deck.toast.dupName':         '⚠ Duplicate deck name',                 // ✅ translate
+      'deck.toast.dupDeckName':     '⚠ Deck with that name already exists',  // ✅ translate
+      'deck.toast.renamed':         '✏️ Renamed',                             // ✅ translate
+      'deck.toast.deleted':         '🗑️ Deck deleted',                        // ✅ translate
+      'deck.toast.deckFull':        'Deck limit reached (10) — delete a deck first', // ✅ translate
+      'deck.toast.loggedOut':       '🔓 Logged out — local decks cleared',   // ✅ translate
+      'deck.toast.saveFailed':      '❌ Could not save',                      // ✅ translate
+      'deck.toast.noMCSelected':    '❌ Please select a Main Character first', // ✅ translate
+
+      // Card adding
+      'deck.toast.alreadyMC':       '⚠ Already have a Main Character',       // ✅ translate
+      'deck.toast.maxCopies':       '⚠ Max 4 copies (base + alt combined)',  // ✅ translate
+      'deck.toast.storyFull':       '⚠ Story slots already filled',          // ✅ translate
+      'deck.toast.noMCInLib':       'No Main Character cards in library',     // ✅ translate
+      'deck.toast.addMCFirst':      'Add a Main Character from Library',      // ✅ translate
+
+      // Import / export / snapshot
+      'deck.toast.invalidJson':     '❌ Invalid JSON file',                   // ✅ translate
+      'deck.toast.imgImported':     '🖼 Images imported',                     // ✅ translate
+      'deck.toast.zipImported':     '📦 ZIP imported',                        // ✅ translate
+      'deck.toast.zipError':        '❌ ZIP error',                           // ✅ translate
+      'deck.toast.buildSnapshot':   '📸 Building snapshot…',                  // ✅ translate
+      'deck.toast.snapshotFail':    '❌ Snapshot failed',                     // ✅ translate
+      'deck.toast.githubFail':      '⚠ Could not load from GitHub — import JSON manually', // ✅ translate
+      'deck.toast.loadCards':       '⏳ Loading cards…',                      // ✅ translate (same intent as lib.loading)
+
+      // Wishlist
+      'deck.toast.noDeckToSend':    'Nothing in deck to send',                // ✅ translate
+      'deck.toast.openWishlist':    '⭐ Opening Wishlist…',                   // ✅ translate
+      'deck.toast.wishlistFail':    'Failed to send to Wishlist',             // ✅ translate
+
+      // Cloud sync
+      'deck.toast.cloudFail':       '☁️ Cloud save failed — check your connection', // ✅ translate
+      'deck.toast.sharedNotFound':  '⚠ Shared deck not found',               // ✅ translate
+      'deck.toast.sharedLoadFail':  '❌ Deck load failed',                    // ✅ translate
+
+      // Dynamic toasts — use _fmt(key, ...args); %1/%2 replaced positionally
+      'deck.toast.cardsLoaded':     '📚 %1 cards loaded',                     // ✅ translate
+      'deck.toast.storyAdded':      '📖 %1 — %2 tier(s) added',              // ✅ translate
+      'deck.toast.proxyExcluded':   '⚠️ %1 Proxy card(s) excluded from Wishlist', // ✅ translate
+      'deck.toast.snapshotSaved':   '✅ Snapshot saved — %1×%2 px',           // ✅ translate
+      'deck.toast.importedEntries': '📋 Imported %1 entries',                 // ✅ translate
+      'deck.toast.importedSkipped': '📋 Imported %1 entries (%2 not found)',  // ✅ translate
+      'deck.toast.cloudImportOk':   '☁️ Imported %1 decks',                  // ✅ translate
+      'deck.toast.cloudImportFail': '⚠ %1 decks failed to import (limit 10?)', // ✅ translate
+      'deck.toast.cloudSynced':     '☁️ Loaded %1 deck(s) from cloud',       // ✅ translate
+      'deck.toast.cloudSyncFail':   '☁️ Cloud load failed: %1',              // ✅ translate
+      'deck.toast.sharedLoaded':    '📥 Shared deck loaded: %1',             // ✅ translate
+      'deck.toast.importOk':        '✅ Deck imported: %1',                   // ✅ translate
+
+      // Shared deck banner
+      'deck.toast.sharedView':      '📥 Viewing shared deck: %1',            // ✅ translate
+      'deck.toast.sharedImport':    '📥 Import this deck',                    // ✅ translate
+
+      // ── DECK BUILDER MODALS ──────────────────────────────────
+      'deck.modal.fanLeft':   '🃏 %1 left · %2 discarded',                   // ✅ translate
+      'deck.modal.noHand':    'No cards in hand',                             // ✅ translate
+
+      // ── CARD LIBRARY TOASTS ───────────────────────────────────
+      'lib.toast.loadFail':   '⚠ Could not load cards',                      // ✅ translate
+
 
       // ── BATTLE SIMULATOR (battlesim/index.html) ─────────────
 
@@ -210,6 +285,9 @@
       'sim.sceneDeck':     'Scene Deck',                       // ⚠️ review — game zone name
       'sim.sceneArea':     'Scene Area',                       // ⚠️ review — game zone name
       'sim.mainDeck':      'Main Deck',                        // ⚠️ review — game zone name
+
+      // ── BATTLE SIMULATOR CONFIRMS ────────────────────────────
+      'sim.toast.backConfirm': 'Go back to Deck Builder?\n(loaded deck will be reset)', // ✅ translate
     },
 
 
@@ -327,6 +405,80 @@
       'deck.navDeck':      'เด็ค',
       'deck.navAnalysis':  'วิเคราะห์',
 
+      // Analysis panel toggle
+      'deck.analysis.show': '📊 แสดง',
+      'deck.analysis.hide': '📊 ซ่อน',
+
+      // ── DECK BUILDER TOASTS / CONFIRMS ───────────────────────
+
+      // Deck management
+      'deck.toast.deckSaved':       '💾 บันทึกเด็คแล้ว',
+      'deck.toast.deckLoaded':      '📂 โหลดเด็คแล้ว',
+      'deck.toast.loadFailed':      '❌ โหลดไม่สำเร็จ',
+      'deck.toast.cleared':         '🗑 ล้างเด็คแล้ว',
+      'deck.toast.clearConfirm':    'ล้างเด็คทั้งหมดใช่หรือไม่?',
+      'deck.toast.newDeck':         '✨ สร้างเด็คใหม่',
+      'deck.toast.dupName':         '⚠ ชื่อเด็คซ้ำ',
+      'deck.toast.dupDeckName':     '⚠ มีเด็คชื่อนี้อยู่แล้ว',
+      'deck.toast.renamed':         '✏️ เปลี่ยนชื่อแล้ว',
+      'deck.toast.deleted':         '🗑️ ลบเด็คแล้ว',
+      'deck.toast.deckFull':        'ครบ 10 เด็คแล้ว กรุณาลบเด็คก่อน',
+      'deck.toast.loggedOut':       '🔓 ออกจากระบบแล้ว — ล้างเด็คในเครื่องแล้ว',
+      'deck.toast.saveFailed':      '❌ ไม่สามารถบันทึกได้',
+      'deck.toast.noMCSelected':    '❌ กรุณาเลือก Main Character ก่อน',
+
+      // Card adding
+      'deck.toast.alreadyMC':       '⚠ มีการ์ดหลักอยู่แล้ว',
+      'deck.toast.maxCopies':       '⚠ มีได้สูงสุด 4 ใบ (รวม alt)',
+      'deck.toast.storyFull':       '⚠ Slot เรื่องราวเต็มแล้ว',
+      'deck.toast.noMCInLib':       'ไม่มีการ์ดหลักในคลัง',
+      'deck.toast.addMCFirst':      'เพิ่มการ์ดหลักจากคลัง',
+
+      // Import / export / snapshot
+      'deck.toast.invalidJson':     '❌ ไฟล์ JSON ไม่ถูกต้อง',
+      'deck.toast.imgImported':     '🖼 นำเข้าภาพแล้ว',
+      'deck.toast.zipImported':     '📦 นำเข้า ZIP แล้ว',
+      'deck.toast.zipError':        '❌ ข้อผิดพลาด ZIP',
+      'deck.toast.buildSnapshot':   '📸 กำลังสร้าง snapshot…',
+      'deck.toast.snapshotFail':    '❌ Snapshot ไม่สำเร็จ',
+      'deck.toast.githubFail':      '⚠ โหลดจาก GitHub ไม่สำเร็จ — import JSON เอง',
+      'deck.toast.loadCards':       '⏳ กำลังโหลดการ์ด…',
+
+      // Wishlist
+      'deck.toast.noDeckToSend':    'ไม่มีการ์ดในเด็ค',
+      'deck.toast.openWishlist':    '⭐ เปิด Wishlist…',
+      'deck.toast.wishlistFail':    'ส่งไปยัง Wishlist ไม่สำเร็จ',
+
+      // Cloud sync
+      'deck.toast.cloudFail':       '☁️ บันทึก cloud ไม่สำเร็จ — ตรวจสอบการเชื่อมต่อ',
+      'deck.toast.sharedNotFound':  '⚠ ไม่พบเด็คที่แชร์',
+      'deck.toast.sharedLoadFail':  '❌ โหลดเด็คไม่สำเร็จ',
+
+      // Dynamic toasts
+      'deck.toast.cardsLoaded':     '📚 โหลดการ์ด %1 ใบแล้ว',
+      'deck.toast.storyAdded':      '📖 %1 — เพิ่ม %2 tier แล้ว',
+      'deck.toast.proxyExcluded':   '⚠️ ไม่รวมการ์ด Proxy %1 ใบใน Wishlist',
+      'deck.toast.snapshotSaved':   '✅ บันทึก Snapshot แล้ว — %1×%2 px',
+      'deck.toast.importedEntries': '📋 import %1 รายการแล้ว',
+      'deck.toast.importedSkipped': '📋 import %1 รายการ (ไม่พบ %2 รายการ)',
+      'deck.toast.cloudImportOk':   '☁️ นำเข้า %1 เด็คสำเร็จ',
+      'deck.toast.cloudImportFail': '⚠ นำเข้า %1 เด็คไม่สำเร็จ (ครบ 10?)',
+      'deck.toast.cloudSynced':     '☁️ โหลดเด็คจาก cloud %1 เด็ค',
+      'deck.toast.cloudSyncFail':   '☁️ โหลดจาก cloud ไม่สำเร็จ: %1',
+      'deck.toast.sharedLoaded':    '📥 โหลดเด็คที่แชร์แล้ว: %1',
+      'deck.toast.importOk':        '✅ Import เด็คสำเร็จ: %1',
+
+      // Shared deck banner
+      'deck.toast.sharedView':      '📥 กำลังดูเด็คที่แชร์มา: %1',
+      'deck.toast.sharedImport':    '📥 Import เด็คนี้',
+
+      // ── DECK BUILDER MODALS ──────────────────────────────────
+      'deck.modal.fanLeft':   '🃏 เหลือ %1 ใบ · ทิ้งแล้ว %2 ใบ',
+      'deck.modal.noHand':    'ไม่มีการ์ดในมือ',
+
+      // ── CARD LIBRARY TOASTS ───────────────────────────────────
+      'lib.toast.loadFail':   '⚠ โหลดการ์ดไม่สำเร็จ',
+
 
       // ── BATTLE SIMULATOR ─────────────────────────────────────
 
@@ -365,6 +517,9 @@
       'sim.sceneDeck':     'เด็คฉาก',
       'sim.sceneArea':     'โซนฉาก',
       'sim.mainDeck':      'เด็คหลัก',
+
+      // ── BATTLE SIMULATOR CONFIRMS ────────────────────────────
+      'sim.toast.backConfirm': 'กลับไปยัง Deck Builder ใช่ไหม?\n(เด็คที่โหลดไว้จะถูกรีเซ็ต)',
     },
   };
 })();

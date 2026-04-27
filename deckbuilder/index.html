@@ -1024,7 +1024,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
     </div>
     <div style="padding:10px 10px 0;flex-shrink:0;">
       <div class="lib-search-bar">
-        <input class="lib-search-input" id="lib-search-d" placeholder="Search cards..." oninput="renderLibrary()" data-i18n-ph="common.search">
+        <input class="lib-search-input" id="lib-search-d" placeholder="Search cards..." oninput="renderLibrary()">
       </div>
       <!-- Filter row 1: Type + Color -->
       <div class="filter-row">
@@ -1105,7 +1105,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
     <!-- Deck header bar -->
     <div class="deck-hdr">
       <span style="font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--purple-l);white-space:nowrap;letter-spacing:-.02em;">🃏 Deck</span>
-      <input class="deck-name-input" id="deck-name" placeholder="Deck name..." value="My Deck" oninput="scheduleAutoSave()" data-i18n-ph="deck.deckName">
+      <input class="deck-name-input" id="deck-name" placeholder="Deck name..." value="My Deck" oninput="scheduleAutoSave()">
       <div id="color-lock-indicator"></div>
       <button class="hdr-btn danger" onclick="clearDeck()">🗑 Clear</button>
       <button class="hdr-btn primary" onclick="snapshot()">📸 Snapshot</button>
@@ -1218,7 +1218,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
   <div class="mob-page active" id="mob-page-lib">
     <div style="padding:8px 10px 0;flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);">
       <div class="lib-search-bar">
-        <input class="lib-search-input" id="lib-search-m" placeholder="Search cards..." oninput="renderLibrary()" data-i18n-ph="common.search">
+        <input class="lib-search-input" id="lib-search-m" placeholder="Search cards..." oninput="renderLibrary()">
       </div>
       <div class="filter-row" style="margin-bottom:6px;">
         <div class="dd-wrap">
@@ -1296,7 +1296,7 @@ textarea { width:100%; background:var(--surface2); border:1px solid var(--border
   <!-- PAGE: Deck -->
   <div class="mob-page" id="mob-page-deck">
     <div class="deck-hdr">
-      <input class="deck-name-input" id="deck-name-m" placeholder="Deck name..." value="My Deck" oninput="document.getElementById('deck-name').value=this.value" data-i18n-ph="deck.deckName">
+      <input class="deck-name-input" id="deck-name-m" placeholder="Deck name..." value="My Deck" oninput="document.getElementById('deck-name').value=this.value">
       <div id="color-lock-indicator-m"></div>
       <button class="hdr-btn danger" onclick="clearDeck()">🗑</button>
       <button class="hdr-btn primary" onclick="snapshot()">📸</button>
@@ -1418,6 +1418,8 @@ function isProxy(card){ return _officialSets.size > 0 && !_officialSets.has(card
 
 // ── i18n — delegates to centralized /i18n/translations.js via window.i18n ──
 function _dt(key){ return (window.i18n && window.i18n.t(key)) || key; }
+// _fmt(key, arg1, arg2, …) — replaces %1 %2 … in translated string with positional args
+function _fmt(key, ...args){ return _dt(key).replace(/%(\d+)/g, (_, i) => args[+i-1] ?? ''); }
 
 // IndexedDB functions are in db.js (loaded above).
 // state, auto-save, and deck ops live below.
@@ -1442,11 +1444,11 @@ async function _autoSaveNow() {
     if (window._supabase && typeof cloudSaveDeck === 'function') {
       cloudSaveDeck(rec).catch(e => {
         console.warn('Cloud sync fail:', e);
-        toast('☁️ Cloud save failed — check your connection', 'warn');
+        toast(_dt('deck.toast.cloudFail'), 'warn');
       });
     }
   } catch (err) {
-    if (err.name === 'ConstraintError') toast('⚠ ชื่อเด็คซ้ำ', 'warn');
+    if (err.name === 'ConstraintError') toast(_dt('deck.toast.dupName'), 'warn');
     else console.warn('Auto-save failed:', err);
   } finally {
     _autoSaveInFlight = false;
@@ -1547,7 +1549,7 @@ async function loadDeckFromDB(id) {
 
 async function createNewDeck() {
   const decks = await dbGetAllDecks();
-  if (decks.length >= 10) { toast('ครบ 10 เด็คแล้ว กรุณาลบเด็คก่อน', 'warn'); return; }
+  if (decks.length >= 10) { toast(_dt('deck.toast.deckFull'), 'warn'); return; }
   let name = 'New Deck';
   let n = 2;
   const names = decks.map(d => d.name);
@@ -1559,7 +1561,7 @@ async function createNewDeck() {
   if ($('deck-name-m')) $('deck-name-m').value = name;
   renderMC(); renderMain(); renderScene(); renderStory(); updateSidebar(); renderLibrary();
   await _refreshDeckDropdown();
-  toast('✨ สร้างเด็คใหม่', 'ok');
+  toast(_dt('deck.toast.newDeck'), 'ok');
 }
 
 async function startRenameDeck(id, currentName, isMob) {
@@ -1584,7 +1586,7 @@ async function startRenameDeck(id, currentName, isMob) {
     // Uniqueness check
     const decks = await dbGetAllDecks();
     if (decks.some(d => d.id !== id && d.name === newName)) {
-      toast('⚠ มีเด็คชื่อนี้อยู่แล้ว', 'warn'); input.focus(); return;
+      toast(_dt('deck.toast.dupDeckName'), 'warn'); input.focus(); return;
     }
     await dbRenameDeck(id, newName);
     if (window._supabase && typeof cloudRenameDeck === 'function') cloudRenameDeck(id, newName);
@@ -1593,7 +1595,7 @@ async function startRenameDeck(id, currentName, isMob) {
       if ($('deck-name-m')) $('deck-name-m').value = newName;
     }
     _refreshDeckDropdown();
-    toast('✏️ เปลี่ยนชื่อแล้ว', 'ok');
+    toast(_dt('deck.toast.renamed'), 'ok');
   }
 
   function cancelRename() { _refreshDeckDropdown(); }
@@ -1628,7 +1630,7 @@ async function _doDeleteDeck(id) {
     renderMC(); renderMain(); renderScene(); renderStory(); updateSidebar(); renderLibrary();
   }
   _refreshDeckDropdown();
-  toast('🗑️ ลบเด็คแล้ว', 'ok');
+  toast(_dt('deck.toast.deleted'), 'ok');
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1669,8 +1671,8 @@ async function _doMigrateSelected() {
     if (result) done++; else fail++;
   }
   closeMigrateModal();
-  if (done) toast(`☁️ นำเข้า ${done} เด็คสำเร็จ`, 'ok');
-  if (fail) toast(`⚠ นำเข้า ${fail} เด็คไม่สำเร็จ (ครบ 10?)`, 'warn');
+  if (done) toast(_fmt('deck.toast.cloudImportOk', done), 'ok');
+  if (fail) toast(_fmt('deck.toast.cloudImportFail', fail), 'warn');
 }
 
 function closeMigrateModal() {
@@ -1737,11 +1739,11 @@ async function _doCloudSync() {
       await loadDeckFromDB(sorted[0].id);
     }
 
-    if (synced > 0) toast(`☁️ โหลดเด็คจาก cloud ${synced} เด็ค`, 'ok');
+    if (synced > 0) toast(_fmt('deck.toast.cloudSynced', synced), 'ok');
     console.log('[cloud] _syncFromCloud: done');
   } catch (err) {
     console.error('[cloud] _syncFromCloud error:', err);
-    toast('☁️ โหลดจาก cloud ไม่สำเร็จ: ' + err.message, 'warn');
+    toast(_fmt('deck.toast.cloudSyncFail', err.message), 'warn');
   }
 }
 
@@ -1770,7 +1772,7 @@ window._onLogout = async () => {
   if ($('deck-name-m')) $('deck-name-m').value = 'My Deck';
   renderMC(); renderMain(); renderScene(); renderStory(); updateSidebar(); renderLibrary();
   if (typeof _refreshDeckDropdown === 'function') _refreshDeckDropdown();
-  toast('🔓 ออกจากระบบแล้ว — ล้างเด็คในเครื่องแล้ว', 'ok');
+  toast(_dt('deck.toast.loggedOut'), 'ok');
 };
 
 // Share modal + Export/Import modal functions → modals.js (loaded at end of body)
@@ -1782,7 +1784,7 @@ async function _checkSharedDeck() {
 
   try {
     const res = await fetch(`/api/decks/${shareId}`);
-    if (!res.ok) { toast('⚠ ไม่พบเด็คที่แชร์', 'warn'); return; }
+    if (!res.ok) { toast(_dt('deck.toast.sharedNotFound'), 'warn'); return; }
     const { deck, name } = await res.json();
 
     // Show read-only banner
@@ -1796,8 +1798,8 @@ async function _checkSharedDeck() {
       padding:10px 16px; box-shadow:0 -2px 16px rgba(0,0,0,0.5);
     `;
     banner.innerHTML = `
-      <span>📥 กำลังดูเด็คที่แชร์มา: <strong>${name}</strong></span>
-      <button onclick="_importSharedDeck()" style="background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:8px;padding:4px 12px;font-family:inherit;font-size:0.75rem;font-weight:800;cursor:pointer;">📥 Import เด็คนี้</button>
+      <span>${_fmt('deck.toast.sharedView', `<strong>${name}</strong>`)}</span>
+      <button onclick="_importSharedDeck()" style="background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:#fff;border-radius:8px;padding:4px 12px;font-family:inherit;font-size:0.75rem;font-weight:800;cursor:pointer;">${_dt('deck.toast.sharedImport')}</button>
       <button onclick="_closeSharedBanner()" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:1rem;cursor:pointer;padding:0 4px;">✕</button>
     `;
     document.body.appendChild(banner);
@@ -1815,11 +1817,11 @@ async function _checkSharedDeck() {
     $('deck-name').value = name;
     if ($('deck-name-m')) $('deck-name-m').value = name;
     renderMC(); renderMain(); renderScene(); renderStory(); updateSidebar(); renderLibrary();
-    toast('📥 โหลดเด็คที่แชร์แล้ว: ' + name, 'ok');
+    toast(_fmt('deck.toast.sharedLoaded', name), 'ok');
 
   } catch(e) {
     console.warn('Shared deck load failed:', e);
-    toast('❌ โหลดเด็คไม่สำเร็จ', 'err');
+    toast(_dt('deck.toast.sharedLoadFail'), 'err');
   }
 }
 
@@ -1827,7 +1829,7 @@ async function _importSharedDeck() {
   const data = window._sharedDeckData;
   if (!data) return;
   const decks = await dbGetAllDecks();
-  if (decks.length >= 10) { toast('ครบ 10 เด็คแล้ว กรุณาลบเด็คก่อน', 'warn'); return; }
+  if (decks.length >= 10) { toast(_dt('deck.toast.deckFull'), 'warn'); return; }
   // Ensure unique name
   let name = data.name;
   let n = 2;
@@ -1843,7 +1845,7 @@ async function _importSharedDeck() {
   const url = new URL(location.href);
   url.searchParams.delete('share');
   history.replaceState({}, '', url.toString());
-  toast('✅ Import เด็คสำเร็จ: ' + name, 'ok');
+  toast(_fmt('deck.toast.importOk', name), 'ok');
 }
 
 function _closeSharedBanner() {
@@ -2062,7 +2064,7 @@ function applyLibrary(cards, silent=false) {
   buildSetDropdowns();
   renderLibrary();
   updateSidebar();
-  if (!silent) toast(`📚 ${cards.length} cards loaded`,'ok');
+  if (!silent) toast(_fmt('deck.toast.cardsLoaded', cards.length),'ok');
 }
 
 function buildSetDropdowns() {
@@ -2101,7 +2103,7 @@ function toggleAltFilter() {
   if (_altMode === 'all')      _altMode = 'no-alt';
   else if (_altMode === 'no-alt') _altMode = 'alt-only';
   else                         _altMode = 'all';
-  const label = {'all':'All','no-alt':'No ※','alt-only':'※ Only'}[_altMode];
+  const label = _dt({'all':'lib.altAll','no-alt':'lib.altNo','alt-only':'lib.altOnly'}[_altMode]);
   ['alt-toggle-btn-d','alt-toggle-btn-m'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.textContent=label;
   });
@@ -2119,7 +2121,7 @@ function clearAllFilters() {
   // Reset alt mode
   _altMode='all';
   ['alt-toggle-btn-d','alt-toggle-btn-m'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.textContent='All';
+    const el=document.getElementById(id); if(el) el.textContent=_dt('lib.altAll');
   });
   updateFilterLabels();
   renderLibrary();
@@ -2250,7 +2252,7 @@ function getDeckMainColor() {
 function addCard(card) {
   const type=card.type;
   if (type==='Main Character') {
-    if (state.mc) { toast('⚠ Already have a Main Character','warn'); return; }
+    if (state.mc) { toast(_dt('deck.toast.alreadyMC'),'warn'); return; }
     state.mc={...card}; renderMC(); updateSidebar(); toast(`⭐ ${card.name}`,'ok');
     scheduleAutoSave(); return;
   }
@@ -2273,17 +2275,17 @@ function addCard(card) {
     });
     if (added) {
       renderStory(); updateSidebar();
-      toast(`📖 ${storyName} — ${added} tier(s) added`,'ok');
+      toast(_fmt('deck.toast.storyAdded', storyName, added),'ok');
       scheduleAutoSave();
     } else {
-      toast('⚠ Story slots already filled','warn');
+      toast(_dt('deck.toast.storyFull'),'warn');
     }
     return;
   }
   const ex=state.main.find(c=>c.id===card.id);
   // Check combined qty (base + all alt art versions) does not exceed 4
   const combinedTotal = getMainQtyByBaseId(card.id);
-  if (combinedTotal >= 4) { toast('⚠ Max 4 copies (base + alt combined)','warn'); return; }
+  if (combinedTotal >= 4) { toast(_dt('deck.toast.maxCopies'),'warn'); return; }
   if (ex) { ex.qty++; }
   else state.main.push({...card,qty:1});
   renderMain(); updateSidebar(); toast(`🃏 ${card.name}`,'ok');
@@ -2311,10 +2313,10 @@ function removeCard(zone, id) {
   updateSidebar(); renderLibrary(); scheduleAutoSave();
 }
 function clearDeck() {
-  if(!confirm('Clear entire deck?')) return;
+  if(!confirm(_dt('deck.toast.clearConfirm'))) return;
   state.mc=null; state.main=[]; state.scene=[]; state.story=[null,null,null,null];
   renderMC(); renderMain(); renderScene(); renderStory(); updateSidebar(); renderLibrary();
-  toast('🗑 Deck cleared','ok');
+  toast(_dt('deck.toast.cleared'),'ok');
   scheduleAutoSave();
 }
 
@@ -2519,9 +2521,9 @@ function renderMC() {
 function pickMC() {
   // Filter library to MC and let user pick from zoom
   const mcs=state.library.filter(c=>c.type==='Main Character');
-  if(!mcs.length){toast('No Main Character cards in library','warn');return;}
+  if(!mcs.length){toast(_dt('deck.toast.noMCInLib'),'warn');return;}
   // show first available
-  toast('Add a Main Character from Library','ok');
+  toast(_dt('deck.toast.addMCFirst'),'ok');
 }
 
 function renderMain() {
@@ -2628,7 +2630,7 @@ function importJSON(input) {
   const reader=new FileReader();
   reader.onload=e=>{
     try { applyLibrary(parseCardData(JSON.parse(e.target.result))); }
-    catch { toast('❌ Invalid JSON file','err'); }
+    catch { toast(_dt('deck.toast.invalidJson'),'err'); }
   };
   reader.readAsText(file); input.value='';
 }
@@ -2640,7 +2642,7 @@ function importImages(input) {
     const url=URL.createObjectURL(file); card.imageUrl=url;
   });
   renderLibrary(); renderMain(); renderScene(); renderStory(); renderMC();
-  toast('🖼 Images imported','ok'); input.value='';
+  toast(_dt('deck.toast.imgImported'),'ok'); input.value='';
 }
 async function importZip(input) {
   const file=input.files[0]; if(!file) return;
@@ -2659,8 +2661,8 @@ async function importZip(input) {
     });
     await Promise.all(tasks);
     renderLibrary(); renderMain(); renderScene(); renderStory(); renderMC();
-    toast('📦 ZIP imported','ok');
-  } catch(e){ toast('❌ ZIP error','err'); }
+    toast(_dt('deck.toast.zipImported'),'ok');
+  } catch(e){ toast(_dt('deck.toast.zipError'),'err'); }
   input.value='';
 }
 function saveDeck() {
@@ -2669,7 +2671,7 @@ function saveDeck() {
   const a=document.createElement('a');
   a.href='data:application/json,'+encodeURIComponent(JSON.stringify(data,null,2));
   a.download=name.replace(/\s+/g,'_')+'.json'; a.click();
-  toast('💾 Deck saved','ok');
+  toast(_dt('deck.toast.deckSaved'),'ok');
 }
 function sendToWishlist() {
   const all = [];
@@ -2677,26 +2679,26 @@ function sendToWishlist() {
   state.scene.forEach(c => all.push({ c, id: c.id, needed: c.qty || 1, owned: 0 }));
   state.story.forEach(c => { if (c) all.push({ c, id: c.id, needed: 1, owned: 0 }); });
   if (state.mc) all.push({ c: state.mc, id: state.mc.id, needed: 1, owned: 0 });
-  if (!all.length) { toast('Nothing in deck to send', 'warn'); return; }
+  if (!all.length) { toast(_dt('deck.toast.noDeckToSend'), 'warn'); return; }
   const proxyCount = all.filter(e => isProxy(e.c)).length;
   const inject = all.filter(e => !isProxy(e.c)).map(({ id, needed, owned }) => ({ id, needed, owned }));
-  if (proxyCount) toast(`⚠️ ${proxyCount} Proxy card(s) excluded from Wishlist`, 'warn');
+  if (proxyCount) toast(_fmt('deck.toast.proxyExcluded', proxyCount), 'warn');
   if (!inject.length) return;
   try {
     localStorage.setItem('mlp-wishlist-inject', JSON.stringify(inject));
     window.open('../wishlist/', '_blank');
-    toast('⭐ Opening Wishlist…', 'ok');
-  } catch(e) { toast('Failed to send to Wishlist', 'err'); }
+    toast(_dt('deck.toast.openWishlist'), 'ok');
+  } catch(e) { toast(_dt('deck.toast.wishlistFail'), 'err'); }
 }
 function sendToBattleSim() {
-  if(!state.mc){ toast('❌ กรุณาเลือก Main Character ก่อน','err'); return; }
+  if(!state.mc){ toast(_dt('deck.toast.noMCSelected'),'err'); return; }
   const name=($('deck-name')||{}).value||'My Deck';
   const data={deckName:name,mc:state.mc,main:state.main,scene:state.scene,story:state.story};
   try {
     localStorage.setItem('mlp_preload_deck', JSON.stringify(data));
     window.location.href='../battlesim/';
   } catch(e) {
-    toast('❌ ไม่สามารถบันทึกได้','err');
+    toast(_dt('deck.toast.saveFailed'),'err');
   }
 }
 function loadDeck(input) {
@@ -2713,9 +2715,9 @@ function loadDeck(input) {
       state.scene=(data.scene||[]).map(restore).filter(Boolean);
       state.story=(data.story||[null,null,null,null]).map(c=>c?{...(libMap[c.id]||c)}:null);
       renderMC(); renderMain(); renderScene(); renderStory(); updateSidebar(); renderLibrary();
-      toast('📂 Deck loaded','ok');
+      toast(_dt('deck.toast.deckLoaded'),'ok');
       _currentDeckId = null; scheduleAutoSave();
-    } catch { toast('❌ Load failed','err'); }
+    } catch { toast(_dt('deck.toast.loadFailed'),'err'); }
   };
   reader.readAsText(file); input.value='';
 }
@@ -2784,7 +2786,7 @@ function _parseAndLoadDeckText(text) {
     if ($('deck-name-m')) $('deck-name-m').value = deckName;
   }
   renderMC(); renderMain(); renderScene(); renderStory(); updateSidebar(); renderLibrary();
-  toast(skipped ? `📋 Imported ${added} entries (${skipped} not found)` : `📋 Imported ${added} entries`, skipped ? 'warn' : 'ok');
+  toast(skipped ? _fmt('deck.toast.importedSkipped', added, skipped) : _fmt('deck.toast.importedEntries', added), skipped ? 'warn' : 'ok');
   _currentDeckId = null; scheduleAutoSave();
 }
 function _checkProxyExport() {
@@ -3068,7 +3070,7 @@ function toggleAnalysisPanel() {
     panel.style.overflow   = 'hidden';
     panel.style.borderLeft = 'none';
     panel.style.padding    = '0';
-    if (btn) btn.textContent = '📊 Show';
+    if (btn) btn.textContent = _dt('deck.analysis.show');
   } else {
     panel.dataset.collapsed = 'false';
     panel.style.width      = '';
@@ -3076,7 +3078,7 @@ function toggleAnalysisPanel() {
     panel.style.overflow   = '';
     panel.style.borderLeft = '';
     panel.style.padding    = '';
-    if (btn) btn.textContent = '📊 Hide';
+    if (btn) btn.textContent = _dt('deck.analysis.hide');
     requestAnimationFrame(() => renderAnalysis());
   }
 }
@@ -3091,7 +3093,7 @@ function toggleImportBar() {
 // SNAPSHOT — Fixed: capture deck-scroll only, no nav overlap
 // ═══════════════════════════════════════════════════════
 function snapshot() {
-  toast('📸 Building snapshot...', 'ok');
+  toast(_dt('deck.toast.buildSnapshot'), 'ok');
 
   // ── Canvas dimensions: 900×1200 (3:4 portrait), export at 2× = 1800×2400px ──
   const CW = 900, CH = 1200, SCALE = 2;
@@ -3260,10 +3262,10 @@ function snapshot() {
         a.href = canvas.toDataURL('image/png');
         a.download = name + '_snapshot.png';
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        toast('✅ Snapshot saved — ' + CW*SCALE + '×' + CH*SCALE + 'px', 'ok');
+        toast(_fmt('deck.toast.snapshotSaved', CW*SCALE, CH*SCALE), 'ok');
       }).catch(err => {
         document.body.removeChild(iframe);
-        toast('❌ Snapshot failed: ' + err.message, 'err');
+        toast(_fmt('deck.toast.snapshotFail', err.message), 'err');
         console.error(err);
       });
     }, 600);
@@ -3281,7 +3283,7 @@ function snapshot() {
 // ═══════════════════════════════════════════════════════
 async function preloadAssets() {
   if (location.protocol==='file:') { showFileProtocolBanner(); return; }
-  toast('⏳ Loading cards...','ok');
+  toast(_dt('deck.toast.loadCards'),'ok');
   const SOURCES=[
     {base:'..',label:'GitHub Pages'},
     {base:'https://raw.githubusercontent.com/auac131/MLP-DB/main',label:'GitHub Raw (main)'},
@@ -3302,11 +3304,11 @@ async function preloadAssets() {
       const cards=parseCardData(data);
       cards.forEach(card=>{ card.imageUrl=src.base+'/cards/'+card.id+'.webp'; });
       applyLibrary(cards,true);
-      toast(`📚 ${cards.length} cards loaded`,'ok');
+      toast(_fmt('deck.toast.cardsLoaded', cards.length),'ok');
       return;
     } catch(e){ console.warn(src.label+' failed:',e.message); }
   }
-  toast('⚠ Could not load from GitHub — import JSON manually','warn');
+  toast(_dt('deck.toast.githubFail'),'warn');
 }
 function showFileProtocolBanner() {
   const b=document.createElement('div');
