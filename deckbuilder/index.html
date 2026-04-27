@@ -3095,15 +3095,26 @@ function toggleImportBar() {
 function snapshot() {
   toast(_dt('deck.toast.buildSnapshot'), 'ok');
 
-  // ── Canvas dimensions: 900×1200 (3:4 portrait), export at 2× = 1800×2400px ──
-  const CW = 900, CH = 1200, SCALE = 2;
-  const PAD = 28;
-
   const deckName = (($('deck-name') || $('deck-name-m') || {}).value || 'My Deck');
   const mainTotal  = state.main.reduce((s,c) => s + c.qty, 0);
   const sceneTotal = state.scene.reduce((s,c) => s + c.qty, 0);
   const storyFilled = state.story.filter(Boolean).length;
   const sortedMain = sortMainCards(state.main);
+
+  // Adaptive main grid: 6 cols × N rows. Defaults to 3 rows (18 slots);
+  // adds one row per extra 6 unique cards so all entries are captured.
+  const MAIN_COLS = 6;
+  const mainRows = Math.max(3, Math.ceil(sortedMain.length / MAIN_COLS));
+  const MAIN_SLOTS = mainRows * MAIN_COLS;
+  // Card aspect 5:7 inside a 6-col grid at CW=900 with 28px side padding and
+  // 6px gaps yields ~190px tall tiles — round to 196px including the row gap.
+  const ROW_HEIGHT = 196;
+
+  // Canvas: 900×1200 base (3:4 portrait); grows vertically to fit extra rows.
+  // Export at 2× → minimum 1800×2400px.
+  const CW = 900, SCALE = 2;
+  const CH = 1200 + (mainRows - 3) * ROW_HEIGHT;
+  const PAD = 28;
 
   const TYPE_ICON = {Character:'🐴', Event:'⚡', Item:'🎁', Scene:'🎭', Story:'📜', 'Main Character':'⭐'};
   const TYPE_DOT  = {Character:'#7c3aed', Event:'#f97316', Item:'#16a34a'};
@@ -3137,11 +3148,10 @@ function snapshot() {
     </div>`;
   }
 
-  // ── Main grid: 6 cols × 3 rows = 18 slots ──
-  const MAIN_SLOTS = 18;
+  // ── Main grid: 6 cols × N rows (adaptive — see MAIN_SLOTS above) ──
   const mainCards = sortedMain.slice(0, MAIN_SLOTS);
   while (mainCards.length < MAIN_SLOTS) mainCards.push(null);
-  const mainGridHTML = `<div style="padding:0 ${PAD}px 6px;display:grid;grid-template-columns:repeat(6,1fr);gap:6px;flex-shrink:0;">
+  const mainGridHTML = `<div style="padding:0 ${PAD}px 6px;display:grid;grid-template-columns:repeat(${MAIN_COLS},1fr);gap:6px;flex-shrink:0;">
     ${mainCards.map(c => c
       ? makeTileHTML(c)
       : `<div style="aspect-ratio:5/7;border-radius:6px;background:#f5f2fc;border:1px dashed #d4c8f0;"></div>`
