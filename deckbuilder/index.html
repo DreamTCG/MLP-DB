@@ -3268,9 +3268,12 @@ function snapshot() {
       }).then(canvas => {
         document.body.removeChild(iframe);
         const name = deckName.replace(/\s+/g,'_') || 'deck';
+        // Timestamp keeps each filename unique — some browsers (esp. mobile)
+        // serve a cached previous file when re-downloading the same name.
+        const ts = new Date().toISOString().replace(/[-:T]/g,'').slice(0,14);
         const a = document.createElement('a');
         a.href = canvas.toDataURL('image/png');
-        a.download = name + '_snapshot.png';
+        a.download = `${name}_snapshot_${ts}.png`;
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         toast(_fmt('deck.toast.snapshotSaved', CW*SCALE, CH*SCALE), 'ok');
       }).catch(err => {
