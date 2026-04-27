@@ -6,6 +6,8 @@
 
   const $ = id => document.getElementById(id);
   const getState = () => window.state;
+  const _dt = key => (window.i18n && window.i18n.t(key)) || key;
+  const _fmt = (key, ...args) => _dt(key).replace(/%(\d+)/g, (_, i) => args[+i-1] ?? '');
 
   // ── Unified IO modal (Export | Share | Import) ──────────────────────────────
 
@@ -225,13 +227,13 @@
     if (!stage) return;
 
     // Update pile counter
-    if (counter) counter.textContent = `🃏 ${_fanDeck.length} left · ${_fanDiscard.length} discarded`;
+    if (counter) counter.textContent = _fmt('deck.modal.fanLeft', _fanDeck.length, _fanDiscard.length);
 
     // Clear and rebuild fan
     stage.innerHTML = '';
     const n = _fanHand.length;
     if (n === 0) {
-      stage.innerHTML = '<div style="color:rgba(255,255,255,.5);font-size:0.85rem;margin:auto;">No cards in hand</div>';
+      stage.innerHTML = `<div style="color:rgba(255,255,255,.5);font-size:0.85rem;margin:auto;">${_dt('deck.modal.noHand')}</div>`;
       return;
     }
 

@@ -799,7 +799,8 @@
     }).then(({ error }) => {
       if (error) {
         console.error('[auth] signInWithOAuth error:', error);
-        alert(t('auth.loginFailed') + error.message + '\n\n(ตรวจสอบว่าเปิดใช้งาน ' + provider + ' provider ใน Supabase Dashboard แล้ว)');
+        console.warn('[auth] enable ' + provider + ' provider in Supabase Dashboard');
+        alert(t('auth.loginFailed') + error.message);
       }
     });
   }

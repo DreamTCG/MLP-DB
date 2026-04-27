@@ -193,7 +193,7 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
     <!-- LEFT: filters + grid -->
     <div id="lib-panel">
       <div class="lib-filters">
-        <input class="lib-search" id="lib-search" placeholder="Search cards..." oninput="_debouncedRenderGrid()" data-i18n-ph="common.search">
+        <input class="lib-search" id="lib-search" placeholder="Search cards..." oninput="_debouncedRenderGrid()">
         <div class="filter-row">
           <div class="dd-wrap">
             <button class="dd-btn" id="lib-filter-type-btn" onclick="toggleDD('dd-type')">Type <span style="font-size:0.5rem">▼</span></button>
@@ -250,8 +250,8 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
               </div>
             </div>
           </div>
-          <button class="sort-btn" id="lib-sort-btn" onclick="toggleSortLib()" title="Toggle sort order" data-i18n="lib.sortDesc">↓ Sort</button>
-          <button class="sort-btn" id="lib-alt-btn" onclick="toggleAltLib()" title="Toggle alt art" data-i18n="lib.altAll">All ※</button>
+          <button class="sort-btn" id="lib-sort-btn" onclick="toggleSortLib()" title="Toggle sort order">↓ Sort</button>
+          <button class="sort-btn" id="lib-alt-btn" onclick="toggleAltLib()" title="Toggle alt art">All ※</button>
           <button class="sort-btn" onclick="clearFilters()" title="Clear filters">✕</button>
         </div>
       </div>
@@ -645,7 +645,7 @@ async function loadCards(){
       return;
     }catch(e){console.warn('Load failed:',e.message);}
   }
-  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--dim);font-size:0.75rem;">⚠ Could not load cards</div>';
+  grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--dim);font-size:0.75rem;">${_lt('lib.toast.loadFail')}</div>`;
 }
 
 function _renderLibI18n(){
